@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>품 · 두 살 딸을 안을 때</title>
+<meta name="description" content="두 살 딸을 꼭 안았을 때의 느낌을, 누르고 있는 동안만 이어지는 하나의 화면으로.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
+<style>
+/* 품 (Poom): the feeling of holding a two-year-old tightly.
+   Press and hold: two hearts fall into one rhythm, warmth spreads, the world goes quiet.
+   Let go: it returns slowly, and a faint ring of this embrace stays behind. */
+:root {
+  color-scheme: light;
+  --milk: #f9f1e8;
+  --milk-2: #f4e6d8;
+  --ink: #4a3126;
+  --ink-2: #6b4c3d;
+  --rose: #c9806a;
+  --focus: #8a4b36;
+  --font: "Gowun Batang", "Nanum Myeongjo", "Batang", serif;
+  --slow: cubic-bezier(.25,.1,.25,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--milk);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+#stage {
+  position: fixed; inset: 0;
+  touch-action: none;
+  user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+#stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#world { will-change: filter, opacity; }
+
+#hold {
+  position: absolute;
+  border-radius: 50%;
+  outline: none;
+  -webkit-touch-callout: none;
+  user-select: none; -webkit-user-select: none;
+}
+/* focus is drawn on the canvas as the circle of arms itself (darker, 2.5px), so it moves with the embrace.
+   This outline is a fallback for forced-colors mode, where canvas colours are ignored. */
+@media (forced-colors: active) { #hold:focus-visible { outline: 3px solid CanvasText; outline-offset: 4px; } }
+
+/* words: few, small, like a wall label */
+.label {
+  position: fixed; top: 0; left: 0;
+  padding: 28px 24px 0 28px;
+  max-width: min(440px, 64vw);
+  pointer-events: none;
+  transition: opacity 2.4s var(--slow);
+}
+.label h1 {
+  margin: 0;
+  font-size: 32px; font-weight: 700; letter-spacing: .02em; line-height: 1.1;
+}
+.label h1 small {
+  display: block; margin-top: 8px;
+  font-size: 16px; font-weight: 400; color: var(--ink-2); letter-spacing: .01em;
+}
+.label p {
+  margin: 14px 0 0;
+  font-size: 16px; line-height: 1.75; color: var(--ink-2);
+}
+
+.corner {
+  position: fixed; top: 0; right: 0;
+  padding: 26px 24px 0 12px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+}
+.clock { display: flex; align-items: center; gap: 10px; pointer-events: none; transition: filter 2s var(--slow), opacity 2s var(--slow); }
+.clock svg { width: 40px; height: 40px; overflow: visible; }
+.clock .t { font-size: 16px; color: var(--ink-2); font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+body.holding .clock { filter: blur(.6px); }
+.quiet {
+  font: inherit; font-size: 16px; color: var(--ink-2);
+  background: transparent; border: 0; padding: 6px 2px;
+  border-bottom: 1px solid rgba(107,76,61,.35);
+  cursor: pointer;
+}
+.quiet:hover { color: var(--ink); border-bottom-color: var(--ink-2); }
+.quiet:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
+.quiet-row { display: flex; gap: 16px; }
+
+#record {
+  position: fixed; right: 20px; top: 132px;
+  width: min(300px, calc(100vw - 40px));
+  z-index: 5;
+  background: #fcf7f1;
+  border: 1px solid rgba(201,128,106,.28);
+  border-radius: 18px;
+  padding: 18px 20px 16px;
+  box-shadow: 0 18px 50px -24px rgba(120,60,40,.35);
+  font-size: 16px; line-height: 1.7; color: var(--ink);
+}
+#record[hidden] { display: none; }
+#record dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 2px 14px; }
+#record dt { color: var(--ink-2); }
+#record dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; }
+#record .foot { margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+.note {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  padding: 0 86px 34px;
+  text-align: center;
+  pointer-events: none;
+}
+#line {
+  margin: 0; min-height: 1.6em;
+  font-size: 18px; line-height: 1.6; color: var(--ink);
+  transition: opacity 1.4s var(--slow);
+}
+#line.fade { opacity: 0; }
+#beats {
+  margin: 6px 0 0;
+  font-size: 16px; color: var(--ink-2); font-variant-numeric: tabular-nums; letter-spacing: .02em;
+}
+#beats b { font-weight: 400; color: var(--ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 560px) {
+  .label { padding: 20px 16px 0 18px; max-width: 62vw; }
+  .label h1 { font-size: 28px; }
+  .label p { margin-top: 10px; }
+  .corner { padding: 20px 16px 0 8px; }
+  .quiet-row { position: fixed; right: 16px; bottom: 22px; gap: 14px; }
+  #record { top: auto; bottom: 72px; right: 16px; width: calc(100vw - 32px); }
+  .note { padding: 0 16px 96px; }
+  #line { font-size: 17px; }
+}
+@media (max-height: 560px) {
+  .label p { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .label, .clock, #line { transition: none; }
+  body.holding .clock { filter: none; }
+}
+</style>
+</head>
+<body>
+
+<main id="stage" aria-describedby="wall">
+  <canvas id="world" aria-hidden="true"></canvas>
+  <canvas id="embrace" aria-hidden="true"></canvas>
+  <div id="hold" role="button" tabindex="0"
+       aria-label="안아 주기 — 누르고 있는 동안 안고 있어요"
+       aria-describedby="wall"></div>
+</main>
+
+<header class="label">
+  <h1>품<small>두 살 딸을 꼭 안았을 때</small></h1>
+  <p id="wall">누르고 있는 동안, 안고 있어요.<br>작은 심장이 큰 심장에 기대어 천천히 숨을 맞춥니다.</p>
+</header>
+
+<div class="corner">
+  <div class="clock" aria-hidden="true">
+    <svg viewBox="-20 -20 40 40">
+      <circle r="18" fill="none" stroke="#c9a08d" stroke-width="1"/>
+      <circle r="1.6" fill="#8a5a46"/>
+      <line id="hand" x1="0" y1="3" x2="0" y2="-15" stroke="#8a5a46" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    <span class="t" id="felt">--:--:--</span>
+  </div>
+  <div class="quiet-row">
+    <button class="quiet" id="soundBtn" type="button" aria-pressed="false">심장 소리 꺼짐</button>
+    <button class="quiet" id="recordBtn" type="button" aria-expanded="false" aria-controls="record">기록</button>
+  </div>
+</div>
+
+<section id="record" hidden aria-label="안아 준 기록">
+  <dl>
+    <dt>안아 준 횟수</dt><dd id="rCount">0번</dd>
+    <dt>함께 안고 있던 시간</dt><dd id="rTotal">0초</dd>
+    <dt>가장 오래 안은 시간</dt><dd id="rLong">0초</dd>
+    <dt>처음보다 자란 만큼</dt><dd id="rGrow">0%</dd>
+  </dl>
+  <div class="foot">
+    <button class="quiet" id="resetBtn" type="button">기록 지우기</button>
+    <button class="quiet" id="closeBtn" type="button">닫기</button>
+  </div>
+</section>
+
+<footer class="note">
+  <p id="line">꾹 누르고, 안아 주세요</p>
+  <p id="beats">작은 심장 <b id="bpmC">118</b> · 큰 심장 <b id="bpmP">64</b></p>
+</footer>
+<div class="sr" aria-live="polite" id="live"></div>
+
+<script>
+(() => {
+  'use strict';
+  /* ---------- memory (she keeps growing) ---------- */
+  const KEY = 'poom.v1';
+  const fresh = () => ({ count: 0, totalMs: 0, longestMs: 0, growth: 1, rings: [] });
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return fresh();
+      const d = Object.assign(fresh(), JSON.parse(raw));
+      if (!Array.isArray(d.rings)) d.rings = [];
+      if (!(d.growth >= 1 && d.growth < 3)) d.growth = 1;
+      return d;
+    } catch (e) { return fresh(); }
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) {} }
+  const mem = load();
+  const returning = mem.count > 0;
+
+  /* ---------- elements ---------- */
+  const $ = id => document.getElementById(id);
+  const stage = $('stage'), worldC = $('world'), embC = $('embrace'), holdEl = $('hold');
+  const wctx = worldC.getContext('2d'), ectx = embC.getContext('2d');
+  const lineEl = $('line'), live = $('live'), feltEl = $('felt'), hand = $('hand');
+  const bpmCEl = $('bpmC'), bpmPEl = $('bpmP');
+  const soundBtn = $('soundBtn'), recordBtn = $('recordBtn'), recordEl = $('record');
+
+  const rmq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let RM = rmq.matches;
+  if (rmq.addEventListener) rmq.addEventListener('change', e => { RM = e.matches; });
+
+  /* ---------- layout ---------- */
+  let W = 0, H = 0, DPR = 1, cx = 0, cy = 0, R = 100;
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    for (const c of [worldC, embC]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); }
+    cx = W / 2;
+    cy = H * (W < 560 ? 0.53 : 0.54);
+    R = Math.min(W * (W < 560 ? 0.27 : 0.2), H * 0.21);
+    const s = R * 2.3;
+    Object.assign(holdEl.style, { width: s + 'px', height: s + 'px', left: (cx - s / 2) + 'px', top: (cy - s / 2) + 'px' });
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  /* ---------- state ---------- */
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const S = {
+    holding: false, holdStart: 0, holdT: 0,
+    h: 0,          // how held (0..1)
+    w: 0,          // warmth
+    c: 0,          // heart convergence
+    nestle: 0,
+    phP: 0, phC: .37, brP: 0, brC: 0,
+    growth: mem.growth, growthShown: returning ? Math.max(1, mem.growth - 0.02) : mem.growth,
+    felt: 0, last: performance.now(), now: 0,
+    squeeze: null, wriggle: null, nextSqueeze: 0, nextWriggle: 0,
+    ripples: [], kicks: [], scent: [],
+    synced: false, releasedAt: -1, lastHoldMs: 0, lingerRing: 0,
+  };
+  const feltStart = new Date();
+
+  /* ambient world: dust in afternoon light */
+  const motes = [];
+  for (let i = 0; i < 46; i++) motes.push({
+    x: Math.random(), y: Math.random(), r: 1 + Math.random() * 2.6,
+    vx: (Math.random() - .5) * .006, vy: -.003 - Math.random() * .006,
+    a: .25 + Math.random() * .45, ph: Math.random() * 6.28,
+  });
+
+  /* ---------- words ---------- */
+  let lineTimer = 0, currentLine = lineEl.textContent;
+  function say(text, announce) {
+    if (text === currentLine) return;
+    currentLine = text;
+    clearTimeout(lineTimer);
+    if (RM) { lineEl.textContent = text; }
+    else {
+      lineEl.classList.add('fade');
+      lineTimer = setTimeout(() => { lineEl.textContent = text; lineEl.classList.remove('fade'); }, 700);
+    }
+    if (announce) { live.textContent = ''; setTimeout(() => { live.textContent = text; }, 60); }
+  }
+  const HOLD_LINES = [
+    [0, '생각보다 무겁고, 말도 안 되게 가벼워요'],
+    [4, '작은 팔이 목을 꼭 감아요'],
+    [8.5, '작은 심장이 큰 심장에 기대요'],
+    [13, '숨이 조금씩 맞춰지고 있어요'],
+  ];
+  const IDLE = '꾹 누르고, 안아 주세요';
+  if (returning) {
+    lineEl.textContent = currentLine = '지난번보다 조금 더 컸어요';
+    setTimeout(() => { if (!S.holding && S.releasedAt < 0) say(IDLE); }, 6500);
+  }
+
+  /* ---------- sound (opt-in) ---------- */
+  let actx = null, soundOn = false, master = null;
+  function setSound(on) {
+    soundOn = on;
+    soundBtn.setAttribute('aria-pressed', String(on));
+    soundBtn.textContent = on ? '심장 소리 켜짐' : '심장 소리 꺼짐';
+    if (on && !actx) {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        actx = new AC();
+        master = actx.createBiquadFilter(); master.type = 'lowpass'; master.frequency.value = 180;
+        const g = actx.createGain(); g.gain.value = .9;
+        master.connect(g); g.connect(actx.destination);
+      } catch (e) { actx = null; soundOn = false; soundBtn.textContent = '심장 소리 꺼짐'; soundBtn.setAttribute('aria-pressed', 'false'); }
+    }
+    if (on && actx && actx.state === 'suspended') actx.resume();
+  }
+  function thump(freq, vol, delay) {
+    if (!soundOn || !actx) return;
+    const t = actx.currentTime + (delay || 0);
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(freq * 1.25, t); o.frequency.exponentialRampToValueAtTime(freq, t + .06);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + .015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + .22);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + .25);
+  }
+  function beat(which) {
+    const v = .35 + .65 * S.h;
+    if (which === 'p') { thump(52, .32 * v); thump(46, .18 * v, .16); }
+    else { thump(86, .12 * v); thump(78, .07 * v, .12); }
+  }
+  soundBtn.addEventListener('click', () => setSound(!soundOn));
+  soundBtn.textContent = '심장 소리 꺼짐';
+
+  /* ---------- record ---------- */
+  function fmtDur(ms) {
+    const s = Math.round(ms / 1000);
+    if (s < 60) return s + '초';
+    const m = Math.floor(s / 60), r = s % 60;
+    if (m < 60) return m + '분' + (r ? ' ' + r + '초' : '');
+    return Math.floor(m / 60) + '시간 ' + (m % 60) + '분';
+  }
+  function renderRecord() {
+    $('rCount').textContent = mem.count + '번';
+    $('rTotal').textContent = fmtDur(mem.totalMs);
+    $('rLong').textContent = fmtDur(mem.longestMs);
+    $('rGrow').textContent = '+' + Math.round((mem.growth - 1) * 1000) / 10 + '%';
+  }
+  function toggleRecord(open) {
+    recordEl.hidden = !open;
+    recordBtn.setAttribute('aria-expanded', String(open));
+    if (open) renderRecord();
+  }
+  recordBtn.addEventListener('click', () => toggleRecord(recordEl.hidden));
+  $('closeBtn').addEventListener('click', () => { toggleRecord(false); recordBtn.focus(); });
+  $('resetBtn').addEventListener('click', () => {
+    Object.assign(mem, fresh()); save();
+    S.growth = S.growthShown = 1; renderRecord();
+    say('처음 안았던 날로 돌아갔어요', true);
+  });
+
+  /* ---------- holding ---------- */
+  function start() {
+    if (S.holding) return;
+    S.holding = true;
+    S.holdStart = S.now; S.holdT = 0; S.synced = false;
+    S.nextSqueeze = 3.2 + Math.random() * 2;
+    S.nextWriggle = 6 + Math.random() * 4;
+    document.body.classList.add('holding');
+    say(HOLD_LINES[0][1]);
+    if (recordEl && !recordEl.hidden) toggleRecord(false);
+  }
+  function release() {
+    if (!S.holding) return;
+    S.holding = false;
+    document.body.classList.remove('holding');
+    const ms = S.holdT * 1000;
+    S.releasedAt = S.now; S.lastHoldMs = ms;
+    if (ms >= 1500) {
+      mem.count++; mem.totalMs += ms; mem.longestMs = Math.max(mem.longestMs, ms);
+      mem.rings.push({ g: +S.growth.toFixed(4), a: +(Math.random() * 6.283).toFixed(3), d: +(Math.random()).toFixed(3), w: +Math.min(1, S.holdT / 16).toFixed(3) });
+      if (mem.rings.length > 60) mem.rings.splice(0, mem.rings.length - 60);
+      mem.growth = Math.min(1.6, mem.growth + 0.012);
+      S.growth = mem.growth;
+      S.lingerRing = 1;
+      save();
+      if (!recordEl.hidden) renderRecord();
+    }
+    say('조금만 더…');
+  }
+  stage.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+    if (e.target === holdEl) e.preventDefault();
+    start();
+  });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) stage.addEventListener(ev, release);
+  stage.addEventListener('contextmenu', e => e.preventDefault());
+  stage.addEventListener('selectstart', e => e.preventDefault());
+  holdEl.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
+      e.preventDefault();
+      if (!e.repeat) start();
+    }
+  });
+  holdEl.addEventListener('keyup', e => {
+    if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') { e.preventDefault(); release(); }
+  });
+  let focusRing = false;
+  const fv = () => { try { return holdEl.matches(':focus-visible'); } catch (e) { return document.activeElement === holdEl; } };
+  holdEl.addEventListener('focus', () => { focusRing = fv(); });
+  holdEl.addEventListener('blur', () => { focusRing = false; release(); });
+  window.addEventListener('blur', release);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) release(); });
+
+  /* ---------- drawing helpers ---------- */
+  function softDisc(ctx, x, y, r, rgb, a, edge) {
+    const g = ctx.createRadialGradient(x, y - r * .15, 0, x, y, r);
+    g.addColorStop(0, `rgba(${rgb},${a})`);
+    g.addColorStop(edge, `rgba(${rgb},${a * .92})`);
+    g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+  }
+  const mix = (a, b, t) => a.map((v, i) => Math.round(lerp(v, b[i], t))).join(',');
+  const pulseOf = p => {
+    const d1 = Math.min(p, 1 - p);
+    return Math.exp(-Math.pow(d1 / .045, 2)) + .55 * Math.exp(-Math.pow((p - .17) / .05, 2));
+  };
+
+  /* ---------- the loop ---------- */
+  let lastSec = -1;
+  function frame(t) {
+    const dt = Math.min(.05, (t - S.last) / 1000);
+    S.last = t; S.now = t / 1000;
+    step(dt);
+    drawWorld(dt);
+    drawEmbrace();
+    requestAnimationFrame(frame);
+  }
+
+  function step(dt) {
+    // holding rises quickly; letting go is reluctant
+    S.h += ((S.holding ? 1 : 0) - S.h) * (1 - Math.exp(-dt / (S.holding ? 1.1 : 3.2)));
+    S.w += ((S.holding ? 1 : 0) - S.w) * (1 - Math.exp(-dt / (S.holding ? 5.5 : 7.5)));
+    S.nestle += ((S.holding ? 1 : 0) - S.nestle) * (1 - Math.exp(-dt / (S.holding ? 1.6 : 4.5)));
+    if (S.holding) { S.holdT += dt; S.c = Math.min(1, S.c + dt / 16); }
+    else S.c = Math.max(0, S.c - dt / 11);
+    S.growthShown += (S.growth - S.growthShown) * (1 - Math.exp(-dt / 4));
+    S.lingerRing = Math.max(0, S.lingerRing - dt / 9);
+
+    // two hearts
+    const e = ease(S.c);
+    const bpmC = lerp(118, 74, e), bpmP = lerp(64, 74, e);
+    const oldP = S.phP, oldC = S.phC;
+    S.phP = (S.phP + dt * bpmP / 60) % 1;
+    S.phC = (S.phC + dt * bpmC / 60) % 1;
+    if (S.c > .82) {
+      let d = S.phP - S.phC; d -= Math.round(d);
+      S.phC = (S.phC + d * Math.min(1, dt * 2.2 * (S.c - .82) / .18) + 1) % 1;
+    }
+    if (S.phP < oldP) beat('p');
+    if (S.phC < oldC) beat('c');
+    S.bpmC = bpmC; S.bpmP = bpmP;
+    // breathing: hers is quick and shallow, slowly falls into yours
+    S.brP += dt / 4.8;
+    S.brC += dt / lerp(2.5, 4.8, e);
+    if (S.c > .85) { let d = (S.brP % 1) - (S.brC % 1); d -= Math.round(d); S.brC += d * Math.min(1, dt * 1.2); }
+
+    // time slows to near stillness
+    S.felt += dt * (1 - .97 * S.h);
+
+    if (S.holding) {
+      const T = S.holdT;
+      for (let i = HOLD_LINES.length - 1; i >= 0; i--) if (T >= HOLD_LINES[i][0]) {
+        if (!S.synced) say(HOLD_LINES[i][1]); break;
+      }
+      if (!S.synced && S.c >= .98) { S.synced = true; say('숨이 맞춰졌어요', true); }
+      if (S.synced && T > 26 && T < 38) say('세상이 이 품만큼 작아졌어요');
+      if (S.synced && T >= 38) say('이 무게를, 오래 기억할게요');
+      if (T > S.nextSqueeze) { S.squeeze = { t0: S.now }; S.nextSqueeze = T + 5 + Math.random() * 4; }
+      if (T > S.nextWriggle) {
+        S.wriggle = { t0: S.now };
+        S.ripples.push({ t0: S.now + .2 });
+        S.kicks.push({ t0: S.now + .15, dx: (Math.random() - .5) * .6 });
+        if (RM) say('꼼지락, 킥');
+        S.nextWriggle = T + 7 + Math.random() * 6;
+      }
+      if (!RM && Math.random() < dt * (1.2 + 2 * S.h)) S.scent.push({ t0: S.now, x: (Math.random() - .5), s: .6 + Math.random() * .8, ph: Math.random() * 6 });
+    } else if (S.releasedAt > 0) {
+      const since = S.now - S.releasedAt;
+      if (since > 4.5 && since < 5) {
+        say(S.lastHoldMs > 9000 ? '이 크기의 너는, 지금뿐이라서' : IDLE);
+      }
+      if (since > 13 && since < 13.5) say(IDLE);
+    }
+    S.ripples = S.ripples.filter(r => S.now - r.t0 < 1.6);
+    S.kicks = S.kicks.filter(k => S.now - k.t0 < 1.8);
+    S.scent = S.scent.filter(p => S.now - p.t0 < 5);
+
+    // little numbers
+    const rc = Math.round(bpmC), rp = Math.round(bpmP);
+    if (bpmCEl.textContent != rc) bpmCEl.textContent = rc;
+    if (bpmPEl.textContent != rp) bpmPEl.textContent = rp;
+
+    // the clock
+    const fs = Math.floor(S.felt);
+    const ang = (RM ? fs : S.felt) * 6;
+    hand.setAttribute('transform', `rotate(${ang.toFixed(2)})`);
+    if (fs !== lastSec) {
+      lastSec = fs;
+      const d = new Date(feltStart.getTime() + fs * 1000);
+      const p2 = n => String(n).padStart(2, '0');
+      feltEl.textContent = `${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`;
+    }
+  }
+
+  function drawWorld(dt) {
+    const ctx = wctx;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    // afternoon light through a window
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, '#fbf4ec'); g.addColorStop(.55, '#f8eee3'); g.addColorStop(1, '#f2e2d3');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.save();
+    ctx.globalAlpha = .55;
+    const shaft = ctx.createLinearGradient(W * .1, 0, W * .6, H);
+    shaft.addColorStop(0, 'rgba(255,250,240,0)'); shaft.addColorStop(.5, 'rgba(255,248,236,.9)'); shaft.addColorStop(1, 'rgba(255,250,240,0)');
+    ctx.fillStyle = shaft;
+    ctx.beginPath(); ctx.moveTo(W * .58, 0); ctx.lineTo(W * .86, 0); ctx.lineTo(W * .46, H); ctx.lineTo(W * .12, H); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    // dust, slowing as the world stops
+    const speed = RM ? 0 : (1 - .92 * S.h);
+    for (const m of motes) {
+      m.x += m.vx * dt * speed; m.y += m.vy * dt * speed; m.ph += dt * speed * .7;
+      if (m.y < -.02) { m.y = 1.02; m.x = Math.random(); }
+      if (m.x < -.02) m.x = 1.02; if (m.x > 1.02) m.x = -.02;
+      const x = m.x * W + Math.sin(m.ph) * 6, y = m.y * H;
+      const a = m.a * (.6 + .4 * Math.sin(m.ph * 1.3));
+      ctx.fillStyle = `rgba(214,160,128,${a * .55})`;
+      ctx.beginPath(); ctx.arc(x, y, m.r, 0, 6.2832); ctx.fill();
+    }
+    const blur = RM ? 0 : S.h * 7;
+    worldC.style.filter = blur > .05 ? `blur(${blur.toFixed(2)}px)` : 'none';
+    worldC.style.opacity = (1 - .25 * S.h).toFixed(3);
+  }
+
+  function drawEmbrace() {
+    const ctx = ectx;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    const h = S.h, w = S.w, e = ease(S.c);
+    const moving = !RM;
+
+    // the outside goes milky and quiet: a veil beyond the circle of arms
+    const armR0 = R * lerp(1.42, 1.12, h);
+    let sq = 0;
+    if (S.squeeze) { const u = (S.now - S.squeeze.t0) / 1.4; if (u >= 1) S.squeeze = null; else sq = Math.pow(Math.sin(Math.PI * u), 2); }
+    if (!moving) sq = 0;
+    const armR = armR0 - R * .07 * sq;
+    if (h > .01) {
+      const v = ctx.createRadialGradient(cx, cy, armR * 1.05, cx, cy, Math.max(W, H) * .85);
+      v.addColorStop(0, 'rgba(249,239,229,0)');
+      v.addColorStop(.35, `rgba(246,232,220,${.55 * h})`);
+      v.addColorStop(1, `rgba(240,222,208,${.8 * h})`);
+      ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+    }
+
+    // warmth, spreading outward from the middle of the embrace
+    const wr = lerp(R * 1.3, Math.max(W, H) * .78, ease(Math.min(1, w)));
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, wr);
+    const gcol = mix([255, 214, 186], [255, 168, 122], w);
+    glow.addColorStop(0, `rgba(${gcol},${.16 + .42 * w})`);
+    glow.addColorStop(.45, `rgba(${gcol},${.07 + .22 * w})`);
+    glow.addColorStop(1, `rgba(${gcol},0)`);
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+
+    // imprints of earlier embraces: rings at the size she was then
+    const childBaseR = R * .44;
+    const rings = mem.rings, n = rings.length;
+    for (let i = 0; i < n; i++) {
+      const rg = rings[i];
+      const age = (n - 1 - i) / Math.max(1, n);
+      const rr = childBaseR * rg.g * (1.04 + .06 * h);
+      const off = R * .34;
+      const jx = Math.cos(rg.a) * R * .05 * rg.d, jy = Math.sin(rg.a) * R * .05 * rg.d;
+      const x = cx + off + jx, y = cy - R * .36 + jy;
+      const a = (.14 + .16 * rg.w) * (1 - .5 * age) * (1 - .4 * h);
+      ctx.strokeStyle = `rgba(190,110,84,${a})`;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(x, y, rr, 0, 6.2832); ctx.stroke();
+      if (i === n - 1) {
+        const lw = .07 + .16 * S.lingerRing;
+        const fg = ctx.createRadialGradient(x, y, 0, x, y, rr * 1.15);
+        fg.addColorStop(0, `rgba(240,150,118,${lw})`); fg.addColorStop(1, 'rgba(240,150,118,0)');
+        ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(x, y, rr * 1.15, 0, 6.2832); ctx.fill();
+      }
+    }
+
+    // the circle of your arms
+    if (focusRing) {
+      ctx.strokeStyle = 'rgba(249,241,232,.95)'; ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.arc(cx, cy, armR, 0, 6.2832); ctx.stroke();
+      ctx.strokeStyle = '#8a4b36'; ctx.lineWidth = 2.5;
+    } else {
+      ctx.strokeStyle = `rgba(184,112,88,${lerp(.14, .42, h) + .2 * sq})`;
+      ctx.lineWidth = lerp(1, 2.4, h) + sq * 1.5;
+    }
+    ctx.beginPath(); ctx.arc(cx, cy, armR, 0, 6.2832); ctx.stroke();
+
+    // hearts and breath
+    const pP = moving ? pulseOf(S.phP) : 0, pC = moving ? pulseOf(S.phC) : 0;
+    const bP = moving ? Math.sin(S.brP * 6.2832) : 0, bC = moving ? Math.sin(S.brC * 6.2832) : 0;
+
+    // you: large, slow
+    const rP = R * (1 + .018 * bP + (.016 + .02 * h) * pP) * (1 - .015 * sq);
+    const pcol = mix([241, 214, 194], [246, 190, 160], w);
+    softDisc(ctx, cx, cy, rP * 1.12, pcol, .9, .78);
+    // your heart, a darker warmth just left of centre
+    const hx = cx - R * .16, hy = cy + R * .02;
+    const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, R * .5);
+    hg.addColorStop(0, `rgba(222,128,104,${.22 + .3 * pP})`); hg.addColorStop(1, 'rgba(222,128,104,0)');
+    ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(hx, hy, R * .5, 0, 6.2832); ctx.fill();
+
+    // her: small, fast, nestled against your shoulder
+    let wx = 0, wy = 0;
+    if (S.wriggle && moving) {
+      const u = (S.now - S.wriggle.t0) / .8;
+      if (u >= 1) S.wriggle = null;
+      else { const env = Math.sin(Math.PI * u); wx = Math.sin(S.now * 46) * R * .035 * env; wy = Math.cos(S.now * 39) * R * .02 * env; }
+    } else if (S.wriggle) S.wriggle = null;
+    const nx = lerp(.6, .34, S.nestle) - .03 * sq, ny = lerp(.5, .36, S.nestle) - .03 * sq;
+    const kx = cx + R * nx + wx, ky = cy - R * ny + wy;
+    const rC = childBaseR * S.growthShown * (1 + .03 * bC + (.03 + .03 * h) * pC) * (1 - .04 * sq);
+    const ccol = mix([244, 196, 172], [249, 170, 140], w);
+    softDisc(ctx, kx, ky, rC * 1.14, ccol, .95, .74);
+    // her heart, quick
+    const cg = ctx.createRadialGradient(kx - rC * .1, ky + rC * .1, 0, kx, ky, rC * .7);
+    cg.addColorStop(0, `rgba(228,116,96,${.25 + .4 * pC})`); cg.addColorStop(1, 'rgba(228,116,96,0)');
+    ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(kx, ky, rC * .7, 0, 6.2832); ctx.fill();
+    // where you overlap: the warmest place
+    const og = ctx.createRadialGradient(lerp(cx, kx, .62), lerp(cy, ky, .62), 0, lerp(cx, kx, .62), lerp(cy, ky, .62), rC * .9);
+    og.addColorStop(0, `rgba(255,236,214,${.18 + .35 * w})`); og.addColorStop(1, 'rgba(255,236,214,0)');
+    ctx.fillStyle = og; ctx.beginPath(); ctx.arc(lerp(cx, kx, .62), lerp(cy, ky, .62), rC * .9, 0, 6.2832); ctx.fill();
+
+    // the sweet warm smell of the top of her head
+    for (const p of S.scent) {
+      const u = (S.now - p.t0) / 5;
+      const x = kx + p.x * rC * .9 + Math.sin(p.ph + u * 5) * 8 * u;
+      const y = ky - rC * .95 - u * R * .9 * p.s;
+      const a = Math.sin(Math.PI * u) * .16 * (.4 + .6 * h);
+      const rr = 6 + 16 * u;
+      const sg = ctx.createRadialGradient(x, y, 0, x, y, rr);
+      sg.addColorStop(0, `rgba(242,184,120,${a})`); sg.addColorStop(1, 'rgba(242,184,120,0)');
+      ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(x, y, rr, 0, 6.2832); ctx.fill();
+    }
+    // a giggle, felt through your chest
+    for (const r of S.ripples) {
+      const u = (S.now - r.t0) / 1.4; if (u < 0 || !moving) continue;
+      for (let k = 0; k < 3; k++) {
+        const uu = u - k * .14; if (uu <= 0 || uu >= 1) continue;
+        ctx.strokeStyle = `rgba(214,120,96,${.35 * (1 - uu)})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(kx, ky, rC * (1 + 1.3 * uu), 0, 6.2832); ctx.stroke();
+      }
+    }
+    for (const k of S.kicks) {
+      const u = (S.now - k.t0) / 1.8; if (u < 0) continue;
+      ctx.font = '18px "Gowun Batang", serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = `rgba(150,74,54,${.85 * Math.sin(Math.PI * Math.min(1, u * 1.3))})`;
+      ctx.fillText('킥', kx + rC * (1.05 + k.dx), ky - rC * (1.0 + .5 * u));
+    }
+  }
+
+  requestAnimationFrame(t => { S.last = t; requestAnimationFrame(frame); });
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

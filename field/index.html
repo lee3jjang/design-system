@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halitus — 숨 쉬는 색면</title>
+<meta name="description" content="Halitus. 여섯 점의 색면과 한 번의 정적. 가까이 가면 데워지고, 누르고 있으면 숨을 참는다.">
+<meta name="theme-color" content="#1a0d10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Gowun+Batang:wght@400;700&display=swap">
+<style>
+  @property --inh { syntax: '<number>'; inherits: true; initial-value: 0; }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: #1a0d10; }
+  body {
+    margin: 0; background: #1a0d10; color: #efe4d8; overflow-x: clip;
+    font: 400 17px/1.8 "Gowun Batang", "Apple SD Gothic Neo", serif;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  .vh { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* grain over everything: the weave of the canvas */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: .10; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  /* a lamp that follows presence: the field warms where you are */
+  .lamp {
+    position: fixed; inset: 0; z-index: 30; pointer-events: none; mix-blend-mode: soft-light; opacity: 0; transition: opacity 1.6s;
+    background: radial-gradient(520px circle at var(--x, 50%) var(--y, 50%), rgba(255, 214, 170, .55), rgba(255, 190, 140, .12) 45%, transparent 70%);
+  }
+  .lamp.on { opacity: 1; }
+  /* the luminous seam at the right edge: how far into the breath you are */
+  .seam { position: fixed; top: 0; right: 0; width: 2px; height: calc(var(--sp, 0) * 100%); z-index: 35; pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--sc, #e0883a)); box-shadow: 0 0 10px 1px var(--sc, #e0883a); transition: background-color 1s; }
+  /* stillness: after a long silence everything sinks into one colour */
+  .still { position: fixed; inset: 0; z-index: 45; pointer-events: none; opacity: 0; background: var(--stc, #2b0f12); transition: opacity 1.2s ease-out; }
+  .still.on { opacity: .94; transition: opacity 9s ease-in; }
+
+  /* sound: the only word that stays */
+  .aid { position: fixed; top: 14px; right: 14px; z-index: 50; }
+  .aid button {
+    font: 400 16px/1 "Gowun Batang", serif; letter-spacing: .12em; color: #f3eae0; cursor: pointer;
+    background: rgba(16, 11, 12, .74); border: 0; border-radius: 2px; padding: 12px 14px 11px; min-height: 44px;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: background .6s;
+  }
+  .aid button:hover { background: rgba(16, 11, 12, .9); }
+  .aid button[aria-pressed="true"] span { color: #ffd9a8; }
+  .aid button:focus-visible { outline: 2px solid #ffe8c4; outline-offset: 4px; }
+
+  /* ───── rooms ───── */
+  .room {
+    position: relative; height: 200vh; color: var(--t); background: var(--g);
+  }
+  /* the silence between paintings: one ground turning slowly into the next */
+  .pause { height: 70vh; background: linear-gradient(to bottom, var(--a), var(--b)); }
+  .room .hold {
+    position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; grid-template-rows: 1fr auto; justify-items: center; align-items: center;
+    padding: 9vh 24px 7vh; gap: 4vh;
+  }
+  .label { margin: 0; max-width: 32em; word-break: keep-all; text-wrap: balance; text-align: center; font-size: 16px; line-height: 1.75; color: var(--m); letter-spacing: .02em; }
+  .label b { font: italic 400 21px/1 "Cormorant Garamond", serif; letter-spacing: .06em; color: var(--t); margin-right: .5em; }
+  .label .t { color: var(--t); }
+  .label small { display: block; font-size: 16px; color: var(--m); }
+
+  .work { position: relative; width: min(74vw, 760px); height: min(66vh, 700px); border: 0; padding: 0; margin: 0; background: var(--cv); border-radius: 3px; font: inherit; color: inherit;
+    box-shadow: 0 0 60px 6px color-mix(in srgb, var(--cv) 70%, transparent); }
+  .work:focus-visible, .work:has(input:focus-visible) { outline: 2px solid var(--seamc); outline-offset: 14px; }
+  .r { position: absolute; display: block; border-radius: 4px; background: var(--c);
+    background-image: radial-gradient(120% 90% at 32% 38%, color-mix(in oklab, var(--c), white 7%), transparent 62%), radial-gradient(90% 80% at 75% 80%, color-mix(in oklab, var(--c), black 9%), transparent 70%);
+    box-shadow: 0 0 34px 12px color-mix(in srgb, var(--c) 82%, transparent); filter: url(#rough) blur(1.6px);
+    animation: breathe var(--bd, 7s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
+  @keyframes breathe { 0%, 100% { scale: 1; } 46% { scale: 1.014; } }
+
+  /* 0 — title */
+  .title { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 12vh 24px 0; background: #1a0d10; position: relative; }
+  .title .glow { position: absolute; left: 50%; top: 50%; width: min(64vw, 620px); height: min(46vh, 420px); translate: -50% -58%; --c: #3f161b; --bd: 9s; }
+  .title .in { position: relative; text-align: center; }
+  .title h1 { margin: 0; font: italic 300 clamp(72px, 16vw, 188px)/.9 "Cormorant Garamond", serif; letter-spacing: .02em; color: #f1e2d2; }
+  .title p { margin: 22px 0 0; color: #d6c0b0; font-size: 17px; letter-spacing: .3em; }
+  .title .cue { position: absolute; bottom: 7vh; left: 0; right: 0; text-align: center; font-size: 16px; color: #b9a293; letter-spacing: .18em; }
+  .title .cue::after { content: ""; display: block; width: 1px; height: 64px; margin: 18px auto 0; background: linear-gradient(#b9a293, transparent); animation: drip 4.5s ease-in-out infinite; transform-origin: top; }
+  @keyframes drip { 0% { scale: 1 0; opacity: 0; } 40% { opacity: 1; } 100% { scale: 1 1; opacity: 0; } }
+
+  /* No.1 — hold to inhale */
+  #r1 { --pg: #1a0d10; --g: #2b0f12; --t: #f3e6da; --m: #d9c3b3; --cv: #561b21; --seamc: #ffe3c2; }
+  .w1 { cursor: pointer; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; scale: calc(1 + var(--inh) * .025);
+    filter: saturate(calc(1 + var(--inh) * .35)) brightness(calc(1 + var(--inh) * .12 - var(--sink, 0) * .12)); }
+  .w1 .up { --c: color-mix(in oklab, #b33c27, #e0532c calc(var(--inh) * 100%)); left: 7%; right: 7%; top: 7%; height: calc(44% + var(--inh) * 14%); --bd: 7.2s; }
+  .w1 .lo { --c: #df8538; left: 7%; right: 7%; top: calc(56% + var(--inh) * 11%); bottom: 7%; --bd: 7.2s; --dl: -.4s; }
+
+  /* No.2 — morning, pencil lines */
+  #r2 { --pg: #2b0f12; --g: #ece5d8; --t: #2d2723; --m: #4f463f; --cv: #e7decd; --seamc: #2d2723; }
+  .w2 { display: flex; flex-direction: column; padding: 4.5% 4.5%; gap: 0; box-shadow: 0 0 40px 2px rgba(231, 222, 205, .6); }
+  .w2 span { flex: 1 1 0; min-height: 1px; background: var(--c); border-bottom: 1px solid rgba(70, 58, 50, .26); filter: url(#rough-fine) blur(.3px); }
+  .w2 span:nth-child(3n+1) { --c: #e9c9bd; } .w2 span:nth-child(3n+2) { --c: #c9d4d8; } .w2 span:nth-child(3n) { --c: #eedfb3; }
+
+  /* No.3 — the boundary */
+  #r3 { --pg: #ece5d8; --g: #17222f; --t: #e9eef3; --m: #b9c6d2; --cv: #1f2d3e; --seamc: #fff0cc; --p: 62%; }
+  .w3 .r { inset: 7%; --c: #2b3a6b; background: linear-gradient(90deg, #2b3a6b 0, #34457a calc(var(--p) - 9%), #2b3a6b calc(var(--p) - 3%), #d9a441 calc(var(--p) + 3%), #e1b257 calc(var(--p) + 12%), #d39b3a 100%);
+    box-shadow: 0 0 40px 10px rgba(43, 58, 107, .6); filter: blur(3px); }
+  .w3 .edge { position: absolute; top: 9%; bottom: 9%; left: calc(7% + (100% - 14%) * var(--p) / 100%); width: 2px; translate: -1px 0; background: #fff3d2; opacity: .0; box-shadow: 0 0 18px 4px rgba(255, 236, 196, .8); transition: opacity 1.2s; pointer-events: none; }
+  .w3:hover .edge, .w3:has(input:focus-visible) .edge, .w3.drag .edge { opacity: .75; }
+  .w3 input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; -webkit-appearance: none; appearance: none; }
+  .w3 input::-webkit-slider-thumb { -webkit-appearance: none; width: 60px; height: 700px; }
+  .w3 input::-moz-range-thumb { width: 60px; height: 700px; border: 0; }
+
+  /* No.4 — black painting: only stillness reveals it */
+  #r4 { --pg: #17222f; --g: #0d0b0d; --t: #ddd3d8; --m: #a99ea4; --cv: #141013; --seamc: #e8dce2; --lit: 0; }
+  .w4 { box-shadow: 0 0 60px 4px rgba(20, 16, 19, .9); }
+  .w4 .a { --c: color-mix(in oklab, #1c1518, #5a3340 calc(var(--lit) * 100%)); left: 9%; right: 9%; top: 8%; height: 50%; --bd: 11s; }
+  .w4 .b { --c: color-mix(in oklab, #18171b, #2f3a4c calc(var(--lit) * 100%)); left: 9%; right: 9%; top: 63%; bottom: 8%; --bd: 11s; --dl: -3s; }
+
+  /* No.5 — the flood */
+  #r5 { --pg: #0d0b0d; --g: #18261f; --t: #e6ede6; --m: #c3cfc4; --cv: #2a4436; --seamc: #ffe6cf; --fl: 0; }
+  .w5 { overflow: hidden; }
+  .w5 .base { --c: #34553f; inset: 7%; --bd: 8s; }
+  .w5 .flood { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--fl) * 100% + 12%); --c: #c4653a;
+    background: linear-gradient(to top, #b85731, #c86d3e 60%, #d07a46); filter: blur(10px); opacity: .96;
+    -webkit-mask-image: linear-gradient(to top, #000 calc(100% - 16%), transparent); mask-image: linear-gradient(to top, #000 calc(100% - 16%), transparent); }
+
+  /* No.6 — your breaths */
+  #r6 { --pg: #18261f; --g: #e8e1d4; --t: #2d2723; --m: #4f463f; --cv: #efe8da; --seamc: #2d2723; height: 190vh; }
+  .w6 { display: flex; flex-direction: column; justify-content: center; gap: 7px; padding: 8% 9%; box-shadow: 0 0 30px 2px rgba(239, 232, 218, .6);
+    background-image: repeating-linear-gradient(to bottom, transparent 0 23px, rgba(80, 66, 56, .10) 23px 24px), repeating-linear-gradient(to right, transparent 0 23px, rgba(80, 66, 56, .07) 23px 24px); background-color: var(--cv); background-origin: content-box; background-clip: content-box; }
+  .w6 i { display: block; height: var(--h); background: var(--c); border-radius: 2px; filter: url(#rough-fine) blur(.7px); box-shadow: 0 0 10px 1px color-mix(in srgb, var(--c) 55%, transparent);
+    animation: lay 2.4s cubic-bezier(.2, .7, .2, 1) both; transition: opacity 2.6s, translate 2.6s, filter 2.6s; }
+  .w6.go i { opacity: 0; translate: 0 -30px; filter: blur(8px); }
+  @keyframes lay { from { opacity: 0; scale: .96 1; } }
+  .letgo { margin-top: 10px; font: 400 16px/1 "Gowun Batang", serif; letter-spacing: .14em; color: var(--t); background: none; border: 0; padding: 14px 6px; cursor: pointer;
+    text-decoration: underline; text-decoration-color: rgba(45, 39, 35, .35); text-underline-offset: 7px; transition: text-decoration-color .8s; }
+  .letgo:hover { text-decoration-color: rgba(45, 39, 35, .9); }
+  .letgo:focus-visible { outline: 2px solid var(--seamc); outline-offset: 6px; }
+  .letgo[hidden] { display: none; }
+
+  /* colophon */
+  .colophon { background: linear-gradient(#e8e1d4, #e8e1d4 30vh, #d9d0c1); color: #2d2723; text-align: center; padding: 18vh 24px 22vh; }
+  .colophon h2 { margin: 0; font: italic 300 56px/1 "Cormorant Garamond", serif; letter-spacing: .03em; }
+  .colophon p { word-break: keep-all; text-wrap: balance; margin: 18px auto 0; max-width: 30em; font-size: 16px; color: #4f463f; }
+  .colophon a { color: #2d2723; text-underline-offset: 6px; text-decoration-color: rgba(45, 39, 35, .4); }
+  .colophon a:focus-visible { outline: 2px solid #2d2723; outline-offset: 5px; }
+
+  @media (max-width: 640px) {
+    .work { width: calc(100vw - 48px); height: 58vh; height: 58svh; }
+    .room .hold { padding: 10vh 16px 13vh; gap: 3vh; }
+    .r { box-shadow: 0 0 22px 6px color-mix(in srgb, var(--c) 80%, transparent); }
+    .w2 { padding: 9% 7%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: .01s !important; }
+    .still.on { transition-duration: .4s !important; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".012 .035" numOctaves="3" seed="7"/><feDisplacementMap in="SourceGraphic" scale="16" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="rough-fine" x="-5%" y="-40%" width="110%" height="180%"><feTurbulence type="fractalNoise" baseFrequency=".004 .2" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+<div class="lamp" aria-hidden="true"></div>
+<div class="seam" aria-hidden="true"></div>
+<div class="still" aria-hidden="true"></div>
+<div class="aid"><button type="button" id="sound" aria-pressed="false">소리 <span>꺼짐</span></button></div>
+<p class="vh" id="say" aria-live="polite"></p>
+
+<main>
+  <header class="title">
+    <i class="r glow" aria-hidden="true"></i>
+    <div class="in">
+      <h1>Halitus</h1>
+      <p>숨 쉬는 색면</p>
+    </div>
+    <p class="cue">천천히</p>
+  </header>
+
+  <div class="pause" style="--a:#1a0d10;--b:#2b0f12" aria-hidden="true"></div>
+  <section class="room" id="r1" aria-labelledby="l1t" data-c="#df8538">
+    <div class="hold">
+      <button class="work w1" id="w1" type="button" aria-describedby="l1h">
+        <span class="vh">No. 1, 주홍 위의 주황.</span>
+        <i class="r up" aria-hidden="true"></i><i class="r lo" aria-hidden="true"></i>
+      </button>
+      <p class="label"><b>No. 1</b><span class="t" id="l1t">주홍 위의 주황</span>
+        <small id="l1h">2026 · 화면에 빛 · 누르고 있는 동안 숨을 참는다</small></p>
+    </div>
+  </section>
+
+  <div class="pause" style="--a:#2b0f12;--b:#ece5d8" aria-hidden="true"></div>
+  <section class="room" id="r2" aria-labelledby="l2t" data-c="#d3dbdd">
+    <div class="hold">
+      <div class="work w2" id="w2" role="img" aria-label="No. 2, 아침. 연한 분홍과 하늘색과 미색의 가는 띠 스물네 줄."></div>
+      <p class="label"><b>No. 2</b><span class="t" id="l2t">아침, 연필선</span>
+        <small>2026 · 스물네 개의 띠 · 지나가는 자리가 부푼다</small></p>
+    </div>
+  </section>
+
+  <div class="pause" style="--a:#ece5d8;--b:#17222f" aria-hidden="true"></div>
+  <section class="room" id="r3" aria-labelledby="l3t" data-c="#d9a441">
+    <div class="hold">
+      <div class="work w3" id="w3wrap">
+        <i class="r" aria-hidden="true"></i><span class="edge" aria-hidden="true"></span>
+        <input type="range" id="w3" min="0" max="100" step="1" value="62" aria-label="No. 3, 경계. 쪽빛과 황토가 만나는 자리" aria-describedby="l3h">
+      </div>
+      <p class="label"><b>No. 3</b><span class="t" id="l3t">경계</span>
+        <small id="l3h">2026 · 쪽빛과 황토 · 두 색이 만나는 자리는 옮겨진다</small></p>
+    </div>
+  </section>
+
+  <div class="pause" style="--a:#17222f;--b:#0d0b0d" aria-hidden="true"></div>
+  <section class="room" id="r4" aria-labelledby="l4t" data-c="#5a3340">
+    <div class="hold">
+      <div class="work w4" role="img" aria-label="No. 4, 검은 그림. 거의 보이지 않는 두 개의 어두운 면.">
+        <i class="r a" aria-hidden="true"></i><i class="r b" aria-hidden="true"></i>
+      </div>
+      <p class="label"><b>No. 4</b><span class="t" id="l4t">검은 그림</span>
+        <small>2026 · 움직이지 않으면 보인다</small></p>
+    </div>
+  </section>
+
+  <div class="pause" style="--a:#0d0b0d;--b:#18261f" aria-hidden="true"></div>
+  <section class="room" id="r5" aria-labelledby="l5t" data-c="#c4653a">
+    <div class="hold">
+      <div class="work w5" role="img" aria-label="No. 5, 번짐. 초록 위로 녹슨 주황이 아래에서부터 차오른다." id="w5">
+        <i class="r base" aria-hidden="true"></i><span class="flood" aria-hidden="true"></span>
+      </div>
+      <p class="label"><b>No. 5</b><span class="t" id="l5t">번짐</span>
+        <small>2026 · 머문 만큼 차오르고, 떠나면 마른다</small></p>
+    </div>
+  </section>
+
+  <div class="pause" style="--a:#18261f;--b:#e8e1d4" aria-hidden="true"></div>
+  <section class="room" id="r6" aria-labelledby="l6t" data-c="#b8402a">
+    <div class="hold">
+      <div class="work w6" id="w6" role="img" aria-label="No. 6, 당신의 숨. 아직 비어 있다."></div>
+      <div class="label"><b>No. 6</b><span class="t" id="l6t">당신의 숨</span>
+        <small id="l6h">2026 · No. 1 앞에서 참았던 숨이 한 줄씩 남는다</small>
+        <button type="button" class="letgo" id="letgo" hidden>놓아 보내기</button></div>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <h2>Halitus</h2>
+    <p>숨 쉬는 색면. 여섯 점의 색면과 한 번의 정적.<br>오래 가만히 있으면, 모든 것이 한 색으로 가라앉는다.</p>
+    <p><a href="../">다른 시스템으로</a></p>
+  </footer>
+</main>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const fine = matchMedia('(pointer: fine)');
+  const say = $('#say');
+  const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+
+  /* ── presence: lamp, seam, stillness ── */
+  const lamp = $('.lamp'), seam = $('.seam'), still = $('.still');
+  let lastMove = performance.now(), lastAny = performance.now();
+  const wake = () => { lastAny = performance.now(); still.classList.remove('on'); };
+  addEventListener('pointermove', e => {
+    lastMove = performance.now(); wake();
+    if (fine.matches) { lamp.style.setProperty('--x', e.clientX + 'px'); lamp.style.setProperty('--y', e.clientY + 'px'); lamp.classList.add('on'); }
+  }, { passive: true });
+  document.addEventListener('pointerleave', () => lamp.classList.remove('on'));
+  ['keydown', 'pointerdown', 'wheel', 'touchstart'].forEach(t => addEventListener(t, () => { lastMove = performance.now(); wake(); }, { passive: true }));
+  addEventListener('scroll', () => { lastMove = performance.now(); wake(); }, { passive: true });
+
+  const rooms = [...document.querySelectorAll('.room')];
+  let current = null;
+  const vis = new Map();
+  const io = new IntersectionObserver(es => es.forEach(e => vis.set(e.target.id, e.intersectionRatio)), { threshold: [0, .25, .5, .75, 1] });
+  rooms.forEach(r => io.observe(r));
+
+  /* ── sound: off until asked ── */
+  let ac = null, drone = null;
+  const sBtn = $('#sound');
+  sBtn.addEventListener('click', () => {
+    const on = sBtn.getAttribute('aria-pressed') !== 'true';
+    sBtn.setAttribute('aria-pressed', on); sBtn.querySelector('span').textContent = on ? '켜짐' : '꺼짐';
+    if (on && !ac) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) ac = new AC(); }
+    if (ac && on && ac.state === 'suspended') ac.resume();
+  });
+  const soundOn = () => ac && sBtn.getAttribute('aria-pressed') === 'true';
+  function tone(f, peak = .05, len = 2.2) {
+    if (!soundOn()) return; const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + .3); g.gain.exponentialRampToValueAtTime(.0001, t + len);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + len + .1);
+  }
+  function droneStart() {
+    if (!soundOn()) return; const t = ac.currentTime, g = ac.createGain(); g.gain.setValueAtTime(0, t); g.connect(ac.destination);
+    const os = [110, 164.8].map(f => { const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f; o.connect(g); o.start(t); return o; });
+    drone = { g, os };
+  }
+  function droneSet(v) { if (drone) drone.g.gain.setTargetAtTime(.012 + v * .05, ac.currentTime, .3); }
+  function droneStop() { if (!drone) return; const t = ac.currentTime, d = drone; d.g.gain.cancelScheduledValues(t); d.g.gain.setTargetAtTime(0, t, .6); d.os.forEach(o => o.stop(t + 3)); drone = null; }
+
+  /* ── No.1: hold to inhale ── */
+  const w1 = $('#w1');
+  let holding = false, holdStart = 0, inh = 0, sink = 0;
+  const begin = () => { if (holding) return; holding = true; holdStart = performance.now(); droneStart(); };
+  const end = () => {
+    if (!holding) return; holding = false; droneStop();
+    const d = (performance.now() - holdStart) / 1000;
+    if (d > .25) { record(d, inh); sink = Math.min(1, .4 + inh * .6); tone(82.4, .04, 3.2); say.textContent = `숨 하나가 남았다. ${d.toFixed(1)}초.`; }
+  };
+  w1.addEventListener('pointerdown', e => { if (e.button === 0) begin(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => w1.addEventListener(t, end));
+  w1.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); begin(); } });
+  w1.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); end(); } });
+  w1.addEventListener('blur', end);
+  w1.addEventListener('contextmenu', e => e.preventDefault());
+
+  /* ── No.2: twenty-four bands ── */
+  const w2 = $('#w2'); const N = 24; w2.innerHTML = '<span></span>'.repeat(N); const bands = [...w2.children];
+  let py2 = null;
+  w2.addEventListener('pointermove', e => { const r = w2.getBoundingClientRect(); py2 = (e.clientY - r.top) / r.height; });
+  w2.addEventListener('pointerleave', () => { py2 = null; });
+
+  /* ── No.3: the boundary ── */
+  const w3 = $('#w3'), r3 = $('#r3'), wrap3 = $('#w3wrap');
+  const upd3 = () => { const v = +w3.value; r3.style.setProperty('--p', v + '%'); w3.setAttribute('aria-valuetext', `쪽빛 ${v}, 황토 ${100 - v}`); };
+  let lastTone3 = 0;
+  w3.addEventListener('input', () => { upd3(); const n = performance.now(); if (n - lastTone3 > 140) { lastTone3 = n; tone(130.8 * Math.pow(2, (+w3.value / 100) * 1.5), .025, 1.4); } });
+  w3.addEventListener('pointerdown', () => wrap3.classList.add('drag'));
+  addEventListener('pointerup', () => wrap3.classList.remove('drag'));
+  upd3();
+
+  /* ── No.5 & No.4 state ── */
+  const r4 = $('#r4'), r5 = $('#r5');
+  let lit = 0, fl = 0;
+
+  /* ── No.6: the record of breaths ── */
+  const w6 = $('#w6'), letgo = $('#letgo'), l6h = $('#l6h');
+  let breaths = []; try { breaths = JSON.parse(store.get('halitus-breaths') || '[]'); if (!Array.isArray(breaths)) breaths = []; } catch { breaths = []; }
+  const mix = (a, b, t) => '#' + [0, 2, 4].map(i => Math.round(parseInt(a.substr(i + 1, 2), 16) * (1 - t) + parseInt(b.substr(i + 1, 2), 16) * t).toString(16).padStart(2, '0')).join('');
+  function render6() {
+    w6.classList.remove('go');
+    w6.innerHTML = breaths.map(b => `<i style="--h:${Math.max(3, Math.min(56, b.d * 9)).toFixed(1)}px;--c:${b.c}"></i>`).join('');
+    const n = breaths.length;
+    w6.setAttribute('aria-label', n ? `No. 6, 당신의 숨. 가로 띠 ${n}줄. 오래 참은 숨일수록 두껍다.` : 'No. 6, 당신의 숨. 아직 비어 있다.');
+    l6h.textContent = n ? `2026 · 참았던 숨 ${n}번 · 오래 참을수록 두껍고 붉다` : '2026 · No. 1 앞에서 참았던 숨이 한 줄씩 남는다';
+    letgo.hidden = !n;
+  }
+  function record(d, depth) {
+    breaths.push({ d: +d.toFixed(2), c: mix('#e9b98c', '#9e2a22', Math.min(1, depth)) });
+    if (breaths.length > 36) breaths = breaths.slice(-36);
+    store.set('halitus-breaths', JSON.stringify(breaths)); render6();
+  }
+  letgo.addEventListener('click', () => {
+    w6.classList.add('go'); tone(55, .04, 4);
+    setTimeout(() => { breaths = []; store.set('halitus-breaths', '[]'); render6(); say.textContent = '숨을 모두 놓아 보냈다.'; w6.focus?.(); }, reduce.matches ? 0 : 2600);
+    letgo.hidden = true;
+  });
+  render6();
+
+  /* ── the one clock ── */
+  let prev = performance.now();
+  function frame(now) {
+    const dt = Math.min(.1, (now - prev) / 1000); prev = now;
+    const calm = !reduce.matches;
+
+    // No.1 inhale / exhale
+    if (holding) inh = Math.min(1, inh + dt / 4.2);
+    else inh = Math.max(0, inh - dt / (calm ? 2.6 : .3));
+    sink = Math.max(0, sink - dt / 2.8);
+    w1.style.setProperty('--inh', inh.toFixed(3)); w1.style.setProperty('--sink', sink.toFixed(3));
+    if (holding) droneSet(inh);
+
+    // No.2 the passing breath
+    if ((vis.get('r2') || 0) > 0) {
+      const wave = calm ? ((now / 1000) / 9) % 1.4 - .2 : null;
+      bands.forEach((b, i) => {
+        const y = (i + .5) / N;
+        let g = 1;
+        if (py2 != null) g += 2.6 * Math.exp(-((y - py2) ** 2) / .006);
+        if (wave != null) g += .9 * Math.exp(-((y - wave) ** 2) / .012);
+        b.style.flexGrow = g.toFixed(3);
+      });
+    }
+
+    // No.4 stillness reveals
+    const stillFor = (now - lastMove) / 1000;
+    const in4 = (vis.get('r4') || 0) > .2;
+    if (in4 && stillFor > 2.2) lit = calm ? Math.min(1, lit + dt / 9) : 1;
+    else lit = Math.max(0, lit - dt / (calm ? 1.4 : .2));
+    r4.style.setProperty('--lit', lit.toFixed(3));
+
+    // No.5 flood while you stay
+    const in5 = (vis.get('r5') || 0) > .2;
+    fl = in5 ? Math.min(1, fl + dt / 38) : Math.max(0, fl - dt / 60);
+    r5.style.setProperty('--fl', fl.toFixed(4));
+
+    // seam + which room
+    const H = document.documentElement.scrollHeight - innerHeight;
+    seam.style.setProperty('--sp', H > 0 ? (scrollY / H).toFixed(4) : 0);
+    let best = null, bv = 0; for (const r of rooms) { const v = vis.get(r.id) || 0; if (v > bv) { bv = v; best = r; } }
+    if (best && best !== current) { current = best; seam.style.setProperty('--sc', best.dataset.c); still.style.setProperty('--stc', getComputedStyle(best).getPropertyValue('--g').trim() || '#2b0f12'); }
+
+    // a long silence
+    if (!holding && (now - lastAny) / 1000 > 50) still.classList.add('on');
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

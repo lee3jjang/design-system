@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ratio 바다와 해바라기</title>
+<meta name="description" content="서양화 한 장의 색 비율(바다 35, 올리브 34, 리넨 19, 황토 11)을 페이지 전체 면적으로 옮긴 작업실 전시 페이지.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Ratio: the page is a colour field measured from one oil-painting screenshot.
+   Area is the material. Blues 35 · olive 34 · linen 19 · ochre 11, framed by a near-black mat. */
+:root {
+  --sea: #4995cc; --sky: #9ec8da; --greyblue: #889aa4; --teal: #3e6e7d;
+  --olive-black: #262b23; --olive: #4e5436; --khaki: #7d7b51;
+  --linen: #c0b8a8; --offwhite: #d5dad9;
+  --ochre: #c2a153;
+  --mat: #0f0f0f;
+  --font-h: "Gowun Batang", "Nanum Myeongjo", serif;
+  --font: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--mat); color: var(--offwhite); font: 400 17px/1.7 var(--font); overflow-x: hidden; }
+h1, h2, h3 { font-family: var(--font-h); font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+p { margin: 0; }
+svg { display: block; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--ochre); outline-offset: 3px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- near-black mat ---------- */
+.mat-top { padding: 28px clamp(16px, 5vw, 64px) 30px; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.mark { font-family: var(--font-h); font-size: 20px; letter-spacing: 0.04em; color: var(--offwhite); }
+.mark b { color: var(--ochre); font-weight: 700; }
+.mat-top nav { display: flex; gap: 20px; font-size: 16px; }
+.mat-top nav a { color: #b9bfbe; text-decoration: none; padding: 4px 0; border-bottom: 1px solid transparent; }
+.mat-top nav a:hover { color: var(--offwhite); border-color: var(--ochre); }
+
+main { padding: 0 clamp(0px, 2.5vw, 36px); }
+/* ---------- sea ---------- */
+.sea { position: relative; height: clamp(600px, 82vw, 1060px); overflow: hidden; background: var(--sea); }
+.sea > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sea-text { position: absolute; left: clamp(16px, 6vw, 88px); top: clamp(36px, 6vw, 84px); max-width: 520px; color: var(--olive-black); }
+.eyebrow { font-size: 16px; letter-spacing: 0.14em; font-weight: 500; }
+.sea-text h1 { font-size: clamp(40px, 6.4vw, 82px); line-height: 1.08; margin: 10px 0 14px; }
+.sea-text p { font-size: 18px; max-width: 26em; }
+#crests path { transition: opacity .5s ease; }
+
+/* ---------- studio ---------- */
+.studio { position: relative; background: var(--olive-black); overflow: hidden; }
+.studio > svg.bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.studio-in { position: relative; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr); gap: clamp(28px, 5vw, 72px); padding: clamp(64px, 11vw, 150px) clamp(16px, 6vw, 88px); align-items: center; }
+.studio h2, .bloom h2, .hours h2 { font-size: clamp(30px, 4vw, 46px); line-height: 1.2; margin: 8px 0 16px; }
+.studio .eyebrow { color: var(--ochre); }
+.studio p { color: #cfd3cf; max-width: 24em; }
+.wall { display: grid; grid-template-columns: 1.25fr 1fr 0.9fr; gap: clamp(14px, 2vw, 26px); align-items: end; }
+.canvas { margin: 0; }
+.frame { padding: clamp(8px, 1.1vw, 14px); background-color: var(--linen);
+  background-image: repeating-linear-gradient(0deg, rgba(38,43,35,.07) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(213,218,217,.16) 0 1px, transparent 1px 3px);
+  box-shadow: 0 18px 30px -18px #000; }
+.frame svg { width: 100%; height: auto; }
+.canvas figcaption { font-size: 16px; color: #c9cdc8; margin-top: 10px; }
+.canvas figcaption span { color: #9da396; margin-left: 6px; }
+
+/* ---------- sunflower ---------- */
+.bloom { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.4fr); background: var(--olive); position: relative; }
+.bloom-text { position: relative; padding: clamp(56px, 8vw, 110px) clamp(16px, 5vw, 72px); align-self: center; z-index: 1; }
+.bloom > svg.bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bloom .eyebrow { color: #e3cc8f; }
+.bloom p { color: #e1e4df; max-width: 22em; }
+.bloom-paint { position: relative; min-height: 640px; }
+.bloom-paint svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#head { transition: transform .9s cubic-bezier(.3,.7,.2,1); }
+#disc { transition: transform .9s cubic-bezier(.3,.7,.2,1); }
+
+/* ---------- hours & ratio ---------- */
+.hours { background-color: var(--linen); color: var(--olive-black);
+  background-image: repeating-linear-gradient(0deg, rgba(38,43,35,.07) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(213,218,217,.18) 0 1px, transparent 1px 3px); }
+.tide { display: block; width: 100%; height: clamp(56px, 7vw, 96px); }
+.hours-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: clamp(28px, 5vw, 64px); padding: clamp(36px, 4vw, 56px) clamp(16px, 6vw, 88px) clamp(40px, 4vw, 56px); align-items: start; }
+.hours .eyebrow { color: #3b4030; }
+.hours p { max-width: 24em; }
+.clock { margin-top: 26px; }
+.clock label { display: flex; justify-content: space-between; font-weight: 500; font-size: 16px; }
+.clock output { font-family: var(--font-h); font-size: 22px; font-weight: 700; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; margin: 6px 0 0; cursor: pointer; }
+input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--greyblue), var(--sky) 45%, var(--sea) 60%, var(--teal)); }
+input[type=range]::-moz-range-track { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--greyblue), var(--sky) 45%, var(--sea) 60%, var(--teal)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; margin-top: -11px; border-radius: 50%; background: var(--ochre); border: 3px solid var(--olive-black); }
+input[type=range]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--ochre); border: 3px solid var(--olive-black); }
+.ticks { display: flex; justify-content: space-between; font-size: 16px; color: #3b4030; }
+.ratio { background: var(--offwhite); padding: clamp(20px, 3vw, 34px); box-shadow: 0 16px 30px -22px rgba(15,15,15,.6); }
+.ratio h3 { font-size: 22px; margin-bottom: 6px; }
+.ratio .note { font-size: 16px; color: #3b4030; margin-bottom: 18px; }
+.bar { display: flex; height: 54px; overflow: hidden; }
+.bar i { display: block; height: 100%; }
+.groups { display: grid; grid-template-columns: 36fr 35fr 19fr 11fr; gap: 0; margin-top: 8px; font-size: 16px; }
+.groups div { border-left: 1px solid rgba(38,43,35,.35); padding: 2px 0 0 8px; line-height: 1.35; }
+.groups b { display: block; font-family: var(--font-h); font-size: 22px; }
+.chips { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 16px; }
+.chips li { display: flex; align-items: center; gap: 6px; white-space: nowrap; line-height: 1.4; }
+.chips i { width: 16px; height: 16px; flex: none; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(15,15,15,.15); }
+.chips small { font-size: 16px; color: #3b4030; }
+.measured { margin-top: 16px; font-size: 16px; color: #3b4030; }
+
+/* ---------- foot ---------- */
+.mat-foot { padding: 44px clamp(16px, 6vw, 88px) 120px; color: #b9bfbe; font-size: 16px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.mat-foot .sig { font-family: var(--font-h); color: var(--offwhite); font-size: 18px; }
+
+@media (max-width: 860px) {
+  .studio-in, .hours-in { grid-template-columns: 1fr; }
+  .bloom { grid-template-columns: 1fr; }
+  .bloom-paint { min-height: 520px; }
+  .wall { grid-template-columns: 1fr 1fr; }
+  .wall .canvas:first-child { grid-column: 1 / -1; }
+  .groups { font-size: 16px; }
+  .groups b { font-size: 19px; }
+}
+@media (max-width: 480px) {
+  .mat-top nav { gap: 14px; }
+  .sea-text p { font-size: 17px; }
+  .groups { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .groups div { padding-left: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="mat-top">
+  <div class="mark">RATIO <b>·</b> 바다 연작</div>
+  <nav aria-label="페이지 안내">
+    <a href="#studio">작업실</a>
+    <a href="#bloom">해바라기</a>
+    <a href="#hours">색 비율</a>
+  </nav>
+</header>
+
+<main>
+  <section class="sea" id="sea" aria-label="바다 그림">
+    <svg id="seaSvg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <clipPath id="clipSand"><path d="M0 745 C 260 715 560 735 800 775 C 920 800 1000 860 1050 1000 L0 1000 Z"/></clipPath>
+        <clipPath id="clipDune"><path d="M760 1000 C 820 860 980 760 1180 700 C 1340 655 1480 650 1600 640 L1600 1000 Z"/></clipPath>
+        <radialGradient id="sunGlow"><stop offset="0" stop-color="#e6cf8e" stop-opacity=".9"/><stop offset=".45" stop-color="#c2a153" stop-opacity=".55"/><stop offset="1" stop-color="#c2a153" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="1600" height="380" fill="#9ec8da"/>
+      <g id="skyStrokes"></g>
+      <g id="sun"><circle r="150" fill="url(#sunGlow)"/><circle r="62" fill="#c2a153"/><circle r="42" cx="-8" cy="-8" fill="#d4b56a"/></g>
+      <g id="clouds"></g>
+      <rect y="360" width="1600" height="64" fill="#3e6e7d"/>
+      <rect y="420" width="1600" height="300" fill="#4995cc"/>
+      <g id="seaStrokes"></g>
+      <rect y="700" width="1600" height="110" fill="#889aa4"/>
+      <g id="shoreStrokes"></g>
+      <g id="crests"></g>
+      <g clip-path="url(#clipSand)"><rect y="700" width="1000" height="300" fill="#c2a153"/><g id="sandStrokes"></g></g>
+      <g clip-path="url(#clipDune)"><rect x="740" y="620" width="860" height="380" fill="#7d7b51"/><g id="duneStrokes"></g></g>
+      <rect id="seaTint" width="1600" height="1000" fill="#c2a153" opacity="0" style="mix-blend-mode:soft-light"/>
+    </svg>
+    <div class="sea-text">
+      <div class="eyebrow">서양화 · 유화 연작</div>
+      <h1>바다를 칠하는 오후</h1>
+      <p>하늘과 바다가 화면의 삼분의 일을 넘게 차지하고, 올리브 그늘이 그만큼을 받칩니다. 노란빛은 열에 하나만.</p>
+    </div>
+  </section>
+
+  <section class="studio" id="studio" aria-labelledby="studio-h">
+    <svg class="bg" id="studioBg" viewBox="0 0 1600 800" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="studio-in">
+      <div>
+        <div class="eyebrow">작업실</div>
+        <h2 id="studio-h">세 점의 바다</h2>
+        <p>같은 해변을 세 번 그렸습니다. 아침의 회청색, 정오의 세룰리안, 바람 부는 날의 짙은 청록.</p>
+      </div>
+      <div class="wall">
+        <figure class="canvas"><div class="frame"><svg id="c1" viewBox="0 0 500 380" aria-hidden="true"></svg></div><figcaption>바다 I <span>정오</span></figcaption></figure>
+        <figure class="canvas"><div class="frame"><svg id="c2" viewBox="0 0 400 460" aria-hidden="true"></svg></div><figcaption>바다 II <span>아침</span></figcaption></figure>
+        <figure class="canvas"><div class="frame"><svg id="c3" viewBox="0 0 360 360" aria-hidden="true"></svg></div><figcaption>바다 III <span>바람</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloom" id="bloom" aria-labelledby="bloom-h">
+    <svg class="bg" id="bloomBg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="bloom-text">
+      <div class="eyebrow">아래 칸의 한 점</div>
+      <h2 id="bloom-h">해바라기</h2>
+      <p>화면의 노랑은 대부분 이 꽃에 있습니다. 포인터를 따라, 또는 해를 따라 고개를 돌립니다.</p>
+    </div>
+    <div class="bloom-paint" id="bloomPaint">
+      <svg id="flowerSvg" viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect width="800" height="900" fill="#889aa4"/>
+        <g id="fSky"></g>
+        <g id="fLeaves"></g>
+        <g id="head" style="transform-box: view-box; transform-origin: 400px 380px;">
+          <g id="petals"></g>
+          <g id="disc" style="transform-box: view-box; transform-origin: 400px 380px;"></g>
+        </g>
+        <rect id="flowerTint" width="800" height="900" fill="#c2a153" opacity="0" style="mix-blend-mode:soft-light"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="hours" id="hours" aria-labelledby="hours-h">
+    <svg class="tide" id="tide" viewBox="0 0 1600 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H1600V84 C1500 104 1420 76 1320 94 C1200 116 1120 82 1000 98 C880 114 780 80 660 96 C540 112 440 84 320 100 C220 112 120 86 0 98Z" fill="#3e6e7d"/><path d="M0 0H1600V50 C1480 62 1380 44 1260 56 C1120 70 1000 46 860 58 C720 70 600 48 460 60 C320 72 180 50 0 60Z" fill="#4995cc"/></svg>
+    <div class="hours-in">
+      <div>
+        <div class="eyebrow">시간</div>
+        <h2 id="hours-h">빛만 옮겨 갑니다</h2>
+        <p>해가 움직여도 면적은 그대로입니다. 바뀌는 건 해의 자리와 꽃이 바라보는 방향, 그리고 얇은 빛의 막뿐.</p>
+        <div class="clock">
+          <label for="hour"><span>해의 시각</span><output id="hourOut" for="hour">오후 2시</output></label>
+          <input type="range" id="hour" min="6" max="19" step="0.25" value="14" aria-valuetext="오후 2시">
+          <div class="ticks" aria-hidden="true"><span>새벽</span><span>정오</span><span>저녁</span></div>
+        </div>
+      </div>
+      <div class="ratio" aria-labelledby="ratio-h">
+        <h3 id="ratio-h">색 비율</h3>
+        <p class="note">원본 사진의 그림 부분을 아홉 색으로 나눈 면적. 이 페이지가 따르는 목표입니다.</p>
+        <div class="bar" role="img" aria-label="바다와 하늘 35퍼센트, 올리브 34퍼센트, 리넨 19퍼센트, 황토 11퍼센트">
+          <i style="flex:14;background:#4995cc"></i><i style="flex:9;background:#9ec8da"></i><i style="flex:8;background:#889aa4"></i><i style="flex:5;background:#3e6e7d"></i>
+          <i style="flex:13;background:#262b23"></i><i style="flex:12;background:#4e5436"></i><i style="flex:10;background:#7d7b51"></i>
+          <i style="flex:13;background:#c0b8a8"></i><i style="flex:6;background:#d5dad9;box-shadow:inset 0 0 0 1px rgba(15,15,15,.12)"></i>
+          <i style="flex:11;background:#c2a153"></i>
+        </div>
+        <div class="groups">
+          <div><b>35</b>바다·하늘</div>
+          <div><b>34</b>올리브</div>
+          <div><b>19</b>리넨</div>
+          <div><b>11</b>황토</div>
+        </div>
+        <ul class="chips">
+          <li><i style="background:#4995cc"></i>세룰리안 <small>14</small></li>
+          <li><i style="background:#9ec8da"></i>옅은 하늘 <small>9</small></li>
+          <li><i style="background:#889aa4"></i>회청 <small>8</small></li>
+          <li><i style="background:#3e6e7d"></i>청록 <small>5</small></li>
+          <li><i style="background:#262b23"></i>올리브 흑 <small>13</small></li>
+          <li><i style="background:#4e5436"></i>올리브 <small>12</small></li>
+          <li><i style="background:#7d7b51"></i>카키 <small>10</small></li>
+          <li><i style="background:#c0b8a8"></i>리넨 <small>13</small></li>
+          <li><i style="background:#d5dad9"></i>오프화이트 <small>6</small></li>
+          <li><i style="background:#c2a153"></i>황토 <small>11</small></li>
+        </ul>
+        <p class="measured" id="measured">이 페이지(1280px)를 같은 아홉 색으로 재면 바다·하늘 34, 올리브 33, 리넨 23, 황토 10. 리넨이 조금 넉넉합니다.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="mat-foot">
+  <span class="sig">바다 연작, 작업실에서</span>
+  <span>모든 붓질은 코드로 그렸습니다.</span>
+</footer>
+
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let seed = 20261101;
+  const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const pick = a => a[Math.floor(rnd() * a.length)];
+  const R = (a, b) => a + rnd() * (b - a);
+
+  // One brush mark: a slightly bent, round-capped stroke.
+  function marks(target, o) {
+    const g = typeof target === 'string' ? document.getElementById(target) : target;
+    let s = '';
+    for (let i = 0; i < o.n; i++) {
+      const x = o.x + rnd() * o.w, y = o.y + rnd() * o.h;
+      if (o.keep && !o.keep(x, y)) continue;
+      const L = R(o.len[0], o.len[1]);
+      const a = (o.ang + (rnd() - .5) * (o.jit || 0)) * Math.PI / 180;
+      const dx = Math.cos(a) * L / 2, dy = Math.sin(a) * L / 2;
+      const b = (rnd() - .5) * L * (o.bend ?? .25);
+      const w = R(o.wid[0], o.wid[1]);
+      const op = R(o.op ? o.op[0] : .55, o.op ? o.op[1] : .95).toFixed(2);
+      const d = `M${(x - dx).toFixed(1)} ${(y - dy).toFixed(1)}Q${(x - dy * b / L * 2).toFixed(1)} ${(y + dx * b / L * 2).toFixed(1)} ${(x + dx).toFixed(1)} ${(y + dy).toFixed(1)}`;
+      if (o.shadow) s += `<path d="${d}" transform="translate(1.6 2.2)" stroke="${o.shadow}" stroke-width="${w.toFixed(1)}" stroke-linecap="round" fill="none" opacity=".45"/>`;
+      s += `<path d="${d}" stroke="${pick(o.cols)}" stroke-width="${w.toFixed(1)}" stroke-linecap="round" fill="none" opacity="${op}"${o.data ? ` data-x="${x | 0}" data-y="${y | 0}"` : ''}/>`;
+    }
+    g.insertAdjacentHTML('beforeend', s);
+    return g;
+  }
+
+  /* ---------- the sea ---------- */
+  marks('skyStrokes', { x: -40, y: 0, w: 1680, h: 360, n: 480, len: [60, 180], wid: [10, 26], ang: -4, jit: 10, cols: ['#a6cddd', '#95c1d4', '#a9d0df', '#9ec8da', '#93bccf'] });
+  const cloud = (cx, cy, rx, ry, n) => marks('clouds', { x: cx - rx, y: cy - ry, w: rx * 2, h: ry * 2, n, len: [30, 90], wid: [12, 30], ang: -8, jit: 50, bend: .6,
+    cols: ['#d5dad9', '#dfe3e2', '#b4d3df', '#e6e8e6', '#aed0de'], keep: (x, y) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 * (y > cy ? 2.4 : 1) < 1 });
+  cloud(560, 190, 190, 62, 110); cloud(420, 240, 120, 40, 45); cloud(1240, 120, 170, 50, 85); cloud(1450, 280, 120, 36, 40);
+  marks('seaStrokes', { x: -40, y: 364, w: 1680, h: 60, n: 220, len: [70, 200], wid: [5, 12], ang: 0, jit: 3, bend: .05, cols: ['#3e6e7d', '#37636f', '#467a88'] });
+  marks('seaStrokes', { x: -40, y: 426, w: 1680, h: 280, n: 900, len: [40, 150], wid: [5, 15], ang: 1, jit: 6, bend: .2, cols: ['#4995cc', '#418bc2', '#53a0d4', '#4a92c6', '#3f84b8'] });
+  marks('seaStrokes', { x: -40, y: 426, w: 1680, h: 280, n: 160, len: [30, 90], wid: [3, 7], ang: 0, jit: 6, cols: ['#3e6e7d', '#3b7686'] });
+  marks('shoreStrokes', { x: -40, y: 700, w: 1680, h: 110, n: 380, len: [40, 140], wid: [6, 14], ang: 2, jit: 8, cols: ['#889aa4', '#8fa1aa', '#7f939e', '#93a5ad'] });
+  // wave crests: impasto off-white with a shadow underneath; they catch light under the pointer
+  marks('crests', { x: 0, y: 440, w: 1600, h: 330, n: 260, len: [16, 60], wid: [2.5, 6], ang: 0, jit: 14, bend: .5, op: [.35, .6], cols: ['#d5dad9', '#e8ecea', '#c9d6dc'], shadow: '#2f5f6d', data: true });
+  marks('crests', { x: 0, y: 760, w: 1600, h: 40, n: 120, len: [30, 120], wid: [4, 9], ang: 1, jit: 8, op: [.6, .9], cols: ['#d5dad9', '#e8ecea'], data: true });
+  marks('sandStrokes', { x: 0, y: 700, w: 1050, h: 300, n: 600, len: [40, 120], wid: [8, 20], ang: 6, jit: 18, cols: ['#c2a153', '#caa95c', '#b8974a', '#c9ab66', '#bd9c4f'] });
+  marks('sandStrokes', { x: 0, y: 700, w: 1050, h: 300, n: 70, len: [20, 60], wid: [3, 7], ang: 6, jit: 30, cols: ['#d5dad9'], op: [.5, .8] });
+  marks('duneStrokes', { x: 740, y: 620, w: 860, h: 380, n: 1300, len: [20, 70], wid: [3, 9], ang: -80, jit: 34, bend: .4, cols: ['#7d7b51', '#868458', '#4e5436', '#727048', '#262b23', '#7d7b51'] });
+
+  const crests = [...document.querySelectorAll('#crests path[data-x]')];
+  const crestBase = crests.map(p => +p.getAttribute('opacity'));
+  const seaEl = document.getElementById('sea'), seaSvg = document.getElementById('seaSvg');
+  let crestRaf = 0;
+  seaEl.addEventListener('pointermove', e => {
+    if (crestRaf) return;
+    crestRaf = requestAnimationFrame(() => {
+      crestRaf = 0;
+      const pt = seaSvg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+      const p = pt.matrixTransform(seaSvg.getScreenCTM().inverse());
+      crests.forEach((c, i) => {
+        const d = Math.hypot(c.dataset.x - p.x, (c.dataset.y - p.y) * 1.8);
+        c.setAttribute('opacity', d < 220 ? Math.min(1, crestBase[i] + (1 - d / 220) * .65).toFixed(2) : crestBase[i]);
+      });
+    });
+  });
+  seaEl.addEventListener('pointerleave', () => crests.forEach((c, i) => c.setAttribute('opacity', crestBase[i])));
+
+  /* ---------- studio wall ---------- */
+  marks('tide', { x: -20, y: 0, w: 1640, h: 56, n: 160, len: [40, 140], wid: [4, 9], ang: 0, jit: 4, bend: .1, cols: ['#4995cc', '#418bc2', '#53a0d4'] });
+  marks('tide', { x: 0, y: 70, w: 1600, h: 30, n: 120, len: [20, 70], wid: [2, 5], ang: 0, jit: 8, op: [.5, .85], cols: ['#d5dad9', '#e8ecea'] });
+  marks('studioBg', { x: -40, y: 0, w: 1680, h: 800, n: 380, len: [80, 260], wid: [14, 34], ang: -12, jit: 14, bend: .15, op: [.25, .55], cols: ['#2d3329', '#20251e', '#30362b'] });
+  function miniSea(id, W, H, o) {
+    const svg = document.getElementById(id);
+    const hz = H * o.hz, shore = H * o.shore;
+    svg.innerHTML = `<rect width="${W}" height="${hz}" fill="${o.sky}"/><rect y="${hz}" width="${W}" height="${shore - hz}" fill="${o.sea}"/><rect y="${shore}" width="${W}" height="${H - shore}" fill="${o.ground}"/>`;
+    marks(svg, { x: -20, y: 0, w: W + 40, h: hz, n: o.n, len: [20, 70], wid: [5, 12], ang: -4, jit: 12, cols: o.skyC });
+    marks(svg, { x: W * .1, y: hz * .25, w: W * .5, h: hz * .4, n: o.n / 4, len: [14, 40], wid: [6, 14], ang: 0, jit: 60, bend: .6, cols: ['#d5dad9', '#e3e6e4'], keep: (x, y) => ((x - W * .35) / (W * .25)) ** 2 + ((y - hz * .45) / (hz * .2)) ** 2 < 1 });
+    marks(svg, { x: -20, y: hz, w: W + 40, h: shore - hz, n: o.n * 1.2, len: [20, 70], wid: [4, 10], ang: 1, jit: 6, cols: o.seaC });
+    marks(svg, { x: 0, y: hz + 4, w: W, h: shore - hz, n: o.n / 3, len: [8, 26], wid: [2, 4], ang: 0, jit: 14, op: [.5, .9], cols: ['#d5dad9'], shadow: '#2f5f6d' });
+    marks(svg, { x: -20, y: shore, w: W + 40, h: H - shore, n: o.n, len: [14, 50], wid: [4, 10], ang: o.groundAng, jit: 30, cols: o.groundC });
+  }
+  miniSea('c1', 500, 380, { hz: .42, shore: .74, sky: '#9ec8da', sea: '#4995cc', ground: '#c2a153', n: 160, skyC: ['#9ec8da', '#a8cfdf', '#93bfd3'], seaC: ['#4995cc', '#3f87bd', '#57a2d4'], groundC: ['#c2a153', '#b8974a', '#cdb06a'], groundAng: 4 });
+  miniSea('c2', 400, 460, { hz: .38, shore: .7, sky: '#889aa4', sea: '#3e6e7d', ground: '#7d7b51', n: 150, skyC: ['#889aa4', '#93a4ac', '#7e909b'], seaC: ['#3e6e7d', '#4995cc', '#467a88'], groundC: ['#7d7b51', '#4e5436', '#868458'], groundAng: -70 });
+  miniSea('c3', 360, 360, { hz: .3, shore: .78, sky: '#9ec8da', sea: '#3e6e7d', ground: '#4e5436', n: 130, skyC: ['#9ec8da', '#889aa4'], seaC: ['#3e6e7d', '#4995cc', '#37636f'], groundC: ['#4e5436', '#262b23', '#7d7b51'], groundAng: -75 });
+
+  /* ---------- sunflower ---------- */
+  marks('bloomBg', { x: -40, y: 0, w: 1680, h: 900, n: 420, len: [80, 240], wid: [16, 36], ang: 70, jit: 30, bend: .2, op: [.3, .6], cols: ['#555b3b', '#474d31', '#5a6040', '#4e5436'] });
+  marks('bloomBg', { x: -40, y: 640, w: 1680, h: 280, n: 520, len: [40, 120], wid: [10, 24], ang: -75, jit: 34, bend: .3, op: [.7, 1], cols: ['#7d7b51', '#868458', '#727048'] });
+  marks('fSky', { x: -40, y: -20, w: 880, h: 940, n: 520, len: [40, 140], wid: [10, 24], ang: -10, jit: 20, cols: ['#889aa4', '#9ec8da', '#8fa1aa', '#7f939e', '#9ec8da'] });
+  marks('fSky', { x: 0, y: 0, w: 800, h: 900, n: 160, len: [24, 70], wid: [10, 24], ang: -10, jit: 70, bend: .6, cols: ['#d5dad9', '#e3e6e4'],
+    keep: (x, y) => ((x - 170) / 150) ** 2 + ((y - 120) / 70) ** 2 < 1 || ((x - 690) / 130) ** 2 + ((y - 690) / 60) ** 2 < 1 });
+  const leaves = document.getElementById('fLeaves');
+  leaves.insertAdjacentHTML('beforeend', '<path d="M392 560 C 380 680 410 800 396 920" stroke="#4e5436" stroke-width="30" fill="none" stroke-linecap="round"/>');
+  const leaf = (x, y, rot, s, c1, c2) => {
+    leaves.insertAdjacentHTML('beforeend', `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})"><path d="M0 0 C 70 -70 210 -70 290 0 C 210 60 80 70 0 0Z" fill="${c1}"/><path d="M6 0 C 100 -8 200 -6 284 0" stroke="${c2}" stroke-width="5" fill="none"/></g>`);
+    const g = leaves.lastElementChild;
+    marks(g, { x: 20, y: -50, w: 260, h: 100, n: 60, len: [20, 60], wid: [6, 14], ang: -30, jit: 40, cols: [c1, c2, '#7d7b51'], keep: (px, py) => Math.abs(py) < 52 * Math.sin(Math.PI * Math.min(1, px / 290)) });
+  };
+  leaf(398, 640, -160, 1.15, '#7d7b51', '#4e5436'); leaf(402, 700, -18, 1.05, '#4e5436', '#7d7b51');
+  leaf(396, 800, -170, .95, '#4e5436', '#262b23'); leaf(400, 840, -8, 1.0, '#7d7b51', '#4e5436');
+  leaf(620, 480, -40, .8, '#4e5436', '#7d7b51'); leaf(120, 520, -150, .8, '#7d7b51', '#4e5436');
+  const petals = document.getElementById('petals');
+  const cx = 400, cy = 380;
+  for (let ring = 0; ring < 2; ring++) {
+    const N = ring ? 26 : 22;
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * 360 + (ring ? 7 : 0) + R(-4, 4);
+      const L = ring ? R(270, 310) : R(295, 345), W = R(46, 60);
+      const cols = ring ? ['#c2a153', '#cfae5e', '#b8974a'] : ['#b8974a', '#c2a153', '#a88a42'];
+      const c = pick(cols);
+      petals.insertAdjacentHTML('beforeend', `<g transform="translate(${cx} ${cy}) rotate(${a.toFixed(1)})"><path d="M60 0 C 110 ${-W} ${L - 40} ${-W * .55} ${L} ${R(-8, 8).toFixed(1)} C ${L - 50} ${W * .6} 110 ${W} 60 0Z" fill="${c}"/><path d="M80 ${R(-8, 8).toFixed(1)} Q ${L * .6} ${R(-14, 14).toFixed(1)} ${L - 22} 0" stroke="#e1c77f" stroke-width="${R(3, 6).toFixed(1)}" stroke-linecap="round" fill="none" opacity=".8"/><path d="M90 ${(W * .35).toFixed(1)} Q ${L * .55} ${(W * .42).toFixed(1)} ${L - 50} ${(W * .25).toFixed(1)}" stroke="#9c7f3a" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/></g>`);
+    }
+  }
+  const disc = document.getElementById('disc');
+  disc.insertAdjacentHTML('beforeend', `<circle cx="${cx}" cy="${cy}" r="96" fill="#262b23"/><circle cx="${cx}" cy="${cy}" r="62" fill="#30361f"/>`);
+  let ds = '';
+  for (let i = 0; i < 420; i++) { // phyllotaxis seeds
+    const r = 5.6 * Math.sqrt(i), t = i * 2.39996;
+    if (r > 92) break;
+    const col = r > 70 ? '#4e5436' : (i % 7 === 0 ? '#c2a153' : '#4b4f2c');
+    ds += `<circle cx="${(cx + r * Math.cos(t)).toFixed(1)}" cy="${(cy + r * Math.sin(t)).toFixed(1)}" r="${(1.6 + r / 60).toFixed(1)}" fill="${col}" opacity=".9"/>`;
+  }
+  disc.insertAdjacentHTML('beforeend', ds);
+
+  const head = document.getElementById('head');
+  function face(nx, ny) { // nx, ny in -1..1
+    nx = Math.max(-1, Math.min(1, nx)); ny = Math.max(-1, Math.min(1, ny));
+    head.style.transform = `translate(${(nx * 26).toFixed(1)}px, ${(ny * 18).toFixed(1)}px) rotate(${(nx * 8).toFixed(1)}deg) scale(${(1 - Math.abs(nx) * .16).toFixed(3)}, ${(1 - Math.abs(ny) * .12).toFixed(3)})`;
+    disc.style.transform = `translate(${(nx * 30).toFixed(1)}px, ${(ny * 22).toFixed(1)}px)`;
+  }
+  const flowerSvg = document.getElementById('flowerSvg'), bloom = document.getElementById('bloom');
+  let pointerOn = false;
+  bloom.addEventListener('pointermove', e => {
+    pointerOn = true;
+    const b = flowerSvg.getBoundingClientRect();
+    const fx = b.left + b.width / 2, fy = b.top + b.height * (380 / 900);
+    face((e.clientX - fx) / (b.width * .6), (e.clientY - fy) / (b.height * .6));
+  });
+  bloom.addEventListener('pointerleave', () => { pointerOn = false; setHour(+hourIn.value); });
+
+  /* ---------- time of day ---------- */
+  const hourIn = document.getElementById('hour'), hourOut = document.getElementById('hourOut');
+  const sun = document.getElementById('sun'), seaTint = document.getElementById('seaTint'), flowerTint = document.getElementById('flowerTint');
+  const label = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); const ap = hh < 12 ? '오전' : '오후'; const h12 = hh % 12 === 0 ? 12 : hh % 12; return `${hh < 7 ? '새벽' : ap} ${h12}시${mm ? ' ' + mm + '분' : ''}`; };
+  function setHour(h) {
+    const t = (h - 6) / 13; // 0 sunrise .. 1 dusk
+    const x = 120 + t * 1360, y = 380 - Math.sin(t * Math.PI) * 300;
+    sun.setAttribute('transform', `translate(${x.toFixed(0)} ${y.toFixed(0)})`);
+    const edge = Math.pow(Math.abs(t - .5) * 2, 2); // light film thickens at the ends of the day
+    seaTint.setAttribute('opacity', (edge * .42).toFixed(2));
+    flowerTint.setAttribute('opacity', (edge * .32).toFixed(2));
+    seaTint.setAttribute('fill', t < .5 ? '#d5dad9' : '#c2a153');
+    flowerTint.setAttribute('fill', t < .5 ? '#d5dad9' : '#c2a153');
+    const txt = label(h); hourOut.textContent = txt; hourIn.setAttribute('aria-valuetext', txt);
+    if (!pointerOn) face((t - .5) * 1.6, -Math.sin(t * Math.PI) * .5 + .15);
+  }
+  hourIn.addEventListener('input', () => setHour(+hourIn.value));
+  setHour(+hourIn.value);
+  if (reduce) { head.style.transition = 'none'; disc.style.transition = 'none'; }
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

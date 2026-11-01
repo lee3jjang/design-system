@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ignota · 해독되지 않은 문자</title>
+<meta name="description" content="Ignota: 원과 막대와 점으로 된 서른 개의 기호로 새긴, 읽을 수 없는 석판. 빛을 비추어 더듬어 읽는 작품.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Gowun+Batang:wght@400;700&display=swap">
+<style>
+/* Ignota — an undeciphered inscription.
+   One slab of limestone in a dark room. Thirty signs made only of circles, bars and dots.
+   The viewer is the lamp: raking light follows the pointer (or the focused line), and the
+   carved grooves throw their shadows toward it. Touching a line pencils a reading beside it
+   and rubs red ochre into its grooves, the way epigraphers paint an inscription once read.
+   The ninth line broke off with the stone and cannot be read. */
+:root {
+  color-scheme: dark;
+  --room: #161411;
+  --room-2: #1f1c18;
+  --wall: #d9d0bf;        /* wall text on the room: ~12:1 */
+  --wall-2: #a99f8c;      /* quieter wall text: ~6.8:1 */
+  --stone: #c3b69b;
+  --stone-hi: #e8dcc0;
+  --stone-lo: #8f826a;
+  --groove: 38 30 22;     /* rgb of carved ink */
+  --graphite: #2c2722;    /* pencil notes on stone: ~7.5:1 */
+  --ochre: #8c2d17;       /* rubbed-in pigment */
+  --ochre-hi: #c2532f;
+  --clay: #a8826a;
+  --clay-hi: #c9a68b;
+  --serif: "Gowun Batang", "Nanum Myeongjo", serif;
+  --latin: "Cormorant Garamond", "Gowun Batang", serif;
+}
+* { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { background: var(--room); }
+body {
+  margin: 0; min-height: 100vh; color: var(--wall);
+  font: 400 17px/1.8 var(--serif); word-break: keep-all; -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(120% 70% at 50% 18%, #2a251f 0%, transparent 62%),
+    radial-gradient(90% 60% at 50% 100%, #0d0c0a 0%, transparent 70%),
+    var(--room);
+}
+button, input { font: inherit; color: inherit; }
+p { margin: 0; }
+a { color: var(--wall); text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--ochre-hi); outline-offset: 6px; }
+
+/* ---------- glyph primitive ---------- */
+.gy { display: block; width: calc(var(--gs) * 24 / 36); height: var(--gs); overflow: visible;
+  fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
+.sep { display: block; width: calc(var(--gs) * .34); height: calc(var(--gs) * .34); flex: none; position: relative; }
+.sep::after { content: ""; position: absolute; left: 50%; top: 50%; width: 3px; height: 3px; margin: -1.5px; border-radius: 50%; background: currentColor; opacity: .55; }
+
+/* ---------- the room ---------- */
+.room { max-width: 1240px; margin: 0 auto; padding: 0 max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left)); }
+
+.label { display: grid; grid-template-columns: auto 1fr; gap: 6px 40px; align-items: end; padding: 64px 0 40px; max-width: 980px; margin: 0 auto; }
+.label h1 { margin: 0; font: 500 clamp(44px, 7vw, 76px)/.9 var(--latin); letter-spacing: .14em; color: var(--wall); text-transform: uppercase; }
+.label h1 small { display: block; margin-top: 14px; font: 400 18px/1.4 var(--serif); letter-spacing: .08em; color: var(--wall-2); text-transform: none; }
+.label .cap { max-width: 470px; font-size: 16.5px; line-height: 1.8; color: var(--wall-2); }
+.label .cap b { font-weight: 400; color: var(--wall); }
+
+/* ---------- the slab ---------- */
+.vitrine { position: relative; max-width: 1040px; margin: 0 auto; padding: 0 0 8px; }
+.slab { --x: 70%; --y: 20%; --gs: 30px; position: relative; padding: 70px 56px 92px; touch-action: pan-y; }
+.stone { position: absolute; inset: 0; filter: drop-shadow(0 34px 38px rgba(0,0,0,.65)) drop-shadow(0 4px 6px rgba(0,0,0,.5)); pointer-events: none; }
+.face { position: absolute; inset: 0;
+  clip-path: polygon(1.5% 5%, 9% 1.2%, 24% 2.4%, 37% .4%, 55% 2%, 72% .2%, 88% 1.8%, 98.6% 4%, 100% 19%, 98.8% 41%, 100% 66%, 98.4% 92%, 92% 99%, 71% 98.2%, 50% 100%, 31% 98.6%, 21% 95%, 15.5% 82%, 12% 71%, 7.5% 64%, 3.5% 60%, 0 47%, 1.4% 30%, 0 15%);
+  background:
+    radial-gradient(circle at var(--x) var(--y), rgba(255,244,214,.55) 0, rgba(255,240,205,.18) 22%, transparent 48%),
+    radial-gradient(140% 120% at 50% 40%, transparent 40%, rgba(40,30,20,.42) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .16 0 0 0 0 .11 0 0 0 .34 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='4' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .29 0 0 0 0 .2 0 0 0 .5 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),
+    linear-gradient(170deg, #cdbfa3, var(--stone) 45%, #b5a689);
+}
+/* a hairline crack running into the break */
+.crack { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.crack path { fill: none; stroke: rgba(46,36,26,.55); stroke-width: 1.1; }
+.crack path + path { stroke: rgba(255,245,222,.35); transform: translate(1px, 1px); }
+
+.lines { position: relative; display: flex; flex-direction: row-reverse; justify-content: center; align-items: flex-start; gap: 6px; }
+.line { display: flex; flex-direction: row-reverse; align-items: flex-start; position: relative; }
+/* faint ruled registers between columns, as if laid out with a cord */
+.line + .line::after { content: ""; position: absolute; right: -4px; top: -26px; bottom: -30px; width: 1px; background: linear-gradient(transparent, rgba(46,36,26,.22) 8%, rgba(46,36,26,.22) 92%, transparent); }
+
+.read { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 8px 12px; margin: 0; border: 0; background: none; cursor: crosshair; border-radius: 999px; -webkit-tap-highlight-color: transparent; }
+.read:focus-visible { outline: 2px solid var(--ochre); outline-offset: 3px; box-shadow: 0 0 0 7px rgba(140,45,23,.14); }
+.num { margin-bottom: 8px; }
+.num .gy { --gs: 18px; }
+
+.read .gy, .read .sep {
+  --l: 0; --dx: 0; --dy: 0; --k: calc(.5 + var(--l) * 1.4);
+  color: rgb(var(--groove) / calc(.13 + var(--l) * .78));
+  filter: drop-shadow(calc(var(--dx) * var(--k) * 1px) calc(var(--dy) * var(--k) * 1px) 0 rgb(20 12 6 / calc(.15 + var(--l) * .5)))
+          drop-shadow(calc(var(--dx) * var(--k) * -1px) calc(var(--dy) * var(--k) * -1px) 0 rgb(255 246 222 / calc(.2 + var(--l) * .55)));
+  opacity: var(--w, 1);
+  transition: color .6s ease;
+}
+/* pigment rubbed into the grooves once a line is read */
+.line.is-read .read .gy, .line.is-read .read .sep { color: rgb(140 45 23 / calc(.62 + var(--l) * .38)); }
+.line.is-read .read .gy:nth-child(n) { transition-delay: calc(var(--i, 0) * 45ms); }
+/* signs that share a form glint when one is touched */
+.lines.kin-on .gy.kin { color: rgb(255 248 228 / .96); filter: drop-shadow(0 0 3px rgba(255,236,190,.65)); }
+
+/* pencilled readings */
+.note { writing-mode: vertical-rl; font: 400 17px/1.5 var(--serif); color: var(--graphite); letter-spacing: .06em; padding: 54px 4px 0 0; max-height: 520px; min-width: 22px;
+  clip-path: inset(0 0 100% 0); transition: clip-path 1.6s cubic-bezier(.4,.1,.2,1); }
+.line.is-read .note { clip-path: inset(0 0 0 0); }
+.line.is-lacuna .note { color: #4a3f34; font-style: normal; }
+
+/* the break: the ninth line is mostly gone */
+.line.is-lacuna .read { cursor: help; }
+.line.is-lacuna .read .gy:nth-last-child(-n+2) { opacity: .45; }
+
+.under { display: flex; justify-content: space-between; align-items: baseline; gap: 16px 32px; flex-wrap: wrap; max-width: 980px; margin: 28px auto 0; color: var(--wall-2); font-size: 16.5px; }
+.under .tally { color: var(--wall); }
+.forget { appearance: none; border: 0; background: none; padding: 10px 2px; min-height: 44px; color: var(--wall-2); cursor: pointer; font-size: 16px; text-decoration: underline; text-decoration-color: rgba(169,159,140,.45); text-underline-offset: 5px; }
+.forget:hover { color: var(--wall); }
+.forget[hidden] { display: none; }
+.hint { font-style: normal; }
+
+/* ---------- the sign list: a scholar's key ---------- */
+.key { max-width: 980px; margin: 120px auto 0; display: grid; grid-template-columns: 220px 1fr; gap: 32px 48px; }
+.key h2, .clay h2 { margin: 0; font: 500 30px/1.1 var(--latin); letter-spacing: .14em; text-transform: uppercase; color: var(--wall); }
+.key h2 small, .clay h2 small { display: block; margin-top: 10px; font: 400 16.5px/1.7 var(--serif); letter-spacing: 0; text-transform: none; color: var(--wall-2); }
+.signs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 26px 10px; }
+.signs li { --gs: 38px; display: grid; justify-items: center; gap: 6px; color: #e3d8c3; }
+.signs .gy { filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); }
+.signs .no { font: 500 13px/1 var(--latin); letter-spacing: .12em; color: #8d8473; }
+.signs .sy { min-height: 1.5em; font-size: 16px; line-height: 1.5; color: var(--wall-2); text-align: center; transition: color .4s; }
+.signs li.fresh .sy { color: #e9a07c; }
+.signs li.fresh .gy { color: #f0b08e; }
+
+/* ---------- the clay: write your own ---------- */
+.clay { max-width: 980px; margin: 120px auto 0; display: grid; grid-template-columns: 220px 1fr; gap: 32px 48px; }
+.groove { display: grid; gap: 4px; margin-bottom: 26px; }
+.groove label { font-size: 16.5px; color: var(--wall-2); }
+.groove input { width: 100%; border: 0; border-bottom: 1.5px solid #6c6253; background: transparent; padding: 8px 0 10px; font: 400 22px/1.4 var(--serif); color: var(--wall); border-radius: 0; }
+.groove input:focus-visible { outline: none; border-bottom-color: var(--ochre-hi); box-shadow: 0 2px 0 var(--ochre-hi); }
+.tablet { --gs: 44px; position: relative; min-height: 210px; padding: 44px 40px 48px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 14px 6px;
+  color: rgb(70 40 26 / .9); isolation: isolate; }
+.tablet::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 46% 54% 42% 58% / 14% 18% 12% 16%;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,230,205,.35), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .18 0 0 0 0 .1 0 0 0 .3 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(160deg, var(--clay-hi), var(--clay) 60%, #8e6b55);
+  box-shadow: inset 0 -10px 24px rgba(60,30,15,.35), inset 0 6px 14px rgba(255,235,210,.25), 0 26px 40px rgba(0,0,0,.55); }
+.tablet .gy { filter: drop-shadow(-1px -1px 0 rgba(60,30,14,.55)) drop-shadow(1px 1.2px 0 rgba(255,232,206,.55)); }
+.tablet .gy.cut { stroke-dasharray: 64; animation: cut .9s cubic-bezier(.5,.1,.3,1) both; }
+.tablet .gy.cut circle[fill] { animation: dot .3s .55s both; }
+@keyframes cut { from { stroke-dashoffset: 64; } to { stroke-dashoffset: 0; } }
+@keyframes dot { from { opacity: 0; } to { opacity: 1; } }
+.tablet .empty { align-self: center; margin: auto; font-size: 16.5px; color: #3f2618; }
+.smooth { appearance: none; border: 0; background: none; padding: 10px 2px; min-height: 44px; margin-top: 18px; color: var(--wall-2); cursor: pointer; font-size: 16px; text-decoration: underline; text-decoration-color: rgba(169,159,140,.45); text-underline-offset: 5px; }
+.smooth:hover { color: var(--wall); }
+
+footer { max-width: 980px; margin: 140px auto 0; padding: 28px 0 56px; border-top: 1px solid #2f2a24; display: flex; justify-content: flex-end; gap: 8px 28px; flex-wrap: wrap; font-size: 16px; color: var(--wall-2); text-align: right; }
+
+/* ---------- narrow: the stone is turned; lines run across, readings sit under them ---------- */
+@media (max-width: 860px) {
+  .label { grid-template-columns: 1fr; padding: 44px 0 30px; gap: 22px; }
+  .slab { --gs: 25px; padding: 52px 24px 86px; }
+  .lines { flex-direction: column; align-items: stretch; gap: 0; }
+  .line { flex-direction: column; align-items: flex-start; padding: 2px 0 10px; }
+  .line + .line::after { right: 6%; left: 6%; top: 0; bottom: auto; width: auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(46,36,26,.22) 10%, rgba(46,36,26,.22) 90%, transparent); }
+  .read { flex-direction: row; flex-wrap: wrap; gap: 3px; padding: 10px 10px; border-radius: 26px; }
+  .num { margin: 0 8px 0 0; }
+  .note { writing-mode: horizontal-tb; padding: 0 10px 0 12px; max-height: none; min-height: 0; font-size: 16.5px; clip-path: inset(0 100% 0 0); }
+  .line:not(.is-read) .note { height: 0; overflow: hidden; }
+  .face { clip-path: polygon(1.5% 1%, 30% 0, 62% .8%, 98% 0, 100% 30%, 98.5% 62%, 100% 88%, 96% 97%, 70% 99%, 40% 97.6%, 22% 100%, 12% 94%, 3% 90%, 0 72%, 1.6% 38%); }
+  .key, .clay { grid-template-columns: 1fr; margin-top: 90px; gap: 24px; }
+  .signs { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); }
+  .tablet { --gs: 36px; padding: 34px 26px 38px; }
+  footer { margin-top: 100px; padding-left: 80px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs id="signs"></defs></svg>
+
+<div class="room">
+  <header class="label">
+    <h1>Ignota<small>해독되지 않은 문자</small></h1>
+    <p class="cap"><b>석회암에 새김. 붉은 안료의 흔적.</b> 연대와 출토지를 알 수 없다. 원과 막대와 점으로 된 서른 개의 기호가 아홉 줄로 남아 있고, 마지막 줄은 돌과 함께 깨졌다. 빛을 가까이 대면 홈이 드러난다. 줄을 누르면 읽힌다.</p>
+  </header>
+
+  <main>
+    <figure class="vitrine" style="margin:0 auto">
+      <div class="slab" id="slab">
+        <div class="stone" aria-hidden="true"><div class="face"></div>
+          <svg class="crack" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M15.5 82 L18 74 L17 66 L21 58 L19.5 51 L23 44" vector-effect="non-scaling-stroke"/><path d="M15.5 82 L18 74 L17 66 L21 58 L19.5 51 L23 44" vector-effect="non-scaling-stroke"/></svg>
+        </div>
+        <div class="lines" id="lines" role="group" aria-label="석판, 아홉 줄. 오른쪽에서 왼쪽으로, 위에서 아래로 읽는다."></div>
+      </div>
+      <figcaption class="under">
+        <span class="tally" id="tally" aria-live="polite">아홉 줄 가운데 아직 읽힌 줄이 없다.</span>
+        <span><span class="hint" id="hint">빛은 손끝을 따라간다.</span> <button class="forget" id="forget" type="button" hidden>다시 잊기</button></span>
+      </figcaption>
+    </figure>
+
+    <section class="key" aria-labelledby="keyT">
+      <h2 id="keyT">Signa<small>서른 개의 기호. 받침이 있는 소리 아래에는 점 하나. 한 기호가 여러 소리를 품는다. 그래서 이 문자는 끝내 풀리지 않는다.</small></h2>
+      <ul class="signs" id="signList" aria-label="기호 목록"></ul>
+    </section>
+
+    <section class="clay" aria-labelledby="clayT">
+      <h2 id="clayT">Argilla<small>젖은 점토 한 장. 당신의 말도 이 문자로 남는다. 아무도 읽지 못하게.</small></h2>
+      <div>
+        <div class="groove"><label for="say">새길 말</label><input id="say" type="text" maxlength="28" autocomplete="off" spellcheck="false"></div>
+        <div class="tablet" id="tablet" aria-hidden="true"><span class="empty">아직 손대지 않은 점토.</span></div>
+        <p class="sr" id="clayLive" aria-live="polite"></p>
+        <button class="smooth" id="smooth" type="button">점토 고르기</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Ignota · 원, 막대, 점 · Gowun Batang, Cormorant Garamond</span>
+    <a href="../">다른 체계들로</a>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} }, del(k) { try { localStorage.removeItem(k); } catch {} } };
+
+  /* ---------- thirty signs: circles, bars, dots only (24 × 32 cell) ---------- */
+  const C = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}"/>`, D = (x, y) => `<circle cx="${x}" cy="${y}" r="2.1" fill="currentColor" stroke="none"/>`;
+  const V = (x, a, b) => `<path d="M${x} ${a}V${b}"/>`, H = (y, a, b) => `<path d="M${a} ${y}H${b}"/>`, P = d => `<path d="${d}"/>`;
+  const SIGN = [
+    C(12, 16, 8),                                  C(12, 9, 5) + V(12, 14, 28),              V(12, 4, 28) + D(5, 16) + D(19, 16),
+    H(7, 4, 20) + C(12, 20, 6),                    P('M5 19A7 7 0 0 1 19 19') + V(12, 19, 28), P('M5 11A7 7 0 0 0 19 11') + D(12, 25),
+    V(7, 4, 28) + V(17, 4, 28) + H(16, 7, 17),     C(12, 9, 4.5) + C(12, 23, 4.5),            H(5, 4, 20) + H(27, 4, 20) + D(12, 16),
+    V(12, 4, 28) + C(12, 16, 5.5),                 D(12, 6) + D(12, 16) + D(12, 26),          V(6, 4, 28) + P('M6 10A6 6 0 0 1 18 10V28'),
+    C(12, 16, 8) + D(12, 16),                      H(16, 4, 20) + D(12, 8) + D(12, 24),       P('M17 5A11 11 0 0 0 17 27') + D(19, 16),
+    P('M7 5A11 11 0 0 1 7 27') + D(5, 16),         C(7, 16, 4) + C(17, 16, 4),                V(12, 4, 19) + C(12, 24.5, 3.5),
+    H(9, 5, 19) + H(16, 5, 19) + H(23, 5, 19),     V(8, 4, 28) + V(16, 10, 22) + D(16, 4.5),  C(12, 11, 6) + H(26, 4, 20),
+    P('M5 9A7 7 0 0 0 19 9') + P('M5 23A7 7 0 0 1 19 23'), C(12, 16, 8) + H(16, 4, 20),       D(6, 7) + D(18, 7) + C(12, 20, 6),
+    V(12, 4, 10) + C(12, 16.5, 6) + V(12, 23, 28), P('M5 5A7 7 0 0 0 19 5') + V(12, 12, 28) + D(12, 5.5), H(4, 4, 20) + V(12, 4, 28) + H(28, 4, 20),
+    C(12, 22, 5.5) + D(12, 5) + D(12, 11),         P('M17 9.5A7 7 0 1 0 17 22.5') + H(16, 11, 22), P('M12 8A8 8 0 1 1 4 16') + D(12, 16),
+  ];
+  /* numerals: bars of five and dots, a shell for nothing */
+  const NUM = d => d === 0 ? '<ellipse cx="12" cy="22" rx="8" ry="4.5"/>' + H(22, 9, 15)
+    : (d >= 5 ? H(27, 3, 21) : '') + Array.from({ length: d % 5 }, (_, i) => D(12 - (d % 5 - 1) * 2.75 + i * 5.5, d >= 5 ? 19 : 27)).join('');
+  $('#signs').innerHTML = SIGN.map((s, i) => `<symbol id="g${i}" viewBox="0 0 24 32"><g fill="none" stroke="currentColor">${s}</g></symbol>`).join('')
+    + Array.from({ length: 10 }, (_, d) => `<symbol id="n${d}" viewBox="0 0 24 32"><g fill="none" stroke="currentColor">${NUM(d)}</g></symbol>`).join('');
+
+  /* ---------- Korean → sign: one syllable, one sign; a final consonant leaves a dot ---------- */
+  const heard = Array.from({ length: 30 }, () => new Set());
+  const tok = ch => {
+    const c = ch.codePointAt(0);
+    if (c >= 0xAC00 && c <= 0xD7A3) { const s = c - 0xAC00, cho = Math.floor(s / 588), jung = Math.floor((s % 588) / 28), jong = s % 28;
+      const g = (cho * 7 + jung * 11) % 30; return { g, m: jung % 3 === 1, f: jong > 0, ch }; }
+    if (/\d/.test(ch)) return { n: +ch };
+    if (/[\s·,.…—-]/.test(ch)) return { sep: 1 };
+    return /\p{L}/u.test(ch) ? { g: c % 30, m: false, f: false, ch } : null;
+  };
+  const sign = (t, extra = '') => t.sep ? `<i class="sep" aria-hidden="true"${extra}></i>`
+    : t.n !== undefined ? `<svg class="gy" viewBox="0 0 24 36" aria-hidden="true" focusable="false"${extra}><use href="#n${t.n}" width="24" height="32"/></svg>`
+    : `<svg class="gy" data-s="${t.g}" viewBox="0 0 24 36" aria-hidden="true" focusable="false"${extra}><use href="#g${t.g}" width="24" height="32"${t.m ? ' transform="translate(24 0) scale(-1 1)"' : ''}/>${t.f ? '<circle cx="12" cy="34" r="1.8" fill="currentColor" stroke="none"/>' : ''}</svg>`;
+  const toks = s => [...s].map(tok).filter(Boolean).filter((t, i, a) => !(t.sep && a[i - 1] && a[i - 1].sep));
+  const seeded = str => { let h = 2166136261; for (const c of str) h = Math.imul(h ^ c.codePointAt(0), 16777619); return () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296; };
+
+  /* ---------- the inscription ---------- */
+  const POEM = [
+    '돌은 기억한다',
+    '손이 지나간 자리를',
+    '우리는 읽지 못하고',
+    '다만 그 깊이를 더듬는다',
+    '원은 해가 되고',
+    '막대는 사람이 되고',
+    '점은 이름 없는 것들이 된다',
+    '누군가 이것을 읽는 날',
+    '그때 비로소 돌은',
+  ];
+  const LACUNA = 8, READABLE = POEM.length - 1, KEY = 'ignota-read';
+  const lines = $('#lines');
+  lines.innerHTML = POEM.map((text, i) => {
+    const rnd = seeded(text), ts = toks(text), lac = i === LACUNA;
+    const shown = lac ? ts.slice(0, 4) : ts;
+    shown.forEach(t => t.ch && heard[t.g].add(t.ch));
+    const glyphs = shown.map((t, j) => { const w = lac ? (.95 - j * .2) : (rnd() < .12 ? .55 + rnd() * .3 : 1); return sign(t, ` style="--w:${w.toFixed(2)};--i:${j}"`); }).join('');
+    const label = lac ? `${i + 1}행. 판독 불가. 네 글자 뒤로 돌이 깨져 있다.` : `${i + 1}행. ${text}`;
+    const note = lac ? '그때 비로소 돌은 [ · · · ] 여기서 깨짐' : text;
+    return `<div class="line${lac ? ' is-lacuna' : ''}" data-i="${i}">
+      <button class="read" type="button" aria-pressed="false" aria-label="${label}"><span class="num" aria-hidden="true">${sign({ n: i + 1 })}</span>${glyphs}</button>
+      <p class="note" aria-hidden="true">${note}</p></div>`;
+  }).join('');
+
+  const rows = $$('.line', lines), tally = $('#tally'), forget = $('#forget');
+  const KO = ['', '한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟'];
+  let read = new Set((store.get(KEY) || '').split(',').filter(x => x !== '' && +x < READABLE).map(Number));
+  const paint = (announce) => {
+    rows.forEach((r, i) => { const on = read.has(i) || (i === LACUNA && read.has(LACUNA)); r.classList.toggle('is-read', on); $('.read', r).setAttribute('aria-pressed', on); });
+    const n = [...read].filter(i => i < READABLE).length;
+    tally.textContent = n === 0 ? '아홉 줄 가운데 아직 읽힌 줄이 없다.'
+      : n < READABLE ? `아홉 줄 가운데 ${KO[n]} 줄이 읽혔다.`
+      : '여덟 줄이 읽혔다. 아홉째 줄은 돌과 함께 깨져, 끝내 읽히지 않는다.';
+    forget.hidden = read.size === 0;
+    store.set(KEY, [...read].join(','));
+    if (n === READABLE && !read.has(LACUNA)) { read.add(LACUNA); setTimeout(() => paint(), reduce ? 0 : 900); }
+  };
+  rows.forEach((r, i) => $('.read', r).addEventListener('click', () => {
+    if (i === LACUNA) { read.add(LACUNA); paint(); return; }
+    read.has(i) ? read.delete(i) : read.add(i); paint();
+  }));
+  forget.addEventListener('click', () => { read.clear(); store.del(KEY); paint(); $('.read', rows[0]).focus(); });
+  paint();
+
+  /* ---------- raking light: the viewer is the lamp ---------- */
+  const slab = $('#slab'), face = $('.face');
+  const marks = $$('.read .gy, .read .sep', lines);
+  let pos = [], box = null;
+  const measure = () => { box = slab.getBoundingClientRect(); pos = marks.map(m => { const r = m.getBoundingClientRect(); return [r.left - box.left + r.width / 2, r.top - box.top + r.height / 2]; }); };
+  let lx = 0, ly = 0, tx = 0, ty = 0, raf = 0, idleT = 0, lastMove = -1e9, drifting = false;
+  const shade = () => {
+    if (!box) return;
+    const R = Math.max(240, Math.min(box.width, box.height) * .55);
+    face.style.setProperty('--x', (lx / box.width * 100).toFixed(2) + '%');
+    face.style.setProperty('--y', (ly / box.height * 100).toFixed(2) + '%');
+    for (let i = 0; i < marks.length; i++) {
+      const [gx, gy] = pos[i], vx = lx - gx, vy = ly - gy, d = Math.hypot(vx, vy) || 1;
+      const l = Math.max(0, 1 - d / R), s = marks[i].style;
+      s.setProperty('--l', (l * l * (3 - 2 * l)).toFixed(3));
+      s.setProperty('--dx', (vx / d).toFixed(2)); s.setProperty('--dy', (vy / d).toFixed(2));
+    }
+  };
+  const tick = t => {
+    raf = 0;
+    if (drifting && !reduce) { const w = t / 1000; tx = box.width * (.5 + .36 * Math.sin(w * .23)); ty = box.height * (.45 + .3 * Math.sin(w * .31 + 1)); }
+    const k = reduce ? 1 : .12; lx += (tx - lx) * k; ly += (ty - ly) * k; shade();
+    if (drifting || Math.abs(tx - lx) + Math.abs(ty - ly) > .5) raf = requestAnimationFrame(tick);
+  };
+  const go = () => { if (!raf) raf = requestAnimationFrame(tick); };
+  const aim = (x, y) => { drifting = false; tx = x; ty = y; go(); clearTimeout(idleT); idleT = setTimeout(() => { if (!reduce) { drifting = true; go(); } }, 4000); };
+  const fromEvent = e => { const r = slab.getBoundingClientRect(); if (!box || Math.abs(r.top - box.top) > 1 || Math.abs(r.left - box.left) > 1) measure(); aim(e.clientX - r.left, e.clientY - r.top); };
+  slab.addEventListener('pointermove', fromEvent);
+  slab.addEventListener('pointerdown', fromEvent);
+  lines.addEventListener('focusin', e => { const b = e.target.closest('.read'); if (!b) return; measure(); const r = b.getBoundingClientRect(); aim(r.left - box.left + r.width * .5 + 30, r.top - box.top + Math.min(r.height * .35, 160)); });
+  addEventListener('resize', () => { measure(); shade(); });
+  addEventListener('scroll', () => { box = null; }, { passive: true });
+  const start = () => { measure(); lx = tx = box.width * .78; ly = ty = box.height * .16; shade(); if (!reduce) { drifting = true; go(); } };
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(start);
+  if (matchMedia('(hover: none)').matches) $('#hint').textContent = '빛은 손가락을 따라간다.';
+
+  /* signs of one form glint together */
+  lines.addEventListener('pointerover', e => { const g = e.target.closest('.gy[data-s]'); $$('.gy.kin', lines).forEach(x => x.classList.remove('kin'));
+    if (!g) return lines.classList.remove('kin-on'); lines.classList.add('kin-on'); $$(`.gy[data-s="${g.dataset.s}"]`, lines).forEach(x => x.classList.add('kin')); });
+  lines.addEventListener('pointerleave', () => { lines.classList.remove('kin-on'); $$('.gy.kin', lines).forEach(x => x.classList.remove('kin')); });
+
+  /* ---------- the key ---------- */
+  const list = $('#signList'); let mine = Array.from({ length: 30 }, () => new Set());
+  const drawKey = () => {
+    list.innerHTML = SIGN.map((_, i) => { const own = [...mine[i]].filter(c => !heard[i].has(c)), all = [...heard[i], ...own];
+      const txt = all.length ? all.slice(0, 4).join(' ') + (all.length > 4 ? ' …' : '') : '—';
+      return `<li${own.length ? ' class="fresh"' : ''}>${sign({ g: i })}<span class="no" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><span class="sy"><span class="sr">기호 ${i + 1}: </span>${all.length ? txt : '<span aria-hidden="true">—</span><span class="sr">아직 쓰이지 않음</span>'}</span></li>`; }).join('');
+  };
+  drawKey();
+
+  /* ---------- the clay ---------- */
+  const say = $('#say'), tablet = $('#tablet'), live = $('#clayLive'); let prev = [], liveT = 0;
+  const carve = () => {
+    const ts = toks(say.value.trim());
+    if (!ts.length) { tablet.innerHTML = '<span class="empty">아직 손대지 않은 점토.</span>'; prev = []; }
+    else {
+      const same = (a, b) => a && b && a.g === b.g && a.n === b.n && a.sep === b.sep && a.f === b.f && a.m === b.m;
+      let k = 0; while (k < prev.length && k < ts.length && same(prev[k], ts[k])) k++;
+      const kept = [...tablet.children].filter(el => !el.classList.contains('empty')).slice(0, k);
+      tablet.replaceChildren(...kept);
+      tablet.insertAdjacentHTML('beforeend', ts.slice(k).map(t => sign(t)).join(''));
+      [...tablet.children].slice(k).forEach(el => el.matches('svg') && !reduce && el.classList.add('cut'));
+      prev = ts;
+    }
+    mine = Array.from({ length: 30 }, () => new Set()); ts.forEach(t => t.ch && mine[t.g].add(t.ch)); drawKey();
+    clearTimeout(liveT); liveT = setTimeout(() => { live.textContent = ts.length ? `점토에 새김: ${say.value.trim()}. 기호 ${ts.filter(t => !t.sep).length}개.` : '점토가 비었다.'; }, 800);
+  };
+  say.addEventListener('input', carve);
+  $('#smooth').addEventListener('click', () => { say.value = ''; carve(); say.focus(); });
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

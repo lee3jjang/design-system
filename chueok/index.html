@@ -1,0 +1,1792 @@
+<!doctype html>
+<html lang="ko" data-size="m">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회수권 · 한 장 내면 그때로 가는 버스</title>
+<meta name="description" content="회수권: 1960년대에 태어난 사람들의 국민학교 교실, 문방구 골목, 안방의 라디오와 공테이프, 동네 사진관을 한 장의 버스표로 다시 찾아가는 디자인 시스템.">
+<meta name="theme-color" content="#d5e6da">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Batang:wght@400;700&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Pen+Script&family=Song+Myung&display=swap">
+<style>
+/* 회수권 — a strip of student bus tickets, kept in a tin on the kitchen table.
+   Each ticket is a ride back to one room: the classroom with the coal stove, the alley with the stationery shop,
+   the inner room with the radio and the blank tape, the neighbourhood photo studio.
+   Printed matter of the era sets the rules: two or three inks with a little misregistration, halftone only where
+   ink would really have been screened, enamel and bakelite for things you press, aluminium for things you warm.
+   Readers are in their sixties: body 19px and up, 7:1 ink, 48px+ targets, words before symbols. */
+:root {
+  color-scheme: light;
+  --paper: #f4ecd8;        /* 미색 */
+  --paper-2: #ebe0c6;
+  --paper-hi: #fbf6e9;
+  --ink: #241a12;          /* 15.2:1 on paper */
+  --ink-2: #47342a;        /* 10:1 */
+  --ink-3: #5c4536;        /* 7.6:1 */
+  --chestnut: #6b3b22;     /* 밤색 */
+  --pink: #c42c5c;         /* 진분홍 ink */
+  --pink-d: #9e1f49;       /* 진분홍 as text, 6.5:1 */
+  --orange: #e2772a;       /* 주황 enamel */
+  --orange-d: #9a4512;
+  --sky: #8cc6df;          /* 하늘 */
+  --sky-d: #24557a;        /* 하늘 as text/enamel, 7:1 on paper */
+  --lime: #a9c64a;         /* 연두 */
+  --lime-d: #4a6519;
+  --board: #2e4a3c;        /* 칠판 */
+  --board-2: #243c30;
+  --chalk: #f3efe3;
+  --al: #c9c7bf; --al-d: #8b887f; --al-hi: #efede6;  /* 양은 */
+  --teacher: #d0262d;
+  --formica: #d5e6da;
+  --lacquer: #1d1714;
+  --pearl-1: #ead7e8; --pearl-2: #cfe8e3; --pearl-3: #f2e8c6;
+  --walnut: #6a3d22; --walnut-d: #45250f; --walnut-hi: #8d5a35;
+  --bakelite: #2a1c15;
+  --focus: #1b3fa6;
+  --f-sign: "Black Han Sans", "Do Hyeon", sans-serif;
+  --f-plate: "Do Hyeon", "Nanum Gothic", sans-serif;
+  --f-head: "Song Myung", "Gowun Batang", serif;
+  --f-body: "Gowun Batang", "Noto Serif KR", serif;
+  --f-ui: "Nanum Gothic", "Apple SD Gothic Neo", sans-serif;
+  --f-hand: "Nanum Pen Script", "Gowun Batang", cursive;
+  --press: cubic-bezier(.3,.6,.3,1);
+}
+html { font-size: 100%; overflow-x: clip; background: var(--ink); scroll-behavior: smooth; }
+html[data-size="l"] { font-size: 112.5%; }
+html[data-size="xl"] { font-size: 125%; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 1.1875rem/1.8 var(--f-body); word-break: keep-all; overflow-wrap: break-word; overflow-x: clip; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, p, ol, ul, figure, fieldset, dl, dd { margin: 0; padding: 0; }
+ol, ul { list-style: none; }
+fieldset { border: 0; min-width: 0; }
+a { color: var(--sky-d); text-underline-offset: 4px; text-decoration-thickness: 2px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+img, svg { display: block; max-width: 100%; }
+:focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 16px; top: -100px; z-index: 100; background: var(--ink); color: var(--paper); padding: 12px 18px; border-radius: 8px; font: 700 1.0625rem var(--f-ui); }
+.skip:focus { top: 12px; }
+.wrap { width: min(1200px, 100% - 32px); margin-inline: auto; }
+.ui { font-family: var(--f-ui); }
+
+/* ───────── controls: buttons ───────── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5em; min-height: 52px; padding: .45em 1.15em; border: 2.5px solid var(--ink); border-radius: 12px; background: var(--paper-hi); color: var(--ink); font: 800 1.0625rem/1.3 var(--f-ui); box-shadow: 0 4px 0 var(--ink); transition: transform .12s var(--press), box-shadow .12s var(--press), background-color .2s; text-align: center; }
+.btn:hover { background: #fff; }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; transform: none; box-shadow: 0 4px 0 var(--ink); }
+.btn-orange { background: var(--orange); }
+.btn-orange:hover { background: #ec8a40; }
+.btn-pink { background: var(--pink); color: #fff; }
+.btn-pink:hover { background: #d23a6a; }
+.btn-sky { background: var(--sky); }
+.btn-sky:hover { background: #a2d3e8; }
+.btn-board { background: var(--board); color: var(--chalk); }
+.btn-board:hover { background: #3a5a49; }
+.btn-quiet { background: transparent; box-shadow: none; border-style: dashed; }
+.btn-quiet:active { transform: none; }
+.btn-danger { background: #8e1e24; color: #fff; }
+.btn-big { min-height: 64px; font-size: 1.25rem; padding-inline: 1.5em; border-radius: 16px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px 14px; align-items: center; }
+
+/* switch: a bakelite rocker with its state written beside it */
+.switch { display: inline-flex; align-items: center; gap: .7em; min-height: 52px; padding: 4px 8px 4px 4px; border: 0; background: none; font: 700 1.0625rem/1.3 var(--f-ui); text-align: left; border-radius: 10px; }
+.sw-track { position: relative; flex: none; width: 70px; height: 38px; border-radius: 8px; background: var(--bakelite); border: 2.5px solid var(--ink); box-shadow: inset 0 3px 0 rgba(0,0,0,.35); transition: background-color .2s; }
+.sw-thumb { position: absolute; top: 3px; left: 3px; width: 28px; height: 27px; border-radius: 5px; background: #efe5cf; box-shadow: 0 3px 0 #9d8f74; transition: transform .2s var(--press); }
+.sw-thumb::after { content: ""; position: absolute; inset: 9px 12px; border-radius: 2px; background: #b6a888; }
+.switch[aria-checked="true"] .sw-track { background: var(--lime-d); }
+.switch[aria-checked="true"] .sw-thumb { transform: translateX(31px); }
+.sw-state { display: inline-block; min-width: 2.2em; padding: 0 .4em; border-radius: 6px; border: 2px solid currentColor; font-size: .9375rem; text-align: center; }
+.switch[aria-checked="true"] .sw-state { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.dark .switch[aria-checked="true"] .sw-state { background: var(--chalk); color: var(--ink); border-color: var(--chalk); }
+
+/* checkbox: the teacher's red circle is the tick */
+.cb { position: relative; display: flex; align-items: center; gap: .8em; min-height: 52px; cursor: pointer; font-family: var(--f-ui); font-weight: 700; }
+.cb input, .rd input { position: absolute; opacity: 0; width: 30px; height: 30px; margin: 0; left: 0; top: 50%; transform: translateY(-50%); cursor: pointer; }
+.cb .box { position: relative; flex: none; width: 30px; height: 30px; border: 2.5px solid var(--ink); border-radius: 5px; background: #fffdf6; }
+.cb .box::after { content: ""; position: absolute; left: -9px; top: -9px; width: 44px; height: 44px; border: 4px solid var(--teacher); border-radius: 50% 46% 52% 48%; transform: rotate(-12deg) scale(.3); opacity: 0; transition: transform .25s var(--press), opacity .2s; }
+.cb input:checked + .box { background: #fde3df; }
+.cb input:checked + .box::after { transform: rotate(-12deg) scale(1); opacity: 1; }
+.cb input:indeterminate + .box::after { left: 4px; top: 11px; width: 18px; height: 0; border: 0; border-top: 4px solid var(--teacher); border-radius: 2px; transform: none; opacity: 1; }
+.cb input:focus-visible + .box, .rd input:focus-visible + .dot { outline: 4px solid var(--focus); outline-offset: 4px; }
+.rd { position: relative; display: flex; align-items: center; gap: .8em; min-height: 52px; cursor: pointer; font: 700 1.0625rem var(--f-ui); }
+.rd .dot { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid var(--ink); background: #fffdf6; display: grid; place-items: center; }
+.rd .dot::after { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--ink); transform: scale(0); transition: transform .18s var(--press); }
+.rd input:checked + .dot::after { transform: scale(1); }
+
+/* segmented: a strip of enamel keys */
+.seg { display: inline-flex; flex-wrap: wrap; border: 2.5px solid var(--ink); border-radius: 12px; background: var(--paper-hi); padding: 3px; gap: 3px; max-width: 100%; }
+.seg [role="radio"] { min-height: 48px; min-width: 56px; padding: 0 1em; border: 0; border-radius: 8px; background: transparent; font: 800 1.0625rem var(--f-ui); color: var(--ink); }
+.seg [role="radio"]:hover { background: var(--paper-2); }
+.seg [role="radio"][aria-checked="true"] { background: var(--ink); color: var(--paper); }
+
+/* chips */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { min-height: 48px; padding: 0 1.05em; border-radius: 999px; border: 2.5px solid var(--ink); background: var(--paper-hi); font: 700 1.0625rem var(--f-ui); }
+.chip[aria-pressed="true"] { background: var(--sky); }
+.chip[aria-pressed="true"]::before { content: "✓ "; font-weight: 800; }
+
+/* badges: enamel pins */
+.badge { display: inline-flex; align-items: center; gap: .35em; min-height: 36px; padding: 0 .8em; border-radius: 999px; border: 2.5px solid var(--ink); font: 400 1.125rem/1 var(--f-plate); background: var(--paper-hi); box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); white-space: nowrap; }
+.badge-red { background: #b4232c; color: #fff; }
+.badge-sky { background: var(--sky-d); color: #fff; }
+.badge-lime { background: var(--lime); }
+.badge-orange { background: var(--orange); }
+
+/* fields */
+.field { display: grid; gap: 6px; }
+.field > label, .field > .lbl { font: 800 1.0625rem/1.4 var(--f-ui); }
+.field .help { font: 400 1rem/1.5 var(--f-ui); color: var(--ink-3); }
+.input, .select, .textarea { width: 100%; min-height: 52px; padding: .45em .75em; border: 2.5px solid var(--ink); border-radius: 10px; background: #fffdf6; font: 400 1.1875rem/1.5 var(--f-body); }
+.select { appearance: none; padding-right: 2.6em; background: #fffdf6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12'%3E%3Cpath d='M2 2l7 7 7-7' fill='none' stroke='%23241a12' stroke-width='3'/%3E%3C/svg%3E") no-repeat right 14px center; }
+.input[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--pink-d); box-shadow: 0 0 0 3px rgba(196,44,92,.2); }
+.err { font: 700 1rem/1.5 var(--f-ui); color: var(--pink-d); }
+.err:empty { display: none; }
+.err::before { content: "! "; }
+
+/* range: a bakelite knob on a ruler */
+.range { -webkit-appearance: none; appearance: none; width: 100%; height: 48px; background: transparent; cursor: pointer; }
+.range::-webkit-slider-runnable-track { height: 12px; border-radius: 6px; border: 2.5px solid var(--ink); background: repeating-linear-gradient(90deg, transparent 0 9.5%, rgba(36,26,18,.5) 9.5% 10%), var(--paper-hi); }
+.range::-moz-range-track { height: 12px; border-radius: 6px; border: 2.5px solid var(--ink); background: var(--paper-hi); }
+.range::-webkit-slider-thumb { -webkit-appearance: none; width: 34px; height: 34px; margin-top: -13px; border-radius: 50%; background: var(--bakelite); border: 3px solid var(--paper-hi); box-shadow: 0 0 0 2.5px var(--ink), 0 3px 0 2px rgba(0,0,0,.35); }
+.range::-moz-range-thumb { width: 30px; height: 30px; border-radius: 50%; background: var(--bakelite); border: 3px solid var(--paper-hi); box-shadow: 0 0 0 2.5px var(--ink); }
+.range:focus-visible { outline-offset: 2px; }
+
+/* progress: a school ruler filling with ink */
+.bar { position: relative; height: 26px; border: 2.5px solid var(--ink); border-radius: 6px; background: #fffdf6; overflow: hidden; }
+.bar .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--orange); transition: width .3s linear; }
+.bar::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(36,26,18,.55) calc(10% - 2px) 10%); pointer-events: none; }
+.bar-label { display: flex; justify-content: space-between; gap: 12px; font: 700 1.0625rem/1.4 var(--f-ui); margin-bottom: 6px; }
+
+/* tabs: 통지표 folder tabs */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 6px; }
+.tabs [role="tab"] { min-height: 52px; padding: 0 1.1em; border: 2.5px solid var(--ink); border-bottom: 0; border-radius: 12px 12px 0 0; background: var(--paper-2); font: 800 1.0625rem var(--f-ui); position: relative; top: 2.5px; }
+.tabs [role="tab"][aria-selected="true"] { background: #fffdf6; z-index: 1; }
+.tabpanel { border: 2.5px solid var(--ink); border-radius: 0 12px 12px 12px; background: #fffdf6; padding: clamp(16px, 3vw, 26px); }
+
+/* table */
+.tbl-wrap { overflow-x: auto; }
+.tbl { width: 100%; border-collapse: collapse; font-family: var(--f-ui); }
+.tbl th, .tbl td { border: 2px solid var(--ink); padding: 10px 12px; text-align: left; vertical-align: top; }
+.tbl thead th { background: var(--paper-2); padding: 0; }
+.tbl th button { width: 100%; min-height: 52px; padding: 6px 12px; border: 0; background: none; font: 800 1.0625rem var(--f-ui); display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; }
+.tbl th button::after { content: "↕"; opacity: .55; }
+.tbl th[aria-sort="ascending"] button::after { content: "▲"; opacity: 1; }
+.tbl th[aria-sort="descending"] button::after { content: "▼"; opacity: 1; }
+.tbl td.grade { font: 400 1.5rem/1 var(--f-head); text-align: center; color: var(--ink); width: 4.2em; }
+.tbl td.num { font-variant-numeric: tabular-nums; width: 4em; }
+.tbl td:last-child { font: 400 1.125rem/1.6 var(--f-body); }
+
+/* toasts and dialogs */
+.toasts { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(18px, env(safe-area-inset-bottom, 0px)); z-index: 60; display: grid; gap: 10px; justify-items: end; max-width: min(420px, calc(100vw - 110px)); pointer-events: none; }
+.toast { background: var(--ink); color: var(--paper); padding: 14px 18px; border-radius: 10px; border-left: 8px solid var(--pink); font: 700 1.0625rem/1.6 var(--f-ui); box-shadow: 0 14px 30px -14px rgba(0,0,0,.6); opacity: 0; transform: translateY(8px); transition: opacity .35s, transform .35s var(--press); }
+.toast.show { opacity: 1; transform: none; }
+dialog { width: min(600px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); border: 3px solid var(--ink); border-radius: 6px; padding: 0; background: var(--paper-hi); color: var(--ink); box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); }
+dialog::backdrop { background: rgba(36,26,18,.62); }
+.dlg-in { padding: 26px clamp(18px, 4vw, 32px) 24px; display: grid; gap: 16px; }
+.dlg-in h2 { font: 400 1.75rem/1.3 var(--f-head); }
+.airmail { border: 0; padding: 12px; background: repeating-linear-gradient(-45deg, var(--pink) 0 14px, var(--paper-hi) 14px 24px, var(--sky-d) 24px 38px, var(--paper-hi) 38px 48px); }
+.airmail > .dlg-in { background: var(--paper-hi); }
+.dlg-quote { font: 400 1.1875rem/1.8 var(--f-body); padding: 14px 16px; border-left: 6px solid var(--sky); background: var(--paper); }
+
+/* ───────── hero: formica table, ticket, TV ───────── */
+.hero { position: relative; background-color: var(--formica); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='none' stroke-linecap='round' stroke-width='3'%3E%3Cpath d='M20 30q8-10 18-4' stroke='%2393b7a2'/%3E%3Cpath d='M110 22q10 2 12 12' stroke='%23e9a77f'/%3E%3Cpath d='M70 90q-6 10 4 16' stroke='%2393b7a2'/%3E%3Cpath d='M130 120q8-8 16-2' stroke='%23c7a8c6'/%3E%3Cpath d='M28 128q10 4 14-6' stroke='%23e9a77f'/%3E%3C/g%3E%3C/svg%3E"); padding: 28px 0 0; }
+.hero::after { content: ""; display: block; height: 26px; margin-top: 40px; border-top: 3px solid #6f6c64; border-bottom: 3px solid #4d4a43; background: repeating-linear-gradient(180deg, var(--al-hi) 0 3px, #a9a69d 3px 5px, #d6d3ca 5px 8px); }
+.topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 24px; margin-bottom: 26px; font-family: var(--f-ui); }
+.topbar .mark { font: 400 1.25rem/1 var(--f-plate); display: flex; align-items: center; gap: 10px; }
+.topbar .mark i { width: 34px; height: 34px; border-radius: 50%; background: var(--sky-d); color: #fff; display: grid; place-items: center; font-style: normal; font-size: 1.1rem; }
+.prefs { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; }
+.prefs .lbl { font: 800 1.0625rem var(--f-ui); margin-right: 8px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 4vw, 56px); align-items: start; }
+
+.ticket { position: relative; background: #f7efdb; padding: 18px 30px; transform: rotate(-1.4deg); box-shadow: 0 16px 26px -18px rgba(30,20,10,.55); margin: 6px 4px 0; }
+.ticket::before, .ticket::after { content: ""; position: absolute; top: 0; bottom: 0; width: 12px; background: radial-gradient(circle at 50% 50%, var(--formica) 5px, transparent 5.6px) 0 0 / 12px 20px repeat-y; }
+.ticket::before { left: -6px; } .ticket::after { right: -6px; }
+.ticket-in { position: relative; border: 3px solid var(--pink); padding: 18px 20px 20px; }
+.ticket-in::before { content: ""; position: absolute; inset: -3px; transform: translate(3px, 2px); border: 2px solid rgba(36,85,122,.75); pointer-events: none; }
+.ticket-in::after { content: ""; position: absolute; right: 0; top: 0; width: 46%; height: 70%; background: radial-gradient(circle, rgba(36,85,122,.28) 1.3px, transparent 1.8px) 0 0 / 7px 7px; clip-path: polygon(30% 0, 100% 0, 100% 70%); pointer-events: none; }
+.t-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; font: 800 1.0625rem var(--f-ui); color: var(--pink-d); }
+.t-stamp { width: 58px; height: 58px; border-radius: 50%; border: 3px solid var(--pink); display: grid; place-items: center; font: 400 1.25rem/1 var(--f-plate); color: var(--pink-d); transform: rotate(-10deg); }
+.hero h1 { position: relative; font: 400 clamp(4.2rem, 11vw, 7.6rem)/1 var(--f-sign); letter-spacing: .02em; margin: 10px 0 6px; color: var(--ink); text-shadow: 3px 2px 0 rgba(196,44,92,.5); }
+.t-sub { font: 400 clamp(1.4rem, 2.6vw, 1.9rem)/1.4 var(--f-head); color: var(--ink); }
+.t-serial { margin-top: 14px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font: 700 1rem var(--f-ui); color: var(--sky-d); letter-spacing: .06em; border-top: 2px dashed rgba(36,85,122,.6); padding-top: 10px; }
+.hero-lead { margin: 30px 4px 0; font-size: 1.1875rem; line-height: 1.9; color: var(--ink); max-width: 34em; }
+.hero-lead b { background: linear-gradient(transparent 62%, rgba(226,119,42,.35) 62%); font-weight: 700; }
+
+/* the television in its sliding-door cabinet */
+.tv { margin: 0; }
+.tv-cab { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 0; background: var(--walnut); border: 4px solid var(--walnut-d); border-radius: 14px; padding: 20px; box-shadow: inset 0 -6px 0 rgba(0,0,0,.18), inset 0 4px 0 rgba(255,255,255,.08), 0 22px 30px -22px rgba(30,15,5,.8); background-image: repeating-linear-gradient(178deg, transparent 0 46px, rgba(40,20,8,.18) 46px 48px, transparent 48px 97px, rgba(255,230,190,.07) 97px 99px); }
+.tv-front { position: relative; overflow: hidden; border-radius: 10px; background: var(--walnut-d); padding: 14px; }
+.bezel { background: #1d1612; border-radius: 26px; padding: 16px; box-shadow: inset 0 0 0 3px #3b2e26; }
+.screen { position: relative; aspect-ratio: 4 / 3; border-radius: 24px / 30px; overflow: hidden; background: #333; box-shadow: inset 0 0 40px rgba(0,0,0,.6); }
+.screen svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+.screen svg.scene[hidden] { display: none; }
+.screen .scenes { position: absolute; inset: 0; transition: filter .6s; }
+.screen[data-color="off"] .scenes { filter: grayscale(1) contrast(1.08) brightness(1.03); }
+.screen.roll .scenes { animation: roll .55s steps(6, end); }
+@keyframes roll { 0% { transform: translateY(-40%); filter: brightness(2.2); } 60% { transform: translateY(6%); } 100% { transform: none; } }
+.glass { position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse 70% 50% at 28% 18%, rgba(255,255,255,.22), transparent 60%); box-shadow: inset 0 0 0 2px rgba(0,0,0,.4), inset 0 0 60px rgba(0,0,0,.45); pointer-events: none; }
+.osd { position: absolute; left: 6%; bottom: 7%; display: flex; align-items: center; gap: 10px; font: 400 1.35rem/1 var(--f-plate); color: #fff; text-shadow: 2px 2px 0 rgba(0,0,0,.7); pointer-events: none; }
+.osd b { font: 400 2.2rem/1 var(--f-sign); color: #fff27a; }
+.door { position: absolute; top: 0; bottom: 0; width: 50%; background-color: #7a4627; border: 3px solid var(--walnut-d); background-image: repeating-linear-gradient(90deg, transparent 0 38px, rgba(40,20,8,.22) 38px 40px), linear-gradient(90deg, rgba(255,255,255,.06), rgba(0,0,0,.06)); transition: transform .9s var(--press); z-index: 3; }
+.door::after { content: ""; position: absolute; top: 50%; width: 12px; height: 46px; margin-top: -23px; border-radius: 6px; background: #c9b48a; box-shadow: inset 0 -3px 0 #8b7550; }
+.door-l { left: 0; transform: translateX(-96%); } .door-l::after { right: 10px; }
+.door-r { right: 0; transform: translateX(96%); } .door-r::after { left: 10px; }
+.tv.closed .door-l, .tv.closed .door-r { transform: none; }
+.tv-side { display: grid; justify-items: center; align-content: start; gap: 12px; padding: 4px 0 0 18px; color: #f6ead2; --focus: #ffd34d; }
+.plate { font: 400 1.125rem/1 var(--f-plate); color: var(--ink); background: #e9dcc0; border-radius: 6px; padding: 8px 12px; border: 2px solid var(--walnut-d); box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); letter-spacing: .12em; }
+.dial { position: relative; width: 196px; height: 196px; border-radius: 50%; background: #3a2418; box-shadow: inset 0 0 0 4px var(--walnut-d), inset 0 6px 14px rgba(0,0,0,.4); }
+.knob { position: absolute; left: 50%; top: 50%; width: 92px; height: 92px; margin: -46px; border-radius: 50%; background: var(--bakelite); box-shadow: 0 0 0 4px #4a3226, 0 6px 0 2px rgba(0,0,0,.45), inset 0 -6px 0 rgba(0,0,0,.35); transition: transform .45s var(--press); cursor: pointer; background-image: repeating-conic-gradient(from 0deg, #2a1c15 0 7deg, #382519 7deg 12deg); }
+.knob::before { content: ""; position: absolute; left: 50%; top: 18px; bottom: 18px; width: 18px; margin-left: -9px; border-radius: 9px; background: #4a3226; box-shadow: inset 0 2px 0 rgba(255,255,255,.12); }
+.knob::after { content: ""; position: absolute; left: 50%; top: 5px; width: 8px; height: 16px; margin-left: -4px; border-radius: 4px; background: #f2e3c3; }
+.ch { position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px; border-radius: 50%; border: 0; background: transparent; color: #f6ead2; font: 400 1.25rem/1 var(--f-plate); transform: rotate(var(--a)) translateY(-74px) rotate(calc(-1 * var(--a))); }
+.ch[aria-checked="true"] { background: #f6ead2; color: var(--ink); }
+.ch:hover { background: rgba(246,234,210,.18); }
+.ch[aria-checked="true"]:hover { background: #fff; }
+.tv-hint { font: 700 1rem/1.4 var(--f-ui); text-align: center; color: #f6ead2; }
+.tv-side .switch { color: #f6ead2; width: 100%; }
+.grille { width: 100%; height: 54px; border-radius: 8px; background: repeating-linear-gradient(0deg, #3a2418 0 3px, #a98d6a 3px 5px); border: 3px solid var(--walnut-d); }
+.tv-legs { display: flex; justify-content: space-between; padding: 0 9%; height: 30px; }
+.tv-legs i { width: 14px; background: var(--walnut-d); border-radius: 0 0 6px 6px; transform: skewX(10deg); }
+.tv-legs i:first-child { transform: skewX(-10deg); }
+.tv-cap { margin-top: 10px; background: var(--paper-hi); border: 2.5px solid var(--ink); border-radius: 4px; padding: 14px 18px; display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; align-items: baseline; }
+.tv-cap .lab { font: 800 1rem var(--f-ui); color: var(--pink-d); grid-row: span 2; border: 2px solid currentColor; padding: 4px 8px; border-radius: 4px; }
+.tv-cap b { font: 400 1.5rem/1.3 var(--f-head); }
+.tv-cap p { font-size: 1.125rem; line-height: 1.7; color: var(--ink-2); grid-column: 2; }
+
+/* route board */
+.route { background: var(--sky-d); color: #fff; margin-top: 40px; border-top: 6px solid var(--paper-hi); border-bottom: 6px solid var(--paper-hi); --focus: #ffd34d; }
+.route .wrap { padding: 16px 0 18px; }
+.route h2 { font: 400 1.125rem/1.2 var(--f-plate); letter-spacing: .08em; margin-bottom: 10px; }
+.route ol { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); position: relative; }
+.route ol::before { content: ""; position: absolute; left: 4%; right: 4%; top: 24px; height: 5px; background: var(--paper-hi); border-radius: 3px; }
+.route li { position: relative; text-align: center; }
+.route a { display: grid; justify-items: center; gap: 6px; min-height: 48px; padding: 4px 4px 6px; color: #fff; text-decoration: none; font: 700 1.0625rem/1.35 var(--f-ui); border-radius: 8px; }
+.route a span { width: 40px; height: 40px; border-radius: 50%; background: var(--paper-hi); color: var(--sky-d); border: 4px solid var(--sky-d); box-shadow: 0 0 0 3px var(--paper-hi); display: grid; place-items: center; font: 400 1.25rem/1 var(--f-plate); }
+.route a:hover { background: rgba(255,255,255,.12); }
+
+/* ───────── section scaffolding: bus stop plates ───────── */
+.sec { position: relative; padding: clamp(48px, 7vw, 88px) 0; }
+.stop { display: flex; gap: 18px; align-items: flex-start; margin-bottom: 14px; }
+.stop-no { flex: none; width: 68px; height: 68px; border-radius: 14px; background: var(--sky-d); color: #fff; display: grid; place-items: center; font: 400 2.2rem/1 var(--f-sign); border: 3px solid var(--paper-hi); box-shadow: 0 0 0 3px var(--sky-d); margin: 3px; }
+.stop-k { font: 800 1.0625rem/1.4 var(--f-ui); color: var(--ink-2); }
+.sec h2 { font: 400 clamp(1.9rem, 4vw, 2.8rem)/1.25 var(--f-head); margin-top: 2px; }
+.lead { max-width: 40em; font-size: 1.1875rem; line-height: 1.9; color: var(--ink-2); margin-bottom: 32px; }
+.card { background: var(--paper-hi); border: 2.5px solid var(--ink); border-radius: 14px; padding: clamp(18px, 3vw, 28px); box-shadow: 6px 6px 0 rgba(36,26,18,.18); }
+.card h3 { font: 400 1.6rem/1.3 var(--f-head); margin-bottom: 6px; }
+.card .desc { color: var(--ink-2); margin-bottom: 18px; font-size: 1.125rem; line-height: 1.75; }
+
+/* ───────── 2. classroom ───────── */
+.school-head { background: var(--board); color: var(--chalk); padding: clamp(40px, 6vw, 70px) 0 0; position: relative; --focus: #ffd34d; }
+.school-head .stop-k { color: #d9d4c3; }
+.school-head .lead { color: #e8e3d4; margin-bottom: 0; padding-bottom: 34px; }
+.school-head h2 { font-family: var(--f-head); }
+.school-head .stop-no { background: var(--chalk); color: var(--board); border-color: var(--board); box-shadow: 0 0 0 3px var(--chalk); }
+.chalk-tray { height: 30px; background: #b07a45; border-top: 4px solid #7d4f26; border-bottom: 6px solid #6a4020; position: relative; }
+.chalk-tray::before { content: ""; position: absolute; left: 12%; top: 4px; width: 46px; height: 11px; border-radius: 5px; background: var(--chalk); box-shadow: 70px 2px 0 -1px #f4c8cf, 150px 0 0 #f7ea9d, calc(min(1200px, 100vw) * .55) 1px 0 #f3efe3; }
+.chalk-tray::after { content: ""; position: absolute; right: 14%; top: -8px; width: 92px; height: 26px; border-radius: 4px; background: #3b3a37; box-shadow: inset 0 -10px 0 #cfc9bb; }
+.school-body { background: var(--paper); padding: 46px 0 clamp(48px, 7vw, 88px); }
+.school-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 28px; align-items: start; }
+
+.desk { position: relative; background: #b98552; border: 4px solid #6a4020; border-radius: 8px; padding: clamp(14px, 3vw, 30px); background-image: repeating-linear-gradient(176deg, transparent 0 34px, rgba(80,40,10,.16) 34px 36px, transparent 36px 81px, rgba(255,230,190,.1) 81px 83px); }
+.desk::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 3px dashed rgba(36,26,18,.55); }
+.desk-carve { position: absolute; left: calc(50% + 10px); bottom: 8px; font: 400 1.5rem var(--f-hand); color: rgba(36,26,18,.55); pointer-events: none; }
+.note { position: relative; background: #fbf7ea; border-radius: 3px; padding: 22px clamp(16px, 3vw, 28px) 26px; box-shadow: 0 10px 20px -12px rgba(0,0,0,.6); background-image: linear-gradient(90deg, transparent 54px, rgba(208,38,45,.35) 54px 56px, transparent 56px), repeating-linear-gradient(180deg, transparent 0 55px, rgba(36,85,122,.28) 55px 57px); background-position: 0 0, 0 30px; }
+.note-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; padding-left: 50px; margin-bottom: 8px; }
+.note-head h3 { font: 400 1.6rem/1.3 var(--f-head); }
+.note-head p { font: 700 1rem var(--f-ui); color: var(--ink-3); }
+.dict-all { padding-left: 4px; border-bottom: 2px solid rgba(36,26,18,.2); margin-bottom: 4px; }
+.dict-list { counter-reset: d; }
+.dict-list li { min-height: 57px; display: flex; align-items: center; }
+.dict-list .cb { width: 100%; gap: 22px; }
+.dict-list .word { font: 400 1.75rem/1 var(--f-hand); color: #2b3a6b; letter-spacing: .04em; }
+.dict-list .num { font: 700 1rem var(--f-ui); color: var(--ink-3); min-width: 1.4em; }
+.score-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-top: 10px; padding-left: 50px; }
+.score { font: 400 2.6rem/1 var(--f-hand); color: var(--teacher); }
+.score small { font-size: 1.6rem; }
+.stamp { position: absolute; right: 18px; top: 74px; width: 128px; height: 128px; border-radius: 50%; border: 5px solid var(--teacher); color: var(--teacher); display: grid; place-items: center; text-align: center; font: 400 1.6rem/1.1 var(--f-plate); transform: rotate(-14deg) scale(1); opacity: .88; background: radial-gradient(circle, transparent 54px, rgba(208,38,45,.12) 55px); box-shadow: inset 0 0 0 6px #fbf7ea, inset 0 0 0 9px var(--teacher); pointer-events: none; transition: transform .3s var(--press), opacity .3s; }
+.stamp[hidden] { display: grid; opacity: 0; transform: rotate(-14deg) scale(1.6); visibility: hidden; }
+
+.stove-art { position: relative; display: grid; justify-items: center; margin: 4px 0 18px; }
+.pipe { width: 34px; height: 30px; background: #3a3430; border-radius: 3px 3px 0 0; }
+.lunches { display: grid; gap: 4px; width: min(100%, 300px); }
+.lunch { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: center; background: var(--al); border: 2.5px solid #6d6a62; border-radius: 8px; padding: 8px 12px 10px; box-shadow: inset 0 3px 0 var(--al-hi), inset 0 -4px 0 rgba(0,0,0,.08); font-family: var(--f-ui); }
+.lunch::before { content: ""; position: absolute; left: 22%; top: 9px; width: 30px; height: 10px; border-top: 2px solid rgba(80,78,70,.45); border-radius: 50%; }
+.lunch::after { content: ""; position: absolute; inset: auto 6px -3px 6px; height: 6px; border-radius: 0 0 6px 6px; background: var(--orange); opacity: var(--glow, 0); }
+.lunch .tag { grid-row: span 2; background: #fffdf6; border: 2px solid #6d6a62; border-radius: 4px; padding: 2px 10px; font: 400 1.4rem/1.2 var(--f-hand); color: var(--ink); }
+.lunch .st { font: 800 1.0625rem/1.3 var(--f-ui); }
+.lunch .mini { height: 10px; border-radius: 5px; background: rgba(255,255,255,.7); border: 1.5px solid #6d6a62; overflow: hidden; }
+.lunch .mini i { display: block; height: 100%; width: 0; background: var(--orange); }
+.lunch.burnt { background: #b3aa9d; }
+.lunch.burnt .mini i { background: #4b3424; }
+.lunch.moved { animation: lift .45s var(--press); }
+@keyframes lift { from { transform: translateY(160%); } }
+.stove { position: relative; width: 170px; height: 150px; background: #2d2724; border-radius: 10px 10px 4px 4px; border: 3px solid #191514; box-shadow: inset 0 8px 0 #403835; }
+.stove::before { content: ""; position: absolute; left: 50%; top: 52px; width: 66px; height: 38px; margin-left: -33px; border-radius: 6px; background: #5a2b17; box-shadow: inset 0 0 0 3px #191514; transition: background-color .4s, box-shadow .4s; }
+.stove.lit::before { background: #f08a2c; box-shadow: inset 0 0 0 3px #191514, 0 0 26px 6px rgba(240,138,44,.55); }
+.stove::after { content: ""; position: absolute; left: -12px; right: -12px; top: -8px; height: 10px; background: #403835; border-radius: 4px; }
+.stove-legs { display: flex; gap: 120px; height: 16px; }
+.stove-legs i { width: 12px; background: #191514; }
+
+.report { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+.report-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
+.report-head h3 { font: 400 clamp(2rem, 4vw, 2.6rem)/1.1 var(--f-head); letter-spacing: .35em; }
+.report-head p { font: 700 1.0625rem var(--f-ui); color: var(--ink-2); }
+.seal { width: 64px; height: 64px; border: 4px solid var(--teacher); color: var(--teacher); display: grid; place-items: center; font: 400 1.4rem/1 var(--f-head); transform: rotate(4deg); border-radius: 4px; }
+.teacher-note { font: 400 1.75rem/1.6 var(--f-hand); color: #2b3a6b; background: repeating-linear-gradient(180deg, transparent 0 42px, rgba(36,85,122,.25) 42px 44px); padding: 4px 4px 10px; }
+.teacher-note + p { margin-top: 12px; color: var(--ink-2); font-size: 1.125rem; }
+
+/* ───────── 3. alley ───────── */
+.alley { background: #efe2c6; padding-top: 0; }
+.awning { height: 64px; background: repeating-linear-gradient(90deg, var(--orange) 0 56px, var(--paper-hi) 56px 112px); position: relative; border-top: 6px solid var(--chestnut); }
+.awning::after { content: ""; position: absolute; left: 0; right: 0; bottom: -20px; height: 22px; background: radial-gradient(circle at 28px 0, var(--orange) 27px, transparent 28px) 0 0 / 112px 22px repeat-x, radial-gradient(circle at 84px 0, var(--paper-hi) 27px, transparent 28px) 0 0 / 112px 22px repeat-x; }
+.alley-in { padding-top: clamp(56px, 7vw, 84px); }
+.alley-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 28px; }
+.alley-grid > .wide { grid-column: 1 / -1; }
+.dalgona-row { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items: center; }
+.tin { position: relative; width: 260px; height: 260px; border-radius: 50%; background: var(--al); box-shadow: inset 0 0 0 10px #b5b2a9, inset 0 0 0 13px #8b887f, 0 10px 16px -10px rgba(0,0,0,.5); display: grid; place-items: center; }
+.tin svg { width: 220px; height: 220px; }
+.tin .piece { transition: transform .6s var(--press), filter .6s; }
+.tin.won .piece { transform: translate(-6px, -12px); filter: drop-shadow(5px 9px 0 rgba(60,30,5,.35)); }
+.tin .crack { stroke-dasharray: 260; stroke-dashoffset: 260; transition: stroke-dashoffset .35s; }
+.tin.broke .crack { stroke-dashoffset: 0; }
+.tin.broke svg { animation: shake .3s; }
+@keyframes shake { 30% { transform: translateX(-4px) rotate(-1deg); } 70% { transform: translateX(4px) rotate(1deg); } }
+.nerve { display: flex; align-items: center; gap: 12px; font: 800 1.0625rem/1.4 var(--f-ui); margin: 10px 0 16px; }
+.nerve-meter { flex: none; width: 110px; height: 14px; border-radius: 7px; border: 2px solid var(--ink); background: #fffdf6; overflow: hidden; }
+.nerve-meter i { display: block; height: 100%; width: 0; background: var(--lime); transition: width .2s, background-color .2s; }
+.nerve.warn .nerve-meter i { background: var(--orange); }
+.nerve.danger .nerve-meter i { background: var(--pink); }
+.say { min-height: 1.8em; font: 700 1.125rem/1.6 var(--f-ui); margin-top: 14px; }
+
+.phone { background: #d9662a; border: 3px solid #5b2a0e; border-radius: 22px 22px 14px 14px; padding: 22px; color: var(--ink); box-shadow: inset 0 6px 0 rgba(255,255,255,.18), inset 0 -8px 0 rgba(0,0,0,.18), 8px 8px 0 rgba(36,26,18,.2); }
+.phone h3 { font: 400 1.6rem/1.3 var(--f-head); }
+.phone .desc { color: var(--ink); }
+.phone-face { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; margin: 14px 0 18px; }
+.lcd { background: #c9d6a2; border: 4px solid #2a1c15; border-radius: 8px; padding: 10px 14px; font: 400 2.6rem/1 var(--f-plate); text-align: right; color: #1d2410; box-shadow: inset 0 3px 0 rgba(0,0,0,.15); }
+.lcd small { display: block; font: 700 1rem/1.4 var(--f-ui); text-align: left; color: #2f3a1c; }
+.slot { width: 58px; height: 96px; border-radius: 10px; background: #f0e4cc; border: 3px solid #5b2a0e; position: relative; }
+.slot::before { content: ""; position: absolute; left: 50%; top: 16px; width: 8px; height: 40px; margin-left: -4px; border-radius: 4px; background: #1b1410; }
+.slot::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: 10px; height: 18px; border-radius: 4px; background: #1b1410; }
+.coin { position: absolute; left: 50%; top: -40px; width: 34px; height: 34px; margin-left: -17px; border-radius: 50%; background: #d9a65a; border: 3px solid #7a5520; display: grid; place-items: center; font: 800 .8rem var(--f-ui); color: #3b2508; animation: drop .5s ease-in forwards; }
+.coin.fifty { background: #cfd0c8; border-color: #66665e; }
+@keyframes drop { to { transform: translateY(70px) rotateY(80deg); opacity: 0; } }
+.phone .btn { box-shadow: 0 4px 0 #3a1a06; border-color: #3a1a06; }
+.phone .say { color: var(--ink); background: rgba(255,250,235,.85); border-radius: 8px; padding: 8px 12px; }
+
+.strip { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 0; margin: 12px 0 18px; }
+.tk { position: relative; min-height: 132px; background: #f3f0e2; border: 2px solid var(--sky-d); border-left-style: dashed; padding: 10px 6px; text-align: center; display: grid; align-content: center; gap: 4px; transition: transform .6s var(--press), opacity .6s; }
+.tk:first-child { border-left-style: solid; }
+.tk b { font: 400 1.25rem/1.15 var(--f-plate); color: var(--sky-d); writing-mode: vertical-rl; margin: 0 auto; letter-spacing: .1em; }
+.tk span { font: 800 .9375rem/1 var(--f-ui); color: var(--pink-d); }
+.tk.tear { transform: translateY(-46px) rotate(-10deg); opacity: 0; }
+.tk.gone { visibility: hidden; }
+.tk::after { content: ""; position: absolute; top: 8px; right: 8px; width: 12px; height: 12px; border-radius: 50%; background: #efe2c6; box-shadow: inset 0 0 0 2px var(--sky-d); opacity: 0; }
+.tk.tear::after { opacity: 1; }
+.count { font: 400 1.6rem/1 var(--f-plate); }
+
+/* ───────── 4. inner room ───────── */
+.room { background-color: #f1e6cf; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg opacity='.5'%3E%3Ccircle cx='22' cy='22' r='5' fill='%23e8a7b8'/%3E%3Ccircle cx='22' cy='14' r='3' fill='%23e8a7b8'/%3E%3Ccircle cx='30' cy='22' r='3' fill='%23e8a7b8'/%3E%3Ccircle cx='22' cy='30' r='3' fill='%23e8a7b8'/%3E%3Ccircle cx='14' cy='22' r='3' fill='%23e8a7b8'/%3E%3Cpath d='M64 62q6-10 14-6' stroke='%2399bfa5' stroke-width='3' fill='none'/%3E%3Ccircle cx='67' cy='67' r='3' fill='%23e9c46a'/%3E%3C/g%3E%3C/svg%3E"); padding-top: 0; }
+.lacquer-band { height: 46px; background: var(--lacquer); border-bottom: 5px solid #0d0a08; position: relative; overflow: hidden; }
+.lacquer-band::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; background: repeating-linear-gradient(90deg, var(--pearl-1) 0 22px, transparent 22px 30px, var(--pearl-2) 30px 52px, transparent 52px 60px, var(--pearl-3) 60px 82px, transparent 82px 90px); opacity: .9; }
+.lacquer-band::after { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 30px; background: radial-gradient(circle at 15px 15px, var(--pearl-2) 0 4px, transparent 5px) 0 0 / 180px 30px repeat-x, radial-gradient(ellipse 9px 5px at 105px 15px, var(--pearl-1) 0 100%, transparent 101%) 0 0 / 180px 30px repeat-x; opacity: .85; }
+.room-in { padding-top: clamp(48px, 7vw, 84px); }
+.room-grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 28px; align-items: start; }
+
+.postcard { background: #fbf6e8; border: 2.5px solid var(--ink); border-radius: 4px; padding: clamp(16px, 3vw, 26px); box-shadow: 6px 8px 0 rgba(36,26,18,.18); }
+.pc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 14px; }
+.pc-title { font: 400 1.9rem/1.1 var(--f-head); color: var(--pink-d); letter-spacing: .3em; }
+.pc-zip { display: flex; gap: 5px; margin-top: 10px; }
+.pc-zip i { width: 26px; height: 32px; border: 2px solid var(--pink); }
+.pc-zip i:nth-child(4) { margin-left: 8px; }
+.stampbox { flex: none; width: 82px; height: 98px; background: #fff; padding: 6px; border: 2px dashed var(--pink); transform: rotate(3deg); }
+.stampbox svg { width: 100%; height: 100%; }
+.pc-body { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; }
+.pc-body .textarea { min-height: 260px; resize: vertical; line-height: 44px; padding-top: 4px; background: #fffdf6 repeating-linear-gradient(180deg, transparent 0 42px, rgba(196,44,92,.28) 42px 44px) 0 4px; font: 400 1.6rem/44px var(--f-hand); }
+.pc-addr { display: grid; gap: 14px; align-content: start; border-left: 2px solid rgba(196,44,92,.45); padding-left: 22px; }
+.pc-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(36,26,18,.3); }
+
+.radio { position: relative; background: #8a2f2a; border: 3px solid #3a1210; border-radius: 22px; padding: 18px; color: #fff4e0; box-shadow: inset 0 6px 0 rgba(255,255,255,.12), 6px 8px 0 rgba(36,26,18,.2); --focus: #ffd34d; }
+.radio::before { content: ""; position: absolute; right: 30px; top: -46px; width: 6px; height: 50px; background: #b8b5ac; border-radius: 3px; transform: rotate(14deg); transform-origin: bottom; }
+.radio-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.radio h3 { font: 400 1.4rem/1.3 var(--f-head); color: #fff4e0; }
+.onair { font: 400 1.125rem/1 var(--f-plate); padding: 8px 12px; border-radius: 6px; background: #4a1714; color: #c79b93; border: 2px solid #2a0c0a; transition: all .3s; }
+.radio.live .onair { background: #ffd34d; color: #3a1210; box-shadow: 0 0 18px 4px rgba(255,211,77,.5); }
+.band { position: relative; margin: 14px 0; height: 54px; background: #f3e7c9; border: 3px solid #3a1210; border-radius: 6px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 10px 6px; font: 700 .9375rem var(--f-ui); color: #3a1210; }
+.band::before { content: ""; position: absolute; left: 8px; right: 8px; top: 8px; height: 12px; background: repeating-linear-gradient(90deg, #3a1210 0 2px, transparent 2px 10px); }
+.needle { position: absolute; top: 4px; bottom: 4px; width: 4px; background: var(--teacher); left: var(--n, 30%); transition: left .6s var(--press); }
+.speaker { height: 120px; border-radius: 12px; background: radial-gradient(circle, #3a1210 3.4px, transparent 4px) 0 0 / 14px 14px, #c9a77a; border: 3px solid #3a1210; }
+.onair-text { margin-top: 14px; min-height: 3.6em; font: 400 1.125rem/1.7 var(--f-body); color: #fff4e0; }
+
+.tape-area { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 28px; align-items: start; }
+.cassette { position: relative; aspect-ratio: 100 / 64; background: #3b302b; border: 3px solid #1a1411; border-radius: 14px; padding: 6% 6% 0; box-shadow: inset 0 4px 0 rgba(255,255,255,.1), 6px 8px 0 rgba(36,26,18,.2); }
+.cassette::after { content: ""; position: absolute; left: 22%; right: 22%; bottom: 0; height: 18%; background: #2b221e; border: 3px solid #1a1411; border-bottom: 0; clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%); }
+.c-label { position: relative; height: 72%; background: #f6efda; border-radius: 6px; padding: 4% 5%; background-image: linear-gradient(180deg, var(--pink) 0 12%, transparent 12%), repeating-linear-gradient(180deg, transparent 0 26px, rgba(36,85,122,.3) 26px 28px); }
+.c-title { font: 400 clamp(1.3rem, 2.6vw, 1.75rem)/1.1 var(--f-hand); color: #2b3a6b; margin-top: 4%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-side { position: absolute; left: 4%; top: 1%; font: 400 1rem/1 var(--f-plate); color: #fff; }
+.c-win { position: absolute; left: 18%; right: 18%; bottom: 10%; height: 38%; background: #6e5f55; border-radius: 30px; border: 3px solid #1a1411; display: flex; justify-content: space-between; align-items: center; padding: 0 6%; }
+.reel { width: 26%; aspect-ratio: 1; border-radius: 50%; background: #f6efda; border: 3px solid #1a1411; position: relative; }
+.reel::before { content: ""; position: absolute; inset: 22%; border-radius: 50%; background: repeating-conic-gradient(#1a1411 0 20deg, #f6efda 20deg 60deg); }
+.cassette.rec .reel { animation: spin 1.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.jcard { background: #fffdf6; border: 2.5px solid var(--ink); border-radius: 4px; padding: 18px 20px; box-shadow: 6px 8px 0 rgba(36,26,18,.18); }
+.tracks { counter-reset: t; margin: 10px 0 14px; border-top: 2px solid rgba(36,26,18,.2); }
+.tracks li { display: flex; align-items: center; gap: 10px; min-height: 58px; border-bottom: 2px solid rgba(36,85,122,.25); padding: 4px 0; }
+.tracks li::before { counter-increment: t; content: counter(t) "."; font: 700 1rem var(--f-ui); color: var(--ink-3); width: 1.6em; flex: none; }
+.tracks .tt { flex: 1; font: 400 1.6rem/1.1 var(--f-hand); color: #2b3a6b; min-width: 0; }
+.tracks .tt small { display: block; font: 400 1rem/1.4 var(--f-ui); color: var(--ink-3); }
+.tracks .min { font: 700 1rem var(--f-ui); color: var(--ink-2); }
+.tracks .del { min-height: 48px; min-width: 48px; padding: 0 .8em; border: 2px solid var(--ink); border-radius: 10px; background: transparent; font: 700 1rem var(--f-ui); }
+.tracks .empty { font: 400 1.125rem var(--f-body); color: var(--ink-3); }
+.tracks .empty::before { content: none; }
+.tape-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 16px; }
+.tape-form .full { grid-column: 1 / -1; }
+
+.drawers { margin-top: 40px; background: var(--lacquer); border: 4px solid #0d0a08; border-radius: 10px; padding: clamp(10px, 2vw, 18px); display: grid; gap: 10px; --focus: #ffd34d; }
+.drawers h3 { color: var(--pearl-3); font: 400 1.6rem/1.3 var(--f-head); padding: 6px 8px 4px; }
+.drawer { background: #2a221d; border: 2px solid #0d0a08; border-radius: 6px; }
+.drawer-btn { width: 100%; min-height: 64px; display: flex; align-items: center; gap: 16px; padding: 10px 18px; border: 0; background: transparent; color: #f5ecd9; font: 400 1.35rem/1.3 var(--f-head); text-align: left; border-radius: 6px; }
+.drawer-btn::before { content: ""; flex: none; width: 30px; height: 12px; border-radius: 6px; background: #c9b48a; box-shadow: inset 0 -3px 0 #8b7550; }
+.drawer-btn::after { content: "열기"; margin-left: auto; font: 700 1rem var(--f-ui); color: #e6dcc6; border: 2px solid #6d5f52; border-radius: 6px; padding: 4px 10px; }
+.drawer-btn[aria-expanded="true"]::after { content: "닫기"; }
+.drawer-btn i { flex: 1; height: 3px; background: repeating-linear-gradient(90deg, var(--pearl-1) 0 16px, transparent 16px 22px, var(--pearl-2) 22px 38px, transparent 38px 44px); opacity: .7; min-width: 20px; }
+.drawer-panel { padding: 4px 22px 22px 64px; color: #efe6d3; font-size: 1.125rem; line-height: 1.85; }
+
+/* ───────── 5. photo studio: album page ───────── */
+.studio { background: #3b2a20; color: #f5ecd9; --focus: #ffd34d; position: relative; }
+.studio::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 34px; background: radial-gradient(circle at 17px 50%, #1c130d 0 8px, transparent 9px) 0 0 / 34px 72px repeat-y, #2b1d15; border-right: 3px solid #1c130d; }
+.studio .stop-k { color: #e3d6be; }
+.studio .lead { color: #e9dfcb; }
+.studio .stop-no { background: var(--paper-hi); color: #3b2a20; box-shadow: 0 0 0 3px var(--paper-hi); border-color: #3b2a20; }
+.studio .wrap { padding-left: 30px; }
+.studio-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(24px, 4vw, 48px); align-items: start; }
+.photo-mount { position: relative; padding: 22px; background: rgba(255,255,255,.06); border-radius: 4px; }
+.photo-mount::before { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255,255,255,.1), transparent 30%, transparent 70%, rgba(255,255,255,.05)); pointer-events: none; border-radius: 4px; }
+.frame { position: relative; padding: 16px; background: #f4efe4; box-shadow: 0 16px 26px -14px rgba(0,0,0,.7); transition: background .4s, padding .4s; }
+.frame[data-frame="wood"] { background: #7a4627; padding: 22px; box-shadow: inset 0 0 0 4px #45250f, 0 16px 26px -14px rgba(0,0,0,.7); }
+.frame[data-frame="wood"] .portrait { box-shadow: 0 0 0 10px #f4efe4; }
+.frame[data-frame="pearl"] { background: var(--lacquer); padding: 26px; box-shadow: inset 0 0 0 3px var(--pearl-1), inset 0 0 0 9px var(--lacquer), inset 0 0 0 11px var(--pearl-2), 0 16px 26px -14px rgba(0,0,0,.7); }
+.frame[data-frame="pearl"] .portrait { box-shadow: 0 0 0 8px #f4efe4; }
+.corner { position: absolute; width: 34px; height: 34px; background: #1c130d; clip-path: polygon(0 0, 100% 0, 0 100%); z-index: 2; }
+.corner.tl { left: 10px; top: 10px; } .corner.tr { right: 10px; top: 10px; transform: scaleX(-1); } .corner.bl { left: 10px; bottom: 10px; transform: scaleY(-1); } .corner.br { right: 10px; bottom: 10px; transform: scale(-1); }
+.portrait { width: 100%; height: auto; filter: sepia(calc(var(--age, .2) * .85)) contrast(calc(1 - var(--age, .2) * .18)) brightness(calc(1 + var(--age, .2) * .08)); }
+.portrait .t-sky { opacity: var(--sky, .5); }
+.portrait .t-cheek { opacity: var(--cheek, .5); }
+.portrait .t-ribbon { opacity: var(--ribbon, .7); }
+.photo-cap { margin-top: 14px; font: 400 1.6rem/1.3 var(--f-hand); color: #f2e8c6; text-align: center; }
+.studio .card { background: #f6efdf; color: var(--ink); --focus: #1b3fa6; }
+.tints { display: grid; gap: 12px; margin: 16px 0 18px; }
+.tint-row { display: grid; grid-template-columns: 9.5em minmax(0, 1fr) 3.4em; gap: 12px; align-items: center; }
+.tint-row label { font: 800 1.0625rem/1.3 var(--f-ui); display: flex; align-items: center; gap: 8px; }
+.tint-row label i { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ink); flex: none; }
+.tint-row output { font: 700 1.0625rem var(--f-ui); text-align: right; font-variant-numeric: tabular-nums; }
+.steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin: 4px 0 18px; counter-reset: s; }
+.steps li { position: relative; display: grid; justify-items: center; gap: 6px; text-align: center; font: 700 1rem/1.3 var(--f-ui); color: var(--ink-3); }
+.steps li::before { counter-increment: s; content: counter(s); width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; border: 2.5px solid var(--ink-3); background: #fffdf6; font: 400 1.25rem/1 var(--f-plate); position: relative; z-index: 1; }
+.steps li:not(:last-child)::after { content: ""; position: absolute; top: 21px; left: calc(50% + 22px); right: calc(-50% + 18px); height: 3px; background: rgba(36,26,18,.25); }
+.steps li.done { color: var(--ink); }
+.steps li.done::before { content: "✓"; background: var(--lime); border-color: var(--ink); }
+.steps li.done::after { background: var(--ink); }
+.steps li[aria-current="step"] { color: var(--ink); }
+.steps li[aria-current="step"]::before { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* ───────── 6. kit: the stationery shop glass case ───────── */
+.kit { background: var(--paper); }
+.case { border: 14px solid #8d5a35; border-top-width: 22px; border-radius: 8px; background: #eaf2ee; box-shadow: inset 0 0 0 3px #45250f, inset 0 26px 40px -30px rgba(255,255,255,.9), 0 20px 30px -24px rgba(0,0,0,.6); padding: clamp(16px, 3vw, 30px); position: relative; }
+.case::before { content: ""; position: absolute; left: -14px; right: -14px; top: -22px; height: 8px; background: #a8723f; }
+.shelf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.spec { position: relative; background: #fffdf6; border: 2px solid var(--ink); border-radius: 10px; padding: 20px 18px 18px; display: grid; gap: 12px; align-content: start; }
+.spec .tag { justify-self: start; position: relative; font: 800 1rem/1 var(--f-ui); background: var(--paper-2); border: 2px solid var(--ink); border-radius: 4px 14px 14px 4px; padding: 8px 14px 8px 22px; }
+.spec .tag::before { content: ""; position: absolute; left: 7px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; border: 2px solid var(--ink); background: #fffdf6; }
+.spec p { font-size: 1.0625rem; line-height: 1.7; color: var(--ink-2); }
+.spec.wide { grid-column: span 2; }
+.spec.full { grid-column: 1 / -1; }
+.inks { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.ink { border: 2px solid var(--ink); border-radius: 8px; overflow: hidden; font-family: var(--f-ui); background: #fffdf6; }
+.ink i { display: block; height: 64px; position: relative; }
+.ink i::after { content: ""; position: absolute; inset: 0; transform: translate(3px, 2px); border: 2px solid rgba(255,255,255,.35); pointer-events: none; }
+.ink div { padding: 8px 10px; font-size: 1rem; line-height: 1.4; }
+.ink b { display: block; font: 400 1.125rem var(--f-plate); }
+.typo { display: grid; gap: 10px; }
+.typo div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; border-bottom: 2px dashed rgba(36,26,18,.2); padding-bottom: 8px; }
+.typo span:first-child { font: 700 1rem var(--f-ui); color: var(--ink-3); min-width: 7em; }
+
+/* ───────── footer: the last stop ───────── */
+.foot { background: var(--ink); color: var(--paper); padding: 56px 0 110px; --focus: #ffd34d; }
+.foot-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 26px; align-items: flex-end; }
+.terminus { display: inline-flex; align-items: center; gap: 14px; background: var(--sky-d); border: 4px solid var(--paper-hi); border-radius: 12px; padding: 12px 20px; font: 400 1.8rem/1 var(--f-sign); }
+.terminus small { font: 700 1rem/1.4 var(--f-ui); display: block; }
+.foot p { color: #e7dcc6; max-width: 36em; font-size: 1.0625rem; margin-top: 14px; }
+.foot a { color: #fff; display: inline-flex; align-items: center; min-height: 48px; font: 800 1.125rem var(--f-ui); }
+
+/* ───────── responsive ───────── */
+@media (max-width: 1000px) {
+  .hero-grid, .school-grid, .room-grid, .tape-area, .studio-grid { grid-template-columns: minmax(0, 1fr); }
+  .shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .alley-grid { grid-template-columns: minmax(0, 1fr); }
+  .radio { max-width: 520px; }
+}
+@media (max-width: 720px) {
+  .tv-cab { grid-template-columns: minmax(0, 1fr); padding: 12px; }
+  .tv-side { padding: 16px 0 4px; grid-template-columns: auto minmax(0, 1fr); justify-items: start; align-items: center; column-gap: 14px; }
+  .tv-side .plate { grid-column: 1 / -1; justify-self: center; }
+  .tv-side .dial { grid-row: span 3; }
+  .tv-side .grille { grid-column: 1 / -1; height: 36px; }
+  .tv-side .tv-hint { text-align: left; }
+  .route ol { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 8px; }
+  .route ol::before { display: none; }
+  .dalgona-row { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  .dalgona-row > div:last-child { justify-self: stretch; }
+  .pc-body { grid-template-columns: minmax(0, 1fr); }
+  .pc-addr { border-left: 0; padding-left: 0; border-top: 2px solid rgba(196,44,92,.45); padding-top: 16px; }
+  .shelf { grid-template-columns: minmax(0, 1fr); }
+  .spec.wide { grid-column: auto; }
+  .strip { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 8px; }
+  .tk:nth-child(6) { border-left-style: solid; }
+  .tape-form { grid-template-columns: minmax(0, 1fr); }
+  .tint-row { grid-template-columns: minmax(0, 1fr) 3.4em; }
+  .tint-row label { grid-column: 1 / -1; }
+  .steps li { font-size: .9375rem; }
+  .drawer-panel { padding-left: 22px; }
+  .stamp { width: 104px; height: 104px; font-size: 1.3rem; top: 64px; right: 8px; background: radial-gradient(circle, transparent 42px, rgba(208,38,45,.12) 43px); }
+  .tv-cap { grid-template-columns: minmax(0, 1fr); }
+  .tv-cap .lab { grid-row: auto; justify-self: start; }
+  .tv-cap p { grid-column: auto; }
+  .ticket { padding: 14px 18px; }
+  .stop-no { width: 56px; height: 56px; font-size: 1.8rem; }
+  .studio .wrap { padding-left: 22px; }
+  .studio::before { width: 20px; background-size: 20px 60px; background-image: radial-gradient(circle at 10px 50%, #1c130d 0 5px, transparent 6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 바로 가기</a>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="topbar">
+      <p class="mark"><i aria-hidden="true">회</i>회수권 디자인 시스템</p>
+      <div class="prefs">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
+          <span class="lbl" id="sizeL">글자 크기</span>
+          <div class="seg" role="radiogroup" aria-labelledby="sizeL" id="sizeSeg">
+            <button type="button" role="radio" aria-checked="true" data-v="m">보통</button>
+            <button type="button" role="radio" aria-checked="false" data-v="l">크게</button>
+            <button type="button" role="radio" aria-checked="false" data-v="xl">아주 크게</button>
+          </div>
+        </div>
+        <button type="button" class="switch" role="switch" aria-checked="false" id="soundSw"><span class="sw-track"><span class="sw-thumb"></span></span>소리 <span class="sw-state" aria-hidden="true">끔</span></button>
+      </div>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <div class="ticket">
+          <div class="ticket-in">
+            <div class="t-top"><span>시내버스 · 학생용 · 1회 승차</span><span class="t-stamp" aria-hidden="true">학생</span></div>
+            <h1>회수권</h1>
+            <p class="t-sub">한 장 내면, 그때로 가는 버스</p>
+            <p class="t-serial" aria-hidden="true"><span>No. 1983 · 0601</span><span>종점 · 우리 동네</span></p>
+          </div>
+        </div>
+        <p class="hero-lead">식탁 서랍 깊은 곳에서 나온 깡통 하나. 안에는 다 쓰지 못한 <b>회수권 한 묶음</b>, 받아쓰기 공책, 라디오에 보내려다 만 엽서, 이름을 적어 둔 공테이프가 들어 있습니다. 텔레비전 다이얼을 돌리듯 한 칸씩 넘기며, 1960년대에 태어난 우리가 지나온 교실과 골목과 안방을 다시 찾아갑니다.</p>
+      </div>
+
+      <figure class="tv" id="tv" aria-labelledby="tvTitle">
+        <div class="tv-cab">
+          <div class="tv-front">
+            <div class="bezel">
+              <div class="screen" id="screen" data-color="on">
+                <div class="scenes">
+                  <!-- ch 2: classroom -->
+                  <svg class="scene" data-ch="2" viewBox="0 0 400 300" aria-hidden="true">
+                    <rect width="400" height="300" fill="#e9dcbc"/>
+                    <rect y="214" width="400" height="86" fill="#b98552"/>
+                    <path d="M0 236H400M0 262H400M0 288H400" stroke="#9c6b3d" stroke-width="2"/>
+                    <rect x="18" y="30" width="250" height="122" fill="#2f4d3e" stroke="#8a5a32" stroke-width="8"/>
+                    <text x="40" y="78" font-family="Nanum Pen Script" font-size="36" fill="#f1ede2">받아쓰기</text>
+                    <text x="40" y="112" font-family="Nanum Pen Script" font-size="24" fill="#f1ede2">1. 도시락  2. 운동장</text>
+                    <text x="182" y="140" font-family="Nanum Pen Script" font-size="20" fill="#f4c8cf">주번: 철수</text>
+                    <rect x="286" y="28" width="96" height="108" fill="#a9d3e6" stroke="#6b4a2e" stroke-width="6"/>
+                    <path d="M334 28V136M286 82H382" stroke="#6b4a2e" stroke-width="5"/>
+                    <rect x="326" y="0" width="14" height="168" fill="#3a3430"/>
+                    <rect x="300" y="128" width="66" height="13" rx="3" fill="#cfccc4" stroke="#7d7a71" stroke-width="2"/>
+                    <rect x="302" y="141" width="62" height="13" rx="3" fill="#c9c7bf" stroke="#7d7a71" stroke-width="2"/>
+                    <rect x="300" y="154" width="66" height="13" rx="3" fill="#d2cfc6" stroke="#7d7a71" stroke-width="2"/>
+                    <rect x="300" y="168" width="66" height="92" rx="8" fill="#2a2522"/>
+                    <rect x="318" y="206" width="30" height="20" rx="3" fill="#f08a2c"/>
+                    <rect x="30" y="196" width="118" height="14" fill="#9b6a3c"/><path d="M89 196v14" stroke="#f1ede2" stroke-width="2" stroke-dasharray="3 3"/>
+                    <rect x="36" y="210" width="8" height="52" fill="#6a4020"/><rect x="134" y="210" width="8" height="52" fill="#6a4020"/>
+                    <rect x="164" y="196" width="118" height="14" fill="#9b6a3c"/><path d="M223 196v14" stroke="#f1ede2" stroke-width="2" stroke-dasharray="3 3"/>
+                    <rect x="170" y="210" width="8" height="52" fill="#6a4020"/><rect x="268" y="210" width="8" height="52" fill="#6a4020"/>
+                    <rect x="54" y="186" width="30" height="10" fill="#e2772a"/><rect x="190" y="188" width="26" height="8" fill="#8cc6df"/>
+                  </svg>
+                  <!-- ch 5: alley -->
+                  <svg class="scene" data-ch="5" viewBox="0 0 400 300" aria-hidden="true" hidden>
+                    <rect width="400" height="300" fill="#9fd0e4"/>
+                    <path d="M0 120L60 96L120 120V300H0Z" fill="#d9c7a4"/><path d="M0 120L60 96L120 120" fill="none" stroke="#6b3b22" stroke-width="6"/>
+                    <path d="M40 0L40 300" stroke="#6b5a48" stroke-width="7"/><path d="M0 40Q200 70 400 30M0 52Q200 84 400 44" stroke="#3b3633" stroke-width="2" fill="none"/>
+                    <rect x="146" y="78" width="240" height="180" fill="#efe3c8"/>
+                    <rect x="160" y="56" width="212" height="38" fill="#24557a"/>
+                    <text x="266" y="86" text-anchor="middle" font-family="Do Hyeon" font-size="30" fill="#f4ecd8">문 방 구</text>
+                    <path d="M146 94H386V118H146Z" fill="#e2772a"/>
+                    <path d="M146 94h30v24h-30zM206 94h30v24h-30zM266 94h30v24h-30zM326 94h30v24h-30z" fill="#fbf6e9"/>
+                    <path d="M146 118q15 14 30 0q15 14 30 0q15 14 30 0q15 14 30 0q15 14 30 0q15 14 30 0q15 14 30 0q15 14 30 0" fill="#e2772a"/>
+                    <rect x="166" y="138" width="110" height="80" fill="#b9dbe8" stroke="#6b3b22" stroke-width="5"/>
+                    <circle cx="190" cy="196" r="14" fill="#c42c5c" opacity=".8"/><circle cx="222" cy="198" r="12" fill="#a9c64a"/><circle cx="252" cy="194" r="14" fill="#f3d36b"/>
+                    <rect x="292" y="140" width="76" height="118" fill="#7a4627"/><circle cx="356" cy="200" r="4" fill="#e9dcc0"/>
+                    <rect y="258" width="400" height="42" fill="#c8b48f"/>
+                    <g fill="#3b3633"><rect x="56" y="186" width="24" height="18"/><rect x="82" y="186" width="24" height="18"/><rect x="108" y="186" width="24" height="18"/>
+                    <rect x="56" y="206" width="24" height="18"/><rect x="82" y="206" width="24" height="18"/><rect x="108" y="206" width="24" height="18"/>
+                    <rect x="56" y="226" width="24" height="18"/><rect x="82" y="226" width="24" height="18"/><rect x="108" y="226" width="24" height="18"/>
+                    <rect x="56" y="246" width="24" height="18"/><rect x="82" y="246" width="24" height="18"/><rect x="108" y="246" width="24" height="18"/></g>
+                    <g fill="#6d6661"><ellipse cx="68" cy="186" rx="12" ry="4"/><ellipse cx="94" cy="186" rx="12" ry="4"/><ellipse cx="120" cy="186" rx="12" ry="4"/></g>
+                    <circle cx="200" cy="272" r="6" fill="#f3efe3" stroke="#6b5a48" stroke-width="2"/><circle cx="216" cy="276" r="6" fill="#8cc6df" stroke="#6b5a48" stroke-width="2"/>
+                  </svg>
+                  <!-- ch 7: inner room -->
+                  <svg class="scene" data-ch="7" viewBox="0 0 400 300" aria-hidden="true" hidden>
+                    <defs><pattern id="wp" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="12" cy="12" r="3" fill="#e5b7a6"/></pattern></defs>
+                    <rect width="400" height="300" fill="#f1e2c2"/><rect width="400" height="232" fill="url(#wp)"/>
+                    <rect y="232" width="400" height="68" fill="#d9a85a"/><path d="M0 256H400M0 282H400M80 232V300M200 232V300M320 232V300" stroke="#c08f45" stroke-width="2"/>
+                    <rect x="24" y="40" width="228" height="190" rx="4" fill="#1f1a17"/>
+                    <path d="M100 40V230M176 40V230M24 170H252" stroke="#3a302a" stroke-width="3"/>
+                    <circle cx="62" cy="86" r="18" fill="#ead7e8" opacity=".9"/>
+                    <path d="M40 140Q70 110 92 128T150 100" stroke="#cfe8e3" stroke-width="4" fill="none"/>
+                    <g fill="#f2e8c6"><circle cx="124" cy="80" r="5"/><circle cx="134" cy="74" r="5"/><circle cx="140" cy="84" r="5"/><circle cx="208" cy="110" r="6"/><circle cx="220" cy="100" r="5"/></g>
+                    <path d="M196 80q14-18 32-4" stroke="#ead7e8" stroke-width="4" fill="none"/>
+                    <path d="M40 200h40M116 200h44M190 200h48" stroke="#cfe8e3" stroke-width="3"/>
+                    <rect x="92" y="130" width="6" height="16" rx="2" fill="#c9b48a"/><rect x="178" y="130" width="6" height="16" rx="2" fill="#c9b48a"/>
+                    <rect x="270" y="178" width="116" height="20" rx="8" fill="#9fd1b8"/>
+                    <rect x="266" y="156" width="124" height="22" rx="9" fill="#e48aa6"/>
+                    <rect x="272" y="136" width="112" height="20" rx="8" fill="#f1d27a"/>
+                    <g fill="#fff6" ><circle cx="290" cy="167" r="5"/><circle cx="320" cy="167" r="5"/><circle cx="350" cy="167" r="5"/><circle cx="376" cy="167" r="5"/></g>
+                    <g fill="#c42c5c" opacity=".6"><circle cx="300" cy="146" r="4"/><circle cx="336" cy="146" r="4"/><circle cx="368" cy="146" r="4"/></g>
+                    <rect x="270" y="198" width="116" height="34" rx="6" fill="#e48aa6" opacity=".55"/>
+                    <ellipse cx="320" cy="262" rx="38" ry="10" fill="#c9b48a"/>
+                    <rect x="284" y="226" width="72" height="36" rx="14" fill="#f3ead2" stroke="#8b7550" stroke-width="3"/>
+                    <ellipse cx="320" cy="226" rx="36" ry="9" fill="#e8dcc0" stroke="#8b7550" stroke-width="3"/>
+                    <circle cx="306" cy="244" r="5" fill="#c42c5c"/><circle cx="324" cy="246" r="5" fill="#e2772a"/><circle cx="340" cy="242" r="4" fill="#a9c64a"/>
+                  </svg>
+                  <!-- ch 9: photo studio -->
+                  <svg class="scene" data-ch="9" viewBox="0 0 400 300" aria-hidden="true" hidden>
+                    <defs><radialGradient id="bd" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#cfe4ef"/><stop offset="1" stop-color="#6f9fbf"/></radialGradient></defs>
+                    <rect width="400" height="300" fill="#4a3628"/>
+                    <rect x="110" y="20" width="200" height="220" fill="url(#bd)"/>
+                    <ellipse cx="170" cy="80" rx="40" ry="14" fill="#fff" opacity=".6"/><ellipse cx="250" cy="120" rx="34" ry="10" fill="#fff" opacity=".5"/>
+                    <rect x="104" y="14" width="212" height="10" fill="#2a1c15"/>
+                    <rect y="240" width="400" height="60" fill="#6a4a36"/>
+                    <rect x="186" y="196" width="48" height="10" rx="3" fill="#7a4627"/><rect x="192" y="206" width="6" height="46" fill="#45250f"/><rect x="222" y="206" width="6" height="46" fill="#45250f"/>
+                    <rect x="22" y="40" width="64" height="80" fill="#f4efe4" stroke="#c9b48a" stroke-width="5"/><ellipse cx="54" cy="72" rx="14" ry="17" fill="#cfc6b6"/><path d="M30 120q24-30 48 0" fill="#7d7266"/>
+                    <path d="M350 300L330 180M350 300L370 180M350 300V180" stroke="#2a1c15" stroke-width="5"/>
+                    <rect x="318" y="146" width="64" height="44" rx="4" fill="#1c1714"/>
+                    <path d="M314 150Q300 196 322 214H384Q396 196 384 150Z" fill="#1c1714"/>
+                    <circle cx="322" cy="168" r="14" fill="#5a5653" stroke="#c9c7bf" stroke-width="3"/>
+                    <circle cx="44" cy="186" r="34" fill="#f2f0ea" opacity=".85"/><path d="M44 220V300" stroke="#2a1c15" stroke-width="4"/>
+                  </svg>
+                  <!-- ch 11: bakery -->
+                  <svg class="scene" data-ch="11" viewBox="0 0 400 300" aria-hidden="true" hidden>
+                    <rect width="400" height="300" fill="#f2dfc4"/>
+                    <rect x="40" y="26" width="320" height="140" fill="#b9dbe8" stroke="#6b3b22" stroke-width="8"/>
+                    <path d="M200 26V166" stroke="#6b3b22" stroke-width="6"/>
+                    <text x="120" y="70" text-anchor="middle" font-family="Song Myung" font-size="30" fill="#c42c5c">제과</text>
+                    <text x="280" y="70" text-anchor="middle" font-family="Song Myung" font-size="30" fill="#c42c5c">빵집</text>
+                    <path d="M40 30q20 22 40 0q20 22 40 0q20 22 40 0q20 22 40 0q20 22 40 0q20 22 40 0q20 22 40 0q20 22 40 0" fill="#fbf6e9" stroke="#e0d3bd" stroke-width="2"/>
+                    <rect y="232" width="400" height="68" fill="#9c6a45"/>
+                    <ellipse cx="200" cy="208" rx="128" ry="26" fill="#cfe3d6" stroke="#8fa89a" stroke-width="4"/>
+                    <path d="M200 232V286M160 286H240" stroke="#c9c7bf" stroke-width="7"/>
+                    <rect x="150" y="160" width="26" height="44" rx="3" fill="#fbfbf6" stroke="#9eb4c0" stroke-width="3"/><rect x="152" y="178" width="22" height="24" fill="#fff"/>
+                    <rect x="228" y="160" width="26" height="44" rx="3" fill="#fbfbf6" stroke="#9eb4c0" stroke-width="3"/><rect x="230" y="176" width="22" height="26" fill="#fff"/>
+                    <ellipse cx="200" cy="204" rx="30" ry="8" fill="#f4efe4" stroke="#c9b48a" stroke-width="2"/>
+                    <ellipse cx="192" cy="196" rx="14" ry="9" fill="#a8652e"/><ellipse cx="210" cy="194" rx="13" ry="9" fill="#b9733a"/>
+                    <circle cx="190" cy="192" r="1.6" fill="#f4ecd8"/><circle cx="210" cy="190" r="1.6" fill="#f4ecd8"/>
+                    <path d="M56 300V214Q56 196 74 196H84V300" fill="none" stroke="#45250f" stroke-width="6"/>
+                    <path d="M344 300V214Q344 196 326 196H316V300" fill="none" stroke="#45250f" stroke-width="6"/>
+                  </svg>
+                  <!-- ch 13: sports day -->
+                  <svg class="scene" data-ch="13" viewBox="0 0 400 300" aria-hidden="true" hidden>
+                    <rect width="400" height="300" fill="#a6d3e8"/>
+                    <rect x="40" y="90" width="320" height="90" fill="#efe3c8"/><path d="M40 90H360" stroke="#6b3b22" stroke-width="6"/>
+                    <g fill="#8cb4c9"><rect x="60" y="108" width="34" height="26"/><rect x="110" y="108" width="34" height="26"/><rect x="256" y="108" width="34" height="26"/><rect x="306" y="108" width="34" height="26"/></g>
+                    <circle cx="200" cy="74" r="20" fill="#fbf6e9" stroke="#6b3b22" stroke-width="4"/><path d="M200 74V62M200 74H210" stroke="#241a12" stroke-width="3"/>
+                    <rect x="170" y="94" width="60" height="86" fill="#e7d6b5"/>
+                    <rect y="180" width="400" height="120" fill="#d9b77f"/>
+                    <path d="M-10 290Q200 190 410 290M-10 270Q200 180 410 270" stroke="#fbf6e9" stroke-width="4" fill="none"/>
+                    <path d="M0 26Q100 64 200 30Q300 64 400 26" stroke="#6b5a48" stroke-width="2" fill="none"/>
+                    <g><path d="M14 31l8 0l-4 14z" fill="#c42c5c"/><path d="M40 40l9 0l-4 14z" fill="#24557a"/><path d="M66 47l9 0l-4 14z" fill="#e2772a"/><path d="M92 50l9 0l-4 14z" fill="#a9c64a"/><path d="M118 49l9 0l-4 14z" fill="#f3d36b"/><path d="M144 45l9 0l-4 14z" fill="#c42c5c"/><path d="M170 38l9 0l-4 14z" fill="#24557a"/>
+                    <path d="M222 38l9 0l-4 14z" fill="#e2772a"/><path d="M248 45l9 0l-4 14z" fill="#a9c64a"/><path d="M274 49l9 0l-4 14z" fill="#24557a"/><path d="M300 50l9 0l-4 14z" fill="#c42c5c"/><path d="M326 47l9 0l-4 14z" fill="#f3d36b"/><path d="M352 40l9 0l-4 14z" fill="#e2772a"/><path d="M378 31l8 0l-4 14z" fill="#a9c64a"/></g>
+                    <path d="M300 300V150" stroke="#6b5a48" stroke-width="5"/>
+                    <path d="M276 150a24 24 0 0 1 48 0z" fill="#fbf6e9" stroke="#24557a" stroke-width="3" transform="rotate(-24 300 150)"/>
+                    <path d="M276 152a24 24 0 0 0 48 0z" fill="#fbf6e9" stroke="#c42c5c" stroke-width="3" transform="rotate(20 300 152)"/>
+                    <path d="M300 168C290 200 316 200 296 236" stroke="#c42c5c" stroke-width="10" fill="none"/>
+                    <g fill="#c42c5c"><rect x="266" y="128" width="6" height="6" transform="rotate(20 269 131)"/><rect x="332" y="124" width="6" height="6"/></g>
+                    <g fill="#24557a"><rect x="282" y="112" width="6" height="6"/><rect x="320" y="110" width="6" height="6" transform="rotate(30 323 113)"/></g>
+                    <rect x="40" y="200" width="150" height="34" fill="#fbf6e9" stroke="#6b3b22" stroke-width="3"/>
+                    <text x="115" y="225" text-anchor="middle" font-family="Do Hyeon" font-size="22" fill="#9e1f49">가을 운동회</text>
+                    <path d="M48 234V280M182 234V280" stroke="#6b5a48" stroke-width="4"/>
+                  </svg>
+                </div>
+                <div class="osd" aria-hidden="true"><b id="osdCh">2</b><span id="osdName">국민학교 교실</span></div>
+                <div class="glass" aria-hidden="true"></div>
+              </div>
+            </div>
+            <div class="door door-l" aria-hidden="true"></div>
+            <div class="door door-r" aria-hidden="true"></div>
+          </div>
+          <div class="tv-side">
+            <span class="plate" aria-hidden="true">총천연색</span>
+            <div class="dial" role="radiogroup" aria-label="채널 다이얼" id="dial">
+              <div class="knob" id="knob" aria-hidden="true"></div>
+              <button type="button" class="ch" role="radio" aria-checked="true" data-ch="2" data-a="-135" style="--a:-135deg" aria-label="2번, 국민학교 교실">2</button>
+              <button type="button" class="ch" role="radio" aria-checked="false" data-ch="5" data-a="-81" style="--a:-81deg" aria-label="5번, 문방구 골목">5</button>
+              <button type="button" class="ch" role="radio" aria-checked="false" data-ch="7" data-a="-27" style="--a:-27deg" aria-label="7번, 우리 집 안방">7</button>
+              <button type="button" class="ch" role="radio" aria-checked="false" data-ch="9" data-a="27" style="--a:27deg" aria-label="9번, 동네 사진관">9</button>
+              <button type="button" class="ch" role="radio" aria-checked="false" data-ch="11" data-a="81" style="--a:81deg" aria-label="11번, 빵집 미팅">11</button>
+              <button type="button" class="ch" role="radio" aria-checked="false" data-ch="13" data-a="135" style="--a:135deg" aria-label="13번, 가을 운동회">13</button>
+            </div>
+            <p class="tv-hint">숫자를 누르거나<br>화살표 키로 돌려요</p>
+            <button type="button" class="switch" role="switch" aria-checked="true" id="colorSw"><span class="sw-track"><span class="sw-thumb"></span></span>컬러 <span class="sw-state" aria-hidden="true">켬</span></button>
+            <button type="button" class="switch" role="switch" aria-checked="true" id="doorSw"><span class="sw-track"><span class="sw-thumb"></span></span>미닫이 문 <span class="sw-state" aria-hidden="true" data-on="열림" data-off="닫힘">열림</span></button>
+            <div class="grille" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="tv-legs" aria-hidden="true"><i></i><i></i></div>
+        <figcaption class="tv-cap">
+          <span class="lab">지금 방송</span>
+          <b id="tvTitle">2번 · 국민학교 교실</b>
+          <p id="tvText" aria-live="polite">칠판에 받아쓰기 문제가 적혀 있고, 난로 위에는 양은 도시락이 세 층으로 쌓여 데워지고 있어요.</p>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <nav class="route" aria-labelledby="routeH">
+    <div class="wrap">
+      <h2 id="routeH">노선 안내 · 이번 버스는 이렇게 섭니다</h2>
+      <ol>
+        <li><a href="#top"><span>1</span>안방 텔레비전</a></li>
+        <li><a href="#school"><span>2</span>국민학교 앞</a></li>
+        <li><a href="#alley"><span>3</span>문방구 골목</a></li>
+        <li><a href="#room"><span>4</span>안방 라디오</a></li>
+        <li><a href="#studio"><span>5</span>동네 사진관</a></li>
+        <li><a href="#kit"><span>6</span>부품 진열장</a></li>
+      </ol>
+    </div>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ═════════ 2. classroom ═════════ -->
+  <section id="school" aria-labelledby="schoolH">
+    <div class="school-head dark">
+      <div class="wrap">
+        <div class="stop">
+          <span class="stop-no" aria-hidden="true">2</span>
+          <div><p class="stop-k">정류장 2 · 국민학교 앞</p><h2 id="schoolH">난로 위 도시락이 데워지는 교실</h2></div>
+        </div>
+        <p class="lead">책상 하나를 둘이 나눠 쓰던 시절. 가운데 금을 넘어오면 안 된다던 짝꿍, 짝꿍과 바꿔 매기던 받아쓰기, 넷째 시간이 되면 교실 가득 퍼지던 누룽지 냄새.</p>
+      </div>
+      <div class="chalk-tray" aria-hidden="true"></div>
+    </div>
+
+    <div class="school-body">
+      <div class="wrap">
+        <div class="school-grid">
+          <div class="desk">
+            <span class="desk-carve" aria-hidden="true">넘어오지 마</span>
+            <article class="note" aria-labelledby="dictH">
+              <div class="note-head"><h3 id="dictH">받아쓰기 공책</h3><p>3학년 2반 · 짝꿍이 매겨요</p></div>
+              <div class="dict-all">
+                <label class="cb"><input type="checkbox" id="dictAll"><span class="box"></span>전부 맞았어요 (한꺼번에 매기기)</label>
+              </div>
+              <ol class="dict-list" aria-label="받아쓰기 문제">
+                <li><label class="cb"><input type="checkbox" class="dictItem" checked><span class="box"></span><span class="num">1</span><span class="word">도시락</span></label></li>
+                <li><label class="cb"><input type="checkbox" class="dictItem" checked><span class="box"></span><span class="num">2</span><span class="word">운동장</span></label></li>
+                <li><label class="cb"><input type="checkbox" class="dictItem"><span class="box"></span><span class="num">3</span><span class="word">고무줄놀이</span></label></li>
+                <li><label class="cb"><input type="checkbox" class="dictItem" checked><span class="box"></span><span class="num">4</span><span class="word">연탄 배달</span></label></li>
+                <li><label class="cb"><input type="checkbox" class="dictItem"><span class="box"></span><span class="num">5</span><span class="word">우체통</span></label></li>
+                <li><label class="cb"><input type="checkbox" class="dictItem"><span class="box"></span><span class="num">6</span><span class="word">무지개 다리</span></label></li>
+              </ol>
+              <div class="score-row">
+                <p class="score" aria-live="polite"><span id="score">50</span><small>점</small></p>
+                <button type="button" class="btn btn-quiet" id="dictReset">지우개로 지우기</button>
+              </div>
+              <div class="stamp" id="stamp" hidden aria-hidden="true">참<br>잘했어요</div>
+            </article>
+          </div>
+
+          <article class="card" aria-labelledby="stoveH">
+            <h3 id="stoveH">난로 위 도시락</h3>
+            <p class="desc">맨 밑 도시락이 제일 빨리 데워지고, 오래 두면 누룽지가 돼요. 쉬는 시간마다 맨 밑 것을 맨 위로 올려 주세요.</p>
+            <div class="stove-art" aria-hidden="false">
+              <ol class="lunches" id="lunches" aria-label="난로 위 도시락, 위에서부터"></ol>
+              <div class="stove" id="stove" aria-hidden="true"></div>
+              <div class="stove-legs" aria-hidden="true"><i></i><i></i></div>
+            </div>
+            <div class="bar-label"><span id="lunchL">점심시간까지</span><span id="lunchTxt">넷째 시간 시작</span></div>
+            <div class="bar" role="progressbar" aria-labelledby="lunchL" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="lunchBar"><div class="fill"></div></div>
+            <div class="btn-row" style="margin-top:18px">
+              <button type="button" class="switch" role="switch" aria-checked="false" id="fireSw"><span class="sw-track"><span class="sw-thumb"></span></span>난로 불 <span class="sw-state" aria-hidden="true">끔</span></button>
+              <button type="button" class="btn btn-orange" id="rotateBtn">맨 밑 도시락 위로</button>
+              <button type="button" class="btn btn-quiet" id="lunchReset">처음부터</button>
+            </div>
+          </article>
+        </div>
+
+        <!-- 통지표 -->
+        <article class="report" aria-labelledby="reportH">
+          <div class="report-head">
+            <div>
+              <h3 id="reportH">통지표</h3>
+              <p>제3학년 2반 · 이름 김영이</p>
+            </div>
+            <div class="btn-row">
+              <span class="badge badge-red">반장</span>
+              <span class="badge badge-lime">개근</span>
+              <span class="seal" aria-hidden="true">校</span>
+            </div>
+          </div>
+          <div class="tabs" role="tablist" aria-label="통지표 내용">
+            <button type="button" role="tab" id="tab1" aria-controls="pan1" aria-selected="true">1학기 성적</button>
+            <button type="button" role="tab" id="tab2" aria-controls="pan2" aria-selected="false" tabindex="-1">2학기 성적</button>
+            <button type="button" role="tab" id="tab3" aria-controls="pan3" aria-selected="false" tabindex="-1">선생님 말씀</button>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="pan1" aria-labelledby="tab1" tabindex="0">
+            <div class="tbl-wrap">
+              <table class="tbl sortable">
+                <caption class="sr-only">1학기 과목별 성적. 머리글 단추를 누르면 정렬됩니다.</caption>
+                <thead><tr>
+                  <th scope="col" aria-sort="none"><button type="button" data-k="name">과목</button></th>
+                  <th scope="col" aria-sort="none"><button type="button" data-k="grade">평가</button></th>
+                  <th scope="col" aria-sort="none"><button type="button" data-k="score">점수</button></th>
+                  <th scope="col">선생님 한마디</th>
+                </tr></thead>
+                <tbody>
+                  <tr data-name="국어" data-grade="5" data-score="96"><th scope="row">국어</th><td class="grade">수</td><td class="num">96</td><td>받아쓰기를 또박또박 잘함.</td></tr>
+                  <tr data-name="산수" data-grade="3" data-score="78"><th scope="row">산수</th><td class="grade">미</td><td class="num">78</td><td>구구단 7단을 조금 더 외울 것.</td></tr>
+                  <tr data-name="사회" data-grade="4" data-score="88"><th scope="row">사회</th><td class="grade">우</td><td class="num">88</td><td>우리 동네 지도를 정성껏 그림.</td></tr>
+                  <tr data-name="자연" data-grade="4" data-score="85"><th scope="row">자연</th><td class="grade">우</td><td class="num">85</td><td>강낭콩 관찰 일기를 빠짐없이 씀.</td></tr>
+                  <tr data-name="체육" data-grade="5" data-score="94"><th scope="row">체육</th><td class="grade">수</td><td class="num">94</td><td>고무줄놀이에서 가장 높이 뜀.</td></tr>
+                  <tr data-name="음악" data-grade="2" data-score="68"><th scope="row">음악</th><td class="grade">양</td><td class="num">68</td><td>리코더를 집에서 연습할 것.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="pan2" aria-labelledby="tab2" tabindex="0" hidden>
+            <div class="tbl-wrap">
+              <table class="tbl sortable">
+                <caption class="sr-only">2학기 과목별 성적. 머리글 단추를 누르면 정렬됩니다.</caption>
+                <thead><tr>
+                  <th scope="col" aria-sort="none"><button type="button" data-k="name">과목</button></th>
+                  <th scope="col" aria-sort="none"><button type="button" data-k="grade">평가</button></th>
+                  <th scope="col" aria-sort="none"><button type="button" data-k="score">점수</button></th>
+                  <th scope="col">선생님 한마디</th>
+                </tr></thead>
+                <tbody>
+                  <tr data-name="국어" data-grade="5" data-score="98"><th scope="row">국어</th><td class="grade">수</td><td class="num">98</td><td>글짓기 대회에서 상을 받음.</td></tr>
+                  <tr data-name="산수" data-grade="4" data-score="86"><th scope="row">산수</th><td class="grade">우</td><td class="num">86</td><td>7단을 다 외움. 장하다.</td></tr>
+                  <tr data-name="사회" data-grade="4" data-score="84"><th scope="row">사회</th><td class="grade">우</td><td class="num">84</td><td>시장 견학 보고서가 알참.</td></tr>
+                  <tr data-name="자연" data-grade="5" data-score="92"><th scope="row">자연</th><td class="grade">수</td><td class="num">92</td><td>나팔꽃 씨앗을 반 친구들과 나눔.</td></tr>
+                  <tr data-name="체육" data-grade="5" data-score="95"><th scope="row">체육</th><td class="grade">수</td><td class="num">95</td><td>운동회 이어달리기 마지막 주자.</td></tr>
+                  <tr data-name="음악" data-grade="3" data-score="77"><th scope="row">음악</th><td class="grade">미</td><td class="num">77</td><td>리코더 실력이 많이 늘었음.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="pan3" aria-labelledby="tab3" tabindex="0" hidden>
+            <p class="teacher-note">마음씨가 곱고 동무들과 사이좋게 지냅니다. 반장으로서 난로 당번을 빠짐없이 맡아 주었습니다. 방학 동안 일기를 꼭 쓰도록 지도해 주십시오.</p>
+            <p>— 담임 선생님. 통지표는 부모님께 보여 드리고 도장을 받아 오세요.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 3. alley ═════════ -->
+  <section class="alley" id="alley" aria-labelledby="alleyH">
+    <div class="awning" aria-hidden="true"></div>
+    <div class="wrap alley-in">
+      <div class="stop">
+        <span class="stop-no" aria-hidden="true">3</span>
+        <div><p class="stop-k">정류장 3 · 문방구 골목</p><h2 id="alleyH">연탄 쌓인 골목, 50원짜리 뽑기</h2></div>
+      </div>
+      <p class="lead">학교가 끝나면 곧장 문방구 앞으로. 국자 위에서 부풀던 뽑기, 손때 묻은 동전으로 거는 공중전화, 한 장씩 떼어 내던 회수권.</p>
+
+      <div class="alley-grid">
+        <article class="card wide" aria-labelledby="dalH">
+          <div class="dalgona-row">
+            <div class="tin" id="tin">
+              <svg viewBox="0 0 200 200" aria-hidden="true">
+                <defs>
+                  <mask id="cutMask"><path id="maskPath" d="" pathLength="100" fill="none" stroke="#fff" stroke-width="14" stroke-dasharray="100 100" stroke-dashoffset="100"/></mask>
+                </defs>
+                <circle cx="100" cy="100" r="86" fill="#c98a3a"/>
+                <circle cx="100" cy="100" r="86" fill="none" stroke="#a96c25" stroke-width="5"/>
+                <circle cx="100" cy="100" r="74" fill="none" stroke="#d9a050" stroke-width="2" opacity=".6"/>
+                <path class="piece" id="piece" d="" fill="#dfa24e"/>
+                <path id="groove" d="" fill="none" stroke="#8a5418" stroke-width="3"/>
+                <path id="dots" d="" fill="none" stroke="#3a2008" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0.1 5.5" mask="url(#cutMask)"/>
+                <path class="crack" d="M18 84L62 96L78 82L104 118L132 108L182 132" fill="none" stroke="#3a2008" stroke-width="3.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <h3 id="dalH">뽑기 한 판</h3>
+              <p class="desc">모양을 고르고, 바늘로 둘레를 콕콕 찍어 떼어 내세요. 서두르면 손이 떨려 깨져요. 끝까지 떼면 하나 더!</p>
+              <p class="ui" id="shapeL" style="font-weight:800;margin-bottom:6px">모양 고르기</p>
+              <div class="seg" role="radiogroup" aria-labelledby="shapeL" id="shapeSeg">
+                <button type="button" role="radio" aria-checked="true" data-s="star">별</button>
+                <button type="button" role="radio" aria-checked="false" data-s="heart">하트</button>
+                <button type="button" role="radio" aria-checked="false" data-s="tri">세모</button>
+                <button type="button" role="radio" aria-checked="false" data-s="fish">물고기</button>
+              </div>
+              <div class="bar-label" style="margin-top:16px"><span id="cutL">떼어 낸 둘레</span><span id="cutTxt">0%</span></div>
+              <div class="bar" role="progressbar" aria-labelledby="cutL" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="cutBar"><div class="fill" style="background:#c98a3a"></div></div>
+              <div class="nerve" id="nerve"><span class="nerve-meter" aria-hidden="true"><i id="nerveI"></i></span><span id="nerveTxt">손이 차분해요</span></div>
+              <div class="btn-row">
+                <button type="button" class="btn btn-orange btn-big" id="pokeBtn">바늘로 콕</button>
+                <button type="button" class="btn" id="dalReset">새로 하나 (50원)</button>
+              </div>
+              <p class="say" id="dalSay" aria-live="polite"></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="phone" aria-labelledby="phoneH">
+          <h3 id="phoneH">골목 공중전화</h3>
+          <p class="desc">동전을 넣고 한 통 걸어 보세요. 한 통에 20원으로 쳐요. 수화기를 내려놓으면 남은 동전이 떨어져요.</p>
+          <div class="phone-face">
+            <p class="lcd" aria-live="polite"><small>넣은 돈</small><span id="bal">0</span>원</p>
+            <div class="slot" id="slot" aria-hidden="true"></div>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn" id="c10">10원 넣기</button>
+            <button type="button" class="btn" id="c50">50원 넣기</button>
+            <button type="button" class="btn btn-sky" id="callBtn">전화 걸기</button>
+            <button type="button" class="btn" id="hangBtn">수화기 내려놓기</button>
+          </div>
+          <p class="say" id="phoneSay" aria-live="polite">뚜— 수화기를 들었어요. 동전을 넣어 주세요.</p>
+        </article>
+
+        <article class="card" aria-labelledby="busH">
+          <h3 id="busH">회수권 한 묶음</h3>
+          <p class="desc">버스에 오르며 한 장씩 떼어 안내양 언니에게 냈지요. 오늘 내릴 곳을 고르고 한 장 내 보세요.</p>
+          <p class="ui" id="destL" style="font-weight:800;margin-bottom:8px">오늘 내릴 곳 (여러 곳 고를 수 있어요)</p>
+          <div class="chips" role="group" aria-labelledby="destL" id="destChips">
+            <button type="button" class="chip" aria-pressed="true">학교 앞</button>
+            <button type="button" class="chip" aria-pressed="false">만화방</button>
+            <button type="button" class="chip" aria-pressed="false">롤러장</button>
+            <button type="button" class="chip" aria-pressed="false">빵집</button>
+            <button type="button" class="chip" aria-pressed="false">외갓집</button>
+          </div>
+          <ol class="strip" id="strip" aria-label="남은 회수권"></ol>
+          <div class="btn-row">
+            <p class="count" aria-live="polite">남은 회수권 <span id="tkLeft">10</span>장</p>
+            <button type="button" class="btn btn-pink" id="punchBtn">한 장 내기</button>
+            <button type="button" class="btn btn-quiet" id="refillBtn">새 묶음 사기</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 4. inner room ═════════ -->
+  <section class="room" id="room" aria-labelledby="roomH">
+    <div class="lacquer-band" aria-hidden="true"></div>
+    <div class="wrap room-in">
+      <div class="stop">
+        <span class="stop-no" aria-hidden="true">4</span>
+        <div><p class="stop-k">정류장 4 · 우리 집 안방</p><h2 id="roomH">밤 열 시, 라디오에 보내는 엽서</h2></div>
+      </div>
+      <p class="lead">꽃무늬 이불을 덮고 라디오에 귀를 대던 밤. 내 엽서가 읽히기를 기다리며, 녹음 버튼에 손가락을 올려 두고 공테이프에 좋아하는 노래를 모았지요.</p>
+
+      <div class="room-grid">
+        <form class="postcard" id="postcard" novalidate aria-labelledby="pcH">
+          <div class="pc-top">
+            <div>
+              <h3 class="pc-title" id="pcH">우편엽서</h3>
+              <div class="pc-zip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="stampbox" aria-hidden="true">
+              <svg viewBox="0 0 70 86"><rect width="70" height="86" fill="#cfe8e3"/><circle cx="48" cy="24" r="10" fill="#e2772a"/><path d="M0 70L22 40L38 58L52 46L70 66V86H0Z" fill="#24557a"/><path d="M0 76L20 60L40 74L70 62V86H0Z" fill="#4a6519"/><text x="6" y="16" font-family="Do Hyeon" font-size="12" fill="#9e1f49">우표</text></svg>
+            </div>
+          </div>
+          <div class="pc-body">
+            <div class="field">
+              <label for="pcStory">보내는 사연</label>
+              <textarea class="textarea" id="pcStory" aria-describedby="pcStoryErr">비 오는 날 우산이 하나뿐이라 짝꿍이랑 반씩 쓰고 집에 왔어요. 그 친구에게 이 노래를 들려주고 싶어요.</textarea>
+              <p class="err" id="pcStoryErr"></p>
+            </div>
+            <div class="pc-addr">
+              <div class="field">
+                <label for="pcProg">받는 곳 (프로그램)</label>
+                <select class="select" id="pcProg">
+                  <option value="night" data-n="30%">밤의 다이얼 (밤 10시)</option>
+                  <option value="star" data-n="72%">별빛 엽서함 (밤 12시)</option>
+                  <option value="morning" data-n="12%">아침의 창 (아침 7시)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="pcName">보내는 이 (필명)</label>
+                <input class="input" id="pcName" value="단발머리" aria-describedby="pcNameErr" autocomplete="off">
+                <p class="err" id="pcNameErr"></p>
+              </div>
+              <div class="field">
+                <label for="pcTown">사는 동네</label>
+                <input class="input" id="pcTown" value="연탄골목 3번지" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="pcSong">신청곡</label>
+                <input class="input" id="pcSong" value="비 오는 정류장" aria-describedby="pcSongHelp" autocomplete="off">
+                <p class="help" id="pcSongHelp">노래 제목을 적어 주세요.</p>
+              </div>
+            </div>
+          </div>
+          <div class="pc-foot">
+            <label class="cb"><input type="checkbox" id="pcAnon"><span class="box"></span>이름은 밝히지 말아 주세요</label>
+            <button type="submit" class="btn btn-pink btn-big">우체통에 넣기</button>
+          </div>
+        </form>
+
+        <aside class="radio dark" id="radio" aria-labelledby="radioH">
+          <div class="radio-top"><h3 id="radioH">안방 라디오</h3><span class="onair" id="onair">방송 중</span></div>
+          <div class="band" aria-hidden="true"><span>아침</span><span>밤 10시</span><span>자정</span><i class="needle" id="needle"></i></div>
+          <div class="speaker" aria-hidden="true"></div>
+          <p class="onair-text" id="onairText" aria-live="polite">엽서를 부치면 이곳에서 읽어 드려요.</p>
+        </aside>
+      </div>
+
+      <div class="tape-area">
+        <div>
+          <div class="cassette" id="cassette" aria-hidden="true">
+            <div class="c-label">
+              <span class="c-side" id="cSide">A</span>
+              <p class="c-title" id="cTitle">우리 반 노래 모음 ①</p>
+              <div class="c-win"><span class="reel"></span><span class="reel"></span></div>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:20px">
+            <button type="button" class="switch" role="switch" aria-checked="false" id="recSw"><span class="sw-track"><span class="sw-thumb"></span></span>녹음 버튼 <span class="sw-state" aria-hidden="true">끔</span></button>
+          </div>
+        </div>
+        <div class="jcard">
+          <h3 style="font:400 1.6rem/1.3 var(--f-head)">공테이프 속지</h3>
+          <p style="color:var(--ink-2);font-size:1.125rem">라디오에서 흘러나오는 노래를 한 곡씩 적어 넣어요. 한 면에 45분까지 들어가요.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:12px">
+            <span class="ui" id="sideL" style="font-weight:800">면 고르기</span>
+            <div class="seg" role="radiogroup" aria-labelledby="sideL" id="sideSeg">
+              <button type="button" role="radio" aria-checked="true" data-side="A">A면</button>
+              <button type="button" role="radio" aria-checked="false" data-side="B">B면</button>
+            </div>
+          </div>
+          <ol class="tracks" id="tracks" aria-label="녹음한 노래 목록"></ol>
+          <div class="bar-label"><span id="tapeL">테이프 남은 길이</span><span id="tapeTxt">0 / 45분</span></div>
+          <div class="bar" role="progressbar" aria-labelledby="tapeL" aria-valuemin="0" aria-valuemax="45" aria-valuenow="0" id="tapeBar"><div class="fill" style="background:var(--sky)"></div></div>
+          <form class="tape-form" id="tapeForm" novalidate>
+            <div class="field full">
+              <label for="tTitle">테이프 이름</label>
+              <input class="input" id="tTitle" value="우리 반 노래 모음 ①" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="tSong">노래 제목</label>
+              <input class="input" id="tSong" placeholder="예: 창밖의 통기타" aria-describedby="tSongErr" autocomplete="off">
+              <p class="err" id="tSongErr"></p>
+            </div>
+            <div class="field">
+              <label for="tFrom">어디서 녹음했나요</label>
+              <input class="input" id="tFrom" placeholder="예: 라디오에서" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="tLen">길이</label>
+              <select class="select" id="tLen"><option value="3">3분</option><option value="4" selected>4분</option><option value="5">5분</option><option value="6">6분</option></select>
+            </div>
+            <div class="field" style="align-content:end">
+              <button type="submit" class="btn btn-sky">속지에 적기</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="drawers" aria-labelledby="drH">
+        <h3 id="drH">자개장 서랍 속 이야기</h3>
+        <div class="drawer">
+          <button type="button" class="drawer-btn" aria-expanded="true" aria-controls="dr1" id="drb1">보온밥통 <i aria-hidden="true"></i></button>
+          <div class="drawer-panel" id="dr1" role="region" aria-labelledby="drb1"><p>아버지가 늦게 오시는 날이면 어머니는 밥 한 공기를 보온밥통에 따로 담아 아랫목 이불 속에 묻어 두셨어요. 뚜껑의 꽃무늬는 다 닳아도, 밥은 언제나 따뜻했지요.</p></div>
+        </div>
+        <div class="drawer">
+          <button type="button" class="drawer-btn" aria-expanded="false" aria-controls="dr2" id="drb2">연탄불 갈기 <i aria-hidden="true"></i></button>
+          <div class="drawer-panel" id="dr2" role="region" aria-labelledby="drb2" hidden><p>새벽에 한 번, 자기 전에 한 번. 다 탄 연탄을 집게로 들어내고 새 연탄의 구멍을 맞추어 올리면, 방바닥이 다시 천천히 데워졌어요.</p></div>
+        </div>
+        <div class="drawer">
+          <button type="button" class="drawer-btn" aria-expanded="false" aria-controls="dr3" id="drb3">꽃무늬 이불 <i aria-hidden="true"></i></button>
+          <div class="drawer-panel" id="dr3" role="region" aria-labelledby="drb3" hidden><p>분홍 바탕에 큼직한 꽃. 겨울이면 온 식구가 한 이불 아래 발을 넣고 귤을 까먹으며 텔레비전을 봤지요. 홑청은 어머니가 풀을 먹여 다듬이로 두드려 꿰매셨어요.</p></div>
+        </div>
+        <div class="drawer">
+          <button type="button" class="drawer-btn" aria-expanded="false" aria-controls="dr4" id="drb4">펜팔 편지 <i aria-hidden="true"></i></button>
+          <div class="drawer-panel" id="dr4" role="region" aria-labelledby="drb4" hidden><p>빨강, 파랑 줄무늬 테두리의 항공 봉투. 잡지 뒷면에서 찾은 먼 도시의 친구에게 서툰 글씨로 편지를 썼고, 답장이 오기까지 한 달을 기다렸어요.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 5. studio ═════════ -->
+  <section class="studio sec dark" id="studio" aria-labelledby="studioH">
+    <div class="wrap">
+      <div class="stop">
+        <span class="stop-no" aria-hidden="true">5</span>
+        <div><p class="stop-k">정류장 5 · 동네 사진관</p><h2 id="studioH">흑백 사진에 붓으로 입힌 볼 빛</h2></div>
+      </div>
+      <p class="lead">입학식 날 찍은 사진은 흑백이었지만, 사진관 아저씨가 가는 붓으로 볼에 분홍을, 배경에 하늘색을 살며시 입혀 주셨어요. 그 빛깔을 직접 입혀 보세요.</p>
+
+      <div class="studio-grid">
+        <div class="photo-mount">
+          <span class="corner tl" aria-hidden="true"></span><span class="corner tr" aria-hidden="true"></span><span class="corner bl" aria-hidden="true"></span><span class="corner br" aria-hidden="true"></span>
+          <div class="frame" id="frame" data-frame="album">
+            <svg class="portrait" id="portrait" viewBox="0 0 240 300" role="img" aria-label="단발머리에 세일러 깃 교복을 입은 아이의 손채색 흑백 사진">
+              <defs>
+                <radialGradient id="vig" cx=".5" cy=".42" r=".7"><stop offset=".55" stop-color="#bdbab3"/><stop offset="1" stop-color="#8c8984"/></radialGradient>
+                <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+              </defs>
+              <rect width="240" height="300" fill="url(#vig)"/>
+              <rect class="t-sky" width="240" height="300" fill="#6faed3" style="mix-blend-mode:multiply"/>
+              <path d="M36 300C40 236 78 214 120 214C162 214 200 236 204 300Z" fill="#2c2c2c"/>
+              <rect x="106" y="182" width="28" height="36" fill="#c9c5bd"/>
+              <path d="M74 222L120 262L166 222L186 232L120 290L54 232Z" fill="#ecebe6"/>
+              <path d="M70 230L120 274L170 230" fill="none" stroke="#2c2c2c" stroke-width="3"/>
+              <ellipse cx="120" cy="140" rx="45" ry="54" fill="#d8d4cb"/>
+              <g class="t-cheek" filter="url(#soft)"><circle cx="96" cy="160" r="12" fill="#ef7f8f"/><circle cx="144" cy="160" r="12" fill="#ef7f8f"/><ellipse cx="120" cy="175" rx="9" ry="5" fill="#e0606f"/></g>
+              <path d="M72 150C66 96 92 78 120 78C150 78 174 96 168 150L170 186L152 186L152 122C138 114 102 114 88 122L88 186L70 186Z" fill="#1e1e1e"/>
+              <path d="M88 122C98 104 142 104 152 122L152 112C140 98 100 98 88 112Z" fill="#2b2b2b"/>
+              <path d="M101 148q7-6 14 0M125 148q7-6 14 0" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M113 174q7 4 14 0" fill="none" stroke="#6f6760" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M104 252L120 262L104 272ZM136 252L120 262L136 272Z" fill="#6d6d6d"/><circle cx="120" cy="262" r="5" fill="#5a5a5a"/>
+              <g class="t-ribbon" style="mix-blend-mode:multiply"><path d="M104 252L120 262L104 272ZM136 252L120 262L136 272Z" fill="#e0353f"/><circle cx="120" cy="262" r="5" fill="#e0353f"/></g>
+            </svg>
+          </div>
+          <p class="photo-cap">국민학교 입학식, 1969년 봄</p>
+        </div>
+
+        <article class="card" aria-labelledby="tintH">
+          <h3 id="tintH">손으로 입히는 빛깔</h3>
+          <p class="desc">사진 찾는 날까지 다섯 단계. 붓으로 색을 입히는 것은 셋째 단계예요.</p>
+          <ol class="steps" id="steps" aria-label="사진이 나오기까지">
+            <li class="done">촬영</li>
+            <li class="done">현상</li>
+            <li aria-current="step">손채색</li>
+            <li>액자</li>
+            <li>찾아가기</li>
+          </ol>
+          <div class="tints">
+            <div class="tint-row"><label for="rCheek"><i style="background:#ef7f8f" aria-hidden="true"></i>볼 연지</label><input class="range" type="range" id="rCheek" min="0" max="100" value="55" data-v="cheek"><output for="rCheek" id="oCheek">55</output></div>
+            <div class="tint-row"><label for="rSky"><i style="background:#6faed3" aria-hidden="true"></i>배경 하늘</label><input class="range" type="range" id="rSky" min="0" max="100" value="50" data-v="sky"><output for="rSky" id="oSky">50</output></div>
+            <div class="tint-row"><label for="rRibbon"><i style="background:#e0353f" aria-hidden="true"></i>리본 빛깔</label><input class="range" type="range" id="rRibbon" min="0" max="100" value="70" data-v="ribbon"><output for="rRibbon" id="oRibbon">70</output></div>
+            <div class="tint-row"><label for="rAge"><i style="background:#c9a66b" aria-hidden="true"></i>세월 (빛바램)</label><input class="range" type="range" id="rAge" min="0" max="100" value="20" data-v="age"><output for="rAge" id="oAge">20</output></div>
+          </div>
+          <div class="field" style="margin-bottom:18px">
+            <label for="frameSel">액자 고르기</label>
+            <select class="select" id="frameSel">
+              <option value="album">앨범에 끼우기 (비닐 속지)</option>
+              <option value="wood">나무 액자</option>
+              <option value="pearl">자개 액자</option>
+            </select>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-orange" id="stepNext">다음 단계로</button>
+            <button type="button" class="btn btn-quiet" id="stepReset">처음부터</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 6. kit ═════════ -->
+  <section class="kit sec" id="kit" aria-labelledby="kitH">
+    <div class="wrap">
+      <div class="stop">
+        <span class="stop-no" aria-hidden="true">6</span>
+        <div><p class="stop-k">정류장 6 · 문방구 유리 진열장</p><h2 id="kitH">부품 진열장</h2></div>
+      </div>
+      <p class="lead">이 화면을 만든 부품들을 문방구 진열장처럼 늘어놓았어요. 누르는 것은 법랑과 베이클라이트, 데우는 것은 양은, 인쇄는 두세 가지 잉크만 씁니다. 글자는 19px 이상, 누르는 곳은 손가락 굵기(48px) 이상입니다.</p>
+
+      <div class="case">
+        <div class="shelf">
+          <div class="spec full">
+            <span class="tag">인쇄 잉크 견본</span>
+            <div class="inks">
+              <div class="ink"><i style="background:var(--paper)"></i><div><b>미색 종이</b>#f4ecd8 · 바탕</div></div>
+              <div class="ink"><i style="background:var(--ink)"></i><div><b>먹 밤색</b>#241a12 · 본문 15:1</div></div>
+              <div class="ink"><i style="background:var(--board)"></i><div><b>칠판 초록</b>#2e4a3c · 분필 10:1</div></div>
+              <div class="ink"><i style="background:var(--pink)"></i><div><b>진분홍</b>#c42c5c · 글자 #9e1f49</div></div>
+              <div class="ink"><i style="background:var(--orange)"></i><div><b>주황 법랑</b>#e2772a · 주 단추</div></div>
+              <div class="ink"><i style="background:var(--sky)"></i><div><b>하늘</b>#8cc6df · 글자 #24557a</div></div>
+              <div class="ink"><i style="background:var(--lime)"></i><div><b>연두</b>#a9c64a · 켜짐 #4a6519</div></div>
+              <div class="ink"><i style="background:var(--al)"></i><div><b>양은</b>#c9c7bf · 도시락</div></div>
+            </div>
+          </div>
+
+          <div class="spec wide">
+            <span class="tag">글꼴 견본</span>
+            <div class="typo">
+              <div><span>간판 글씨</span><span style="font:400 2.2rem/1.1 var(--f-sign)">회수권 문방구</span></div>
+              <div><span>신문 제목</span><span style="font:400 1.9rem/1.2 var(--f-head)">밤 열 시의 엽서</span></div>
+              <div><span>본문 바탕</span><span style="font:400 1.1875rem/1.6 var(--f-body)">교과서처럼 또박또박, 19px 이상.</span></div>
+              <div><span>안내 고딕</span><span style="font:800 1.125rem/1.6 var(--f-ui)">단추와 이름표는 나눔고딕</span></div>
+              <div><span>손글씨</span><span style="font:400 1.9rem/1.2 var(--f-hand);color:#2b3a6b">참 잘했어요, 우리 반 노래 모음</span></div>
+            </div>
+          </div>
+
+          <div class="spec">
+            <span class="tag">단추</span>
+            <div class="btn-row">
+              <button type="button" class="btn btn-orange" data-toast="주 단추를 눌렀어요.">주 단추</button>
+              <button type="button" class="btn" data-toast="보조 단추를 눌렀어요.">보조 단추</button>
+              <button type="button" class="btn btn-board" data-toast="칠판 단추를 눌렀어요.">칠판 단추</button>
+              <button type="button" class="btn btn-quiet" data-toast="조용한 단추를 눌렀어요.">조용한 단추</button>
+              <button type="button" class="btn btn-danger" data-toast="지우는 단추는 꼭 한 번 더 확인해요.">지우기</button>
+              <button type="button" class="btn" disabled>못 누름</button>
+            </div>
+          </div>
+
+          <div class="spec">
+            <span class="tag">스위치 · 체크</span>
+            <button type="button" class="switch" role="switch" aria-checked="true" id="kitSw"><span class="sw-track"><span class="sw-thumb"></span></span>현관 불 <span class="sw-state" aria-hidden="true">켬</span></button>
+            <fieldset>
+              <legend class="ui" style="font-weight:800">내일 준비물</legend>
+              <label class="cb"><input type="checkbox" id="prepAll"><span class="box"></span>준비물 다 챙김</label>
+              <div style="padding-left:22px">
+                <label class="cb"><input type="checkbox" class="prep" checked><span class="box"></span>크레파스</label>
+                <label class="cb"><input type="checkbox" class="prep"><span class="box"></span>리코더</label>
+                <label class="cb"><input type="checkbox" class="prep" checked><span class="box"></span>실내화 주머니</label>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="spec">
+            <span class="tag">고르기 · 하나만</span>
+            <fieldset>
+              <legend class="ui" style="font-weight:800">등굣길 신발</legend>
+              <label class="rd"><input type="radio" name="shoe" checked><span class="dot"></span>운동화</label>
+              <label class="rd"><input type="radio" name="shoe"><span class="dot"></span>고무신</label>
+              <label class="rd"><input type="radio" name="shoe"><span class="dot"></span>장화 (비 오는 날)</label>
+            </fieldset>
+            <p class="ui" id="uniL" style="font-weight:800">교복 (1983년 자율화)</p>
+            <div class="seg" role="radiogroup" aria-labelledby="uniL" id="uniSeg">
+              <button type="button" role="radio" aria-checked="true">동복</button>
+              <button type="button" role="radio" aria-checked="false">하복</button>
+              <button type="button" role="radio" aria-checked="false">자율복</button>
+            </div>
+            <p id="uniTxt">검은 동복에 하얀 깃. 단추는 다섯 개.</p>
+          </div>
+
+          <div class="spec">
+            <span class="tag">입력 칸</span>
+            <div class="field">
+              <label for="kName">이름표에 쓸 이름</label>
+              <input class="input" id="kName" value="김영이" aria-describedby="kNameHelp" autocomplete="off">
+              <p class="help" id="kNameHelp">가슴에 다는 이름표에 들어가요.</p>
+            </div>
+            <div class="field">
+              <label for="kPhone">집 전화번호</label>
+              <input class="input" id="kPhone" value="국-1234" aria-invalid="true" aria-describedby="kPhoneErr" inputmode="numeric" autocomplete="off">
+              <p class="err" id="kPhoneErr">숫자만 적어 주세요. 예: 23-4567</p>
+            </div>
+            <div class="field">
+              <label for="kSel">우리 반</label>
+              <select class="select" id="kSel"><option>3학년 1반</option><option selected>3학년 2반</option><option>3학년 3반</option></select>
+            </div>
+          </div>
+
+          <div class="spec">
+            <span class="tag">조절 · 진행</span>
+            <div class="field">
+              <label for="kVol">라디오 소리 크기</label>
+              <input class="range" type="range" id="kVol" min="0" max="10" value="6" aria-describedby="kVolOut">
+              <p class="help" id="kVolOut" aria-live="polite">6 / 10</p>
+            </div>
+            <div>
+              <div class="bar-label"><span id="kBarL">방학 숙제</span><span>7 / 10장</span></div>
+              <div class="bar" role="progressbar" aria-labelledby="kBarL" aria-valuemin="0" aria-valuemax="10" aria-valuenow="7"><div class="fill" style="width:70%;background:var(--lime)"></div></div>
+            </div>
+          </div>
+
+          <div class="spec">
+            <span class="tag">고르기 칩 · 배지</span>
+            <div class="chips" role="group" aria-label="좋아하는 군것질">
+              <button type="button" class="chip" aria-pressed="true">쫀드기</button>
+              <button type="button" class="chip" aria-pressed="false">뽑기</button>
+              <button type="button" class="chip" aria-pressed="true">찹쌀떡</button>
+              <button type="button" class="chip" aria-pressed="false">번데기</button>
+            </div>
+            <div class="btn-row">
+              <span class="badge badge-red">반장</span>
+              <span class="badge badge-sky">주번</span>
+              <span class="badge badge-lime">개근</span>
+              <span class="badge badge-orange">우등</span>
+              <span class="badge">새 소식 3</span>
+            </div>
+          </div>
+
+          <div class="spec">
+            <span class="tag">대화 상자 · 알림</span>
+            <p>가정통신문은 대화 상자로, 종소리는 화면 오른쪽 아래 알림으로 5초 동안 나타나요.</p>
+            <div class="btn-row">
+              <button type="button" class="btn btn-sky" id="letterBtn">가정통신문 열기</button>
+              <button type="button" class="btn" id="bellBtn">종 치기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <div>
+      <p class="terminus"><span>종점</span><small>이번 정류장은<br>우리 동네입니다</small></p>
+      <p>회수권 · 한 장 내면 그때로 가는 버스. 1960년대에 태어나 국민학교 교실과 문방구 골목과 안방 라디오를 지나온 분들을 위해 만든 디자인 시스템입니다. 글꼴: 검은고딕, 도현, 고운바탕, 송명, 나눔고딕, 나눔펜.</p>
+    </div>
+    <a href="../">← 모든 디자인 시스템 보기</a>
+  </div>
+</footer>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<dialog id="mailDlg" class="airmail" aria-labelledby="mailH">
+  <form method="dialog" class="dlg-in">
+    <h2 id="mailH">이 엽서를 부칠까요?</h2>
+    <p id="mailTo" class="ui" style="font-weight:800"></p>
+    <p class="dlg-quote" id="mailPreview"></p>
+    <div class="btn-row">
+      <button type="submit" value="send" class="btn btn-pink">네, 부칠게요</button>
+      <button type="submit" value="cancel" class="btn">다시 고칠래요</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="letterDlg" aria-labelledby="letterH">
+  <form method="dialog" class="dlg-in">
+    <h2 id="letterH">가정통신문</h2>
+    <p>학부모님께. 다가오는 가을 운동회에 많이 와 주십시오. 점심 도시락은 각 가정에서 준비해 주시고, 청군은 파란 머리띠, 백군은 하얀 머리띠를 챙겨 보내 주시기 바랍니다.</p>
+    <p class="ui" style="font-weight:800">○○국민학교장</p>
+    <div class="btn-row"><button type="submit" class="btn btn-orange">잘 읽었어요</button></div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* sound: off unless asked for */
+  let soundOn = false, actx = null;
+  function beep(f = 600, d = .06, type = 'square', g = .035) {
+    if (!soundOn) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = actx.createOscillator(), v = actx.createGain(), t = actx.currentTime;
+      o.type = type; o.frequency.value = f;
+      v.gain.setValueAtTime(g, t); v.gain.exponentialRampToValueAtTime(.0001, t + d);
+      o.connect(v).connect(actx.destination); o.start(t); o.stop(t + d + .02);
+    } catch (e) {}
+  }
+
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = msg;
+    $('#toasts').append(t);
+    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 5000);
+  }
+
+  /* generic switch */
+  function setSwitch(btn, v) {
+    btn.setAttribute('aria-checked', String(v));
+    const s = btn.querySelector('.sw-state');
+    if (s) s.textContent = v ? (s.dataset.on || '켬') : (s.dataset.off || '끔');
+  }
+  const swHandlers = {};
+  $$('.switch').forEach(b => b.addEventListener('click', () => {
+    const v = b.getAttribute('aria-checked') !== 'true';
+    setSwitch(b, v); beep(v ? 520 : 380, .05);
+    swHandlers[b.id] && swHandlers[b.id](v);
+  }));
+
+  /* generic radio group with roving focus */
+  function radioGroup(g, onChange) {
+    const items = $$('[role="radio"]', g);
+    const select = (i, focus) => {
+      items.forEach((it, j) => { it.setAttribute('aria-checked', String(j === i)); it.tabIndex = j === i ? 0 : -1; });
+      if (focus) items[i].focus();
+      onChange && onChange(items[i], i);
+    };
+    items.forEach((it, i) => {
+      it.addEventListener('click', () => select(i, false));
+      it.addEventListener('keydown', e => {
+        const n = items.length; let k = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') k = (i + 1) % n;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') k = (i - 1 + n) % n;
+        else if (e.key === 'Home') k = 0; else if (e.key === 'End') k = n - 1;
+        if (k !== null) { e.preventDefault(); select(k, true); }
+      });
+    });
+    const cur = Math.max(0, items.findIndex(x => x.getAttribute('aria-checked') === 'true'));
+    items.forEach((it, j) => it.tabIndex = j === cur ? 0 : -1);
+    return { select, items, current: () => items.findIndex(x => x.getAttribute('aria-checked') === 'true') };
+  }
+
+  /* text size */
+  radioGroup($('#sizeSeg'), b => { document.documentElement.dataset.size = b.dataset.v; });
+  swHandlers.soundSw = v => { soundOn = v; if (v) beep(660, .08); };
+
+  /* ── TV ── */
+  const scenes = {
+    2: ['국민학교 교실', '칠판에 받아쓰기 문제가 적혀 있고, 난로 위에는 양은 도시락이 세 층으로 쌓여 데워지고 있어요.'],
+    5: ['문방구 골목', '줄무늬 차양 아래 문방구, 담벼락에는 겨울을 날 연탄이 가지런히 쌓여 있어요. 땅바닥엔 누가 흘린 구슬 두 개.'],
+    7: ['우리 집 안방', '자개장 위로 개어 둔 꽃무늬 이불, 아랫목에는 아버지 몫의 밥이 담긴 보온밥통이 놓여 있어요.'],
+    9: ['동네 사진관', '하늘색 구름이 그려진 배경막 앞에 작은 의자 하나. 검은 천을 덮은 사진기가 기다리고 있어요.'],
+    11: ['빵집 미팅', '레이스 커튼이 달린 빵집 창가, 동그란 탁자 위에 우유 두 잔과 단팥빵 두 개. 말없이 빨대만 돌렸지요.'],
+    13: ['가을 운동회', '만국기가 바람에 펄럭이고, 콩주머니에 맞은 박이 터지며 오색 종이가 쏟아져요. 청군 이겨라, 백군 이겨라.']
+  };
+  const tv = $('#tv'), screen = $('#screen'), knob = $('#knob');
+  const dial = radioGroup($('#dial'), b => {
+    const ch = b.dataset.ch;
+    knob.style.transform = `rotate(${b.dataset.a}deg)`;
+    $$('.scene', screen).forEach(s => s.hidden = s.dataset.ch !== ch);
+    $('#osdCh').textContent = ch; $('#osdName').textContent = scenes[ch][0];
+    $('#tvTitle').textContent = `${ch}번 · ${scenes[ch][0]}`;
+    $('#tvText').textContent = tv.classList.contains('closed') ? '미닫이 문이 닫혀 있어요. 문을 열면 화면이 보여요.' : scenes[ch][1];
+    if (!reduce) { screen.classList.remove('roll'); void screen.offsetWidth; screen.classList.add('roll'); }
+    beep(180, .04, 'square', .05);
+  });
+  knob.style.transform = 'rotate(-135deg)';
+  knob.addEventListener('click', () => { const i = dial.current(); dial.select((i + 1) % dial.items.length, false); });
+  swHandlers.colorSw = v => {
+    screen.dataset.color = v ? 'on' : 'off';
+    toast(v ? '컬러 방송이 시작됐어요. 1980년 겨울, 처음 본 총천연색.' : '흑백으로 돌아갔어요. 그래도 다 보였지요.');
+  };
+  swHandlers.doorSw = v => {
+    tv.classList.toggle('closed', !v);
+    const b = dial.items[dial.current()];
+    $('#tvText').textContent = v ? scenes[b.dataset.ch][1] : '미닫이 문이 닫혀 있어요. 문을 열면 화면이 보여요.';
+  };
+
+  /* ── 받아쓰기 ── */
+  const items = $$('.dictItem'), all = $('#dictAll'), stamp = $('#stamp');
+  let praised = false;
+  function dictUpdate() {
+    const n = items.filter(i => i.checked).length;
+    all.checked = n === items.length; all.indeterminate = n > 0 && n < items.length;
+    $('#score').textContent = Math.round(n / items.length * 100);
+    stamp.hidden = n !== items.length;
+    if (n === items.length && !praised) { praised = true; toast('백 점! 선생님이 “참 잘했어요” 도장을 찍어 주셨어요.'); beep(880, .12, 'sine', .05); }
+    if (n < items.length) praised = false;
+  }
+  items.forEach(i => i.addEventListener('change', () => { beep(i.checked ? 720 : 300, .04); dictUpdate(); }));
+  all.addEventListener('change', () => { items.forEach(i => i.checked = all.checked); dictUpdate(); });
+  $('#dictReset').addEventListener('click', () => { items.forEach(i => i.checked = false); dictUpdate(); });
+  dictUpdate();
+
+  /* ── 난로 위 도시락 ── */
+  const names = ['철수', '영이', '순희', '민수'];
+  const rates = [2.6, 1.3, .65, .3]; // from the bottom up
+  let boxes, lunch = 0, fire = null;
+  const lunchesEl = $('#lunches'), stove = $('#stove');
+  function stateOf(h) { return h > 100 ? '누룽지가 됐어요' : h >= 70 ? '따끈해요' : h >= 35 ? '미지근해요' : '차가워요'; }
+  function buildBoxes(movedName) {
+    lunchesEl.innerHTML = '';
+    boxes.forEach(b => {
+      const li = document.createElement('li');
+      li.className = 'lunch' + (b.name === movedName && !reduce ? ' moved' : '');
+      li.innerHTML = `<span class="tag">${b.name}</span><span class="st"></span><span class="mini" role="progressbar" aria-label="${b.name} 도시락 온기" aria-valuemin="0" aria-valuemax="100"><i></i></span>`;
+      b.el = li; lunchesEl.append(li);
+    });
+    paintBoxes();
+  }
+  function paintBoxes() {
+    boxes.forEach(b => {
+      const v = Math.min(100, Math.round(b.heat));
+      b.el.classList.toggle('burnt', b.heat > 100);
+      b.el.querySelector('.st').textContent = stateOf(b.heat);
+      const m = b.el.querySelector('.mini'); m.setAttribute('aria-valuenow', v); m.setAttribute('aria-valuetext', `${v}%, ${stateOf(b.heat)}`);
+      m.firstChild.style.width = v + '%';
+      b.el.style.setProperty('--glow', fire ? (boxes.indexOf(b) === boxes.length - 1 ? 1 : .25) : 0);
+    });
+    const lb = $('#lunchBar'); lb.setAttribute('aria-valuenow', Math.round(lunch)); lb.firstChild.style.width = lunch + '%';
+    $('#lunchTxt').textContent = lunch >= 100 ? '점심시간!' : lunch > 66 ? '넷째 시간 끝무렵' : lunch > 33 ? '넷째 시간 중간' : '넷째 시간 시작';
+  }
+  function resetLunch() {
+    stopFire();
+    boxes = names.map((n, i) => ({ name: n, heat: [6, 12, 28, 48][i] }));
+    lunch = 0; buildBoxes();
+  }
+  function stopFire() { clearInterval(fire); fire = null; stove.classList.remove('lit'); setSwitch($('#fireSw'), false); }
+  function tick() {
+    const n = boxes.length;
+    boxes.forEach((b, i) => { b.heat = Math.min(130, b.heat + rates[n - 1 - i]); });
+    lunch = Math.min(100, lunch + .7);
+    paintBoxes();
+    if (lunch >= 100) {
+      stopFire(); paintBoxes();
+      const warm = boxes.filter(b => b.heat >= 70 && b.heat <= 100).length, burnt = boxes.filter(b => b.heat > 100).length;
+      toast(`땡땡땡, 점심시간! 따끈한 도시락 ${warm}개${burnt ? `, 누룽지 ${burnt}개` : ''}. 김치 냄새가 교실에 퍼져요.`);
+      beep(988, .3, 'sine', .05);
+    }
+  }
+  swHandlers.fireSw = v => {
+    if (v) { if (lunch >= 100) resetLunch(), setSwitch($('#fireSw'), true); stove.classList.add('lit'); fire = setInterval(tick, 250); paintBoxes(); }
+    else stopFire(), paintBoxes();
+  };
+  $('#rotateBtn').addEventListener('click', () => {
+    const b = boxes.pop(); boxes.unshift(b); buildBoxes(b.name); beep(260, .08, 'triangle');
+    toast(`${b.name}의 도시락을 맨 위로 올렸어요.`);
+  });
+  $('#lunchReset').addEventListener('click', resetLunch);
+  resetLunch();
+
+  /* ── tabs ── */
+  $$('[role="tablist"]').forEach(list => {
+    const ts = $$('[role="tab"]', list);
+    const sel = (i, f) => { ts.forEach((t, j) => { const on = j === i; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; document.getElementById(t.getAttribute('aria-controls')).hidden = !on; }); if (f) ts[i].focus(); };
+    ts.forEach((t, i) => {
+      t.addEventListener('click', () => sel(i));
+      t.addEventListener('keydown', e => {
+        const n = ts.length; let k = null;
+        if (e.key === 'ArrowRight') k = (i + 1) % n; else if (e.key === 'ArrowLeft') k = (i - 1 + n) % n;
+        else if (e.key === 'Home') k = 0; else if (e.key === 'End') k = n - 1;
+        if (k !== null) { e.preventDefault(); sel(k, true); }
+      });
+    });
+  });
+
+  /* ── sortable 통지표 ── */
+  $$('table.sortable').forEach(tbl => {
+    const ths = $$('thead th', tbl);
+    ths.forEach(th => {
+      const b = th.querySelector('button'); if (!b) return;
+      b.addEventListener('click', () => {
+        const k = b.dataset.k, dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+        ths.forEach(x => x.hasAttribute('aria-sort') && x.setAttribute('aria-sort', 'none'));
+        th.setAttribute('aria-sort', dir);
+        const tb = tbl.tBodies[0], rows = [...tb.rows];
+        rows.sort((a, c) => {
+          const x = a.dataset[k], y = c.dataset[k];
+          const r = k === 'name' ? x.localeCompare(y, 'ko') : (+x - +y);
+          return dir === 'ascending' ? r : -r;
+        });
+        rows.forEach(r => tb.append(r));
+        beep(420, .04);
+      });
+    });
+  });
+
+  /* ── 뽑기 ── */
+  function starPath(cx, cy, R, r) { let d = ''; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r : R; d += (i ? 'L' : 'M') + (cx + rr * Math.cos(a)).toFixed(1) + ' ' + (cy + rr * Math.sin(a)).toFixed(1); } return d + 'Z'; }
+  const shapes = {
+    star: starPath(100, 104, 58, 25),
+    heart: 'M100 150C44 112 46 58 78 56C92 55 100 66 100 76C100 66 108 55 122 56C154 58 156 112 100 150Z',
+    tri: 'M100 44L160 146L40 146Z',
+    fish: 'M42 100C66 62 116 62 138 96L166 72L160 100L166 128L138 104C116 138 66 138 42 100Z'
+  };
+  const tin = $('#tin');
+  let cut = 0, risk = 0, last = 0, over = false, shape = 'star';
+  function setShape(s) {
+    shape = s; ['maskPath', 'piece', 'groove', 'dots'].forEach(id => $('#' + id).setAttribute('d', shapes[s]));
+    resetDal();
+  }
+  function paintDal() {
+    $('#maskPath').setAttribute('stroke-dashoffset', 100 - cut);
+    const cb = $('#cutBar'); cb.setAttribute('aria-valuenow', cut); cb.firstChild.style.width = cut + '%';
+    $('#cutTxt').textContent = cut + '%';
+    const nv = $('#nerve'); nv.classList.toggle('warn', risk >= 25 && risk < 50); nv.classList.toggle('danger', risk >= 50);
+    $('#nerveI').style.width = Math.min(100, risk / 72 * 100) + '%';
+    $('#nerveTxt').textContent = risk >= 50 ? '아슬아슬해요! 숨 고르기' : risk >= 25 ? '손이 조금 떨려요' : '손이 차분해요';
+  }
+  function resetDal() { cut = 0; risk = 0; last = 0; over = false; tin.classList.remove('won', 'broke'); $('#pokeBtn').disabled = false; $('#dalSay').textContent = ''; paintDal(); }
+  $('#pokeBtn').addEventListener('click', () => {
+    if (over) return;
+    const now = performance.now(), dt = last ? now - last : 9999; last = now;
+    if (dt < 330) risk += 24; else if (dt < 650) risk += 8; else risk = Math.max(0, risk - 14);
+    cut = Math.min(100, cut + 5); beep(1400, .02, 'triangle', .03);
+    if (risk >= 72) {
+      over = true; tin.classList.add('broke'); $('#pokeBtn').disabled = true;
+      $('#dalSay').textContent = '앗, 쩍 하고 금이 갔어요. 너무 서둘렀나 봐요. 새로 하나 사 볼까요?';
+      toast('깨졌어요! 아저씨가 웃으며 “다음엔 천천히” 하세요.'); beep(140, .25, 'sawtooth', .04);
+    } else if (cut >= 100) {
+      over = true; tin.classList.add('won'); $('#pokeBtn').disabled = true;
+      $('#dalSay').textContent = '모양이 쏙 빠졌어요! 아저씨가 하나를 더 주셨어요.';
+      toast('뽑기 성공! 하나 더 받았어요.'); beep(1046, .2, 'sine', .05);
+    }
+    paintDal();
+  });
+  $('#dalReset').addEventListener('click', () => { resetDal(); $('#dalSay').textContent = '새 뽑기가 국자에서 막 나왔어요. 천천히 해 보세요.'; });
+  radioGroup($('#shapeSeg'), b => setShape(b.dataset.s));
+  setShape('star');
+
+  /* ── 공중전화 ── */
+  let bal = 0, calls = 0;
+  const lines = ['“엄마, 나 학교 끝났어. 문방구 들렀다 갈게.”', '“여보세요? 거기 영이네 집이죠? 영이 좀 바꿔 주세요.”', '“아빠, 비 와요. 우산 가지고 정류장으로 나와 주세요.”', '“할머니, 저예요. 이번 일요일에 갈게요.”'];
+  function paintBal() { $('#bal').textContent = bal; }
+  function coin(v) {
+    bal += v; paintBal(); beep(v === 50 ? 900 : 1200, .05, 'triangle');
+    if (!reduce) { const c = document.createElement('span'); c.className = 'coin' + (v === 50 ? ' fifty' : ''); c.textContent = v; $('#slot').append(c); setTimeout(() => c.remove(), 600); }
+    $('#phoneSay').textContent = `${v}원을 넣었어요. 지금 ${bal}원.`;
+  }
+  $('#c10').addEventListener('click', () => coin(10));
+  $('#c50').addEventListener('click', () => coin(50));
+  $('#callBtn').addEventListener('click', () => {
+    if (bal < 20) { $('#phoneSay').textContent = `동전이 모자라요. 20원이 있어야 걸 수 있어요. (지금 ${bal}원)`; beep(220, .15); return; }
+    bal -= 20; paintBal(); $('#phoneSay').textContent = lines[calls++ % lines.length] + ` 남은 돈 ${bal}원.`; beep(440, .3, 'sine', .03);
+  });
+  $('#hangBtn').addEventListener('click', () => {
+    if (bal > 0) { toast(`철컥. 남은 동전 ${bal}원이 툭 떨어졌어요.`); $('#phoneSay').textContent = `수화기를 내려놓았어요. ${bal}원을 돌려받았어요.`; }
+    else $('#phoneSay').textContent = '수화기를 내려놓았어요.';
+    bal = 0; paintBal();
+  });
+
+  /* ── 회수권 ── */
+  const strip = $('#strip');
+  function refill() {
+    strip.innerHTML = '';
+    for (let i = 0; i < 10; i++) { const li = document.createElement('li'); li.className = 'tk'; li.innerHTML = `<b>회수권</b><span>학생</span>`; strip.append(li); }
+    $('#tkLeft').textContent = 10; $('#punchBtn').disabled = false;
+  }
+  $$('#destChips .chip, .chips .chip').forEach(c => c.addEventListener('click', () => { c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true')); beep(640, .03); }));
+  $('#punchBtn').addEventListener('click', () => {
+    const t = $$('.tk', strip).find(x => !x.classList.contains('tear'));
+    if (!t) return;
+    t.classList.add('tear'); setTimeout(() => t.classList.add('gone'), reduce ? 0 : 600);
+    const left = $$('.tk', strip).filter(x => !x.classList.contains('tear')).length;
+    $('#tkLeft').textContent = left; beep(1600, .03, 'square', .04);
+    const dest = $$('#destChips .chip').filter(c => c.getAttribute('aria-pressed') === 'true').map(c => c.textContent);
+    if (left === 0) { $('#punchBtn').disabled = true; toast('회수권이 다 떨어졌어요. 오늘은 걸어서 가요.'); }
+    else toast(`딸깍. ${dest.length ? dest.join(', ') + ' 가는 길' : '어디든 가는 길'}. 남은 회수권 ${left}장.`);
+  });
+  $('#refillBtn').addEventListener('click', () => { refill(); toast('새 회수권 한 묶음, 열 장을 샀어요.'); });
+  refill();
+
+  /* ── 라디오 엽서 ── */
+  const prog = $('#pcProg'), needle = $('#needle'), radio = $('#radio');
+  const progName = () => prog.options[prog.selectedIndex].text.replace(/\s*\(.*\)/, '');
+  function setNeedle() { needle.style.setProperty('--n', prog.options[prog.selectedIndex].dataset.n); }
+  prog.addEventListener('change', () => { setNeedle(); beep(300, .05); });
+  setNeedle();
+  const dlg = $('#mailDlg');
+  $('#postcard').addEventListener('submit', e => {
+    e.preventDefault();
+    const story = $('#pcStory'), name = $('#pcName');
+    let bad = null;
+    [[name, '#pcNameErr', '필명을 적어 주세요. 진짜 이름이 아니어도 괜찮아요.'], [story, '#pcStoryErr', '사연을 한 줄이라도 적어 주세요.']].forEach(([el, err, msg]) => {
+      const empty = !el.value.trim(); el.setAttribute('aria-invalid', String(empty)); $(err).textContent = empty ? msg : '';
+      if (empty && !bad) bad = el;
+    });
+    if (bad) { (bad === name && !story.value.trim() ? story : bad).focus(); return; }
+    $('#mailTo').textContent = `받는 곳: ${prog.options[prog.selectedIndex].text}`;
+    $('#mailPreview').textContent = `“${story.value.trim()}” — ${$('#pcAnon').checked ? '익명의 청취자' : name.value.trim()}${$('#pcSong').value.trim() ? ` · 신청곡 「${$('#pcSong').value.trim()}」` : ''}`;
+    dlg.showModal();
+  });
+  dlg.addEventListener('close', () => {
+    if (dlg.returnValue !== 'send') return;
+    const who = $('#pcAnon').checked ? '이름을 밝히지 않은 분' : `${$('#pcTown').value.trim() || '어느 동네'}의 ${$('#pcName').value.trim()} 님`;
+    const song = $('#pcSong').value.trim();
+    const story = $('#pcStory').value.trim();
+    beep(520, .1, 'sine');
+    setTimeout(() => {
+      radio.classList.add('live');
+      $('#onairText').textContent = `“${story.length > 60 ? story.slice(0, 60) + '…' : story}”`;
+      toast(`지금 「${progName()}」에서 ${who}의 엽서를 읽고 있어요.${song ? ` 신청곡 「${song}」 띄워 드립니다.` : ''}`);
+      setTimeout(() => radio.classList.remove('live'), 12000);
+    }, reduce ? 0 : 900);
+  });
+
+  /* ── 공테이프 ── */
+  const sides = {
+    A: [{ t: '비 오는 정류장', f: '라디오에서', m: 4 }, { t: '열일곱의 편지', f: '언니 테이프에서', m: 5 }, { t: '창밖의 통기타', f: '직접 기타 치며', m: 4 }],
+    B: [{ t: '가을 운동장', f: '라디오에서', m: 3 }, { t: '회수권 두 장', f: '가요 축제 실황', m: 4 }]
+  };
+  let side = 'A';
+  const tracks = $('#tracks');
+  function used() { return sides[side].reduce((s, x) => s + x.m, 0); }
+  function renderTracks(focusIdx) {
+    tracks.innerHTML = '';
+    if (!sides[side].length) { const li = document.createElement('li'); li.className = 'empty'; li.textContent = '아직 비어 있어요. 첫 곡을 적어 보세요.'; tracks.append(li); }
+    sides[side].forEach((x, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="tt"></span><span class="min">${x.m}분</span><button type="button" class="del">지우기</button>`;
+      li.querySelector('.tt').append(x.t); const sm = document.createElement('small'); sm.textContent = x.f || '라디오에서'; li.querySelector('.tt').append(sm);
+      const del = li.querySelector('.del'); del.setAttribute('aria-label', `${x.t} 지우기`);
+      del.addEventListener('click', () => {
+        sides[side].splice(i, 1); renderTracks(Math.min(i, sides[side].length - 1)); toast(`「${x.t}」를 속지에서 지웠어요.`);
+      });
+      tracks.append(li);
+    });
+    const u = used(), tb = $('#tapeBar');
+    tb.setAttribute('aria-valuenow', u); tb.setAttribute('aria-valuetext', `${u}분 사용, ${45 - u}분 남음`); tb.firstChild.style.width = (u / 45 * 100) + '%';
+    $('#tapeTxt').textContent = `${u} / 45분`;
+    $('#cSide').textContent = side;
+    if (focusIdx != null) { const d = $$('.del', tracks)[focusIdx]; (d || $('#tSong')).focus(); }
+  }
+  radioGroup($('#sideSeg'), b => { side = b.dataset.side; renderTracks(); beep(330, .05); });
+  $('#tTitle').addEventListener('input', e => { $('#cTitle').textContent = e.target.value || '이름 없는 테이프'; });
+  $('#tapeForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const s = $('#tSong'), err = $('#tSongErr'), m = +$('#tLen').value;
+    if (!s.value.trim()) { s.setAttribute('aria-invalid', 'true'); err.textContent = '노래 제목을 적어 주세요.'; s.focus(); return; }
+    if (used() + m > 45) { s.setAttribute('aria-invalid', 'true'); err.textContent = `${side}면이 모자라요. 남은 길이는 ${45 - used()}분이에요. 다른 면에 적어 보세요.`; s.focus(); return; }
+    s.setAttribute('aria-invalid', 'false'); err.textContent = '';
+    sides[side].push({ t: s.value.trim(), f: $('#tFrom').value.trim(), m });
+    renderTracks(); toast(`${side}면 ${sides[side].length}번 곡으로 「${s.value.trim()}」를 적었어요.`);
+    s.value = ''; s.focus(); beep(780, .06);
+  });
+  swHandlers.recSw = v => { $('#cassette').classList.toggle('rec', v); };
+  renderTracks();
+
+  /* ── 자개장 서랍 (accordion) ── */
+  $$('.drawer-btn').forEach(b => b.addEventListener('click', () => {
+    const open = b.getAttribute('aria-expanded') !== 'true';
+    b.setAttribute('aria-expanded', String(open)); document.getElementById(b.getAttribute('aria-controls')).hidden = !open;
+    beep(open ? 240 : 200, .06, 'triangle');
+  }));
+
+  /* ── 사진관 ── */
+  const portrait = $('#portrait');
+  $$('.tints .range').forEach(r => {
+    const out = document.getElementById('o' + r.id.slice(1));
+    const apply = () => { portrait.style.setProperty('--' + r.dataset.v, r.value / 100); out.textContent = r.value; };
+    r.addEventListener('input', apply); apply();
+  });
+  $('#frameSel').addEventListener('change', e => { $('#frame').dataset.frame = e.target.value; });
+  const steps = $$('#steps li'); let step = 2;
+  function paintSteps() {
+    steps.forEach((s, i) => { s.classList.toggle('done', i < step); if (i === step) s.setAttribute('aria-current', 'step'); else s.removeAttribute('aria-current'); });
+    $('#stepNext').textContent = step >= steps.length - 1 ? '사진 찾아가기' : '다음 단계로';
+    $('#stepNext').disabled = step >= steps.length;
+  }
+  $('#stepNext').addEventListener('click', () => {
+    if (step === steps.length - 1) { step++; paintSteps(); toast('사진을 찾았어요. 아저씨가 “참 곱게 나왔다” 하시며 봉투에 넣어 주셨어요.'); return; }
+    step = Math.min(steps.length - 1, step + 1); paintSteps(); beep(560, .05);
+  });
+  $('#stepReset').addEventListener('click', () => { step = 0; paintSteps(); });
+  paintSteps();
+
+  /* ── kit ── */
+  const preps = $$('.prep'), prepAll = $('#prepAll');
+  const prepUpdate = () => { const n = preps.filter(p => p.checked).length; prepAll.checked = n === preps.length; prepAll.indeterminate = n > 0 && n < preps.length; };
+  preps.forEach(p => p.addEventListener('change', prepUpdate));
+  prepAll.addEventListener('change', () => { preps.forEach(p => p.checked = prepAll.checked); prepUpdate(); });
+  prepUpdate();
+  const uni = ['검은 동복에 하얀 깃. 단추는 다섯 개.', '하얀 하복, 여름엔 소매를 걷어 올렸지요.', '1983년, 교복 대신 입고 싶은 옷을 입게 됐어요.'];
+  radioGroup($('#uniSeg'), (b, i) => { $('#uniTxt').textContent = uni[i]; });
+  $('#kVol').addEventListener('input', e => { $('#kVolOut').textContent = `${e.target.value} / 10`; });
+  $$('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+  $('#letterBtn').addEventListener('click', () => $('#letterDlg').showModal());
+  $('#bellBtn').addEventListener('click', () => { toast('땡땡땡, 쉬는 시간입니다. 난로 당번은 도시락을 돌려 주세요.'); beep(988, .25, 'sine', .05); });
+})();
+</script>
+<script src="../systems-nav.js?v=20261101e" defer></script>
+</body>
+</html>

@@ -149,14 +149,14 @@ section.part { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; 
 .swgroup { width: 100%; display: grid; gap: 14px; }
 .swgroup h4 { font: 700 15px/1.3 var(--font); color: var(--ink-2); }
 .swgroup h4 span { font-weight: 400; color: var(--ink-3); margin-left: 8px; }
-.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px 14px; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 18px 12px; }
 .sw { display: grid; justify-items: center; text-align: center; gap: 4px; }
 .sw__c { position: relative; width: 88px; height: 88px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(236,236,236,.18); margin-bottom: 6px; }
 .sw__c i { position: absolute; right: -4px; bottom: -2px; width: 30px; height: 30px; border-radius: 50%; border: 3px solid #060c1b; }
 .sw b { font-size: 15px; }
 .sw code { font-size: 12.5px; background: none; padding: 0; color: var(--ink-2); }
 .sw small { font-size: 13px; color: var(--ink-3); }
-.typerow { display: grid; grid-template-columns: minmax(0, 1fr) 170px; gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); width: 100%; }
+.typerow { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); width: 100%; }
 .typerow .k { text-align: right; } .typerow .k b { display: block; font-size: 15px; } .typerow .k span { font: 400 13px/1.4 var(--mono); color: var(--ink-3); }
 @media (max-width: 560px) { .typerow { grid-template-columns: minmax(0, 1fr); gap: 2px; } .typerow .k { text-align: left; order: -1; } }
 
@@ -171,7 +171,8 @@ section.part { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; 
 .op { display: inline-block; padding: 2px 12px; border-radius: 999px; background: var(--gold); color: var(--ground); font-weight: 700; font-size: 14px; white-space: nowrap; }
 .src { white-space: nowrap; color: var(--gold-2); }
 @media (max-width: 760px) {
-  .xt, .xt tbody, .xt tr, .xt td { display: block; }
+  .xt, .xt caption, .xt tbody, .xt tr, .xt td { display: block; }
+  .xt caption { padding: 0 4px 14px; }
   .xt thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .xt tr { margin-bottom: 12px; padding: 18px 20px; border-radius: 36px; background: var(--sheet); }
   .xt td, .xt td:first-child, .xt td:last-child { padding: 4px 0; border-radius: 0; background: none; white-space: normal; }
@@ -191,7 +192,7 @@ section.part { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; 
 .knock .b { background: var(--holes) 0 0/7px 7px, var(--gold); }
 .knock .c2 { background: var(--blue); mix-blend-mode: screen; transition: transform .4s var(--dab); }
 .knock:hover .c2, .knock:focus-visible .c2 { transform: translate(var(--slip-x), var(--slip-y)) translate(6px, 5px); }
-.knock .c1 { background: var(--gold); mix-blend-mode: screen; }
+.knock .c1 { background: var(--gold); }
 .knock[tabindex] { cursor: help; border-radius: 50%; }
 .radii { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: end; width: 100%; }
 .radii div { display: grid; justify-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
@@ -360,7 +361,7 @@ legend small { display: block; font: 400 13px/1.5 var(--mono); color: var(--ink-
 .chip i { width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--ink-3); transition: transform .2s var(--squish), background-color var(--beat) linear var(--b3); }
 .chip[aria-pressed="true"] { background: var(--gold); color: var(--ground); font-weight: 700; }
 .chip[aria-pressed="true"] i { background: var(--holes) 0 0/5px 5px, var(--gold-2); box-shadow: inset 0 0 0 2px var(--ground); transform: scale(1.1); }
-.field { display: grid; gap: 8px; min-width: 0; }
+.field { display: grid; gap: 8px; min-width: 0; width: 100%; }
 .field > label, .field__l { font: 700 15px/1.4 var(--font); }
 .field > label small, .field__l small { font-weight: 400; color: var(--ink-3); margin-left: 6px; }
 .sel { position: relative; }
@@ -930,7 +931,7 @@ pre.code .c { color: #8c917a; } pre.code .p { color: var(--gold); } pre.code .v 
   <div class="spec">
     <div class="note"><h3>달항아리 카드</h3><p>배가 부른 실루엣이라 글은 가운데 모읍니다. 위의 원이 내용의 색, 구멍이 뚫렸으면 끝난 일입니다.</p></div>
     <div class="bench"><div class="jars">
-      <article class="jar"><div class="jar__art" aria-hidden="true"><i class="a"></i><i class="b"></i></div><h4>언덕 오르기</h4><p>매일 아침, 같은 바위, 같은 언덕.</p><span class="badge badge--done"><i></i>끝남 · 오늘 분</span></article>
+      <article class="jar"><div class="jar__art" aria-hidden="true"><i class="a"></i><i class="b"></i></div><h4>언덕 오르기</h4><p>매일 아침, 같은 바위, 같은 언덕.</p><span class="badge badge--done"><i></i>끝남</span></article>
       <article class="jar"><div class="jar__art" aria-hidden="true" style="--c:var(--blue)"><i class="a"></i></div><h4>답장 기다리기</h4><p>보낸 지 사흘. 읽음 표시는 없습니다.</p><span class="badge badge--blue"><i></i>미룸</span></article>
       <article class="jar"><div class="jar__art" aria-hidden="true" style="--c:var(--teal)"><i class="a"></i></div><h4>출구 찾기</h4><p>방이 네 개, 문은 셋, 출구는 없음.</p><span class="badge badge--danger"><i></i>위험</span></article>
     </div></div>
@@ -1107,7 +1108,7 @@ pre.code .c { color: #8c917a; } pre.code .p { color: var(--gold); } pre.code .v 
   /* ---------- Sisyphus ---------- */
   const STEPS = 5, hill = $('#hill'), bx = $('#bx'), by = $('#by');
   let pos = 0, pushes = 0, tops = 0;
-  const place = p => { const x = 40 + (310 - 40) * (p / STEPS); const t = (x - 310) / 300; const y = 262 - 220 * Math.sqrt(Math.max(0, 1 - t * t)) - 27;
+  const place = p => { const sx = 40 + (310 - 40) * (p / STEPS), t = (sx - 310) / 300, sy = 262 - 220 * Math.sqrt(Math.max(0, 1 - t * t)); const nx = (sx - 310) / 90000, ny = (sy - 262) / 48400, nl = Math.hypot(nx, ny) || 1; const x = sx + 27 * nx / nl, y = sy + 27 * ny / nl;
     bx.style.transform = `translateX(${x}px)`; by.style.transform = `translateY(${y}px)`;
     const p2 = $('#p2'); p2.setAttribute('aria-valuenow', p); p2.setAttribute('aria-valuetext', `5칸 중 ${p}칸`); $('i', p2).style.width = (p / STEPS * 100) + '%'; $('#p2Out').textContent = `${p} / 5칸`; };
   place(0);

@@ -263,7 +263,7 @@ code { font: .86em ui-monospace, Menlo, Consolas, monospace; background: rgba(0,
   .phone-btn { left: auto; right: 14px; bottom: 16px; }
 }
 @media (max-width: 560px) { .stage { height: 480px; } .phone-btn { right: 8px; bottom: 10px; } }
-@media (max-width: 480px) { .talk__box { grid-template-columns: minmax(0, 1fr) 72px; } .talk__pic { width: 72px; height: 72px; } .talk__text { font-size: 18px; } .boat { width: 180px; } .imenu { bottom: 160px; } }
+@media (max-width: 480px) { .talk__box { grid-template-columns: minmax(0, 1fr) 72px; } .talk__pic { width: 72px; height: 72px; } .talk__text { font-size: 18px; } .boat { width: 180px; } .imenu { bottom: 160px; left: 62px; width: 150px; } body .srow-btn small { display: none; } body .steps li { min-width: 54px; font-size: 15px; } body .steps .dot { width: 36px; height: 36px; } body .steps li::before { top: 17px; } body .srow { grid-template-columns: 82px minmax(0, 1fr); } }
 
 /* chapter bar */
 .chapters { position: relative; z-index: 2; background: var(--choco-2); border-top: 4px solid var(--gold-d); border-bottom: 4px solid var(--ol); }
@@ -499,7 +499,7 @@ legend { padding: 0; margin-bottom: 12px; font: 400 19px/1.3 var(--f-game); colo
 .slot.locked { cursor: default; opacity: .5; background: repeating-linear-gradient(45deg, var(--slot) 0 6px, #2b190d 6px 12px); }
 .slot.moved { animation: settle .35s var(--spring); }
 @keyframes settle { from { transform: scale(.7); opacity: .4; } }
-.stepper { display: inline-flex; align-items: center; gap: 6px; }
+.stepper { display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
 .stepper button { width: 44px; height: 44px; border: 0; cursor: pointer; background: var(--choco-3); color: var(--cream); font: 400 20px/1 var(--f-px); box-shadow: inset 0 0 0 2px var(--rim); transition: transform .15s var(--spring); }
 .stepper button:active { transform: scale(.88); }
 .stepper button:disabled { opacity: .4; cursor: not-allowed; }
@@ -661,6 +661,7 @@ dialog[open] { animation: popin .35s var(--spring); }
 .side__foot { padding: 14px 18px 18px; display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; border-top: 2px dotted rgba(242,193,78,.45); }
 .side .field > label { color: var(--cream); } .side .field > label small { color: var(--cream-2); }
 .side .inp { --focus: #13509e; }
+.side .lantern { color: var(--cream); } .side .lantern__t small { color: var(--cream-2); } .side .lantern[aria-checked="true"] .lantern__t em { color: #ff8fc0; } .side .lantern__t em { color: var(--cream-2); }
 .eqrow { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; align-items: center; }
 .eqrow .tile { position: relative; width: 52px; height: 52px; padding: 7px; background: var(--slot); box-shadow: inset 0 0 0 2px var(--slot-line); }
 .eqrow .tile .etag { position: absolute; left: -6px; top: -6px; width: 18px; height: 18px; font-size: 10px; }
@@ -684,12 +685,12 @@ dialog[open] { animation: popin .35s var(--spring); }
 @keyframes shrink { to { transform: scaleX(0); } }
 .flycoin { position: fixed; z-index: 80; width: 26px; height: 26px; pointer-events: none; }
 
-.npc-stage { position: relative; width: 100%; min-height: 300px; display: flex; align-items: flex-end; justify-content: center; gap: 24px; padding: 20px 10px 0; overflow: hidden; }
+.npc-stage { position: relative; width: 100%; min-height: 300px; display: flex; align-items: flex-end; justify-content: center; gap: 64px; padding: 20px 10px 0; overflow: hidden; }
 .npc-stage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; background: repeating-linear-gradient(90deg, #a8683a 0 30px, #7a4520 30px 33px); border-top: 3px solid var(--ol); }
-.npc { position: relative; z-index: 1; width: 110px; height: 176px; flex: none; margin-bottom: 20px; animation: idle 2s steps(2) infinite; }
+.npc { position: relative; z-index: 1; display: block; width: 110px; height: 176px; flex: none; margin-bottom: 20px; animation: idle 2s steps(2) infinite; }
 @keyframes idle { 50% { transform: translateY(2px); } }
 .npc-wrap { position: relative; z-index: 1; padding-top: 74px; }
-.float-line { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); width: 250px; font: 400 21px/1.4 var(--f-game); color: #fff; text-align: center;
+.float-line { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); width: 220px; font: 400 21px/1.4 var(--f-game); color: #fff; text-align: center;
   text-shadow: 0 2px 0 var(--ol), 2px 0 0 var(--ol), -2px 0 0 var(--ol), 0 -2px 0 var(--ol), 2px 2px 0 var(--ol), -2px 2px 0 var(--ol); }
 .say { position: relative; z-index: 1; align-self: center; max-width: 280px; padding: 14px 16px; background: #fff; color: var(--ink); font: 400 19px/1.45 var(--f-game); box-shadow: var(--edge); margin-bottom: 70px; min-height: 76px; }
 .say::after { content: ""; position: absolute; left: -16px; bottom: 16px; border: 9px solid transparent; border-right: 13px solid #fff; border-left: 0; filter: drop-shadow(-3px 0 0 var(--ol)); }
@@ -861,7 +862,7 @@ pre.code .c { color: #a8987c; } pre.code .p { color: #ff8fc0; } pre.code .v { co
     </div></div>
 
   <div class="demo"><div class="demo__note"><h3>큰 행동</h3><p>한 화면에 하나뿐인 가장 큰 버튼. 금테 두른 분홍 알약에 그림과 키를 함께. 누르면 거품이 오릅니다.</p><ul><li>잠수 중이면 민트색 "물 위로"로 바뀝니다.</li></ul></div>
-    <div class="sheet" style="padding-top:60px"><button class="cta" id="diveBtn" aria-pressed="false"><span class="cta__ic" data-spr="mask"></span><span><b id="diveT">잠수 시작</b><small><kbd class="key" aria-hidden="true">↵</kbd><span id="diveS">산소 100% · 산호 정원</span></small></span></button></div></div>
+    <div class="sheet" style="padding-top:60px"><button class="cta" id="diveBtn" aria-pressed="false"><span class="cta__ic" data-spr="mask"></span><span><b id="diveT">잠수 시작</b><small><kbd class="key" aria-hidden="true">↵</kbd><span id="diveS">산소 100%</span></small></span></button></div></div>
 
   <div class="demo"><div class="demo__note"><h3>더보기 메뉴</h3><p>자주 쓰지 않는 동작은 접어 둡니다. ↑↓로 이동, Esc로 닫기.</p></div>
     <div class="sheet" style="min-height:330px;align-content:start;padding-top:44px"><div class="itemrow"><div><span class="tile" data-spr="tank"></span><div><b>산소통 Mk.2</b><span>내구 18/20 · 장착 중</span></div></div>
@@ -1387,7 +1388,7 @@ pre.code .c { color: #a8987c; } pre.code .p { color: #ff8fc0; } pre.code .v { co
   // dive CTA + oxygen
   let o2 = 100, diving = false, o2t = null, warned = false; const diveBtn = $('#diveBtn');
   function cells(el, pct) { if (!el.children.length) el.innerHTML = '<i></i>'.repeat(10); $$('i', el).forEach((c, i) => c.classList.toggle('on', i < Math.round(pct / 10))); el.setAttribute('aria-valuenow', Math.round(pct)); }
-  function setO2(v) { o2 = Math.max(0, Math.min(100, v)); const el = $('#o2'); cells(el, o2); el.classList.toggle('low', o2 <= 25); $('#o2Out').textContent = Math.round(o2) + '%'; $('#diveS').textContent = diving ? `산소 ${Math.round(o2)}% · 잠수 중` : `산소 ${Math.round(o2)}% · 산호 정원`; }
+  function setO2(v) { o2 = Math.max(0, Math.min(100, v)); const el = $('#o2'); cells(el, o2); el.classList.toggle('low', o2 <= 25); $('#o2Out').textContent = Math.round(o2) + '%'; $('#diveS').textContent = diving ? `산소 ${Math.round(o2)}% · 잠수 중` : `산소 ${Math.round(o2)}%`; }
   function setFresh(v) { const el = $('#fr'); cells(el, v); el.classList.toggle('mid', v < 60); $('#frOut').textContent = v + '%'; }
   $$('[data-cells]').forEach(c => cells(c, +c.dataset.cells));
   function bubbles(btn) { if (reduce) return; for (let i = 0; i < 8; i++) { const b = document.createElement('i'); b.className = 'bubble'; b.style.left = 20 + Math.random() * 60 + '%'; b.style.setProperty('--dx', (Math.random() - .5) * 40 + 'px'); b.style.animationDelay = i * 80 + 'ms'; b.style.width = b.style.height = 6 + Math.random() * 10 + 'px'; btn.appendChild(b); setTimeout(() => b.remove(), 1600 + i * 80); } }

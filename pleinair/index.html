@@ -62,7 +62,7 @@
   --bg: #1f2851; --sky: #263468; --sky-1: #31468f; --sky-2: #4a3f86; --sky-3: #1b2452;
   --sun: #f3cf6a; --sun-2: #fbe9b2; --shade: #3e3678; --shade-2: #2a2560; --shade-a: rgba(10,10,40,.45);
   --leaf: #2f4e5c; --leaf-2: #22324f; --field-1: #384a70; --field-2: #4c4878; --water-1: #33508f; --water-2: #5e6db0;
-  --hay-l: #5b5f96; --hay-r: #6f6aa8; --hay-m: #4a4e86; --wash: #ebe8f1;
+  --hay-l: #5b5f96; --hay-r: #6f6aa8; --hay-m: #4a4e86; --wash: #ebe8f1; --glint: #6a78b8;
   --sx: 0px; --sy: 5px;
   --o-morning: 0; --o-noon: 0; --o-dusk: 0; --o-night: 1;
 }
@@ -100,7 +100,7 @@ i[lang="fr"] { font-family: var(--font-d); font-style: italic; font-weight: 500;
 /* the painting itself: every dab takes its colour from the light */
 .pa rect, .pa path, .pa ellipse { transition: fill var(--slow) var(--ease); }
 .k-sk { fill: var(--sky); } .k-s1 { fill: var(--sky-1); } .k-s2 { fill: var(--sky-2); } .k-s3 { fill: var(--sky-3); }
-.k-sun { fill: var(--sun); } .k-sun2 { fill: var(--sun-2); } .k-sh { fill: var(--shade); } .k-sh2 { fill: var(--shade-2); }
+.k-sun { fill: var(--sun); } .k-gl { fill: var(--glint, var(--sun)); } .k-sun2 { fill: var(--sun-2); } .k-sh { fill: var(--shade); } .k-sh2 { fill: var(--shade-2); }
 .k-l1 { fill: var(--leaf); } .k-l2 { fill: var(--leaf-2); } .k-f1 { fill: var(--field-1); } .k-f2 { fill: var(--field-2); }
 .k-w1 { fill: var(--water-1); } .k-w2 { fill: var(--water-2); } .k-hl { fill: var(--hay-l); } .k-hr { fill: var(--hay-r); } .k-hm { fill: var(--hay-m); }
 .at { transition: opacity var(--slow) var(--ease); }
@@ -377,6 +377,7 @@ legend { padding: 0; margin-bottom: 14px; font: 700 15px/1.3 var(--font-h); colo
 .brushes button::before { content: ""; position: absolute; inset: 3px 0; z-index: 0; border-radius: inherit; background: repeating-linear-gradient(176deg, rgba(255,255,255,.14) 0 2px, transparent 2px 5px, rgba(0,0,0,.08) 5px 6px), var(--cobalt); transform: scaleX(0); transform-origin: left; transition: transform .4s var(--ease); }
 .brushes button span { position: relative; }
 .brushes button:hover { color: var(--ink); }
+@media (max-width: 480px) { .brushes { flex-wrap: nowrap; gap: 2px; padding: 5px; } .brushes button { min-width: 0; padding: 0 11px; font-size: 15px; } }
 .brushes button[aria-checked="true"] { color: #fff; }
 .brushes button[aria-checked="true"]::before { transform: scaleX(1); }
 
@@ -601,6 +602,7 @@ dialog[open] { animation: setdown .55s var(--squish); }
 .billet span { font-size: 14px; color: var(--ink-2); }
 .billet .x { width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--ink-3); font-size: 20px; }
 .billet .x:hover { background: var(--paper-2); color: var(--ink); }
+.billet .billet__dab { color: #fff; font: 700 19px/1 var(--font-h); }
 .billet--madder { --c: var(--madder); } .billet--chrome { --c: #c68a12; } .billet--cobalt { --c: var(--cobalt); }
 
 /* ---------- Code ---------- */
@@ -947,7 +949,7 @@ pre.code .c { color: #a7a3c9; } pre.code .p { color: #f6cf6a; } pre.code .v { co
       fill(80 * d, [cx - rx, cy - ry, cx + rx, cy + ry], (x, y) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 1, (x, y) => dab(x, y, R(12, 24), R(6, 9), R(78, 102), x < cx ? pickW([['k-l1', 3], ['k-f2', .6], ['k-l2', 1]]) : pickW([['k-l2', 2], ['k-sh', 2], ['k-l1', .6]])));
     });
     // field, larger dabs toward the front
-    fill(1050 * d, [-20, hz, W + 20, H + 10], null, (x, y) => { const s = .5 + (y - hz) / (H - hz) * 1.1; dab(x, y, R(18, 40) * s, R(5, 10) * s, R(-7, 7), pickW([['k-f1', 3], ['k-f2', 2.4], ['k-sun', .9], ['k-s3', .4], ['k-l1', .9], ['k-sh', .45]])); });
+    fill(1050 * d, [-20, hz, W + 20, H + 10], null, (x, y) => { const s = .5 + (y - hz) / (H - hz) * 1.1; dab(x, y, R(18, 40) * s, R(5, 10) * s, R(-7, 7), pickW([['k-f1', 3], ['k-f2', 2.4], ['k-gl', .9], ['k-s3', .4], ['k-l1', .9], ['k-sh', .45]])); });
     // pond, its glints shimmer
     const pond = (x, y) => ((x - 250) / 330) ** 2 + ((y - 572) / 52) ** 2 < 1;
     P.add(`<ellipse cx="250" cy="572" rx="330" ry="52" class="k-w1"/>`);
@@ -975,7 +977,7 @@ pre.code .c { color: #a7a3c9; } pre.code .p { color: #f6cf6a; } pre.code .v { co
       fill(26 * d * sc, [cx - 104 * sc, rb + 2, cx + 104 * sc, rb + 12 * sc], (x, y) => Math.abs(x - cx) < hw(y) - 6 * sc, (x, y) => dab(x, y, R(16, 26) * sc, R(5, 7) * sc, R(-6, 6), pickW([['k-sh2', 2], ['k-sh', 1]])));
     });
     // grass in front of the stacks
-    fill(140 * d, [520, 440, 1200, 470], null, (x, y) => dab(x, y, R(18, 34), R(5, 9), R(-60, -20), pickW([['k-l1', 2], ['k-f2', 1.4], ['k-sun', .6]])));
+    fill(140 * d, [520, 440, 1200, 470], null, (x, y) => dab(x, y, R(18, 34), R(5, 9), R(-60, -20), pickW([['k-l1', 2], ['k-f2', 1.4], ['k-gl', .6]])));
     return P.take();
   }
 
@@ -1006,7 +1008,7 @@ pre.code .c { color: #a7a3c9; } pre.code .p { color: #f6cf6a; } pre.code .v { co
       P.add('<rect width="240" height="170" fill="#3d6b45"/>');
       fill(360, [-10, -6, 250, 110], null, (x, y) => dab(x, y, R(8, 18), R(4, 7), R(-60, 60), pickW([['#3d6b45', 2], ['#5f9156', 3], ['#86b56a', 2], ['#2e4f3c', 1.4], ['#c3d77a', .8], ['#b8a2dc', y < 40 ? 1.4 : .3], ['#9d86c9', y < 40 ? 1 : .2]])));
       fill(230, [-10, 104, 250, 176], null, (x, y) => dab(x, y, R(10, 24), R(3.5, 6), R(-3, 3), pickW([['#2f5f62', 2], ['#4f8a7a', 2], ['#86b56a', 1.4], ['#5f9156', 1.4], ['#f2b6c6', .4], ['#c7d9e8', .6]])));
-      for (let i = 0; i <= 26; i++) { const t = i / 26, x = 20 + t * 200, y = 96 - Math.sin(t * Math.PI) * 32; dab(x, y, 12, 6, Math.cos(t * Math.PI) * -30, i % 2 ? '#4fa37a' : '#2f7d5f'); dab(x, y + 10, 10, 4, Math.cos(t * Math.PI) * -30, '#2f6b52'); if (i % 3 === 0) dab(x, y - 7, 10, 3, 90, '#4fa37a'); }
+      for (let i = 0; i <= 34; i++) { const t = i / 34, x = 14 + t * 212, y = 98 - Math.sin(t * Math.PI) * 34, a = -Math.cos(t * Math.PI) * 32; dab(x, y + 9, 13, 6, a, '#1f4f3e'); dab(x, y, 14, 8, a, i % 2 ? '#8fd0a6' : '#5fb38a'); dab(x, y - 16, 12, 4, a, '#7cc39a'); if (i % 3 === 0) dab(x, y - 8, 14, 3.5, 90, '#6fbf95'); }
       for (let i = 0; i <= 26; i++) { const t = i / 26, x = 20 + t * 200, y = 106 + Math.sin(t * Math.PI) * 26; dab(x, y, 10, 4, Math.cos(t * Math.PI) * 30, '#3f8a68', .7); }
       return P.take(); },
     rain(seed) { const P = Painter(seed), { R, pickW, dab, fill } = P;
@@ -1085,7 +1087,7 @@ pre.code .c { color: #a7a3c9; } pre.code .p { color: #f6cf6a; } pre.code .v { co
     try { localStorage.setItem('pleinair-hour', h); } catch {}
     root.style.setProperty('--edge', edgeURI());
     root.style.setProperty('--tile', tileURI(3, 150, 300, h === 'night' ? .3 : .3, ['--sky-1', '--sky-2', '--sky-3', '--sun-2', '--shade']));
-    root.style.setProperty('--tile-soft', tileURI(9, 22, 220, h === 'night' ? .2 : .26, ['--sky-1', '--sky-2', '--sun-2', '--field-2']));
+    root.style.setProperty('--tile-soft', tileURI(9, 22, 220, h === 'night' ? .12 : .26, ['--sky-1', '--sky-2', '--sun-2', '--field-2']));
     root.style.setProperty('--strip', stripURI());
     $('#heroCap').textContent = HOURS[h][1];
     $$('.hourcard').forEach(c => c.setAttribute('aria-pressed', c.dataset.h === h));

@@ -972,5 +972,6 @@ pre.code .c { color: #8a90a6; } pre.code .p { color: #f6b25a; } pre.code .v { co
   $('#copyBtn').addEventListener('click', async e => { try { await navigator.clipboard.writeText($('#codeBlock').textContent); e.target.textContent = '복사했어요 ✓'; } catch { e.target.textContent = '직접 선택해 주세요'; } setTimeout(() => e.target.textContent = '복사하기', 1800); });
 })();
 </script>
+<script src="../systems-nav.js" defer></script>
 </body>
 </html>

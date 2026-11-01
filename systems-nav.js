@@ -1,0 +1,110 @@
+/* Design-system switcher: a small tab on the left edge that opens a sidebar listing every system.
+   Self-contained (Shadow DOM) so it never inherits or leaks styles from the page it sits on.
+   Include on any page with: <script src="../systems-nav.js" defer></script> (or "systems-nav.js" at the root). */
+(() => {
+  const SYSTEMS = [
+    { id: 'oat', path: 'index.html', name: 'Oat', ko: '눌리는 물건', c: ['#f3f1e7', '#2f5a3c', '#e8b45a'] },
+    { id: 'riso', path: 'riso/index.html', name: 'Riso', ko: '2도 리소 인쇄', c: ['#f2ede2', '#2c4fa0', '#ff4fa7'] },
+    { id: 'arcology', path: 'arcology/index.html', name: 'Arcology', ko: '봉인 구조체 단말', c: ['#0d0e0f', '#ff8a1f', '#74c6d8'] },
+    { id: 'dal', path: 'dal/index.html', name: 'Dal', ko: '조선 백자 · 한옥', c: ['#f3eee2', '#24418f', '#a5302a'] },
+    { id: 'canopy', path: 'canopy/index.html', name: 'Canopy', ko: '우림 공방', c: ['#12352a', '#3f8f4f', '#a8693a'] },
+    { id: 'sansa', path: 'sansa/index.html', name: 'Sansa', ko: '산사의 새벽', c: ['#f3eee2', '#4f7a68', '#8e3b2a'] },
+    { id: 'abyss', path: 'abyss/index.html', name: 'Abyss', ko: '심해 연구 기지', c: ['#051220', '#4ff3e6', '#c9a24a'] },
+    { id: 'atomic', path: 'atomic/index.html', name: 'Atomic', ko: '우주시대 다이너', c: ['#fdf6e6', '#6fd0c4', '#f4856f'] },
+    { id: 'riad', path: 'riad/index.html', name: 'Riad', ko: '모로코 리아드', c: ['#efe3cc', '#1f4fa0', '#c8763a'] },
+    { id: 'zoo', path: 'zoo/index.html', name: 'Zoo Orbit', ko: '동물 우주비행단', c: ['#101632', '#f2f0ea', '#ff7a2f'] },
+    { id: 'sanctum', path: 'sanctum/index.html', name: 'Sanctum', ko: '천국과 지옥', c: ['#0f0c0b', '#c9a24a', '#d0401f'] },
+    { id: 'reverie', path: 'reverie/index.html', name: 'Reverie', ko: '꿈속', c: ['#e9e2f6', '#b9a6e8', '#f7c6b4'] },
+    { id: 'bottega', path: 'bottega/index.html', name: 'Bottega', ko: '르네상스 공방', c: ['#efe4cf', '#26408f', '#c0432b'] },
+    { id: 'pleinair', path: 'pleinair/index.html', name: 'Plein Air', ko: '인상주의', c: ['#f4ecd8', '#6f8fd0', '#e7a24a'] },
+    { id: 'absurd', path: 'absurd/index.html', name: 'Absurd', ko: '포스트모던 × 실존', c: ['#f2f0eb', '#111111', '#e5322d'] },
+    { id: 'inkstone', path: 'inkstone/index.html', name: 'Inkstone', ko: '크로스오버 · Sansa×Dal×Riso', c: ['#f3eee2', '#24418f', '#8e3b2a'], x: true },
+    { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },
+  ];
+
+  const me = document.currentScript;
+  const base = new URL('.', me ? me.src : location.href);
+  const here = location.href.replace(/[?#].*$/, '').replace(/\/$/, '/index.html');
+  const isHere = s => here === new URL(s.path, base).href;
+
+  const host = document.createElement('div');
+  host.setAttribute('data-systems-nav', '');
+  const root = host.attachShadow({ mode: 'open' });
+  root.innerHTML = `
+<style>
+  :host { all: initial; }
+  * { box-sizing: border-box; }
+  .tab { position: fixed; left: 0; top: 50%; z-index: 2147483000; transform: translateY(-50%); display: grid; place-items: center; gap: 6px; width: 34px; padding: 12px 0; border: 0; border-radius: 0 10px 10px 0; cursor: pointer;
+    background: #17161a; color: #f4f1ea; font: 600 12px/1 system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; letter-spacing: .08em; box-shadow: 0 6px 18px rgba(0,0,0,.35); writing-mode: vertical-rl; }
+  .tab:hover { background: #2a2830; }
+  .tab:focus-visible { outline: 3px solid #ffb84d; outline-offset: 2px; }
+  .tab i { writing-mode: horizontal-tb; display: grid; grid-template-columns: repeat(2, 6px); gap: 3px; }
+  .tab i b { width: 6px; height: 6px; border-radius: 2px; background: currentColor; opacity: .8; }
+  .scrim { position: fixed; inset: 0; z-index: 2147483001; background: rgba(10,10,12,.45); opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .panel { position: fixed; left: 0; top: 0; bottom: 0; z-index: 2147483002; width: min(320px, 88vw); display: grid; grid-template-rows: auto 1fr auto; background: #17161a; color: #f4f1ea;
+    font: 400 15px/1.4 system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; transform: translateX(-102%); transition: transform .25s cubic-bezier(.2,.8,.2,1); box-shadow: 10px 0 30px rgba(0,0,0,.4); visibility: hidden; }
+  :host([open]) .panel { transform: none; visibility: visible; }
+  :host([open]) .scrim { opacity: 1; pointer-events: auto; }
+  :host([open]) .tab { visibility: hidden; }
+  .head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 18px 16px 14px 20px; border-bottom: 1px solid #2e2c34; }
+  .head b { font-size: 16px; letter-spacing: .02em; }
+  .head small { display: block; margin-top: 3px; font-size: 12px; color: #a9a5b0; }
+  .x { width: 40px; height: 40px; border: 0; border-radius: 8px; background: #26242c; color: #f4f1ea; cursor: pointer; font-size: 18px; }
+  .x:hover { background: #34313b; }
+  .x:focus-visible, a:focus-visible { outline: 3px solid #ffb84d; outline-offset: -3px; }
+  nav { overflow: auto; padding: 8px 8px 16px; }
+  .group { margin: 14px 12px 6px; font-size: 11.5px; letter-spacing: .14em; color: #8e8a96; }
+  a { display: grid; grid-template-columns: 38px 1fr; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px; border-radius: 10px; color: inherit; text-decoration: none; }
+  a:hover { background: #24222a; }
+  a[aria-current="page"] { background: #f4f1ea; color: #17161a; }
+  a[aria-current="page"] small { color: #5b5763; }
+  .sw { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; width: 38px; height: 38px; border-radius: 9px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+  .sw span:first-child { grid-row: 1 / 3; }
+  a b { display: block; font-size: 15px; }
+  a small { display: block; font-size: 12.5px; color: #a9a5b0; }
+  .foot { padding: 12px 20px 16px; border-top: 1px solid #2e2c34; font-size: 12px; color: #8e8a96; }
+  kbd { font: inherit; padding: 1px 5px; border-radius: 4px; background: #26242c; color: #d8d4de; }
+  @media (prefers-reduced-motion: reduce) { .panel, .scrim { transition: none; } }
+</style>
+<button class="tab" type="button" aria-label="디자인 시스템 목록 열기" aria-expanded="false" aria-controls="dsn-panel"><i aria-hidden="true"><b></b><b></b><b></b><b></b></i>SYSTEMS</button>
+<div class="scrim" part="scrim"></div>
+<aside class="panel" id="dsn-panel" role="dialog" aria-modal="true" aria-label="디자인 시스템 목록">
+  <div class="head"><div><b>디자인 시스템</b><small>${SYSTEMS.length}개 · 다른 시스템으로 이동</small></div><button class="x" type="button" aria-label="닫기">✕</button></div>
+  <nav aria-label="디자인 시스템">
+    <div class="group">시스템</div>
+    ${SYSTEMS.filter(s => !s.x).map(link).join('')}
+    <div class="group">크로스오버</div>
+    ${SYSTEMS.filter(s => s.x).map(link).join('')}
+  </nav>
+  <div class="foot"><kbd>Esc</kbd> 닫기 · <kbd>[</kbd> <kbd>]</kbd> 이전 / 다음 시스템</div>
+</aside>`;
+  function link(s) {
+    return `<a href="${new URL(s.path, base).href}"${isHere(s) ? ' aria-current="page"' : ''}><span class="sw" aria-hidden="true">${s.c.map(c => `<span style="background:${c}"></span>`).join('')}</span><span><b>${s.name}</b><small>${s.ko}</small></span></a>`;
+  }
+
+  const tab = root.querySelector('.tab'), panel = root.querySelector('.panel'), scrim = root.querySelector('.scrim'), closeBtn = root.querySelector('.x');
+  let lastFocus = null;
+  const open = () => { lastFocus = document.activeElement; host.setAttribute('open', ''); tab.setAttribute('aria-expanded', 'true'); (root.querySelector('a[aria-current]') || root.querySelector('a')).focus(); };
+  const close = () => { host.removeAttribute('open'); tab.setAttribute('aria-expanded', 'false'); (lastFocus && lastFocus.focus) ? lastFocus.focus() : tab.focus(); };
+  tab.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  scrim.addEventListener('click', close);
+  panel.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+    if (e.key === 'Tab') {
+      const f = [...root.querySelectorAll('.x, nav a')], a = f[0], z = f[f.length - 1];
+      if (e.shiftKey && root.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && root.activeElement === z) { e.preventDefault(); a.focus(); }
+    }
+  });
+  // [ and ] jump to the previous / next system (ignored while typing)
+  document.addEventListener('keydown', e => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    if (e.key !== '[' && e.key !== ']') return;
+    const i = SYSTEMS.findIndex(isHere); if (i < 0) return;
+    const n = SYSTEMS[(i + (e.key === ']' ? 1 : -1) + SYSTEMS.length) % SYSTEMS.length];
+    location.href = new URL(n.path, base).href;
+  });
+
+  (document.body || document.documentElement).appendChild(host);
+})();

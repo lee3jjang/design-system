@@ -265,6 +265,7 @@ legend { padding: 0; margin-bottom: 6px; font-weight: 700; font-size: 16.5px; }
 .tabs__list [role="tab"] { flex: none; min-height: 48px; padding: 0 20px; border: 0; border-radius: 22px 22px 0 0; background: var(--s1); cursor: pointer; font-weight: 500; color: var(--t2); }
 .tabs__list [role="tab"]::before { border-radius: 18px 18px 0 0; inset: 3px 3px 0; }
 .tabs__list [role="tab"]:focus-visible { outline-offset: 2px; }
+.tabs__list [role="tab"][aria-selected="true"] { color: var(--paint-t); background: var(--s1); }
 .tabpanel { border-radius: 16px; --in: var(--s1); padding: 14px 16px; color: var(--t2); line-height: 1.55; }
 .tabpanel b { color: var(--t1); }
 .chips { display: flex; flex-wrap: wrap; gap: var(--pk); justify-content: center; }
@@ -272,7 +273,7 @@ legend { padding: 0; margin-bottom: 6px; font-weight: 700; font-size: 16.5px; }
 .chip svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: .35; }
 .chip[aria-pressed="true"] { --ring: var(--face-hi); }
 .chip[aria-pressed="true"] svg { opacity: 1; }
-.field { display: grid; gap: 4px; min-width: 0; }
+.field { display: grid; gap: 4px; min-width: 0; align-content: start; }
 .field > label, .flabel { font-weight: 500; font-size: 15.5px; color: var(--t1); }
 .field > label small, .flabel small { font-weight: 400; color: var(--t3); margin-left: 4px; font-size: 14px; }
 .select { --ring: var(--face-lo); position: relative; border-radius: var(--r-in); }
@@ -415,7 +416,7 @@ dialog[open] .dlg { animation: develop 2.4s var(--dev) forwards; --gmax: 16px; }
 .toast--alert .toast__l { background: #111; box-shadow: none; }
 
 /* ---------- 코드 ---------- */
-.codebar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 8px 8px 16px; border-bottom: 1px solid var(--line); }
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px 12px 16px; border-bottom: 1px solid var(--line); }
 .codebox { border-radius: 18px; --in: var(--s2); overflow: hidden; }
 pre.code { margin: 0; padding: 16px 18px; overflow-x: auto; font: 13.5px/1.65 var(--mono); color: #d8d8d8; max-height: 560px; }
 .code .c { color: #9a9a9a; } .code .v { color: #ffffff; font-weight: 700; } .code .p { color: #c8c8c8; text-decoration: underline 1px; text-underline-offset: 3px; }
@@ -675,9 +676,9 @@ pre.code { margin: 0; padding: 16px 18px; overflow-x: auto; font: 13.5px/1.65 va
 
   <div class="spec rim"><div class="note"><h3>접기</h3><p>긴 설명은 접어 둡니다. 펼치면 화살이 뒤집힙니다.</p></div>
     <div class="ground"><div class="acc">
-      <details open><summary class="dab">왜 그림자가 늦게 생기나요?<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><div>깊이는 반응이 아니라 결과입니다. 붓 자국이 먼저 즉시 반응하고, 그림자는 오래 머무른 것에만 천천히 맺힙니다.</div></details>
-      <details><summary class="dab">색은 정말 하나도 없나요?<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><div>없습니다. 오류도 느낌표, 흰 띠, 글자로 알립니다. 명도만으로 상태를 말하지 않습니다.</div></details>
-      <details><summary class="dab">장식을 더해도 되나요?<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><div>안 됩니다. 장식이 있을 자리는 비워 둡니다. 비어 있는 것이 이 시스템의 장식입니다.</div></details>
+      <details class="rim" open><summary class="dab">왜 그림자가 늦게 생기나요?<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><div>깊이는 반응이 아니라 결과입니다. 붓 자국이 먼저 즉시 반응하고, 그림자는 오래 머무른 것에만 천천히 맺힙니다.</div></details>
+      <details class="rim"><summary class="dab">색은 정말 하나도 없나요?<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><div>없습니다. 오류도 느낌표, 흰 띠, 글자로 알립니다. 명도만으로 상태를 말하지 않습니다.</div></details>
+      <details class="rim"><summary class="dab">장식을 더해도 되나요?<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><div>안 됩니다. 장식이 있을 자리는 비워 둡니다. 비어 있는 것이 이 시스템의 장식입니다.</div></details>
     </div></div></div>
 
   <div class="spec rim"><div class="note"><h3>표</h3><p>머리글을 누르면 정렬됩니다. 줄 사이는 가는 선 하나.</p></div>

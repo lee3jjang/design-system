@@ -24,6 +24,7 @@
     { id: 'absurd', path: 'absurd/index.html', name: 'Absurd', ko: '포스트모던 × 실존', c: ['#f2f0eb', '#111111', '#e5322d'] },
     { id: 'inkstone', path: 'inkstone/index.html', name: 'Inkstone', ko: '크로스오버 · Sansa×Dal×Riso', c: ['#f3eee2', '#24418f', '#8e3b2a'], x: true },
     { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },
+    { id: 'mix2', path: 'mix2/index.html', name: 'Halide', ko: '추상 크로스오버 · 느리게 현상되는 회색 선체', c: ['#1a1a1a', '#f2f2f2', '#8a8a8a'], m: true },
     { id: 'mix5', path: 'mix5/index.html', name: 'Natrium', ko: '추상 크로스오버 · 꺼진 나트륨등', c: ['#ff8a1f', '#0d0e0f', '#00e5ff'], m: true },
   ];
 

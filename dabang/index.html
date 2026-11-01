@@ -975,6 +975,7 @@ dialog .close { margin-top: 18px; }
       case 'lace': for (let y = 14; y < 70; y += 18) for (let x = (y / 18 % 2) * 9 + 6; x < 100; x += 18) { g += `<circle cx="${x}" cy="${y}" r="6" fill="none" stroke="${A}" stroke-width="1.4"/><circle cx="${x}" cy="${y}" r="1.6" fill="${A}"/>`; for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; g += `<circle cx="${f1(x + Math.cos(a) * 8.4)}" cy="${f1(y + Math.sin(a) * 8.4)}" r="1" fill="${A}"/>`; } } break;
     }
     const titleY = 84;
+    if (r.art === 'lace' || r.art === 'keys') g += `<rect x="0" y="68" width="100" height="24" fill="${r.bg}"/>`;
     const tx = (r.art === 'cup' || r.art === 'rafter') ? `<text x="8" y="15" font-family="Song Myung, serif" font-size="13" fill="${W}">${r.t}</text><text x="8" y="86" font-family="Barlow Condensed, sans-serif" font-size="7.5" letter-spacing="1" fill="${W}">${r.a} · ${r.y}</text>`
       : `<text x="8" y="${titleY - 8}" font-family="Song Myung, serif" font-size="${r.t.length > 4 ? 11 : 14}" fill="${r.art === 'keys' ? A : W}">${r.t}</text><text x="8" y="${titleY + 2}" font-family="Barlow Condensed, sans-serif" font-size="7.5" letter-spacing="1" fill="${W}" opacity=".85">${r.a} · ${r.y}</text>`;
     const wear = `<circle cx="50" cy="50" r="45" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="3.5"/><path d="M0 3V0h3M97 0h3v3M100 97v3h-3M3 100H0v-3" stroke="#fff" stroke-opacity=".35" stroke-width="2" fill="none"/>`;

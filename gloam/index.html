@@ -55,7 +55,7 @@ a { color: var(--acc); text-underline-offset: 4px; text-decoration-thickness: 1p
 #motes { position: absolute; inset: 0; width: 100%; height: 100%; }
 .vignette {
   position: absolute; inset: 0;
-  background: radial-gradient(120% 90% at 50% 45%, transparent 38%, rgba(0,0,0,.55) 78%, rgba(0,0,0,.88) 100%);
+  background: radial-gradient(125% 95% at 50% 45%, transparent 45%, rgba(0,0,0,.45) 80%, rgba(0,0,0,.82) 100%);
   opacity: calc(1.15 - var(--lamp) * .5);
 }
 
@@ -85,7 +85,11 @@ main { position: relative; z-index: 2; }
 
 /* hero */
 .hero { min-height: 100vh; min-height: 100svh; position: relative; display: grid; place-items: center; text-align: center; padding: 120px 16px 220px; }
-.hero-in { max-width: 760px; }
+.hero-in { max-width: 760px; position: relative; isolation: isolate; }
+.hero-in::before, .area::before { content: ""; position: absolute; inset: -12% -18%; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(2,4,6,.66), rgba(2,4,6,.4) 55%, rgba(2,4,6,0)); }
+@media (max-width: 700px) { .hero-in::before, .area::before { inset: -8% -12px; } }
+.hero, .zone { overflow-x: clip; }
 .eyebrow { font: 500 14px/1.4 var(--serif-en); letter-spacing: .32em; color: var(--dim); margin: 0 0 18px; text-transform: uppercase; }
 h1 {
   margin: 0; font: 700 clamp(72px, 15vw, 172px)/.9 var(--serif-en); letter-spacing: .08em; color: var(--bone);
@@ -116,7 +120,7 @@ h1 {
 
 /* zones */
 .zone { position: relative; padding: 140px 0 160px; }
-.area { text-align: center; margin: 0 auto 64px; padding-top: 40px; }
+.area { position: relative; isolation: isolate; text-align: center; margin: 0 auto 64px; padding-top: 40px; max-width: 820px; }
 .area .pre { margin: 0; font: italic 500 19px/1.4 var(--serif-it); color: var(--dim); letter-spacing: .08em; }
 .area h2 { margin: 6px 0 0; font: 800 clamp(40px, 7vw, 68px)/1.15 var(--serif-ko); letter-spacing: .12em; color: var(--bone);
   text-shadow: 0 0 24px color-mix(in srgb, var(--glow) 35%, transparent), 0 2px 0 #000; padding-left: .12em; }
@@ -231,7 +235,7 @@ output.lamp-out { font: 600 19px var(--serif-it); color: var(--acc); }
 .map .rod { position: relative; height: 22px; margin: 0 -14px; border-radius: 11px; background: linear-gradient(#5a4632, #2a1f15 70%); border: 2px solid var(--ink); z-index: 2; }
 .map .rod::before, .map .rod::after { content: ""; position: absolute; top: -4px; width: 18px; height: 26px; border-radius: 6px; background: #1d1610; border: 2px solid var(--ink); }
 .map .rod::before { left: -12px; } .map .rod::after { right: -12px; }
-.map .paper { position: relative; margin: -4px 0; aspect-ratio: 16 / 8; background: #d8cfb5; overflow: hidden; }
+.map .paper { position: relative; margin: -4px 0; aspect-ratio: 16 / 8; background: #d8cfb5; overflow: hidden; box-shadow: inset 0 0 70px rgba(80,60,30,.45), inset 0 0 0 2px #05090b; }
 @media (max-width: 560px) { .map .paper { aspect-ratio: 4 / 4.2; } }
 .map .paper > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .pin { position: absolute; width: 48px; height: 48px; margin: -40px 0 0 -24px; border: 0; background: none; cursor: pointer; padding: 0; z-index: 2; }
@@ -324,7 +328,7 @@ output.lamp-out { font: 600 19px var(--serif-it); color: var(--acc); }
 
 /* floating ink text (toasts) */
 .toasts { position: fixed; left: 0; right: 0; top: 38%; z-index: 40; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
-.ink-toast { position: absolute; padding: 0 20px; text-align: center; font: 700 clamp(22px, 3.4vw, 32px)/1.3 var(--serif-ko); letter-spacing: .14em; color: var(--bone);
+.ink-toast { position: absolute; padding: 34px 80px 20px; max-width: 100vw; background: radial-gradient(closest-side, rgba(2,3,5,.9), rgba(2,3,5,.6) 60%, rgba(2,3,5,0)); text-align: center; font: 700 clamp(22px, 3.4vw, 32px)/1.3 var(--serif-ko); letter-spacing: .14em; color: var(--bone);
   text-shadow: 0 0 18px color-mix(in srgb, var(--glow) 55%, transparent), 0 0 3px #000, 0 2px 0 #000;
   animation: floatup 3.4s ease forwards; }
 .ink-toast small { display: block; font: italic 500 18px/1.4 var(--serif-it); letter-spacing: .05em; color: var(--dim); }
@@ -818,8 +822,8 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
     s2 += P(WP([[-20, 600], [1620, 600], [1620, 640], [-20, 640]], 1.4, 40), '#151b48', ink, 2.2);
     for (let i = 0; i < 40; i++) s2 += P(WP([[i * 42, 600], [i * 42 + 6, 588], [i * 42 + 30, 588], [i * 42 + 36, 600]], .6, 12), '#1a2154', ink, 1.4);
     const shrooms = (cx, by, n) => { let o = `<circle cx="${cx}" cy="${by - 60}" r="150" fill="url(#r-g)"/>`; for (let i = 0; i < n; i++) { const x = cx + rr(-70, 70), h = rr(40, 110), lean = rr(-14, 14); o += P(WL([[x, by], [x + lean * .5, by - h * .5], [x + lean, by - h]], .8, 20), 'none', '#dcd8ff', 3); o += P(W([[x + lean - 14, by - h + 2], [x + lean - 8, by - h - 9], [x + lean + 8, by - h - 9], [x + lean + 14, by - h + 2]], .6, 8), '#ece9ff', ink, 1.4); } return o; };
-    s2 += shrooms(230, 960, 9) + shrooms(1330, 950, 7) + shrooms(760, 990, 4);
-    s2 += '<rect y="780" width="1600" height="300" fill="url(#r-fog2)"/>';
+    s2 += '<rect y="880" width="1600" height="200" fill="url(#r-fog2)" opacity=".6"/>';
+    s2 += shrooms(330, 960, 9) + shrooms(1250, 950, 7) + shrooms(760, 990, 4);
 
     // near plane: carved ledge, drip chains, a pillar edge
     let s3 = '';
@@ -919,7 +923,7 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
       seed(13); let o = '';
       o += P(WP([[-20, 0], [1620, 0], [1620, 34], [-20, 40]], 1.2, 40), '#03040d', '#060819', 2);
       for (let i = 0; i < 40; i++) o += P(WP([[i * 42, 34], [i * 42 + 8, 54], [i * 42 + 34, 54], [i * 42 + 42, 34]], .6, 12), '#03040d', '#2a3170', 1.4);
-      for (let i = 0; i < 9; i++) { const x = 90 + i * 180 + J(20); o += P(WP([[x - 26, 50], [x + 26, 50], [x + 26, 120], [x, 104], [x - 26, 120]], .8, 14), '#4c142a', '#0b0307', 2); o += P(WL([[x - 10, 76], [x - 5, 81], [x, 82], [x + 5, 81], [x + 10, 76]], .2, 4), 'none', '#ef8c97', 2); }
+      for (let i = 0; i < 9; i++) { const x = 90 + i * 180 + J(20); o += P(WP([[x - 26, 50], [x + 26, 50], [x + 26, 120], [x, 104], [x - 26, 120]], .8, 14), '#4c142a', '#0b0307', 2); o += P(WL([[x - 10, 74], [x - 5, 79], [x, 80], [x + 5, 79], [x + 10, 74]], .2, 4), 'none', '#ef8c97', 2); for (let k = -1; k <= 1; k++) o += P(WL([[x + k * 5, 80 - Math.abs(k)], [x + k * 7, 87]], .2, 4), 'none', '#ef8c97', 1.6); o += P(ell(x, 67, 1.8, 1.8, .1, 6), '#ef8c97', null); }
       return o;
     },
     'stage-floor'() {
@@ -1019,10 +1023,10 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
     o += P(ell(735, 340, 30, 30, 1, 16), 'none', ink2, 1.4) + P(WL([[735, 300], [735, 380]], .4, 20), 'none', ink2, 1.2) + P(WL([[695, 340], [775, 340]], .4, 20), 'none', ink2, 1.2) + `<text x="729" y="296" font-family="Cinzel, serif" font-size="14" fill="#2b231b">N</text>`;
     $('[data-map]').innerHTML = o;
     const pins = [
-      { x: 17, y: 30, name: '이끼 우물', en: 'Mosswell', note: '돌의자가 하나 있다. 반딧불이가 모여드는 곳.' },
-      { x: 26, y: 66, name: '비가 고인 회랑', en: 'The Rained Nave', note: '지금 여기에 있다. 큰 창 아래로 물이 고인다.', here: true },
-      { x: 81, y: 50, name: '숨죽인 객석', en: 'The Hushed Stalls', note: '박수 소리를 들었다는 소문. 확인한 이는 없다.' },
-      { x: 50, y: 76, name: '물 밑 서고', en: 'Drowned Archive', note: '가면에 대한 기록이 남아 있다고 한다. 길은 아직 열리지 않았다.' }
+      { x: 22, y: 34, name: '이끼 우물', en: 'Mosswell', note: '돌의자가 하나 있다. 반딧불이가 모여드는 곳.' },
+      { x: 30, y: 74, name: '비가 고인 회랑', en: 'The Rained Nave', note: '지금 여기에 있다. 큰 창 아래로 물이 고인다.', here: true },
+      { x: 86, y: 58, name: '숨죽인 객석', en: 'The Hushed Stalls', note: '박수 소리를 들었다는 소문. 확인한 이는 없다.' },
+      { x: 52, y: 84, name: '물 밑 서고', en: 'Drowned Archive', note: '가면에 대한 기록이 남아 있다고 한다. 길은 아직 열리지 않았다.' }
     ];
     const paper = $('#paper');
     pins.forEach(p => {

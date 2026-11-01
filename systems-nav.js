@@ -39,6 +39,7 @@
     { id: 'lento', path: 'lento/index.html', name: 'Lento', ko: '마지막 곡, 출격 직전', c: ['#1a1210', '#f1e4cc', '#e2b45c'], m: true },
     { id: 'sortita', path: 'sortita/index.html', name: 'Molo Lento', ko: '산복도로 불빛 아래, 마지막 곡에 맞춘 출격', c: ['#3a0f1e', '#f1e4cc', '#e2b45c'], m: true },
     { id: 'somnia', path: 'somnia/index.html', name: 'Dormant', ko: '휴면계좌 · 꿈의 원장, 궤도 위의 눈마을', c: ['#f1eee6', '#1b2140', '#c8962a'], m: true },
+    { id: 'rebound', path: 'rebound/index.html', name: 'Rebound', ko: '위로 떨어지는 공의 증명서', c: ['#f4f2ec', '#1f4fa0', '#8a22a8'], m: true },
     { id: 'field', path: 'field/index.html', name: 'Halitus', ko: '숨 쉬는 색면', c: ['#3b2a5e', '#c2553a', '#e8c9a0'], a: true },
     { id: 'score', path: 'score/index.html', name: 'Tacet', ko: '도형 악보, 여섯 장', c: ['#efe8da', '#141414', '#c23a2b'], a: true },
     { id: 'glyph', path: 'glyph/index.html', name: 'Ignota', ko: '해독되지 않은 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },

@@ -200,7 +200,7 @@ section.part { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; 
 .mo__stage { position: relative; width: min(340px, 100%); height: 110px; border-radius: 999px; background: var(--sheet); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
 .mo__dot { position: absolute; left: 18px; top: 22px; width: 66px; height: 66px; border-radius: 50%; background: var(--sheet-2);
   transition: transform .3s var(--squish), background-color .3s linear .42s, box-shadow .3s var(--dab) .84s; }
-.mo.on .mo__dot { transform: translateX(calc(min(340px, 100%) - 120px)); transform: translateX(220px); background: var(--gold); box-shadow: var(--halo); }
+.mo.on .mo__dot { transform: translateX(220px); background: var(--gold); box-shadow: var(--halo); }
 .mo__stroke { position: absolute; left: 24px; right: 24px; bottom: 12px; height: 6px; border-radius: 999px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 1s var(--dab) .2s; }
 .mo.on .mo__stroke { transform: scaleX(1); }
 .mo__beats { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; font-size: 13.5px; color: var(--ink-2); }
@@ -230,7 +230,8 @@ section.part { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; 
 .btn svg.i { width: 20px; height: 20px; }
 .btn--blue { --f: var(--blue); --t: #ffffff; --g: var(--rose); --ring: var(--blue-l); }
 .btn--line { --f: transparent; --t: var(--ink); --g: var(--gold-d); --ring: var(--ink-2); }
-.btn--line::after { opacity: .9; }
+.btn--line::after { opacity: 0; }
+.btn--line:hover::after { opacity: .9; }
 .btn--danger { --f: var(--teal); --t: var(--ground); --g: var(--gold-d); }
 .btn--quiet { --f: transparent; --t: var(--gold-2); --g: transparent; padding: 0 16px; text-decoration: underline; text-underline-offset: 6px; }
 .btn--quiet:hover::before { background: var(--sheet-2); box-shadow: none; }

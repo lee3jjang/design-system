@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>채색 — 튤립</title>
+<meta name="description" content="장지 위에 얇은 색을 여러 번 올리고, 마지막에 가는 선으로 정리한 튤립 채색화.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Gowun+Batang:wght@400;700&family=Song+Myung&display=swap">
+<style>
+/* 채색 Chaesaek — a page that is a painting.
+   Colour goes on as thin washes of mineral pigment, deep at the base and pale at the tip (바림);
+   then a fine brush, in the deepest tone of each colour, settles the edges (선 정리). */
+:root {
+  color-scheme: light;
+  --wall: #ebe6dd;
+  --sheet: #f7f4ee;
+  --ink: #36261f;      /* 먹 갈색 — 11.9:1 on the wall */
+  --ink-2: #5b473c;    /* 7.4:1 */
+  --ink-3: #6e5a4e;    /* 5.4:1 */
+  --yeonji: #b3243a; --yeonji-ln: #650c1f;
+  --rose: #a3405b;
+  --green-ln: #22432a;
+  --paper: none;
+  --slow: cubic-bezier(.3,.1,.25,1);
+  --f-title: "Song Myung", "Gowun Batang", serif;
+  --f-body: "Gowun Batang", "Noto Serif KR", serif;
+  --f-latin: "Cormorant Garamond", "Gowun Batang", serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--wall); }
+body { margin: 0; color: var(--ink); font: 400 17px/1.9 var(--f-body); word-break: keep-all; overflow-wrap: break-word; -webkit-font-smoothing: antialiased;
+  background: var(--paper) 0 0/220px 220px, var(--wall); }
+h1, h2, h3, p, figure { margin: 0; }
+h1, h2 { font-weight: 400; }
+button { font: inherit; color: inherit; }
+a { color: var(--yeonji-ln); text-underline-offset: 4px; text-decoration-thickness: 1px; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; border-radius: 14px; }
+.wrap { max-width: 1160px; margin-inline: auto; padding-inline: 16px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+svg { display: block; }
+
+/* top line — quiet, like the gallery's name on the wall */
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; padding-block: 26px 0; }
+.mark { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--ink); }
+.mark b { font: 400 28px/1 var(--f-title); }
+.mark i { font: italic 400 19px/1 var(--f-latin); color: var(--ink-3); }
+.top nav { display: flex; gap: 4px; }
+.top nav a { display: inline-grid; place-items: center; min-height: 44px; padding: 0 12px; color: var(--ink-2); text-decoration: none; font-size: 16px; border-radius: 22px; }
+.top nav a:hover { color: var(--yeonji-ln); }
+
+/* the painting */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 30px; padding-block: 34px 40px; overflow-x: clip; }
+.work { width: 100%; max-width: 720px; }
+.work svg { width: 100%; height: auto; }
+.label { width: 100%; max-width: 420px; display: grid; gap: 14px; align-content: end; padding-bottom: 8px; }
+.label h1 { font: 400 46px/1.15 var(--f-title); letter-spacing: .02em; }
+.label h1 i { display: block; margin-top: 4px; font: italic 400 24px/1.2 var(--f-latin); color: var(--ink-3); letter-spacing: 0; }
+.label .medium { font-size: 16px; color: var(--ink-2); line-height: 1.7; }
+.label .note { font-size: 16.5px; color: var(--ink-2); }
+.label .rule { height: 14px; width: 120px; }
+@media (min-width: 1000px) {
+  .hero { grid-template-columns: minmax(0, 720px) 260px; justify-content: center; align-items: end; gap: 60px; padding-block: 44px 60px; }
+  .label { max-width: 260px; }
+}
+
+/* painted buttons: a wash inside a fine line, drawn by script; plain line before that */
+.pb { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 26px; border: 1.25px solid var(--c-ln, var(--yeonji-ln)); border-radius: 14px;
+  background: var(--c-bg, #b3243a); color: var(--c-t, #fff); cursor: pointer; font: 700 16.5px/1.2 var(--f-body); letter-spacing: .02em; transition: transform .6s var(--slow); -webkit-tap-highlight-color: transparent; }
+.pb[data-p="pink"] { --c-ln: var(--rose); --c-bg: #f2c8d1; --c-t: #74203c; }
+.pb.painted { border-color: transparent; background: transparent; }
+.pb .bg { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.pb .hv { opacity: 0; transition: opacity 1.4s var(--slow); }
+.pb:hover .hv { opacity: .55; }
+.pb:active .hv { opacity: .95; transition-duration: .2s; }
+.pb:active { transform: translateY(1px); }
+.pb:disabled { cursor: default; opacity: .55; }
+.pb:disabled .hv { opacity: 0; }
+.pb[data-p="red"] { text-shadow: 0 1px 1px rgba(80,8,22,.35); }
+
+/* studies */
+.study { display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; max-width: 980px; padding-block: 110px 10px; scroll-margin-top: 20px; }
+.study__art svg { width: 100%; max-width: 420px; height: auto; margin-inline: auto; }
+.study__txt { display: grid; gap: 16px; align-content: center; max-width: 440px; }
+.kicker { font: italic 400 20px/1.2 var(--f-latin); color: var(--ink-3); }
+.study h2 { font: 400 40px/1.2 var(--f-title); }
+.study p { color: var(--ink-2); }
+.controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 6px; }
+.live { min-height: 1.9em; font-size: 16px; color: var(--ink-3); }
+@media (min-width: 860px) {
+  .study { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); align-items: center; gap: 56px; }
+  .study--rev .study__art { order: 2; }
+}
+
+/* pigment dabs (radio) */
+.dabs { border: 0; margin: 0; padding: 0; min-width: 0; }
+.dabs legend { padding: 0; margin-bottom: 6px; font-size: 16px; color: var(--ink-3); }
+.dabs__row { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.dab { position: relative; display: grid; justify-items: center; gap: 0; min-width: 76px; min-height: 44px; padding: 4px 2px; cursor: pointer; border-radius: 14px; }
+.dab input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.dab svg { width: 70px; height: 52px; overflow: visible; }
+.dab span { font-size: 16px; color: var(--ink-2); }
+.dab .ring { opacity: 0; transition: opacity 1.2s var(--slow); }
+.dab input:checked ~ svg .ring { opacity: 1; }
+.dab input:checked ~ span { color: var(--ink); font-weight: 700; }
+.dab:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* the process strip */
+.process { max-width: 1060px; padding-block: 120px 10px; display: grid; gap: 30px; }
+.process__head { display: grid; gap: 8px; text-align: center; justify-items: center; }
+.process__head h2 { font: 400 36px/1.2 var(--f-title); }
+.process__head p { color: var(--ink-2); max-width: 36ch; }
+.stages { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 16px; counter-reset: s; }
+.stages li { display: grid; justify-items: center; gap: 6px; text-align: center; counter-increment: s; }
+.stages svg { width: 100%; max-width: 210px; height: auto; }
+.stages b { font: 400 22px/1.3 var(--f-title); }
+.stages b::before { content: counter(s) "  "; font: italic 400 18px/1 var(--f-latin); color: var(--ink-3); }
+.stages span { font-size: 16px; color: var(--ink-3); line-height: 1.6; max-width: 16ch; }
+@media (min-width: 760px) { .stages { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* palette */
+.palette { max-width: 860px; padding-block: 110px 0; display: grid; gap: 22px; justify-items: center; text-align: center; }
+.palette h2 { font: 400 32px/1.2 var(--f-title); }
+.pigments { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 10px; width: 100%; }
+.pigments li { display: grid; justify-items: center; gap: 2px; }
+.pigments svg { width: 92px; height: 68px; overflow: visible; }
+.pigments b { font: 400 21px/1.3 var(--f-title); }
+.pigments span { font: italic 400 17px/1.2 var(--f-latin); color: var(--ink-3); }
+@media (min-width: 760px) { .pigments { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+
+.foot { padding-block: 120px 70px; display: grid; justify-items: center; gap: 6px; text-align: center; color: var(--ink-3); font-size: 16px; }
+.foot b { font: 400 26px/1.2 var(--f-title); color: var(--ink); }
+.foot svg { width: 150px; height: 16px; margin-bottom: 10px; }
+
+/* ---------- painting layers ---------- */
+.u { fill: none; stroke: #8d8174; stroke-width: .9; stroke-linecap: round; opacity: .14; }
+.mk { fill: none; stroke: #fff; stroke-linecap: round; stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+.wy { opacity: 0; }
+
+/* the whole painting painting itself */
+@keyframes soak { from { opacity: 0; } }
+@keyframes pencil { 0% { opacity: 0; } 14%, 55% { opacity: .62; } }
+@keyframes draw { from { stroke-dashoffset: 1; } }
+.play .u { animation: pencil 7.5s var(--d) both ease-out; }
+.play .wa { animation: soak 2.8s calc(var(--d) + 1.6s) both var(--slow); }
+.play .wb { animation: soak 3s calc(var(--d) + 3s) both var(--slow); }
+.play .wb2 { animation: soak 2.6s calc(var(--d) + 4.2s) both var(--slow); }
+.play .wc, .play .wg { animation: soak 2.4s calc(var(--d) + 5s) both var(--slow); }
+.play .mk { animation: draw 1.9s calc(var(--d) + 5.6s) both ease-in-out; }
+
+/* study: washes added one at a time */
+#washArt [data-k] { transition: opacity 3s var(--slow); }
+#washArt[data-n="0"] [data-k], #washArt[data-n="1"] [data-k]:not([data-k="1"]), #washArt[data-n="2"] [data-k="3"], #washArt[data-n="2"] [data-k="4"], #washArt[data-n="2"] [data-k="5"], #washArt[data-n="2"] [data-k="6"],
+#washArt[data-n="3"] [data-k="4"], #washArt[data-n="3"] [data-k="5"], #washArt[data-n="3"] [data-k="6"], #washArt[data-n="4"] [data-k="5"], #washArt[data-n="4"] [data-k="6"], #washArt[data-n="5"] [data-k="6"] { opacity: 0; }
+#washArt .u { opacity: .5; transition: opacity 3s var(--slow); }
+#washArt[data-n="5"] .u, #washArt[data-n="6"] .u { opacity: .2; }
+#washArt.still [data-k], #washArt.still .u { transition: none; }
+
+/* study: the line */
+#lineArt .mk { transition: stroke-dashoffset 1.7s ease-in-out var(--d); }
+#lineArt.nolines .mk { stroke-dashoffset: 1; transition-duration: .9s; transition-delay: 0s; }
+#lineArt .u { transition: opacity 2s; }
+#lineArt.nolines .u { opacity: .45; }
+
+/* study: bloom */
+#bloomArt .pw, #bloomArt .flw { transform-box: view-box; transition: transform 4.2s var(--slow), opacity 3.6s var(--slow); }
+#bloomArt .wy { transition: opacity 4.6s var(--slow); }
+#bloomArt .wb, #bloomArt .wb2 { transition: opacity 4.6s var(--slow); }
+#bloomArt.bud .flw { transform: scale(.84); }
+#bloomArt.bud .pl { transform: rotate(10deg); }
+#bloomArt.bud .pr { transform: rotate(-10deg); }
+#bloomArt.bud .pc { opacity: 0; }
+#bloomArt.bud .pf { transform: scale(.9, .97); }
+#bloomArt.bud .wy { opacity: 1; }
+#bloomArt.bud .wb, #bloomArt.bud .wb2 { opacity: .15; }
+#bloomArt.open .pl { transform: rotate(-6deg); }
+#bloomArt.open .pr { transform: rotate(6deg); }
+
+/* process stages */
+.st1 .wa, .st1 .wb, .st1 .wb2, .st1 .wc, .st1 .wg, .st1 .ln,
+.st2 .wb, .st2 .wb2, .st2 .wc, .st2 .wg, .st2 .ln,
+.st3 .wg, .st3 .ln { display: none; }
+.st1 .u { opacity: .75; } .st2 .u { opacity: .5; } .st3 .u { opacity: .38; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs id="lib"></defs><path id="probe" d="M0 0"/></svg>
+
+<header class="wrap top">
+  <a class="mark" href="#top" id="top"><b>채색</b><i>Chaesaek</i></a>
+  <nav aria-label="둘러보기"><a href="#wash">바림</a><a href="#line">선</a><a href="#bloom">피우기</a></nav>
+</header>
+
+<main>
+  <section class="wrap hero" aria-labelledby="workTitle">
+    <figure class="work">
+      <svg id="art" viewBox="0 0 900 1150" role="img" aria-labelledby="workTitle workDesc"><desc id="workDesc">장지 위에 붉은 튤립 네 송이, 분홍 튤립 두 송이, 자분홍 튤립 한 송이와 길게 뻗은 잎을 그린 채색화. 꽃잎은 밑동이 진하고 끝으로 갈수록 옅으며, 가장자리는 같은 색의 깊은 선으로 정리되어 있다.</desc></svg>
+    </figure>
+    <aside class="label">
+      <h1 id="workTitle">튤립<i>Tulips</i></h1>
+      <p class="medium">장지에 분채, 석채<br>엷은 색 열두 겹, 가는 선</p>
+      <svg class="rule" viewBox="0 0 120 14" aria-hidden="true" id="rule1"></svg>
+      <p class="note">얇은 색을 마르면 또 올리고, 마지막에 가는 붓으로 꽃잎의 경계와 잎맥, 줄기를 정리했습니다.</p>
+      <div><button class="pb" data-p="pink" type="button" id="replay"><span class="t">처음부터 다시 그리기</span></button></div>
+    </aside>
+  </section>
+
+  <section class="wrap study" id="wash" aria-labelledby="washH">
+    <div class="study__art"><svg id="washArt" viewBox="0 0 360 400" data-n="0" role="img" aria-label="색을 올리는 중인 튤립 한 송이"></svg></div>
+    <div class="study__txt">
+      <span class="kicker">Layering washes</span>
+      <h2 id="washH">바림</h2>
+      <p>물에 갠 안료를 아주 얇게 한 겹. 마르면 또 한 겹. 밑동은 진하게, 꽃잎 끝으로 갈수록 종이가 비치게 둡니다.</p>
+      <fieldset class="dabs"><legend>안료 고르기</legend><div class="dabs__row" id="dabs"></div></fieldset>
+      <div class="controls">
+        <button class="pb" data-p="red" type="button" id="addWash"><span class="t">한 겹 올리기</span></button>
+        <button class="pb" data-p="pink" type="button" id="clearWash"><span class="t">물로 씻어 내기</span></button>
+      </div>
+      <p class="live" id="washLive" aria-live="polite">아직 밑그림뿐입니다.</p>
+    </div>
+  </section>
+
+  <section class="wrap study study--rev" id="line" aria-labelledby="lineH">
+    <div class="study__art"><svg id="lineArt" viewBox="0 0 360 440" role="img" aria-label="선을 긋는 튤립과 잎"></svg></div>
+    <div class="study__txt">
+      <span class="kicker">Settling the line</span>
+      <h2 id="lineH">선 정리</h2>
+      <p>색이 다 앉은 뒤 가는 붓을 듭니다. 검은 먹이 아니라 그 자리 색의 가장 깊은 톤으로, 꽃잎의 경계와 잎맥, 줄기를 따라.</p>
+      <div class="controls"><button class="pb" data-p="pink" type="button" id="lineBtn" aria-pressed="true"><span class="t">선 거두기</span></button></div>
+    </div>
+  </section>
+
+  <section class="wrap study" id="bloom" aria-labelledby="bloomH">
+    <div class="study__art"><svg id="bloomArt" class="bud" viewBox="0 0 360 440" role="img" aria-label="튤립 봉오리"></svg></div>
+    <div class="study__txt">
+      <span class="kicker">Coming into colour</span>
+      <h2 id="bloomH">피우기</h2>
+      <p>초록이 남은 봉오리에 붉은 기가 천천히 스며들고, 꽃잎이 한 장씩 벌어집니다.</p>
+      <div class="controls"><button class="pb" data-p="red" type="button" id="bloomBtn" aria-pressed="false"><span class="t">꽃 피우기</span></button></div>
+    </div>
+  </section>
+
+  <section class="wrap process" aria-labelledby="procH">
+    <div class="process__head"><h2 id="procH">한 송이가 되기까지</h2><p>같은 꽃을 네 번 멈춰 세웠습니다.</p></div>
+    <ol class="stages" id="stages"></ol>
+  </section>
+
+  <section class="wrap palette" aria-labelledby="palH">
+    <h2 id="palH">이 그림의 안료</h2>
+    <ul class="pigments" id="pigments"></ul>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <svg viewBox="0 0 150 16" aria-hidden="true" id="rule2"></svg>
+  <b>채색</b>
+  <span>Song Myung · Gowun Batang · Cormorant Garamond</span>
+  <a href="../">다른 시스템 보러 가기</a>
+</footer>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const probe = $('#probe');
+  const RAD = Math.PI / 180;
+  let UID = 0;
+
+  /* ---------- paper and pigment grain (tiny noise tiles, rasterised once) ---------- */
+  const tile = (freq, matrix, seed, size = 180) => 'data:image/svg+xml,' + encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'><filter id='f' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='${freq}' numOctaves='3' seed='${seed}' stitchTiles='stitch'/><feColorMatrix values='${matrix}'/></filter><rect width='100%' height='100%' filter='url(#f)'/></svg>`);
+  const GRAIN = tile('.85', '0 0 0 0 .22 0 0 0 0 .1 0 0 0 0 .1 3.4 0 0 0 -1.95', 4);
+  const SPARK = tile('.9', '0 0 0 0 1 0 0 0 0 .97 0 0 0 0 .96 -3.6 0 0 0 1.38', 9);
+  const PAPER = tile('.55', '0 0 0 0 .45 0 0 0 0 .37 0 0 0 0 .29 1.05 0 0 0 -.44', 2, 220);
+  document.documentElement.style.setProperty('--paper', `url("${PAPER}")`);
+  $('#lib').innerHTML = [['pgDark', GRAIN, 150], ['pgSpark', SPARK, 150], ['pgPaper', PAPER, 220]]
+    .map(([id, u, s]) => `<pattern id="${id}" width="${s}" height="${s}" patternUnits="userSpaceOnUse"><image href="${u}" width="${s}" height="${s}"/></pattern>`).join('');
+
+  /* ---------- a hand: seeded randomness, smooth noise, wavering curves ---------- */
+  const seeded = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const noise = (r, closed, oct = [[2, 1], [3, .7], [5, .45], [8, .25], [17, .12]]) => {
+    const c = oct.map(([k, a]) => [closed ? k : k * (.7 + r() * .6), a * (.6 + r() * .8), r() * 6.283]);
+    const s = c.reduce((q, x) => q + x[1], 0);
+    return t => c.reduce((q, [k, a, p]) => q + a * Math.sin(6.283 * k * t + p), 0) / s;
+  };
+  const xf = (p, T, pre) => {
+    let [x, y] = p;
+    if (pre) { x *= pre.sx || 1; const a = (pre.r || 0) * RAD, c = Math.cos(a), s = Math.sin(a); [x, y] = [x * c - y * s, x * s + y * c]; }
+    if (!T) return [x, y];
+    const a = T.r * RAD, c = Math.cos(a), s = Math.sin(a);
+    return [T.x + T.s * (x * c - y * s), T.y + T.s * (x * s + y * c)];
+  };
+  const sample = (d, T, pre, step = 5) => {
+    probe.setAttribute('d', d);
+    const L = probe.getTotalLength(), n = Math.max(12, Math.min(200, Math.round(L * (T ? T.s : 1) / step))), out = [];
+    for (let i = 0; i <= n; i++) { const q = probe.getPointAtLength(L * i / n); out.push(xf([q.x, q.y], T, pre)); }
+    return out;
+  };
+  const normals = (p, closed) => p.map((_, i) => {
+    const n = p.length, a = closed ? p[(i - 1 + n) % n] : p[Math.max(0, i - 1)], b = closed ? p[(i + 1) % n] : p[Math.min(n - 1, i + 1)];
+    const tx = b[0] - a[0], ty = b[1] - a[1], l = Math.hypot(tx, ty) || 1; return [-ty / l, tx / l];
+  });
+  const jitter = (p, amp, closed, r, oct) => {
+    const f = noise(r, closed, oct), N = normals(p, closed), n = p.length;
+    return p.map((q, i) => { const v = amp * f(i / (closed ? n : n - 1)); return [q[0] + N[i][0] * v, q[1] + N[i][1] * v]; });
+  };
+  const fx = v => Math.round(v * 10) / 10, P2 = p => fx(p[0]) + ' ' + fx(p[1]);
+  const smooth = (pts, closed) => {
+    const n = pts.length, at = i => closed ? pts[(i + n) % n] : pts[Math.max(0, Math.min(n - 1, i))];
+    let d = 'M' + P2(pts[0]);
+    for (let i = 0; i < (closed ? n : n - 1); i++) {
+      const p0 = at(i - 1), p1 = at(i), p2 = at(i + 1), p3 = at(i + 2);
+      d += 'C' + P2([p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6]) + ' ' + P2([p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6]) + ' ' + P2(p2);
+    }
+    return d + (closed ? 'Z' : '');
+  };
+  /* a brush stroke: pressed on, even through the middle, lifted off with a long taper */
+  const brush = (c, w, r) => {
+    const n = c.length, N = normals(c, false), nz = noise(r, false, [[1.3, 1], [3.1, .5], [7, .3]]), L = [], R = [];
+    for (let i = 0; i < n; i++) {
+      const t = i / (n - 1), a = Math.min(1, t / .1), b = Math.min(1, (1 - t) / .3);
+      const h = w * (.1 + .9 * Math.sin(Math.PI / 2 * Math.min(a, b))) * (1 + .2 * nz(t)) / 2;
+      L.push([c[i][0] + N[i][0] * h, c[i][1] + N[i][1] * h]); R.push([c[i][0] - N[i][0] * h, c[i][1] - N[i][1] * h]);
+    }
+    return smooth(L.concat(R.reverse()), true);
+  };
+  const grad = (id, a, b, stops) => `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${fx(a[0])}" y1="${fx(a[1])}" x2="${fx(b[0])}" y2="${fx(b[1])}">${stops.map(([o, c, op]) => `<stop offset="${o}" stop-color="${c}" stop-opacity="${op}"/>`).join('')}</linearGradient>`;
+
+  /* ---------- pigments ---------- */
+  const PAL = {
+    red:  { base: '#d4505f', mid: '#b3243a', deep: '#8a1229', line: '#600b1d', hi: '#f2aab4', spark: true, name: '연지', latin: 'Carmine' },
+    red2: { base: '#cc4256', mid: '#a91f36', deep: '#7c0f24', line: '#5a0a1b', hi: '#ee9aa6', spark: true },
+    pink: { base: '#f2c5cf', mid: '#e09db0', deep: '#c87590', line: '#9e3d58', hi: '#fde9ed', name: '분홍', latin: 'Rose' },
+    lav:  { base: '#e0b9cb', mid: '#c38fab', deep: '#9a6283', line: '#713d5b', hi: '#f3e1e9', name: '자분홍', latin: 'Mauve' },
+    leaf: { base: '#b4cb6a', mid: '#5e9142', deep: '#2b5934', line: '#22432a', hi: '#dfeaa8', name: '녹청', latin: 'Malachite' },
+    stem: { base: '#98b85e', mid: '#5d8c3d', deep: '#34663a', line: '#22432a' },
+  };
+
+  /* ---------- one painted shape: washes, pooled edges, grain, pencil, then the line ---------- */
+  function shape(ctx, o) {
+    const id = 'p' + (++UID), r = o.r, c = o.c, ex = smooth(o.out, true);
+    ctx.defs += `<clipPath id="c${id}"><path d="${ex}"/></clipPath>`
+      + grad('ga' + id, o.g[0], o.g[1], o.stops || [[0, c.deep, .92], [.42, c.mid, .6], [.86, c.mid, 0]])
+      + grad('gb' + id, o.g2 ? o.g2[0] : o.g[0], o.g2 ? o.g2[1] : o.g[1], [[0, c.deep, .75], [.36, c.deep, 0]])
+      + grad('gc' + id, o.g[0], o.g[1], [[0, c.deep, .45], [.22, c.mid, .3], [.6, c.mid, 0]]);
+    let s = `<path class="wa" data-k="1" d="${smooth(jitter(o.out, ctx.j * 1.4, true, r), true)}" fill="${c.base}" opacity="${o.baseOp || .93}"/>`
+      + `<path class="wb" data-k="2" d="${smooth(jitter(o.out, ctx.j * 2.1, true, r), true)}" fill="url(#ga${id})"/>`
+      + (ctx.study ? `<path class="wb2" data-k="3" d="${smooth(jitter(o.out, ctx.j * 1.8, true, r), true)}" fill="url(#gc${id})"/>` : '')
+      + `<g class="wc" data-k="4" clip-path="url(#c${id})"><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 11}" opacity=".07"/><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 5.5}" opacity=".09"/><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 2.2}" opacity=".13"/>`
+      + (o.hi ? `<path d="${brush(jitter(o.hi, ctx.j, false, r), o.hiW, r)}" fill="${c.hi}" opacity=".38"/>` : '') + '</g>'
+      + `<path class="wb2" data-k="5" d="${smooth(jitter(o.out, ctx.j * 1.6, true, r), true)}" fill="url(#gb${id})"/>`
+      + `<g class="wg" data-k="6"><path d="${ex}" fill="url(#pgDark)" opacity=".5"/>${c.spark ? `<path d="${ex}" fill="url(#pgSpark)" opacity=".55"/>` : ''}</g>`
+      + (o.young ? `<path class="wy" d="${smooth(jitter(o.out, ctx.j * 1.2, true, r), true)}" fill="url(#gy${id})"/>` : '')
+      + `<path class="u" d="${smooth(jitter(o.out, ctx.j * 1.3, true, r, [[3, 1], [7, .5], [13, .3]]), true)}"/>`;
+    if (o.young) ctx.defs += grad('gy' + id, o.g[0], o.g[1], [[0, '#6f9640', .96], [.45, '#a8c46c', .82], [.8, '#cbdc94', 0]]);
+    (o.lines || []).forEach((ln, j) => {
+      const mid = 'm' + id + '_' + j, cl = jitter(ln.pts, ctx.j * .8, false, r, [[1.2, 1], [2.7, .5], [9, .2]]), w = ln.w || ctx.lw;
+      const dl = (ctx.lineBase ?? o.d) + (ctx.lineStep || .14) * (ctx.li = (ctx.li || 0) + 1) * (ctx.lineBase != null ? 1 : .15);
+      ctx.defs += `<mask id="${mid}" maskUnits="userSpaceOnUse" x="-100" y="-100" width="2400" height="2400"><path class="mk" style="--d:${dl.toFixed(2)}s" d="${smooth(cl, false)}" pathLength="1" stroke-width="${fx(w * 5)}"/></mask>`;
+      s += `<path class="ln" d="${brush(cl, w, r)}" fill="${c.line}" opacity="${ln.op || 1}" mask="url(#${mid})"/>`;
+    });
+    return `<g class="o${o.cls ? ' ' + o.cls : ''}" style="--d:${(o.d || 0).toFixed(2)}s">${s}</g>`;
+  }
+
+  /* ---------- tulip: four petals painted back to front ---------- */
+  const PET = {
+    pc: { d: 'M-16-96C-12-116-2-130 6-138C12-126 18-112 18-96Z', ax: [[1, -88], [5, -138]], ln: ['M-15-98C-11-116-2-130 6-138', 'M6-138C12-126 17-112 18-98'] },
+    pl: { d: 'M-4 2C-36 0-54-34-52-74C-51-98-44-116-34-128C-26-112-14-100-6-92Z', ax: [[-8, 2], [-38, -126]], ln: ['M-4 2C-36 0-54-34-52-74C-51-98-44-116-34-128', 'M-34-128C-26-112-15-101-7-93'], vn: ['M-14-12C-28-42-36-80-36-116'] },
+    pr: { d: 'M4 2C36 0 54-34 52-74C51-98 44-116 34-128C26-112 14-100 6-92Z', ax: [[8, 2], [38, -126]], ln: ['M4 2C36 0 54-34 52-74C51-98 44-116 34-128', 'M34-128C26-112 15-101 7-93'], vn: ['M14-12C28-42 36-80 36-116'] },
+    pf: { d: 'M0 4C-28 4-42-26-40-62C-38-92-24-114-2-124C18-112 34-92 38-62C42-26 28 4 0 4Z', ax: [[0, 6], [-2, -124]], ln: ['M0 4C-28 4-42-26-40-62C-38-92-24-114-2-124', 'M-2-124C18-112 34-92 38-62C42-26 28 4 0 4'], vn: ['M1-10C0-44-1-84-2-114', 'M-22-98C-15-74-11-46-10-18'], hi: 'M-6-46C-9-72-10-94-7-112' },
+  };
+  function tulip(ctx, T, pal, d, opt = {}) {
+    const r = seeded(opt.seed || Math.round(T.x * 7 + T.y * 3)), open = opt.open ?? (2 + r() * 6), c = PAL[pal];
+    const body = ['pc', 'pl', 'pr', 'pf'].map((k, i) => {
+      const P = PET[k], pre = { r: k === 'pl' ? -open : k === 'pr' ? open : 0, sx: opt.sx || 1 };
+      const g = shape(ctx, {
+        r, c, d: d + i * .1, out: sample(P.d, T, pre).slice(0, -1), g: P.ax.map(p => xf(p, T, pre)), young: opt.young,
+        lines: P.ln.map(l => ({ pts: sample(l, T, pre) })).concat((P.vn || []).map(l => ({ pts: sample(l, T, pre), w: ctx.lw * .6, op: .5 }))),
+        hi: P.hi ? sample(P.hi, T, pre) : null, hiW: 16 * T.s,
+      });
+      const o = xf([0, 0], T);
+      return opt.wrap ? `<g class="pw ${k}" style="transform-origin:${fx(o[0])}px ${fx(o[1])}px">${g}</g>` : g;
+    }).join('');
+    const o = xf([0, 0], T);
+    return opt.wrap ? `<g class="pw flw" style="transform-origin:${fx(o[0])}px ${fx(o[1])}px">${body}</g>` : body;
+  }
+  function leaf(ctx, x, y, rot, L, w, b, d, flip) {
+    const T = { x, y, r: rot, s: 1 }, r = seeded(Math.round(x * 3 + rot * 11 + L));
+    const s1 = `M0 0C${w} ${-L * .25} ${w * .9 + b} ${-L * .65} ${b} ${-L}`, s2 = `C${-w * .5 + b} ${-L * .62} ${-w * .7} ${-L * .28} 0 0`;
+    const A = xf([w * .8 + b * .45, -L * .45], T), B = xf([-w * .6 + b * .45, -L * .45], T);
+    return shape(ctx, {
+      r, c: PAL.leaf, d, out: sample(s1 + s2, T).slice(0, -1), g: flip ? [B, A] : [A, B],
+      stops: [[0, PAL.leaf.deep, .92], [.5, PAL.leaf.mid, .55], [1, PAL.leaf.mid, 0]], g2: [xf([0, 0], T), xf([b * .4, -L * .55], T)],
+      lines: [{ pts: sample(s1, T).slice(2) }, { pts: sample(`M${b} ${-L}` + s2, T).slice(0, -2) },
+        { pts: sample(`M${b * .04} ${-L * .05}Q${b * .32} ${-L * .55} ${b * .96} ${-L * .95}`, T), w: ctx.lw * .65, op: .6 },
+        { pts: sample(`M${w * .3} ${-L * .12}Q${b * .35 + w * .25} ${-L * .5} ${b * .9} ${-L * .88}`, T), w: ctx.lw * .45, op: .32 }],
+      hi: sample(`M${-w * .25} ${-L * .2}Q${b * .2 - w * .2} ${-L * .55} ${b * .85} ${-L * .9}`, T), hiW: w * .35,
+    });
+  }
+  function stem(ctx, p0, cp, p1, d, w0 = 11, w1 = 7) {
+    const r = seeded(Math.round(p1[0] * 5 + p1[1])), c = sample(`M${P2(p0)}Q${P2(cp)} ${P2(p1)}`, null, null, 8), N = normals(c, false), n = c.length;
+    const L = [], R = [];
+    c.forEach((p, i) => { const h = (w0 + (w1 - w0) * i / (n - 1)) / 2; L.push([p[0] + N[i][0] * h, p[1] + N[i][1] * h]); R.push([p[0] - N[i][0] * h, p[1] - N[i][1] * h]); });
+    const m = Math.floor(n / 2);
+    return shape(ctx, { r, c: PAL.stem, d, out: L.concat([...R].reverse()), g: [L[m], R[m]], stops: [[0, PAL.stem.deep, .85], [.6, PAL.stem.mid, .4], [1, PAL.stem.mid, 0]], g2: [c[0], c[n - 1]],
+      lines: [{ pts: L.slice(1, -1) }, { pts: R.slice(1, -1) }] });
+  }
+  /* hanji sheet with a soft deckled edge */
+  function sheet(ctx, x0, y0, x1, y1, seed) {
+    const r = seeded(seed), pts = jitter(sample(`M${x0} ${y0}H${x1}V${y1}H${x0}Z`, null, null, 3).slice(0, -1), 1.5, true, r, [[9, 1], [17, .8], [31, .6], [57, .5], [101, .35]]);
+    const d = smooth(pts, true), id = 'sh' + (++UID);
+    ctx.defs += `<clipPath id="${id}"><path d="${d}"/></clipPath>`;
+    ctx.clip = id; ctx.sheetD = d;
+    return `<path d="${d}" fill="#5a4030" opacity=".05" transform="translate(2 6)"/><path d="${d}" fill="#5a4030" opacity=".06" transform="translate(1 2)"/><path d="${d}" fill="#f7f4ee"/><path d="${d}" fill="url(#pgPaper)" opacity=".7"/>`;
+  }
+  const finish = (svg, ctx, body) => {
+    svg.innerHTML = `<defs>${ctx.defs}</defs>${body}`;
+  };
+  const framed = (ctx, back, inner) => back + `<g clip-path="url(#${ctx.clip})">${inner}<path d="${ctx.sheetD}" fill="url(#pgPaper)" opacity=".42"/></g>`;
+
+  /* ---------- the painting ---------- */
+  (function hero() {
+    const ctx = { defs: '', lw: 2.6, j: 1.25 }, back = sheet(ctx, 26, 26, 874, 1124, 11);
+    const steps = [
+      c => leaf(c, 430, 1180, -40, 600, 48, 70, 0),
+      c => leaf(c, 470, 1180, 38, 640, 50, -80, 0, true),
+      c => leaf(c, 452, 1180, -6, 580, 42, -50, 0, true),
+      c => stem(c, [462, 1180], [500, 800], [520, 326], 0),
+      c => stem(c, [448, 1180], [360, 760], [332, 288], 0),
+      c => stem(c, [470, 1180], [560, 860], [642, 466], 0),
+      c => stem(c, [440, 1180], [320, 860], [238, 466], 0),
+      c => stem(c, [478, 1180], [640, 1000], [737, 696], 0, 10, 6.5),
+      c => stem(c, [432, 1180], [230, 1020], [128, 712], 0, 10, 6.5),
+      c => stem(c, [455, 1180], [440, 900], [426, 646], 0, 12, 8),
+      c => tulip(c, { x: 520, y: 330, r: 6, s: 1.3 }, 'red2', 0),
+      c => tulip(c, { x: 330, y: 292, r: -8, s: 1.15 }, 'lav', 0, { open: 1 }),
+      c => tulip(c, { x: 645, y: 470, r: 12, s: 1.5 }, 'pink', 0),
+      c => tulip(c, { x: 235, y: 470, r: -16, s: 1.45 }, 'red', 0),
+      c => leaf(c, 405, 1180, -64, 440, 40, 60, 0),
+      c => leaf(c, 500, 1180, 62, 450, 40, -60, 0, true),
+      c => leaf(c, 470, 1180, 16, 500, 44, 60, 0),
+      c => tulip(c, { x: 740, y: 700, r: 24, s: 1.1 }, 'red2', 0, { open: 0 }),
+      c => tulip(c, { x: 125, y: 715, r: -28, s: 1 }, 'pink', 0, { open: 1 }),
+      c => tulip(c, { x: 425, y: 650, r: -3, s: 1.75 }, 'red', 0, { open: 5 }),
+      c => leaf(c, 440, 1180, -26, 400, 42, -56, 0, true),
+      c => leaf(c, 482, 1180, 30, 360, 38, 44, 0),
+      c => leaf(c, 458, 1180, 4, 280, 34, 30, 0, true),
+    ];
+    // paint order is also time order, but each element starts a little after the one behind it
+    let inner = '';
+    steps.forEach((f, i) => { ctx.li = 0; inner += f(ctx).replace(/--d:0\.(\d\d)s/g, (_, v) => `--d:${(i / steps.length * 3.6 + +('0.' + v)).toFixed(2)}s`); });
+    finish($('#art'), ctx, framed(ctx, back, inner));
+  })();
+
+  /* hero: the line delays live in defs (masks); match each mask to its shape's delay */
+  (function syncMasks() {
+    $$('#art .o').forEach(g => {
+      const d = parseFloat(g.style.getPropertyValue('--d')) || 0;
+      $$('.ln', g).forEach((ln, j) => { const id = ln.getAttribute('mask').slice(5, -1), m = document.getElementById(id); m && m.firstElementChild.style.setProperty('--d', (d + j * .22).toFixed(2) + 's'); });
+    });
+  })();
+
+  const art = $('#art');
+  const play = () => { if (reduce) return; art.classList.remove('play'); void art.getBoundingClientRect(); art.classList.add('play'); };
+  play();
+  $('#replay').addEventListener('click', play);
+
+  /* ---------- study: washes, one at a time ---------- */
+  const wa = $('#washArt'); let washPal = 'red';
+  const washLines = ['아직 밑그림뿐입니다.', '첫 겹. 종이가 다 비치는 바탕칠.', '두 겹. 밑동부터 색이 깊어집니다.', '세 겹. 바림이 생겼어요.', '네 겹. 가장자리에 색이 고입니다.', '다섯 겹. 밑동이 한 번 더 깊어집니다.', '여섯 겹. 안료가 종이 결에 내려앉았어요.'];
+  function drawWash() {
+    const ctx = { defs: '', lw: 1.7, j: 1, study: true }, back = sheet(ctx, 12, 12, 348, 388, 5);
+    const inner = stem(ctx, [180, 420], [179, 400], [180, 372], 0, 11, 9) + tulip(ctx, { x: 180, y: 372, r: 0, s: 2.25 }, washPal, 0, { open: 3, seed: 21 }).replace(/<path class="ln"[^>]*\/>/g, '');
+    finish(wa, ctx, framed(ctx, back, inner));
+  }
+  drawWash();
+  const setN = n => { wa.dataset.n = n; $('#washLive').textContent = washLines[n]; $('#addWash').disabled = n >= 6; };
+  $('#addWash').addEventListener('click', () => setN(Math.min(6, +wa.dataset.n + 1)));
+  $('#clearWash').addEventListener('click', () => setN(0));
+  // pigment dabs
+  const dab = (key, w, h, ring) => {
+    const ctx = { defs: '', lw: 1.3, j: .7 }, c = PAL[key], r = seeded(key.length * 97 + w);
+    const out = jitter(sample(`M${w * .14} ${h / 2}a${w * .36} ${h * .38} 0 1 0 ${w * .72} 0a${w * .36} ${h * .38} 0 1 0 ${-w * .72} 0Z`, null, null, 3).slice(0, -1), 2.2, true, r, [[2, 1], [3, .8], [5, .6], [9, .3], [15, .2]]);
+    const id = 'd' + (++UID);
+    ctx.defs += grad(id, [w * .1, h * .8], [w * .85, h * .2], [[0, c.deep, .9], [.5, c.mid, .5], [1, c.mid, 0]]);
+    const d = smooth(out, true);
+    return `<defs>${ctx.defs}</defs><path d="${smooth(jitter(out, 1.6, true, r), true)}" fill="${c.base}" opacity=".95"/><path d="${d}" fill="url(#${id})"/><path d="${d}" fill="url(#pgDark)" opacity=".5"/>${c.spark ? `<path d="${d}" fill="url(#pgSpark)" opacity=".5"/>` : ''}`
+      + (ring ? `<path class="ring" d="${brush(jitter(sample(`M${w * .06} ${h / 2}a${w * .44} ${h * .46} 0 1 0 ${w * .88} 0a${w * .44} ${h * .46} 0 1 0 ${-w * .9} -2`, null, null, 3), .8, false, r), 1.4, r)}" fill="${c.line}"/>` : '');
+  };
+  $('#dabs').innerHTML = ['red', 'pink', 'lav'].map((k, i) => `<label class="dab"><input type="radio" name="pig" value="${k}"${i ? '' : ' checked'}><svg viewBox="0 0 70 52" aria-hidden="true">${dab(k, 70, 52, true)}</svg><span>${PAL[k].name}</span></label>`).join('');
+  $$('#dabs input').forEach(i => i.addEventListener('change', () => { washPal = i.value; wa.classList.add('still'); drawWash(); void wa.getBoundingClientRect(); wa.classList.remove('still'); }));
+
+  /* ---------- study: the line ---------- */
+  const la = $('#lineArt');
+  (function drawLine() {
+    const ctx = { defs: '', lw: 1.7, j: 1, lineBase: 0, lineStep: .2 }, back = sheet(ctx, 12, 12, 348, 428, 8);
+    const inner = leaf(ctx, 176, 460, -30, 320, 30, 40, 0) + leaf(ctx, 188, 460, 26, 280, 28, -36, 0, true) + stem(ctx, [182, 460], [176, 330], [186, 238], 0, 9, 7)
+      + tulip(ctx, { x: 186, y: 240, r: 3, s: 1.45 }, 'red', 0, { open: 4, seed: 33 }) + leaf(ctx, 182, 470, -6, 200, 26, 26, 0, true);
+    finish(la, ctx, framed(ctx, back, inner));
+  })();
+  const lineBtn = $('#lineBtn');
+  const setLines = on => { la.classList.toggle('nolines', !on); lineBtn.setAttribute('aria-pressed', on); $('.t', lineBtn).textContent = on ? '선 거두기' : '선 긋기'; paintBtn(lineBtn); };
+  lineBtn.addEventListener('click', () => setLines(lineBtn.getAttribute('aria-pressed') !== 'true'));
+  if (!reduce) {
+    la.classList.add('nolines'); lineBtn.setAttribute('aria-pressed', 'false');
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { io.disconnect(); setTimeout(() => setLines(true), 600); } }), { threshold: .45 });
+    io.observe(la);
+  }
+
+  /* ---------- study: bloom ---------- */
+  const ba = $('#bloomArt');
+  (function drawBloom() {
+    const ctx = { defs: '', lw: 1.7, j: 1 }, back = sheet(ctx, 12, 12, 348, 428, 14);
+    const inner = leaf(ctx, 170, 460, -34, 300, 30, 46, 0) + leaf(ctx, 192, 460, 30, 270, 28, -40, 0, true) + stem(ctx, [180, 460], [186, 340], [180, 256], 0, 9, 7)
+      + tulip(ctx, { x: 180, y: 258, r: 0, s: 1.5 }, 'red', 0, { open: 4, seed: 44, wrap: true, young: true });
+    finish(ba, ctx, framed(ctx, back, inner));
+  })();
+  const bloomBtn = $('#bloomBtn');
+  bloomBtn.addEventListener('click', () => {
+    const open = bloomBtn.getAttribute('aria-pressed') !== 'true';
+    ba.classList.toggle('bud', !open); ba.classList.toggle('open', open);
+    ba.setAttribute('aria-label', open ? '활짝 핀 붉은 튤립' : '튤립 봉오리');
+    bloomBtn.setAttribute('aria-pressed', open); $('.t', bloomBtn).textContent = open ? '다시 봉오리로' : '꽃 피우기';
+    paintBtn(bloomBtn);
+  });
+
+  /* ---------- process ---------- */
+  const ST = [['밑그림', '연필로 가볍게 형태만'], ['바탕칠', '옅은 색 한 겹, 고르게'], ['바림', '밑동부터 진하게, 끝은 옅게'], ['선 정리', '같은 색 깊은 톤의 가는 선']];
+  $('#stages').innerHTML = ST.map(([b, s], i) => {
+    const ctx = { defs: '', lw: 1.4, j: .8 }, back = sheet(ctx, 6, 6, 194, 244, 30 + i);
+    const inner = leaf(ctx, 96, 262, -26, 170, 18, 24, 0) + stem(ctx, [100, 262], [98, 200], [100, 150], 0, 7, 5.5) + tulip(ctx, { x: 100, y: 152, r: 2, s: .95 }, 'red', 0, { open: 4, seed: 51 });
+    return `<li><svg class="st${i + 1}" viewBox="0 0 200 250" aria-hidden="true"><defs>${ctx.defs}</defs>${framed(ctx, back, inner)}</svg><b>${b}</b><span>${s}</span></li>`;
+  }).join('');
+
+  /* ---------- palette ---------- */
+  const PIG = [['red', '연지', 'Carmine'], ['pink', '분홍', 'Rose'], ['lav', '자분홍', 'Mauve'], ['leaf', '녹청', 'Malachite'], ['stem', '초록', 'Sap green'], ['hwang', '황록', 'Spring green']];
+  PAL.hwang = { base: '#c9da86', mid: '#b7cf6b', deep: '#7f9a34', line: '#5d7420', hi: '#eef4cf' };
+  $('#pigments').innerHTML = PIG.map(([k, n, l]) => `<li><svg viewBox="0 0 92 68" aria-hidden="true">${dab(k, 92, 68, false)}</svg><b>${n}</b><span>${l}</span></li>`).join('');
+
+  /* ---------- small brush rules ---------- */
+  const rule = (svg, w, h, col, seed) => { const r = seeded(seed); svg.innerHTML = `<path d="${brush(jitter(sample(`M3 ${h / 2 + 1}C${w * .3} ${h / 2 - 2} ${w * .6} ${h / 2 + 2} ${w - 3} ${h / 2 - 1}`, null, null, 2), .6, false, r), 2.2, r)}" fill="${col}"/>`; };
+  rule($('#rule1'), 120, 14, PAL.red.line, 3); rule($('#rule2'), 150, 16, PAL.leaf.line, 4);
+
+  /* ---------- painted buttons ---------- */
+  const BTN = { red: { base: '#b3243a', mid: '#a51f35', deep: '#7c0f24', line: '#5a0a1b', spark: true }, pink: { base: '#f3cbd4', mid: '#eab0bf', deep: '#d88ea3', line: '#9e3d58' } };
+  function paintBtn(b) {
+    const w = b.offsetWidth, h = b.offsetHeight; if (!w) return;
+    const c = BTN[b.dataset.p], r = seeded(w * 13 + h + b.textContent.length), q = 13;
+    const out = sample(`M${q + 2} 2.5H${w - q - 2}Q${w - 2.5} 2.5 ${w - 2.5} ${q + 2}V${h - q - 2}Q${w - 2.5} ${h - 2.5} ${w - q - 2} ${h - 2.5}H${q + 2}Q2.5 ${h - 2.5} 2.5 ${h - q - 2}V${q + 2}Q2.5 2.5 ${q + 2} 2.5Z`, null, null, 3).slice(0, -1);
+    const n = out.length, id = 'b' + (++UID), seg = (a, z) => { const s = []; for (let i = Math.round(a * n); i <= Math.round(z * n); i++) s.push(out[i % n]); return s; };
+    const d = smooth(jitter(out, 1, true, r), true), ex = smooth(out, true);
+    const lines = [seg(.01, .36), seg(.39, .63), seg(.66, 1.0)].map(p => `<path d="${brush(jitter(p, .6, false, r), 1.7, r)}" fill="${c.line}"/>`).join('');
+    const svg = `<svg class="bg" viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false"><defs>${grad('g' + id, [0, h * .7], [w, h * .3], [[0, c.deep, .85], [.55, c.mid, .35], [1, c.mid, 0]])}${grad('h' + id, [0, h], [w * .7, 0], [[0, c.deep, .9], [1, c.deep, 0]])}</defs>`
+      + `<path d="${d}" fill="${c.base}" opacity=".96"/><path d="${smooth(jitter(out, 1.4, true, r), true)}" fill="url(#g${id})"/><path class="hv" d="${ex}" fill="url(#h${id})"/>`
+      + `<path d="${ex}" fill="url(#pgDark)" opacity=".45"/>${c.spark ? `<path d="${ex}" fill="url(#pgSpark)" opacity=".35"/>` : ''}${lines}</svg>`;
+    const old = $('.bg', b); if (old) old.remove();
+    b.insertAdjacentHTML('afterbegin', svg); b.classList.add('painted');
+  }
+  const paintAll = () => $$('.pb').forEach(paintBtn);
+  paintAll();
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(paintAll);
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

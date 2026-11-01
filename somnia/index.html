@@ -1,0 +1,1500 @@
+<!doctype html>
+<html lang="ko" data-side="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dormant · 휴면계좌, 궤도 위의 눈마을</title>
+<meta name="description" content="Dormant: 잠든 아이의 꿈속을 도는 우주정거장 은행. 기분을 맡기면 무의식이 복리로 불리고, 원장은 눈덩이로 맞춥니다. 금융 × 무의식 × 눈마을 만화 × 우주정거장을 시드 20261101로 무작위 추첨해 억지로 결합한 디자인 체계.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Nanum+Gothic+Coding:wght@400;700&display=swap">
+<style>
+/* Dormant — 휴면계좌.
+   A space-station bank orbiting inside a sleeping child's dream. You deposit feelings; the
+   unconscious compounds them; the ledger balances in snowballs.
+   Nine axes drawn with mulberry32(20261101). Everything else is plain default.
+   1 소리·시간  ← 눈마을 만화 · 흑백화   : one pitch only, every clock is grey
+   2 모양       ← 눈마을 만화 · 반전     : round toys turned inside out — every corner is scooped (concave)
+   3 색         ← 우주정거장 · 이식      : colour obeys orbital time (92 min): sunlit side / night side
+   4 간격       ← 금융 · 이식            : spacing scale compounds (×1.25), section gaps accrue 8% interest
+   5 글자       ← 금융 · 감속            : tabular ledger mono, wide tracking, digits roll slowly
+   6 조작 은유  ← 눈마을 만화 · 흑백화   : controls are snow toys, greys only
+   7 깊이       ← 무의식 · 이식          : a shadow is not a darker copy but a repressed word
+   8 선·테두리  ← 금융 · 이식            : every edge is double entry — credit red outside, debit blue inside
+   9 레이아웃   ← 금융 · 그대로          : the ledger: code column, entry, running balance column */
+:root {
+  /* compounding spacing: 8px principal at 25% */
+  --s1: 8px; --s2: 10px; --s3: 12.5px; --s4: 15.6px; --s5: 19.5px; --s6: 24.4px; --s7: 30.5px; --s8: 38.1px; --s9: 47.7px;
+  /* snow — fixed greys, the controls never take colour */
+  --sn0: #ffffff; --sn1: #eef1f3; --sn2: #d9dfe4; --sn3: #b4bec7; --sn4: #6b757e; --sn5: #3a4249; --sn-ink: #232a30;
+  --mono: "IBM Plex Mono", "Nanum Gothic Coding", ui-monospace, monospace;
+  --ko: "Nanum Gothic Coding", "IBM Plex Mono", ui-monospace, monospace;
+  --roll: 1.6s;
+}
+/* sunlit side: beta-cloth white, solar-array indigo, gold foil */
+:root, :root[data-side="day"] {
+  color-scheme: light;
+  --bg: #f2efe6; --bg2: #e6e1d2; --panel: #fbfaf5;
+  --ink: #171c38; --ink2: #3b4162; --mute: #565e69;
+  --foil: #c9992b; --foil-ink: #7a5806; --earth: #2a5fa8;
+  --up: #c4281f; --down: #1f4fbf;
+  --focus: #171c38; --veil: rgba(23, 28, 56, .42);
+  --ghost: rgba(23, 28, 56, .13);
+}
+/* night side: eclipse */
+:root[data-side="night"] {
+  color-scheme: dark;
+  --bg: #0b0f22; --bg2: #141a36; --panel: #111733;
+  --ink: #ecebe3; --ink2: #c4c7d7; --mute: #9ea5b1;
+  --foil: #e0b24a; --foil-ink: #e9c068; --earth: #8db0f0;
+  --up: #ff6e62; --down: #7ea3ff;
+  --focus: #ffd56a; --veil: rgba(2, 4, 12, .62);
+  --ghost: rgba(236, 235, 227, .12);
+  --sn0: #f1f4f6; --sn1: #e2e7eb; --sn2: #cdd4da;
+}
+* { box-sizing: border-box; }
+html { overflow-x: clip; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 17px/1.85 var(--ko); letter-spacing: .02em;
+  overflow-x: clip; -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 6s ease, color 6s ease;
+}
+a { color: var(--ink); text-underline-offset: 4px; text-decoration-thickness: 1px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 16px; top: -100px; z-index: 50; background: var(--panel); padding: 10px 14px; }
+.skip:focus { top: 8px; }
+h1, h2, h3 { font-family: var(--mono); font-weight: 600; letter-spacing: .01em; line-height: 1.25; margin: 0; }
+p { margin: 0 0 var(--s4); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.t { color: var(--mute); font-family: var(--mono); }   /* time is always grey */
+.wrap { width: min(1220px, 100% - 32px); margin-inline: auto; }
+
+/* ───── shape × line: scooped corners + double-entry rule ───── */
+.sc { position: relative; isolation: isolate; --r: 14px; --fill: var(--panel); --cr: var(--up); --db: var(--down); }
+.sc::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  --a: calc(var(--r) + 2px); --b: calc(var(--r) + 4px); --c: calc(var(--r) + 5px);
+  background:
+    linear-gradient(var(--cr), var(--cr)) var(--r) 0 / calc(100% - 2 * var(--r)) 2px no-repeat,
+    linear-gradient(var(--cr), var(--cr)) var(--r) 100% / calc(100% - 2 * var(--r)) 2px no-repeat,
+    linear-gradient(var(--cr), var(--cr)) 0 var(--r) / 2px calc(100% - 2 * var(--r)) no-repeat,
+    linear-gradient(var(--cr), var(--cr)) 100% var(--r) / 2px calc(100% - 2 * var(--r)) no-repeat,
+    linear-gradient(var(--db), var(--db)) var(--c) 4px / calc(100% - 2 * var(--c)) 1px no-repeat,
+    linear-gradient(var(--db), var(--db)) var(--c) calc(100% - 4px) / calc(100% - 2 * var(--c)) 1px no-repeat,
+    linear-gradient(var(--db), var(--db)) 4px var(--c) / 1px calc(100% - 2 * var(--c)) no-repeat,
+    linear-gradient(var(--db), var(--db)) calc(100% - 4px) var(--c) / 1px calc(100% - 2 * var(--c)) no-repeat,
+    radial-gradient(circle at 0 0, #0000 var(--r), var(--cr) 0 var(--a), #0000 0 var(--b), var(--db) 0 var(--c), var(--fill) 0) 0 0 / 51% 51% no-repeat,
+    radial-gradient(circle at 100% 0, #0000 var(--r), var(--cr) 0 var(--a), #0000 0 var(--b), var(--db) 0 var(--c), var(--fill) 0) 100% 0 / 51% 51% no-repeat,
+    radial-gradient(circle at 0 100%, #0000 var(--r), var(--cr) 0 var(--a), #0000 0 var(--b), var(--db) 0 var(--c), var(--fill) 0) 0 100% / 51% 51% no-repeat,
+    radial-gradient(circle at 100% 100%, #0000 var(--r), var(--cr) 0 var(--a), #0000 0 var(--b), var(--db) 0 var(--c), var(--fill) 0) 100% 100% / 51% 51% no-repeat;
+  transition: transform .2s;
+}
+.sc--plain { --cr: transparent; --db: transparent; }
+/* ───── depth: the shadow is a repressed word ───── */
+.gh::after {
+  content: attr(data-shadow) / ""; position: absolute; z-index: -2; pointer-events: none;
+  left: 22px; bottom: -.62em; font: italic 600 clamp(26px, 4vw, 40px)/1 var(--mono);
+  color: var(--ghost); white-space: nowrap; letter-spacing: -.01em;
+  transition: transform 1.2s cubic-bezier(.2,.7,.2,1), color .6s;
+}
+.gh:hover::after, .gh:focus-within::after { transform: translate(10px, 6px); color: color-mix(in srgb, var(--ghost), var(--ink) 14%); }
+.gh--s::after { font-size: 20px; left: 10px; bottom: -.58em; }
+
+/* ───── ledger rule (horizontal double entry) ───── */
+.rule { background:
+  linear-gradient(var(--up), var(--up)) 0 0 / 100% 2px no-repeat,
+  linear-gradient(var(--down), var(--down)) 0 4px / 100% 1px no-repeat; }
+.total { background:
+  linear-gradient(var(--up), var(--up)) 0 100% / 100% 2px no-repeat,
+  linear-gradient(var(--down), var(--down)) 0 calc(100% - 4px) / 100% 1px no-repeat; }
+
+/* ───── header ───── */
+.top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); transition: background-color 6s; }
+.top .wrap { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--s4); min-height: 64px; padding-bottom: 6px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font: 600 19px/1 var(--mono); text-decoration: none; letter-spacing: .04em; }
+.brand small { font: 400 14px/1 var(--ko); color: var(--mute); letter-spacing: .02em; }
+.brand svg { width: 28px; height: 28px; }
+.nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; justify-self: center; max-width: 100%; }
+.nav::-webkit-scrollbar { display: none; }
+.nav a { display: inline-grid; place-items: center; min-height: 44px; padding: 0 10px; text-decoration: none; font-size: 15px; white-space: nowrap; color: var(--ink2); }
+.nav a:hover { color: var(--ink); text-decoration: underline; }
+.orbit { display: flex; align-items: center; gap: 8px; font: 400 14px/1.2 var(--mono); color: var(--mute); white-space: nowrap; }
+.orbit__dot { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, var(--foil) 0 45%, transparent 46%), var(--bg2); box-shadow: inset 0 0 0 1.5px var(--mute); flex: none; }
+:root[data-side="night"] .orbit__dot { background: radial-gradient(circle at 65% 40%, var(--bg) 0 45%, var(--mute) 46%); }
+@media (max-width: 900px) {
+  .top .wrap { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .nav { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; }
+  .orbit { justify-self: end; }
+}
+@media (max-width: 480px) { .orbit__txt b { display: none; } .brand small { display: none; } }
+
+/* ───── buttons (snow, monochrome) ───── */
+.btn {
+  --fill: var(--sn1); --r: 12px;
+  appearance: none; border: 0; background: none; color: var(--sn-ink); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 50px; padding: 0 var(--s6); font: 500 16px/1.2 var(--ko); letter-spacing: .03em;
+  transition: transform .15s;
+}
+.btn:hover { --fill: var(--sn0); }
+.btn:active { transform: translateY(2px); }
+.btn--packed { --fill: var(--sn5); color: #fff; }
+.btn--packed:hover { --fill: var(--sn-ink); }
+.btn--slush { --fill: var(--sn2); }
+.btn--crack { --fill: var(--sn0); }
+.btn--crack svg { width: 20px; height: 20px; stroke: var(--sn-ink); fill: none; stroke-width: 1.6; }
+.btn--sm { min-height: 44px; padding: 0 var(--s5); font-size: 16px; --r: 9px; }
+.btn--lg { min-height: 60px; padding: 0 var(--s8); font-size: 18px; --r: 16px; }
+.btn[disabled], .btn[aria-disabled="true"] { --fill: transparent; --cr: var(--sn3); --db: var(--sn3); color: var(--mute); cursor: not-allowed; transform: none; }
+.btn .count { font: 500 14px/1 var(--mono); padding: 4px 7px; background: var(--sn5); color: #fff; }
+.btn--packed .count { background: var(--sn0); color: var(--sn-ink); }
+.btn.busy { cursor: progress; }
+.btn.busy .spin { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, var(--sn3)); animation: roll 1.1s linear infinite; }
+@keyframes roll { to { transform: rotate(360deg) translateX(0); } }
+.ibtn { --fill: var(--sn1); --r: 10px; appearance: none; border: 0; background: none; width: 50px; height: 50px; display: inline-grid; place-items: center; cursor: pointer; color: var(--sn-ink); }
+.ibtn:hover { --fill: var(--sn0); }
+.ibtn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ───── hero ───── */
+.hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s8); align-items: center; padding-top: var(--s8); padding-bottom: var(--s7); }
+.hero__k { display: flex; flex-wrap: wrap; gap: 6px 14px; font: 400 14px/1.4 var(--mono); color: var(--mute); margin-bottom: var(--s6); }
+.hero__k span { white-space: nowrap; }
+.hero h1 { position: relative; isolation: isolate; font-size: clamp(56px, 9vw, 112px); line-height: .95; letter-spacing: -.035em; margin-bottom: var(--s5); }
+.hero h1::after { content: attr(data-shadow) / ""; position: absolute; left: .08em; top: .5em; z-index: -1; font: italic 600 1em/1 var(--mono); color: var(--ghost); letter-spacing: -.035em; white-space: nowrap; }
+.hero h1 + .sub { font: 700 clamp(19px, 2.2vw, 24px)/1.5 var(--ko); margin-bottom: var(--s6); }
+.lead { font-size: 18px; color: var(--ink2); max-width: 36em; }
+.hero__acts { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s6); }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: var(--s7); }
+.facts div { padding: var(--s4) var(--s2) 0 0; }
+.facts b { display: block; font: 600 26px/1.1 var(--mono); }
+.facts span { font-size: 15px; color: var(--mute); }
+.scene { --r: 30px; --fill: var(--bg2); padding: 10px; }
+.scene svg { display: block; width: 100%; height: auto; }
+.bob { animation: bob 7s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.bob.d1 { animation-duration: 8.5s; animation-delay: -2s; }
+.bob.d2 { animation-duration: 6.2s; animation-delay: -4s; }
+.bob.d3 { animation-duration: 9.4s; animation-delay: -1s; }
+.bob.d4 { animation-duration: 11s; animation-delay: -6s; }
+@keyframes bob { 0%,100% { transform: translate(0,0) rotate(-4deg); } 50% { transform: translate(6px,-12px) rotate(5deg); } }
+.spinslow { animation: spin 60s linear infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sunlid { transition: opacity 6s; }
+:root[data-side="night"] .sunlid { opacity: 0; }
+.citylights { opacity: 0; transition: opacity 6s; }
+:root[data-side="night"] .citylights { opacity: 1; }
+.cap { font: 400 14px/1.5 var(--mono); color: var(--mute); display: flex; justify-content: space-between; gap: 10px; padding: 8px 14px 4px; flex-wrap: wrap; }
+
+/* ───── ticker (slowed) ───── */
+.ticker { overflow: hidden; padding: 12px 0 10px; }
+.ticker__lab { font: 500 14px/1 var(--mono); color: var(--mute); margin-bottom: 8px; }
+.ticker__row { display: flex; width: max-content; gap: 36px; animation: tick 240s linear infinite; }
+.ticker:hover .ticker__row, .ticker:focus-within .ticker__row { animation-play-state: paused; }
+.ticker__row span { white-space: nowrap; font: 400 16px/1.4 var(--mono); }
+.ticker__row s { color: var(--mute); }
+.ticker__row .u { color: var(--up); } .ticker__row .d { color: var(--down); }
+@keyframes tick { to { transform: translateX(-50%); } }
+
+/* ───── ledger layout ───── */
+.sec { padding-top: calc(var(--g, 40px)); scroll-margin-top: 110px; }
+@supports (width: calc(1px * pow(2, 2))) { .sec { --g: calc(40px * pow(1.08, var(--n, 0))); } }
+.lhead, .lrow { display: grid; grid-template-columns: 170px minmax(0, 1fr) 190px; gap: var(--s6); }
+.lhead { padding: var(--s6) 0 var(--s5); align-items: start; }
+.lhead__code { font: 400 14px/1.5 var(--mono); color: var(--mute); padding-top: 6px; }
+.lhead__code b { display: block; font-size: 30px; color: var(--ink); font-weight: 600; line-height: 1.1; }
+.lhead h2 { font-size: clamp(26px, 3.2vw, 36px); margin-bottom: var(--s3); }
+.lhead p { color: var(--ink2); max-width: 44em; margin: 0; }
+.lbal { text-align: right; font: 400 14px/1.6 var(--mono); color: var(--mute); padding-top: 6px; }
+.lbal b { display: block; font-size: 18px; color: var(--ink); font-weight: 500; }
+.lrow { padding: var(--s6) 0; }
+.lrow__name { padding-top: 6px; }
+.lrow__name h3 { font-size: 17px; font-weight: 600; }
+.lrow__name code { font: 400 14px/1.4 var(--mono); color: var(--mute); }
+.lrow__note { font-size: 15px; color: var(--ink2); line-height: 1.7; padding-top: 6px; }
+.lrow__note p { margin-bottom: 8px; }
+.stage { display: flex; flex-wrap: wrap; gap: var(--s4); align-items: center; min-width: 0; }
+.stage.col { flex-direction: column; align-items: stretch; }
+@media (max-width: 980px) {
+  .lhead, .lrow { grid-template-columns: 130px minmax(0, 1fr); }
+  .lbal, .lrow__note { grid-column: 2; text-align: left; }
+}
+@media (max-width: 640px) {
+  .lhead, .lrow { grid-template-columns: minmax(0, 1fr); gap: var(--s3); }
+  .lbal, .lrow__note { grid-column: auto; }
+  .lhead__code b { display: inline; font-size: 22px; margin-right: 10px; }
+  .hero { grid-template-columns: minmax(0, 1fr); gap: var(--s6); }
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 641px) and (max-width: 980px) { .hero { grid-template-columns: minmax(0, 1fr); } }
+
+/* ───── extraction table ───── */
+.seedbar { --r: 12px; display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: center; padding: 16px 20px; font: 400 15px/1.5 var(--mono); }
+.seedbar b { font-size: 22px; }
+.seedbar .ok { color: var(--ink); }
+.xt { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.6; }
+.xt caption { text-align: left; font: 400 14px/1.4 var(--mono); color: var(--mute); padding-bottom: 10px; }
+.xt th, .xt td { text-align: left; vertical-align: top; padding: 12px 10px 12px 0; }
+.xt thead th { font: 500 14px/1.3 var(--mono); color: var(--mute); padding-bottom: 12px; }
+.xt tbody tr { background: linear-gradient(var(--up), var(--up)) 0 0 / 100% 1px no-repeat; }
+.xt td:first-child { font-weight: 700; white-space: nowrap; }
+.xt .src { display: inline-block; font: 500 14px/1.3 var(--mono); white-space: nowrap; }
+.op { display: inline-block; font: 500 14px/1.3 var(--mono); padding: 3px 8px; background: var(--ink); color: var(--bg); white-space: nowrap; }
+.xt .idx { color: var(--mute); font: 400 14px/1.6 var(--mono); width: 2.2em; }
+@media (max-width: 760px) {
+  .xt thead { display: none; }
+  .xt, .xt tbody, .xt tr, .xt td { display: block; }
+  .xt tr { padding: 14px 0 10px; }
+  .xt td { padding: 2px 0; }
+  .xt td[data-l]::before { content: attr(data-l) " · "; color: var(--mute); font: 400 14px/1.4 var(--mono); }
+  .xt td.idx { display: inline; } .xt td.idx + td { display: inline; padding-left: 6px; }
+}
+
+/* ───── foundations ───── */
+.sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--s3); width: 100%; }
+.sw div { --r: 10px; padding: 12px 14px 14px; font: 400 14px/1.45 var(--mono); }
+.sw i { display: block; height: 56px; margin-bottom: 10px; }
+.sw b { display: block; font: 600 15px/1.3 var(--ko); }
+.sw--snow i { box-shadow: inset 0 0 0 1px var(--sn3); }
+.typescale > div { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: baseline; gap: 12px; padding: 8px 0; }
+.typescale code { font: 400 14px/1.3 var(--mono); color: var(--mute); }
+.spacebars { width: 100%; display: grid; gap: 6px; }
+.spacebars div { display: grid; grid-template-columns: 54px minmax(0, 1fr) 76px; gap: 12px; align-items: center; font: 400 14px/1 var(--mono); }
+.spacebars i { display: block; height: 14px; background: var(--ink); }
+.spacebars span:last-child { color: var(--mute); text-align: right; }
+.shapes { display: flex; flex-wrap: wrap; gap: var(--s5); }
+.shapes .sc { width: 140px; height: 96px; display: grid; place-items: end start; padding: 12px 16px; font: 400 14px/1.3 var(--mono); }
+.tone { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s4); }
+.wave { width: 220px; height: 54px; }
+.wave path { fill: none; stroke: var(--mute); stroke-width: 1.5; }
+
+/* ───── segmented (ice blocks) ───── */
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 6px; --r: 12px; --fill: var(--sn2); }
+.seg button { --fill: transparent; --cr: transparent; --db: transparent; --r: 8px; appearance: none; border: 0; background: none; color: var(--sn-ink); cursor: pointer; min-height: 44px; min-width: 64px; padding: 0 14px; font: 500 15px/1 var(--ko); }
+.seg button:hover { --fill: var(--sn1); }
+.seg button[aria-checked="true"] { --fill: var(--sn0); --cr: var(--up); --db: var(--down); font-weight: 700; }
+
+/* ───── form: switches, checks, radios, range ───── */
+.sw-row { display: flex; flex-wrap: wrap; gap: var(--s5) var(--s7); }
+.switch { appearance: none; border: 0; background: none; padding: 0; display: inline-flex; align-items: center; gap: 12px; min-height: 48px; cursor: pointer; font: 400 16px/1.3 var(--ko); color: var(--ink); text-align: left; }
+.switch__track { position: relative; width: 74px; height: 38px; flex: none; --r: 10px; --fill: var(--sn2); }
+.switch__sled { position: absolute; left: 6px; top: 7px; width: 32px; height: 24px; transition: transform .7s cubic-bezier(.3,1.4,.5,1); }
+.switch__sled svg { width: 32px; height: 24px; display: block; }
+.switch[aria-checked="true"] .switch__track { --fill: var(--sn5); }
+.switch[aria-checked="true"] .switch__sled { transform: translateX(30px) rotate(-6deg); }
+.switch__st { font: 400 14px/1 var(--mono); color: var(--mute); min-width: 3.4em; }
+.checks { display: grid; gap: 2px; }
+.checks .kids { padding-left: 34px; display: grid; gap: 2px; }
+.ck { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.ck input, .rd input { appearance: none; margin: 0; flex: none; cursor: pointer; }
+.ck input { width: 30px; height: 30px; border-radius: 6px; background: var(--sn2); box-shadow: inset 2px 3px 0 var(--sn3), inset 0 0 0 1px var(--sn4); position: relative; }
+.ck input::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 30%, var(--sn1) 55%, var(--sn3) 100%); box-shadow: 0 2px 0 var(--sn4); transform: translateY(-30px) scale(.4); opacity: 0; transition: transform .6s cubic-bezier(.3,1.5,.5,1), opacity .2s; }
+.ck input:checked::after { transform: none; opacity: 1; }
+.ck input:indeterminate::after { transform: none; opacity: 1; clip-path: inset(50% 0 0 0); }
+.ck input:indeterminate { background: var(--sn2); }
+.rds { display: flex; flex-wrap: wrap; gap: 6px 18px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.rds legend { font: 500 15px/1.4 var(--mono); color: var(--mute); padding: 0; margin-bottom: 6px; }
+.rd { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; padding-right: 4px; }
+.rd input { width: 24px; height: 34px; border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%; background: var(--sn1); box-shadow: inset 0 0 0 1.5px var(--sn4); position: relative; transform: rotate(-10deg); }
+.rd input:checked { background:
+  repeating-linear-gradient(0deg, var(--sn4) 0 2px, var(--sn2) 2px 5px) 50% 70% / 60% 46% no-repeat,
+  radial-gradient(ellipse at 50% 22%, var(--sn4) 0 30%, transparent 32%), var(--sn2); box-shadow: inset 0 0 0 1.5px var(--sn5), inset 1px 2px 3px var(--sn4); }
+.rd small { color: var(--mute); font: 400 14px/1 var(--mono); }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field > label, .field > .lab { font: 500 15px/1.4 var(--ko); }
+.field .hint { font-size: 14px; color: var(--mute); }
+.field .err { font-size: 15px; color: var(--up); font-weight: 700; }
+.inp { --fill: var(--sn0); --r: 10px; display: flex; align-items: center; }
+.inp input, .inp select, .inp textarea { appearance: none; border: 0; background: none; width: 100%; min-height: 50px; padding: 0 16px; font: 400 16px/1.4 var(--ko); color: var(--sn-ink); letter-spacing: .02em; }
+.inp textarea { padding: 14px 16px; min-height: 96px; resize: vertical; }
+.inp select { cursor: pointer; padding-right: 44px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23232a30' stroke-width='1.8'/%3E%3C/svg%3E") right 18px center no-repeat; }
+.inp .unit { padding-right: 16px; font: 400 15px/1 var(--mono); color: var(--sn4); white-space: nowrap; }
+.inp:focus-within { --fill: #fff; }
+.inp input:focus-visible, .inp select:focus-visible, .inp textarea:focus-visible { outline: none; }
+.inp:has(:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
+.inp[data-bad] { --cr: var(--up); --db: var(--up); }
+.roll { width: 100%; }
+.roll input[type=range] { --p: 30%; --sz: 26px; appearance: none; width: 100%; height: 56px; background: none; margin: 0; cursor: grab; }
+.roll input[type=range]::-webkit-slider-runnable-track { height: 14px; border-radius: 7px; background: linear-gradient(90deg, var(--sn0) 0 var(--p), var(--sn2) var(--p)); box-shadow: inset 0 0 0 1px var(--sn4); }
+.roll input[type=range]::-moz-range-track { height: 14px; border-radius: 7px; background: linear-gradient(90deg, var(--sn0) 0 var(--p), var(--sn2) var(--p)); box-shadow: inset 0 0 0 1px var(--sn4); }
+.roll input[type=range]::-webkit-slider-thumb { appearance: none; width: var(--sz); height: var(--sz); margin-top: calc(7px - var(--sz) / 2); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 25%, var(--sn1) 55%, var(--sn3)); box-shadow: 0 3px 0 var(--sn4), inset 0 0 0 1px var(--sn4); transition: width .5s, height .5s, margin .5s; }
+.roll input[type=range]::-moz-range-thumb { width: var(--sz); height: var(--sz); border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 25%, var(--sn1) 55%, var(--sn3)); box-shadow: 0 3px 0 var(--sn4), inset 0 0 0 1px var(--sn4); }
+.roll input[type=range]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.roll__out { display: flex; justify-content: space-between; font: 400 15px/1.3 var(--mono); color: var(--ink2); }
+
+/* ───── deposit machine ───── */
+.machine { --r: 22px; padding: var(--s7) var(--s7) var(--s6); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s6) var(--s7); width: 100%; }
+.machine__fx { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s5); align-items: end; padding-top: var(--s5); }
+.forecast { font: 400 15px/1.6 var(--mono); color: var(--ink2); }
+.forecast b { font-size: 28px; color: var(--ink); font-weight: 600; display: block; line-height: 1.2; }
+@media (max-width: 760px) { .machine { grid-template-columns: minmax(0, 1fr); padding: var(--s6) var(--s5); } .machine__fx { grid-template-columns: minmax(0, 1fr); } }
+.balance { display: flex; align-items: baseline; gap: 10px; font: 600 clamp(30px, 4vw, 44px)/1 var(--mono); }
+.balance small { font: 400 15px/1 var(--mono); color: var(--mute); }
+/* odometer: digits roll slowly */
+.odo { display: inline-flex; overflow: hidden; height: 1.1em; line-height: 1.1em; vertical-align: bottom; }
+.odo__c { display: inline-block; position: relative; height: 1.1em; }
+.odo__c > span { display: flex; flex-direction: column; transition: transform var(--roll) cubic-bezier(.25,.8,.25,1); }
+.odo__c > span > span { height: 1.1em; }
+
+/* ───── chips, badges, cards ───── */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { --fill: var(--sn1); --r: 22px; --cr: var(--sn3); --db: transparent; appearance: none; border: 0; background: none; cursor: pointer; min-height: 44px; padding: 0 18px 0 14px; display: inline-flex; align-items: center; gap: 8px; font: 500 15px/1 var(--ko); color: var(--sn-ink); }
+.chip i { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--sn4); flex: none; }
+.chip[aria-pressed="true"] { --fill: var(--sn5); --cr: var(--up); --db: var(--down); color: #fff; }
+.chip[aria-pressed="true"] i { background: #fff; box-shadow: none; }
+.badge { --r: 6px; --fill: transparent; display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 2px 12px; font: 500 14px/1.2 var(--mono); white-space: nowrap; }
+.badge--grow { --fill: var(--panel); color: var(--ink); }
+.badge--due { --fill: var(--ink); color: var(--bg); --cr: var(--ink); --db: var(--bg); }
+.badge--rep { --cr: var(--mute); --db: transparent; color: var(--mute); }
+.badge--dis { --fill: var(--panel); color: var(--ink); }
+.badge--dis s { color: var(--mute); }
+.badge--up { color: var(--up); --fill: var(--panel); } .badge--down { color: var(--down); --fill: var(--panel); }
+.cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: var(--s6) var(--s5); width: 100%; }
+.card { --r: 20px; padding: var(--s5) var(--s5) var(--s6); display: grid; gap: 8px; align-content: start; }
+.card__port { --r: 50%; height: 150px; display: grid; place-items: center; background: radial-gradient(circle at 50% 50%, #08102a 0 60%, transparent 61%); }
+.card__port svg { width: 120px; height: 120px; }
+.card h3 { font-size: 20px; }
+.card h3 small { font: 400 14px/1 var(--mono); color: var(--mute); margin-left: 6px; }
+.card p { margin: 0; font-size: 16px; color: var(--ink2); }
+.card .badge { justify-self: start; }
+.card--wide { grid-column: 1 / -1; }
+
+/* ───── tabs ───── */
+.tabs { width: 100%; }
+.tablist { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.tab { --fill: transparent; --cr: transparent; --db: transparent; --r: 12px; appearance: none; border: 0; background: none; cursor: pointer; min-height: 50px; padding: 0 20px; font: 500 16px/1 var(--ko); color: var(--ink2); white-space: nowrap; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { --fill: var(--panel); --cr: var(--up); --db: var(--down); color: var(--ink); font-weight: 700; }
+.tabpanel { --r: 18px; padding: var(--s6); margin-top: -2px; }
+.tabpanel[hidden] { display: none; }
+.chart-top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--s4); margin-bottom: var(--s4); }
+.chart-q { font: 400 15px/1.4 var(--mono); color: var(--ink2); }
+.chart-q b { font-size: 30px; color: var(--ink); display: block; font-weight: 600; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart .grid line { stroke: var(--mute); stroke-opacity: .35; stroke-dasharray: 2 4; }
+.chart .ax { font: 400 12px var(--mono); fill: var(--mute); }
+.chart .ma { fill: none; stroke: var(--ink2); stroke-width: 1.5; }
+.chart .c-up { fill: var(--up); stroke: var(--up); }
+.chart .c-dn { fill: var(--down); stroke: var(--down); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font: 400 14px/1.4 var(--mono); color: var(--ink2); margin-top: 10px; }
+.legend i { display: inline-block; width: 12px; height: 12px; vertical-align: -1px; margin-right: 6px; }
+.slips { list-style: none; margin: 0; padding: 0; columns: 2 260px; column-gap: var(--s7); }
+.slips li { break-inside: avoid; display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; background: linear-gradient(var(--down), var(--down)) 0 100% / 100% 1px no-repeat; font: 400 16px/1.4 var(--mono); }
+.slips li span:last-child { white-space: nowrap; }
+.slips s { color: var(--mute); }
+
+/* ───── table + pager ───── */
+.tbl-wrap { width: 100%; overflow-x: auto; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 16px; min-width: 560px; }
+.tbl caption { text-align: left; font: 400 14px/1.4 var(--mono); color: var(--mute); padding-bottom: 8px; }
+.tbl th { text-align: left; font: 500 14px/1.2 var(--mono); color: var(--mute); padding: 0; }
+.tbl thead tr { background: linear-gradient(var(--up), var(--up)) 0 100% / 100% 2px no-repeat, linear-gradient(var(--down), var(--down)) 0 calc(100% - 4px) / 100% 1px no-repeat; }
+.tbl th button { appearance: none; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; min-height: 48px; padding: 0 10px 8px 0; display: inline-flex; align-items: center; gap: 6px; }
+.tbl th button:hover { color: var(--ink); }
+.tbl th .ar { font-size: 12px; opacity: .5; }
+.tbl th[aria-sort] .ar { opacity: 1; color: var(--ink); }
+.tbl td { padding: 12px 10px 12px 0; vertical-align: middle; background: linear-gradient(var(--down), var(--down)) 0 100% / 100% 1px no-repeat; }
+.tbl td.r, .tbl th.r { text-align: right; }
+.tbl th.r button { justify-content: flex-end; width: 100%; }
+.tbl td.n { font-family: var(--mono); }
+.tbl tfoot td { font: 600 16px/1.3 var(--mono); padding-top: 14px; padding-bottom: 16px; background: linear-gradient(var(--up), var(--up)) 0 100% / 100% 2px no-repeat, linear-gradient(var(--down), var(--down)) 0 calc(100% - 4px) / 100% 1px no-repeat; }
+.pager { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: var(--s4); }
+.pager .btn { min-width: 50px; padding: 0 12px; }
+.pager .btn[aria-current="page"] { --fill: var(--sn5); color: #fff; }
+.pager__info { font: 400 14px/1 var(--mono); color: var(--mute); margin-left: auto; }
+
+/* ───── steps / progress / accordion ───── */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; width: 100%; counter-reset: st; }
+.steps li { --r: 10px; --fill: transparent; --cr: var(--sn3); --db: transparent; padding: 12px 12px 14px; font-size: 15px; line-height: 1.4; counter-increment: st; color: var(--mute); }
+.steps li::marker { content: none; }
+.steps li b { display: block; font: 600 14px/1.2 var(--mono); margin-bottom: 4px; }
+.steps li b::before { content: "0" counter(st) " · "; }
+.steps li.done { --fill: var(--sn1); --cr: var(--sn4); color: var(--sn-ink); }
+.steps li[aria-current="step"] { --fill: var(--panel); --cr: var(--up); --db: var(--down); color: var(--ink); font-weight: 700; }
+@media (max-width: 640px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+.meters { display: grid; gap: var(--s5); width: 100%; }
+.meter__top { display: flex; justify-content: space-between; gap: 10px; font: 400 15px/1.4 var(--mono); margin-bottom: 6px; }
+.meter__bar { --r: 9px; --fill: var(--sn2); height: 30px; padding: 7px 9px; display: flex; gap: 3px; }
+.meter__bar i { flex: 1; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 25%, var(--sn1) 55%, var(--sn3)); box-shadow: 0 1px 0 var(--sn4); transition: opacity .8s; aspect-ratio: 1; max-width: 16px; }
+.meter__bar i.off { opacity: .15; }
+.snowman { display: flex; align-items: flex-end; gap: var(--s5); flex-wrap: wrap; }
+.snowman svg { width: 110px; height: 150px; }
+.snowman circle { transition: opacity .6s, transform .8s cubic-bezier(.3,1.5,.5,1); transform-box: fill-box; transform-origin: center bottom; }
+.snowman .off { opacity: .1; transform: translateY(-10px); }
+.acc { width: 100%; display: grid; gap: 8px; }
+.acc__item { --r: 14px; }
+.acc__item h3 { margin: 0; font: inherit; }
+.acc__btn { appearance: none; border: 0; background: none; width: 100%; min-height: 56px; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 6px 18px; text-align: left; cursor: pointer; font: 600 16px/1.4 var(--ko); color: var(--ink); }
+.acc__hatch { width: 30px; height: 30px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--ink2); position: relative; transition: transform .9s cubic-bezier(.3,1.3,.5,1); }
+.acc__hatch::before, .acc__hatch::after { content: ""; position: absolute; left: 50%; top: 4px; bottom: 4px; width: 2px; margin-left: -1px; background: var(--ink2); }
+.acc__hatch::after { transform: rotate(90deg); }
+.acc__btn[aria-expanded="true"] .acc__hatch { transform: rotate(135deg); }
+.acc__btn .t { font-size: 14px; }
+.acc__panel { padding: 0 22px 20px 70px; color: var(--ink2); }
+.acc__panel[hidden] { display: none; }
+@media (max-width: 640px) { .acc__panel { padding-left: 22px; } }
+
+/* ───── dialog / panel / toasts ───── */
+dialog.vault { border: 0; padding: 0; background: none; color: var(--ink); width: min(500px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: visible; }
+dialog.vault::backdrop { background: var(--veil); }
+.vault__in { --r: 26px; padding: var(--s7) var(--s6) var(--s6); display: grid; gap: var(--s4); }
+.vault__door { justify-self: center; width: 150px; height: 150px; }
+.vault__door .wheel { transform-box: fill-box; transform-origin: center; transition: transform 2.6s cubic-bezier(.3,.9,.3,1); }
+dialog[open] .vault__door .wheel { transform: rotate(-270deg); }
+.vault h2 { font-size: 24px; }
+.vault__acts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.veil { position: fixed; inset: 0; background: var(--veil); z-index: 40; }
+.veil[hidden], .panel[hidden] { display: none; }
+.panel { position: fixed; z-index: 41; top: 0; right: 0; bottom: 0; width: min(440px, 100vw); background: var(--panel); color: var(--ink); display: flex; flex-direction: column; box-shadow: -2px 0 0 var(--up), -6px 0 0 var(--panel), -7px 0 0 var(--down); animation: slidein .5s cubic-bezier(.2,.8,.2,1); }
+@keyframes slidein { from { transform: translateX(40px); opacity: 0; } }
+.panel__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px 14px 22px; }
+.panel__head h2 { font-size: 20px; }
+.panel__body { padding: 8px 22px 22px; overflow-y: auto; display: grid; gap: var(--s5); align-content: start; }
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 16px; }
+.log li { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; }
+.log b { font-weight: 700; }
+.toasts { position: fixed; z-index: 60; right: 16px; bottom: 16px; display: grid; gap: 10px; width: min(360px, calc(100vw - 102px)); pointer-events: none; }
+.toast { --fill: var(--sn0); --r: 10px; --cr: var(--sn4); --db: transparent; pointer-events: auto; padding: 16px 18px 14px; color: var(--sn-ink); font: 400 15px/1.55 var(--mono); animation: tin .6s cubic-bezier(.2,1.3,.4,1); }
+.toast b { display: block; font-weight: 600; font-size: 15px; }
+.toast .t { color: var(--sn4); font-size: 14px; }
+.toast.out { animation: tout .4s forwards; }
+@keyframes tin { from { transform: translateY(18px) rotate(-2deg); opacity: 0; } }
+@keyframes tout { to { transform: translateY(12px); opacity: 0; } }
+
+/* ───── principles ───── */
+.rules { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--s5); width: 100%; }
+.rules li { --r: 14px; padding: var(--s5) var(--s5) var(--s6); }
+.rules b { display: block; font: 600 17px/1.4 var(--mono); margin-bottom: 6px; }
+.rules span { color: var(--ink2); font-size: 16px; }
+
+/* ───── footer ───── */
+footer { margin-top: var(--s9); }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; padding-top: var(--s6); padding-bottom: 46px; font-size: 16px; color: var(--mute); }
+footer a { display: inline-flex; align-items: center; min-height: 44px; }
+@media (max-width: 560px) { footer .wrap { padding-left: 86px; padding-bottom: 90px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+  :root { --roll: .01ms; }
+  .ticker__row { flex-wrap: wrap; width: auto; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<!-- cast sprite: four original toys, monochrome (interaction axis: snow, greys only) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="snowg" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#eef1f3"/><stop offset="1" stop-color="#b4bec7"/></radialGradient>
+    <radialGradient id="snowg2" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="#f7f9fa"/><stop offset=".7" stop-color="#d9dfe4"/><stop offset="1" stop-color="#9aa5ae"/></radialGradient>
+  </defs>
+  <!-- 뭉치: a snowball kid who grows when it saves -->
+  <symbol id="s-mung" viewBox="0 0 100 100">
+    <path d="M50 10c6-6 12-2 10 4" fill="none" stroke="#6b757e" stroke-width="3" stroke-linecap="round"/>
+    <path d="M52 13c5 0 8-4 8-4" fill="none" stroke="#6b757e" stroke-width="2.4" stroke-linecap="round"/>
+    <circle cx="50" cy="56" r="38" fill="url(#snowg)" stroke="#6b757e" stroke-width="2"/>
+    <circle cx="20" cy="40" r="7" fill="#f4f6f8" stroke="#6b757e" stroke-width="1.6"/>
+    <circle cx="83" cy="64" r="6" fill="#f4f6f8" stroke="#6b757e" stroke-width="1.6"/>
+    <ellipse cx="38" cy="54" rx="4.2" ry="5.6" fill="#232a30"/><ellipse cx="62" cy="54" rx="4.2" ry="5.6" fill="#232a30"/>
+    <circle cx="39.4" cy="52" r="1.4" fill="#fff"/><circle cx="63.4" cy="52" r="1.4" fill="#fff"/>
+    <ellipse cx="30" cy="65" rx="6" ry="3.4" fill="#cfd6dc"/><ellipse cx="70" cy="65" rx="6" ry="3.4" fill="#cfd6dc"/>
+    <path d="M43 66q7 7 14 0" fill="none" stroke="#232a30" stroke-width="2.6" stroke-linecap="round"/>
+  </symbol>
+  <!-- 엄지: a mitten teller -->
+  <symbol id="s-umji" viewBox="0 0 100 100">
+    <path d="M30 86V44c0-18 9-32 24-32s22 12 22 28v8c4-6 14-6 16 2 2 9-6 16-16 22v16z" fill="url(#snowg2)" stroke="#6b757e" stroke-width="2" stroke-linejoin="round"/>
+    <rect x="26" y="78" width="54" height="16" rx="5" fill="#d9dfe4" stroke="#6b757e" stroke-width="2"/>
+    <path d="M34 80v12M41 80v12M48 80v12M55 80v12M62 80v12M69 80v12" stroke="#9aa5ae" stroke-width="2"/>
+    <circle cx="44" cy="42" r="4" fill="#232a30"/><circle cx="62" cy="42" r="4" fill="#232a30"/>
+    <circle cx="45.2" cy="40.6" r="1.2" fill="#fff"/><circle cx="63.2" cy="40.6" r="1.2" fill="#fff"/>
+    <path d="M47 54q6 5 12 0" fill="none" stroke="#232a30" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M38 64h30M38 70h22" stroke="#b4bec7" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+  <!-- 솜이·몽이: earmuff twins, debit and credit -->
+  <symbol id="s-twin" viewBox="0 0 100 100">
+    <path d="M22 58C22 22 78 22 78 58" fill="none" stroke="#9aa5ae" stroke-width="7" stroke-linecap="round"/>
+    <path d="M22 58C22 22 78 22 78 58" fill="none" stroke="#eef1f3" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="22" cy="64" r="18" fill="url(#snowg)" stroke="#6b757e" stroke-width="2"/>
+    <circle cx="78" cy="64" r="18" fill="url(#snowg)" stroke="#6b757e" stroke-width="2"/>
+    <circle cx="16" cy="62" r="2.8" fill="#232a30"/><circle cx="28" cy="62" r="2.8" fill="#232a30"/>
+    <circle cx="72" cy="62" r="2.8" fill="#232a30"/><circle cx="84" cy="62" r="2.8" fill="#232a30"/>
+    <path d="M18 70q4 3 8 0" fill="none" stroke="#232a30" stroke-width="2" stroke-linecap="round"/>
+    <path d="M74 72q4-3 8 0" fill="none" stroke="#232a30" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+  <!-- 보온이: a thermos who keeps the oxygen -->
+  <symbol id="s-bo" viewBox="0 0 100 100">
+    <rect x="34" y="8" width="32" height="14" rx="5" fill="#9aa5ae" stroke="#3a4249" stroke-width="2"/>
+    <rect x="30" y="20" width="40" height="72" rx="14" fill="url(#snowg2)" stroke="#6b757e" stroke-width="2"/>
+    <rect x="30" y="58" width="40" height="18" fill="#cfd6dc" stroke="#6b757e" stroke-width="1.5"/>
+    <text x="50" y="72" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="#3a4249">O₂</text>
+    <circle cx="42" cy="40" r="3.4" fill="#232a30"/><circle cx="58" cy="40" r="3.4" fill="#232a30"/>
+    <path d="M45 49q5 4 10 0" fill="none" stroke="#232a30" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M70 46c10 0 12 14 2 18" fill="none" stroke="#6b757e" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="s-sled" viewBox="0 0 32 24">
+    <path d="M3 18h24c3 0 4-3 3-5" fill="none" stroke="#3a4249" stroke-width="2.2" stroke-linecap="round"/>
+    <rect x="5" y="5" width="20" height="9" rx="3" fill="#ffffff" stroke="#3a4249" stroke-width="1.8"/>
+    <path d="M9 14v4M21 14v4" stroke="#3a4249" stroke-width="1.8"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap rule" style="background-position: 0 100%, 0 calc(100% - 4px)">
+    <a class="brand" href="#main" aria-label="Dormant 휴면계좌, 맨 위로">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 18h18" stroke="var(--up)" stroke-width="2"/><path d="M5 21h18" stroke="var(--down)" stroke-width="1.2"/><circle cx="14" cy="11" r="4" fill="currentColor"/></svg>
+      Dormant <small>휴면계좌</small>
+    </a>
+    <nav class="nav" aria-label="섹션">
+      <a href="#draw">추첨</a><a href="#base">기초</a><a href="#cast">출연진</a><a href="#teller">예치 창구</a><a href="#press">누르기</a><a href="#quote">시세</a><a href="#ledger">원장</a><a href="#dock">도킹</a><a href="#vault">금고</a>
+    </nav>
+    <div class="orbit" aria-live="off"><span class="orbit__dot" aria-hidden="true"></span><span class="orbit__txt"><b id="sideName">낮면</b> <span id="orbitClock">--:--</span></span></div>
+    <button class="ibtn sc" type="button" id="panelOpen" aria-label="관제 교신 열기" aria-haspopup="dialog" aria-controls="panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18c3-8 13-8 16 0M8 18c1.5-3 6.5-3 8 0"/><circle cx="12" cy="6" r="2.5"/><path d="M12 8.5V13"/></svg></button>
+  </div>
+</header>
+
+<main id="main">
+<div class="wrap hero">
+  <div>
+    <div class="hero__k"><span>추상층 교배 · 무작위 추첨</span><span>시드 20261101</span><span>9축</span><span class="t">궤도 주기 92분</span></div>
+    <h1 data-shadow="Doormat">Dormant</h1>
+    <p class="sub">휴면계좌 — 꿈의 원장, 궤도 위의 눈마을</p>
+    <p class="lead">잠든 아이의 꿈속을 도는 우주정거장 은행입니다. 기분을 맡기면 무의식이 복리로 불려 주고, 원장은 눈덩이로 맞춥니다. 장난감 친구들은 무중력에 떠서 오늘의 배움을 연습합니다. 아껴 둔 것은 커져요. 무서운 것도요.</p>
+    <div class="hero__acts">
+      <a class="btn btn--packed sc gh gh--s" data-shadow="숨기기" href="#teller">기분 맡기러 가기</a>
+      <a class="btn sc" href="#draw">추첨 원장 보기</a>
+    </div>
+    <div class="facts total">
+      <div><b class="num">9</b><span>뽑힌 축</span></div>
+      <div><b class="num">×1.25</b><span>간격 복리</span></div>
+      <div><b class="num">1음</b><span>소리 전부</span></div>
+      <div><b class="num">0색</b><span>조작 부품</span></div>
+    </div>
+  </div>
+
+  <figure class="scene sc" style="margin:0">
+    <svg viewBox="0 0 640 470" role="img" aria-labelledby="sceneT sceneD">
+      <title id="sceneT">휴면 은행 도르만트-1 객실</title>
+      <desc id="sceneD">금박 단열재를 두른 우주정거장 객실. 둥근 현창 너머 지구의 꼭대기에 눈마을 이글루가 있고, 해 대신 감긴 눈꺼풀이 떠오른다. 객실 안에는 눈덩이 뭉치, 장갑 엄지, 귀마개 쌍둥이, 보온병 보온이가 흑백으로 둥둥 떠 있고, 왼쪽에는 금고 문을 겸한 에어록이 있다.</desc>
+      <defs>
+        <clipPath id="port"><circle cx="404" cy="200" r="148"/></clipPath>
+        <pattern id="foil" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="var(--foil)"/><path d="M0 40L40 0M-10 10L10-10M30 50L50 30" stroke="#000" stroke-opacity=".12" stroke-width="1"/></pattern>
+      </defs>
+      <!-- cabin -->
+      <rect x="0" y="0" width="640" height="470" fill="var(--bg2)"/>
+      <rect x="0" y="0" width="640" height="34" fill="url(#foil)"/>
+      <rect x="0" y="436" width="640" height="34" fill="url(#foil)"/>
+      <g stroke="var(--ink)" stroke-opacity=".18" stroke-width="1.2" fill="none">
+        <path d="M0 64h640M0 406h640M200 34v402M600 34v402"/>
+        <rect x="18" y="82" width="56" height="34"/><rect x="18" y="124" width="56" height="34"/>
+        <rect x="610" y="90" width="22" height="120"/>
+      </g>
+      <g fill="var(--ink)" fill-opacity=".45" font-family="IBM Plex Mono, monospace" font-size="11">
+        <text x="22" y="103">O₂ 21.0</text><text x="22" y="145">CO₂ 0.4</text>
+        <text x="214" y="56">MODULE 03 · 예금부 · ISIN KR-DRM-0003-5</text>
+      </g>
+      <!-- velcro patches -->
+      <g fill="var(--ink)" fill-opacity=".14"><rect x="238" y="380" width="26" height="12"/><rect x="560" y="70" width="12" height="26"/><rect x="96" y="372" width="26" height="12"/></g>
+      <!-- airlock / vault door -->
+      <g transform="translate(104 240)">
+        <circle r="84" fill="var(--panel)" stroke="var(--ink)" stroke-opacity=".5" stroke-width="2"/>
+        <circle r="74" fill="none" stroke="var(--up)" stroke-width="2"/><circle r="70" fill="none" stroke="var(--down)" stroke-width="1"/>
+        <g class="spinslow"><circle r="38" fill="none" stroke="var(--ink)" stroke-opacity=".7" stroke-width="5"/>
+          <path d="M0-56V56M-56 0H56M-40-40L40 40M40-40L-40 40" stroke="var(--ink)" stroke-opacity=".7" stroke-width="4" stroke-linecap="round"/>
+          <circle r="10" fill="var(--ink)" fill-opacity=".8"/></g>
+        <text y="104" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--ink)" fill-opacity=".6">AIRLOCK = VAULT</text>
+      </g>
+      <!-- porthole -->
+      <g clip-path="url(#port)">
+        <rect x="250" y="40" width="320" height="320" fill="#060a1c"/>
+        <g fill="#fff"><circle cx="300" cy="90" r="1.2"/><circle cx="350" cy="140" r=".9"/><circle cx="470" cy="80" r="1.4"/><circle cx="520" cy="150" r="1"/><circle cx="430" cy="120" r=".8"/><circle cx="280" cy="170" r="1"/><circle cx="380" cy="72" r="1"/><circle cx="500" cy="200" r=".8"/></g>
+        <!-- sun is a closed eyelid -->
+        <g class="sunlid" transform="translate(470 196)">
+          <circle r="30" fill="#ffd27a" fill-opacity=".9"/>
+          <path d="M-22 0q22 18 44 0" fill="none" stroke="#3a2a10" stroke-width="3" stroke-linecap="round"/>
+          <path d="M-14 8l-4 7M0 11v8M14 8l4 7" stroke="#3a2a10" stroke-width="2.4" stroke-linecap="round"/>
+        </g>
+        <!-- moon, half-lidded on the night side -->
+        <g transform="translate(320 110)"><circle r="16" fill="#e8ecf2"/><path d="M-16 0a16 16 0 0 1 32 0z" fill="#9aa5ae"/><path d="M-12 1q12 7 24 0" fill="none" stroke="#3a4249" stroke-width="1.6"/></g>
+        <!-- earth -->
+        <circle cx="404" cy="560" r="290" fill="var(--earth)"/>
+        <circle cx="404" cy="560" r="290" fill="none" stroke="#bfe0ff" stroke-opacity=".7" stroke-width="5"/>
+        <path d="M250 300c40-22 90-30 140-28s100 8 170 34v80H250z" fill="#f5f7f9"/>
+        <!-- igloo village -->
+        <g fill="#ffffff" stroke="#9aa5ae" stroke-width="1.4">
+          <path d="M318 296a22 22 0 0 1 44 0z"/><path d="M370 286a28 28 0 0 1 56 0z"/><path d="M436 292a18 18 0 0 1 36 0z"/>
+        </g>
+        <g fill="#3a4249"><path d="M334 296a6 7 0 0 1 12 0z"/><path d="M391 286a7 9 0 0 1 14 0z"/><path d="M448 292a6 6 0 0 1 12 0z"/></g>
+        <g class="citylights" fill="#ffd27a"><circle cx="340" cy="304" r="2"/><circle cx="398" cy="298" r="2.4"/><circle cx="452" cy="302" r="2"/><circle cx="300" cy="320" r="1.4"/><circle cx="500" cy="318" r="1.6"/></g>
+        <!-- surreal: a door standing in space, light leaking -->
+        <g transform="translate(366 140) rotate(-8)"><rect width="26" height="46" fill="#1c2346" stroke="#9aa5ae" stroke-width="1.2"/><path d="M26 0l18 6v34l-18 6z" fill="#ffe7a8" fill-opacity=".55"/><circle cx="20" cy="24" r="1.6" fill="#ffe7a8"/></g>
+        <text x="404" y="352" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#ffffff" fill-opacity=".7">아이는 지금 렘수면</text>
+      </g>
+      <circle cx="404" cy="200" r="148" fill="none" stroke="var(--ink)" stroke-opacity=".75" stroke-width="10"/>
+      <circle cx="404" cy="200" r="160" fill="none" stroke="var(--up)" stroke-width="2.5"/>
+      <circle cx="404" cy="200" r="164" fill="none" stroke="var(--down)" stroke-width="1.2"/>
+      <g fill="var(--ink)" fill-opacity=".55"><circle cx="404" cy="44" r="4"/><circle cx="404" cy="356" r="4"/><circle cx="248" cy="200" r="4"/><circle cx="560" cy="200" r="4"/><circle cx="294" cy="90" r="4"/><circle cx="514" cy="90" r="4"/><circle cx="294" cy="310" r="4"/><circle cx="514" cy="310" r="4"/></g>
+      <!-- floating cast (monochrome) -->
+      <g class="bob"><use href="#s-mung" x="214" y="276" width="120" height="120"/></g>
+      <g class="bob d1"><use href="#s-umji" x="506" y="292" width="104" height="104"/></g>
+      <g class="bob d2"><use href="#s-twin" x="236" y="96" width="98" height="98"/></g>
+      <g class="bob d3"><use href="#s-bo" x="540" y="128" width="84" height="84"/></g>
+      <!-- floating objects -->
+      <g class="bob d4">
+        <g transform="translate(420 362) rotate(9)"><rect width="74" height="54" fill="#ffffff" stroke="#6b757e" stroke-width="1.5"/><path d="M8 14h40M8 24h52M8 34h30" stroke="#b4bec7" stroke-width="2"/><path d="M8 44h58" stroke="var(--up)" stroke-width="1.5"/><path d="M8 47h58" stroke="var(--down)" stroke-width="1"/></g>
+      </g>
+      <g class="bob d2"><circle cx="186" cy="94" r="10" fill="url(#snowg)" stroke="#6b757e" stroke-width="1.2"/><circle cx="168" cy="124" r="6" fill="url(#snowg)" stroke="#6b757e" stroke-width="1"/></g>
+      <g class="bob d1"><path d="M370 410l60-6 2 12-60 6z" fill="#ffffff" stroke="#6b757e" stroke-width="1"/><text x="378" y="420" font-family="IBM Plex Mono, monospace" font-size="8" fill="#3a4249" transform="rotate(-6 378 420)">예감 +3.2</text></g>
+    </svg>
+    <figcaption class="cap"><span>MODULE 03 · 예금부</span><span class="t" id="epTime">에피소드 07 · 00:00 / 11:00</span></figcaption>
+  </figure>
+</div>
+
+<div class="wrap ticker rule" aria-labelledby="tickLab">
+  <div class="ticker__lab" id="tickLab">말실수 시세 · 느리게 흐름 · 올리면 멈춤 <span class="sr">(빨강은 오름, 파랑은 내림)</span></div>
+  <div class="ticker__row" id="ticker"></div>
+</div>
+
+<!-- ============ 01 추첨 ============ -->
+<section class="sec wrap" id="draw" style="--n:0; --g:40px" aria-labelledby="h-draw">
+  <div class="lhead rule">
+    <div class="lhead__code"><b>01</b>KR-DRM-0001-3</div>
+    <div><h2 id="h-draw">추첨 원장</h2><p>열여섯 개의 축 가운데 아홉 개를 시드 난수로 뽑고, 축마다 원천(1–4)과 연산자를 다시 뽑았습니다. 고르지 않았고, 다시 뽑지 않았습니다. 뽑힌 대로 억지로 붙였습니다. 뽑히지 않은 일곱 축(질감, 조명, 움직임, 장식, 상태 표현, 배경, 말투)은 개성 없는 기본값입니다.</p></div>
+    <div class="lbal">차변 = 대변<b class="num">9 / 9</b></div>
+  </div>
+  <div class="lrow">
+    <div class="lrow__name"><h3>시드</h3><code>mulberry32</code></div>
+    <div class="stage col">
+      <div class="seedbar sc"><span>시드 <b class="num">20261101</b></span><span>축 16 → 9 (피셔–예이츠)</span><span>원천 4 · 연산 12</span><span class="ok" id="verify" role="status">검증 중…</span></div>
+      <table class="xt">
+        <caption>추첨 결과 9축 · 위에서부터 뽑힌 순서</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">축</th><th scope="col">원천</th><th scope="col">연산</th><th scope="col">추출한 성질</th><th scope="col">결과 규칙</th></tr></thead>
+        <tbody id="xtBody">
+          <tr><td class="idx">1</td><td data-l="축">소리·시간</td><td data-l="원천"><span class="src">3 눈마을 만화</span></td><td data-l="연산"><span class="op">흑백화</span></td><td data-l="추출한 성질">밝은 징글, 통통 튀는 효과음, 11분짜리 에피소드의 시간</td><td data-l="결과 규칙">소리는 단 한 음(미5, 659Hz)만. 모든 시계와 시각은 회색으로만 표시</td></tr>
+          <tr><td class="idx">2</td><td data-l="축">모양</td><td data-l="원천"><span class="src">3 눈마을 만화</span></td><td data-l="연산"><span class="op">반전</span></td><td data-l="추출한 성질">말랑하고 볼록한 3D 장난감의 둥긂</td><td data-l="결과 규칙">둥긂을 뒤집어 오목하게. 모든 모서리는 안으로 파인 반원. 캐릭터는 둥근 구멍(현창) 안에만 있음</td></tr>
+          <tr><td class="idx">3</td><td data-l="축">색</td><td data-l="원천"><span class="src">4 우주정거장</span></td><td data-l="연산"><span class="op">다른 축으로 이식</span></td><td data-l="추출한 성질">정거장의 시간: 92분 궤도, 낮면과 밤면이 번갈아 옴</td><td data-l="결과 규칙">색을 사용자가 아니라 궤도 시각이 정함. 낮면은 베타 천 흰색·금박, 밤면은 일식의 남색. 6초에 걸쳐 해가 뜸</td></tr>
+          <tr><td class="idx">4</td><td data-l="축">간격</td><td data-l="원천"><span class="src">1 금융</span></td><td data-l="연산"><span class="op">다른 축으로 이식</span></td><td data-l="추출한 성질">금융의 시간: 원금에 이자가 붙는 복리</td><td data-l="결과 규칙">간격 단위는 8px 원금에 25% 복리(8, 10, 12.5, 15.6…). 섹션 사이 간격은 아래로 갈수록 8%씩 이자가 붙음</td></tr>
+          <tr><td class="idx">5</td><td data-l="축">글자</td><td data-l="원천"><span class="src">1 금융</span></td><td data-l="연산"><span class="op">감속</span></td><td data-l="추출한 성질">고정폭 표 숫자, 쉴 새 없이 바뀌는 시세판</td><td data-l="결과 규칙">전부 고정폭. 자간과 행간을 넓혀 천천히 읽힘. 숫자는 1.6초 동안 굴러서 바뀌고, 시세 띠는 240초에 한 바퀴</td></tr>
+          <tr><td class="idx">6</td><td data-l="축">조작 은유</td><td data-l="원천"><span class="src">3 눈마을 만화</span></td><td data-l="연산"><span class="op">흑백화</span></td><td data-l="추출한 성질">썰매, 눈덩이 굴리기, 발자국, 눈사람 쌓기 같은 친구들의 놀이</td><td data-l="결과 규칙">모든 조작 부품은 눈 놀이 사물이고, 흰색과 회색 일곱 단만 씀. 색이 바뀌는 궤도 위에서도 부품은 색을 받지 않음</td></tr>
+          <tr><td class="idx">7</td><td data-l="축">깊이·그림자</td><td data-l="원천"><span class="src">2 무의식</span></td><td data-l="연산"><span class="op">다른 축으로 이식</span></td><td data-l="추출한 성질">무의식의 내용: 억압된 낱말, 그림자 원형, 말실수</td><td data-l="결과 규칙">그림자는 어두운 복사본이 아니라 억압된 낱말. 사물 뒤로 다른 낱말이 비어져 나오고, 올리면 조금 더 드러남</td></tr>
+          <tr><td class="idx">8</td><td data-l="축">선·테두리</td><td data-l="원천"><span class="src">1 금융</span></td><td data-l="연산"><span class="op">다른 축으로 이식</span></td><td data-l="추출한 성질">금융의 상태 표현: 오름 빨강, 내림 파랑, 그리고 복식부기</td><td data-l="결과 규칙">모든 가장자리는 두 줄 장부. 바깥은 대변 빨강 2px, 안쪽은 차변 파랑 1px. 한쪽만 그리는 일은 없음</td></tr>
+          <tr><td class="idx">9</td><td data-l="축">레이아웃</td><td data-l="원천"><span class="src">1 금융</span></td><td data-l="연산"><span class="op">그대로</span></td><td data-l="추출한 성질">원장: 계정 코드 열, 적요, 잔액 열, 맨 아래 두 줄 합계</td><td data-l="결과 규칙">페이지 자체가 원장. 왼쪽 코드 열, 가운데 내용, 오른쪽 잔액 열. 섹션은 행, 끝에는 합계선</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lrow__note"><p>이 페이지는 열릴 때 같은 시드로 다시 뽑아 표와 대조합니다.</p><p>원천 2(무의식)와 4(우주정거장)는 한 번씩만 뽑혔습니다. 대신 이야기와 그림에서 자리를 얻습니다.</p></div>
+  </div>
+</section>
+
+<!-- ============ 02 기초 ============ -->
+<section class="sec wrap" id="base" style="--n:1; --g:43px" aria-labelledby="h-base">
+  <div class="lhead rule">
+    <div class="lhead__code"><b>02</b>KR-DRM-0002-1</div>
+    <div><h2 id="h-base">기초</h2><p>색은 시계가 정하고, 부품은 색을 받지 않고, 모서리는 파여 있고, 그림자는 낱말입니다.</p></div>
+    <div class="lbal">섹션 간격<b class="num" data-gap>43.2px</b>+8% / 행</div>
+  </div>
+
+  <div class="lrow">
+    <div class="lrow__name"><h3>색 · 궤도</h3><code>colour ← orbit</code></div>
+    <div class="stage col">
+      <div class="seg sc" role="radiogroup" aria-label="색을 정하는 방식" id="sideSeg">
+        <button type="button" class="sc" role="radio" aria-checked="true" data-v="orbit">궤도 따라</button>
+        <button type="button" class="sc" role="radio" aria-checked="false" data-v="day">낮면 고정</button>
+        <button type="button" class="sc" role="radio" aria-checked="false" data-v="night">밤면 고정</button>
+      </div>
+      <p class="t" id="orbitLine" style="margin:0">궤도 위치 계산 중</p>
+      <div class="sw" id="swatches"></div>
+    </div>
+    <div class="lrow__note"><p>92분 궤도 가운데 56분은 낮면, 36분은 밤면입니다. 실제 시계를 따라 해가 뜨고 집니다.</p><p>대비는 두 면 모두 4.5:1 이상.</p></div>
+  </div>
+
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>눈 · 일곱 단</h3><code>snow, fixed</code></div>
+    <div class="stage"><div class="sw sw--snow" id="snowSw"></div></div>
+    <div class="lrow__note"><p>조작 부품의 전부. 밤면에서는 달빛만큼 조금 어두워집니다.</p></div>
+  </div>
+
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>글자</h3><code>IBM Plex Mono · 나눔고딕코딩</code></div>
+    <div class="stage col typescale">
+      <div><code>56 / 표제</code><span style="font:600 clamp(34px,5vw,56px)/1.05 var(--mono);letter-spacing:-.03em">잔고 ❄ 1,204</span></div>
+      <div><code>32 / 섹션</code><span style="font:600 32px/1.2 var(--mono)">복리는 느리다</span></div>
+      <div><code>17 / 본문</code><span>자간 +0.02em, 행간 1.85. 모든 숫자는 같은 폭이라 세로로 줄이 맞습니다.</span></div>
+      <div><code>14 / 시각</code><span class="t">03:12:44 · 회색은 시간의 색</span></div>
+      <div><code>숫자 굴림</code><span class="num" style="font-size:28px"><span class="odo" id="odoDemo" aria-hidden="true"></span><span class="sr" id="odoDemoSr"></span></span> <button class="btn btn--sm sc" type="button" id="odoBtn">숫자 바꾸기</button></div>
+    </div>
+    <div class="lrow__note"><p>시세판의 숫자를 느리게. 1.6초 동안 굴러 바뀝니다.</p></div>
+  </div>
+
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>간격 · 복리</h3><code>8px × 1.25ⁿ</code></div>
+    <div class="stage"><div class="spacebars" id="spacebars"></div></div>
+    <div class="lrow__note"><p>8px 원금에 단계마다 25%. 반올림하지 않습니다. 12.5px는 12.5px입니다.</p></div>
+  </div>
+
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>모양 · 선 · 깊이</h3><code>scoop · double entry · ghost</code></div>
+    <div class="stage">
+      <div class="shapes">
+        <div class="sc" style="--r:6px">r 6 · 배지</div>
+        <div class="sc" style="--r:14px">r 14 · 기본</div>
+        <div class="sc" style="--r:30px">r 30 · 무대</div>
+        <div class="sc gh" style="--r:20px" data-shadow="불안">그림자 = 낱말</div>
+      </div>
+    </div>
+    <div class="lrow__note"><p>볼록한 장난감을 뒤집으면 오목한 구멍이 됩니다. 모든 가장자리에 빨강과 파랑이 함께 붙습니다.</p><p>그림자는 올리면 조금 더 비어져 나옵니다.</p></div>
+  </div>
+
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>소리 · 시간</h3><code>659.25Hz only</code></div>
+    <div class="stage tone">
+      <button class="btn sc" type="button" id="toneBtn">한 음 듣기</button>
+      <svg class="wave" viewBox="0 0 220 54" aria-hidden="true"><path d="M0 27 Q 13.75 0 27.5 27 T 55 27 T 82.5 27 T 110 27 T 137.5 27 T 165 27 T 192.5 27 T 220 27"/></svg>
+      <span class="t">멜로디 없음 · 화음 없음 · 모든 알림이 같은 음</span>
+    </div>
+    <div class="lrow__note"><p>만화의 징글에서 색을 빼듯 음을 뺐습니다. 소리는 꺼진 채로 시작합니다.</p></div>
+  </div>
+</section>
+
+<!-- ============ 03 출연진 ============ -->
+<section class="sec wrap" id="cast" style="--n:2; --g:46.7px" aria-labelledby="h-cast">
+  <div class="lhead rule">
+    <div class="lhead__code"><b>03</b>KR-DRM-0003-5</div>
+    <div><h2 id="h-cast">출연진</h2><p>눈마을에서 온 장난감 친구들. 흑백이고, 둥근 현창 안에서만 볼록합니다. 카드 뒤로 비어져 나온 낱말이 각자의 그림자입니다.</p></div>
+    <div class="lbal">섹션 간격<b class="num" data-gap>46.7px</b>+8% / 행</div>
+  </div>
+  <div class="lrow">
+    <div class="lrow__name"><h3>카드</h3><code>card.sc.gh</code></div>
+    <div class="stage">
+      <div class="cast">
+        <article class="card sc gh" data-shadow="욕심">
+          <div class="card__port sc sc--plain"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-mung"/></svg></div>
+          <h3>뭉치<small>눈덩이</small></h3>
+          <p>모을수록 커지는 눈덩이. 굴러가면 뭐든 붙여 옵니다.</p>
+          <span class="badge badge--grow sc">예금주</span>
+        </article>
+        <article class="card sc gh" data-shadow="잔소리">
+          <div class="card__port sc sc--plain"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-umji"/></svg></div>
+          <h3>엄지<small>벙어리장갑</small></h3>
+          <p>창구 담당. 엄지 하나로 도장을 찍습니다. 손가락이 없어 셈은 느립니다.</p>
+          <span class="badge badge--due sc">창구</span>
+        </article>
+        <article class="card sc gh" data-shadow="싸움">
+          <div class="card__port sc sc--plain"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-twin"/></svg></div>
+          <h3>솜이·몽이<small>귀마개</small></h3>
+          <p>쌍둥이 회계사. 솜이는 차변, 몽이는 대변만 듣습니다.</p>
+          <span class="badge badge--dis sc"><s>대변</s> 차변</span>
+        </article>
+        <article class="card sc gh" data-shadow="숨막힘">
+          <div class="card__port sc sc--plain"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-bo"/></svg></div>
+          <h3>보온이<small>보온병</small></h3>
+          <p>생명 유지 담당. 따뜻한 산소를 조금씩 나눠 줍니다.</p>
+          <span class="badge badge--rep sc">억압됨</span>
+        </article>
+      </div>
+    </div>
+    <div class="lrow__note"><p>오늘의 배움: <b>아껴 둔 것은 커져요.</b></p><p>그림자의 배움: 무서운 것도요.</p></div>
+  </div>
+</section>
+
+<!-- ============ 04 예치 창구 ============ -->
+<section class="sec wrap" id="teller" style="--n:3; --g:50.4px" aria-labelledby="h-teller">
+  <div class="lhead rule">
+    <div class="lhead__code"><b>04</b>KR-DRM-0004-9</div>
+    <div><h2 id="h-teller">예치 창구</h2><p>기분을 고르고 눈덩이를 굴려 크기를 정한 다음 맡깁니다. 무의식이 기분마다 다른 이율로 불립니다. 불안이 가장 빨리 붙습니다.</p></div>
+    <div class="lbal">현재 잔고<b class="num"><span class="odo" id="balTop" aria-hidden="true"></span><span class="sr" id="balTopSr"></span></b>눈덩이 ❄</div>
+  </div>
+  <div class="lrow">
+    <div class="lrow__name"><h3>눈덩이 예치기</h3><code>radio · range · select · input · switch · checkbox</code></div>
+    <div class="stage">
+      <form class="machine sc" id="depForm" novalidate style="--fill: var(--panel)">
+        <fieldset class="rds" id="feel">
+          <legend>맡길 기분</legend>
+          <label class="rd"><input type="radio" name="feel" value="기쁨" data-rate="3" checked> 기쁨 <small>3%</small></label>
+          <label class="rd"><input type="radio" name="feel" value="불안" data-rate="11"> 불안 <small>11%</small></label>
+          <label class="rd"><input type="radio" name="feel" value="그리움" data-rate="7"> 그리움 <small>7%</small></label>
+          <label class="rd"><input type="radio" name="feel" value="심심" data-rate="1"> 심심 <small>1%</small></label>
+        </fieldset>
+        <div class="field roll">
+          <label for="amt">원금 · 눈덩이 굴리기</label>
+          <input type="range" id="amt" min="1" max="40" value="12" aria-describedby="amtOut">
+          <div class="roll__out"><span>❄ 1</span><span id="amtOut" class="num">❄ 12</span><span>❄ 40</span></div>
+        </div>
+        <div class="field">
+          <label for="term">만기</label>
+          <div class="inp sc"><select id="term">
+            <option value="1">꿈 1회</option><option value="3" selected>꿈 3회</option><option value="7">꿈 7회</option><option value="30">깨어날 때까지 (30회)</option>
+          </select></div>
+        </div>
+        <div class="field">
+          <label for="memo">꿈 메모 <span class="hint">(20자 이내)</span></label>
+          <div class="inp sc" id="memoBox"><input id="memo" type="text" autocomplete="off" placeholder="예: 계단이 자꾸 길어짐" aria-describedby="memoHint memoErr"><span class="unit" id="memoCount">0/20</span></div>
+          <span class="hint" id="memoHint">비워 두면 무의식이 대신 적습니다.</span>
+          <span class="err" id="memoErr" hidden></span>
+        </div>
+        <div class="field">
+          <span class="lab" id="optLab">설정</span>
+          <div class="sw-row" role="group" aria-labelledby="optLab">
+            <button type="button" class="switch" role="switch" aria-checked="true" id="swAuto"><span class="switch__track sc" aria-hidden="true"><span class="switch__sled"><svg viewBox="0 0 32 24"><use href="#s-sled"/></svg></span></span><span>자동 재예치</span><span class="switch__st">켜짐</span></button>
+            <button type="button" class="switch" role="switch" aria-checked="false" id="swSound"><span class="switch__track sc" aria-hidden="true"><span class="switch__sled"><svg viewBox="0 0 32 24"><use href="#s-sled"/></svg></span></span><span>소리 (한 음)</span><span class="switch__st">꺼짐</span></button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="lab" id="ckLab">출항 전 점검</span>
+          <div class="checks" role="group" aria-labelledby="ckLab">
+            <label class="ck"><input type="checkbox" id="ckAll"> 모두 확인</label>
+            <div class="kids">
+              <label class="ck"><input type="checkbox" class="ckKid" checked> 벨크로로 통장 고정</label>
+              <label class="ck"><input type="checkbox" class="ckKid"> 산소 21% 확인</label>
+              <label class="ck"><input type="checkbox" class="ckKid"> 원장에 엄지 도장</label>
+            </div>
+          </div>
+        </div>
+        <div class="machine__fx total">
+          <div class="forecast" aria-live="polite" id="forecast"><b class="num">❄ 16.5</b>만기 예상 · 기쁨 3% · 꿈 3회 복리</div>
+          <button class="btn btn--packed btn--lg sc gh gh--s" type="submit" data-shadow="묻어 두기">맡기기</button>
+        </div>
+      </form>
+    </div>
+    <div class="lrow__note"><p>슬라이더 손잡이는 값이 커질수록 같이 커지는 눈덩이입니다.</p><p>점검 하나만 하면 위 칸이 반쯤 찬 눈덩이(일부 확인)가 됩니다.</p></div>
+  </div>
+</section>
+
+<!-- ============ 05 누르기 ============ -->
+<section class="sec wrap" id="press" style="--n:4; --g:54.4px" aria-labelledby="h-press">
+  <div class="lhead rule">
+    <div class="lhead__code"><b>05</b>KR-DRM-0005-2</div>
+    <div><h2 id="h-press">누르기</h2><p>버튼은 다져진 눈덩이. 꾹꾹 다질수록 진해지고, 회색 이상의 색은 없습니다. 뒤에서 다른 낱말이 비어져 나옵니다.</p></div>
+    <div class="lbal">섹션 간격<b class="num" data-gap>54.4px</b>+8% / 행</div>
+  </div>
+  <div class="lrow">
+    <div class="lrow__name"><h3>종류</h3><code>.btn</code></div>
+    <div class="stage">
+      <button class="btn btn--packed sc gh gh--s" type="button" data-shadow="숨기기" data-toast="예치 요청을 보냈습니다|말실수: 예금 → 예감">예치하기</button>
+      <button class="btn sc" type="button">이자 보기 <span class="count">3</span></button>
+      <button class="btn btn--slush sc" type="button">내보내기</button>
+      <button class="btn btn--crack sc gh gh--s" type="button" data-shadow="도망" data-vault><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l5 6-3 4 5 6M13 3l2 5 4 1-2 5 3 6"/></svg>찾아가기</button>
+    </div>
+    <div class="lrow__note"><p>다진 눈(진회색)은 화면에 하나. 금이 간 얼음은 되돌릴 수 없는 일.</p></div>
+  </div>
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>크기 · 상태</h3><code>44 · 50 · 60</code></div>
+    <div class="stage">
+      <button class="btn btn--sm sc" type="button">작게</button>
+      <button class="btn sc" type="button">기본</button>
+      <button class="btn btn--lg sc" type="button">크게</button>
+      <button class="btn sc" type="button" disabled>해지 (만기 전)</button>
+      <button class="btn btn--packed sc" type="button" id="busyBtn">이자 계산</button>
+    </div>
+    <div class="lrow__note"><p>못 누를 때는 눈이 녹아 테두리만 남고 이유가 붙습니다. 계산 중에는 눈덩이가 구릅니다.</p></div>
+  </div>
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>아이콘 버튼</h3><code>.ibtn</code></div>
+    <div class="stage">
+      <button class="ibtn sc" type="button" aria-label="새로 고침"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
+      <button class="ibtn sc" type="button" aria-label="현창 보기"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg></button>
+      <button class="ibtn sc" type="button" aria-label="도장 찍기" data-toast="엄지 도장을 찍었습니다|도장 자국이 손바닥 모양입니다"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v6l3 3H6l3-3zM5 17h14v3H5z"/></svg></button>
+      <button class="ibtn sc" type="button" aria-label="알림 울리기" data-toast="알림|같은 음이 한 번 울렸습니다"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/></svg></button>
+    </div>
+    <div class="lrow__note"><p>이름은 꼭 붙입니다.</p></div>
+  </div>
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>칩 · 배지</h3><code>aria-pressed · .badge</code></div>
+    <div class="stage col">
+      <div class="chips" role="group" aria-label="원장 걸러 보기 (아래 원장 표에 적용)" id="chips">
+        <button class="chip sc" type="button" aria-pressed="true" data-f="기쁨"><i aria-hidden="true"></i>기쁨</button>
+        <button class="chip sc" type="button" aria-pressed="true" data-f="불안"><i aria-hidden="true"></i>불안</button>
+        <button class="chip sc" type="button" aria-pressed="true" data-f="그리움"><i aria-hidden="true"></i>그리움</button>
+        <button class="chip sc" type="button" aria-pressed="true" data-f="심심"><i aria-hidden="true"></i>심심</button>
+      </div>
+      <div class="chips">
+        <span class="badge badge--grow sc">복리 중</span>
+        <span class="badge badge--due sc">만기</span>
+        <span class="badge badge--rep sc">억압됨</span>
+        <span class="badge badge--dis sc"><s>이자</s> 의자</span>
+        <span class="badge badge--up sc">▲ 3.2</span>
+        <span class="badge badge--down sc">▼ 1.8</span>
+      </div>
+    </div>
+    <div class="lrow__note"><p>칩은 아래 원장 표를 걸러 냅니다. 전치된 배지는 원래 낱말을 지우고 바뀐 낱말을 씁니다.</p></div>
+  </div>
+</section>
+
+<!-- ============ 06 시세 ============ -->
+<section class="sec wrap" id="quote" style="--n:5; --g:58.8px" aria-labelledby="h-quote">
+  <div class="lhead rule">
+    <div class="lhead__code"><b>06</b>KR-DRM-0006-0</div>
+    <div><h2 id="h-quote">시세</h2><p>아이 기분 지수. 한 개의 촛대가 꿈 한 장면입니다. 빨강은 오름, 파랑은 내림.</p></div>
+    <div class="lbal">섹션 간격<b class="num" data-gap>58.8px</b>+8% / 행</div>
+  </div>
+  <div class="lrow">
+    <div class="lrow__name"><h3>탭 · 차트</h3><code>tablist · svg</code></div>
+    <div class="stage">
+      <div class="tabs">
+        <div class="tablist" role="tablist" aria-label="시세 보기">
+          <button class="tab sc" role="tab" id="t1" aria-selected="true" aria-controls="p1">기분 지수</button>
+          <button class="tab sc" role="tab" id="t2" aria-selected="false" aria-controls="p2" tabindex="-1">말실수 시세</button>
+          <button class="tab sc" role="tab" id="t3" aria-selected="false" aria-controls="p3" tabindex="-1">해석</button>
+        </div>
+        <div class="tabpanel sc" role="tabpanel" id="p1" aria-labelledby="t1" tabindex="0">
+          <div class="chart-top">
+            <div class="chart-q" aria-live="polite" id="chartQ"><b class="num">108.4</b>현재 · ▲ 2.1</div>
+            <div class="seg sc" role="radiogroup" aria-label="보는 장면 수" id="rangeSeg">
+              <button type="button" class="sc" role="radio" aria-checked="false" data-v="12">12장면</button>
+              <button type="button" class="sc" role="radio" aria-checked="true" data-v="24">24장면</button>
+              <button type="button" class="sc" role="radio" aria-checked="false" data-v="48">48장면</button>
+            </div>
+          </div>
+          <div class="chart" id="chart"></div>
+          <div class="legend"><span><i style="background:var(--up)"></i>오름 (빨강)</span><span><i style="background:var(--down)"></i>내림 (파랑)</span><span><i style="background:var(--ink2);height:2px;vertical-align:4px"></i>5장면 평균</span></div>
+        </div>
+        <div class="tabpanel sc" role="tabpanel" id="p2" aria-labelledby="t2" tabindex="0" hidden>
+          <ul class="slips" id="slips"></ul>
+        </div>
+        <div class="tabpanel sc" role="tabpanel" id="p3" aria-labelledby="t3" tabindex="0" hidden>
+          <p>꿈은 낱말을 압축하고(두 기분이 한 촛대에 겹침) 자리를 바꿉니다(예금이 예감으로). 지수는 장면이 바뀔 때마다 무의식이 새로 매깁니다.</p>
+          <p style="margin:0">오름이 빨강인 것은 한국 시장의 약속입니다. 꿈속에서도 약속은 지킵니다. 다만 무엇이 오르는지는 꿈이 정합니다.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lrow__note"><p>탭과 장면 수는 화살표 키로 옮깁니다.</p></div>
+  </div>
+</section>
+
+<!-- ============ 07 원장 ============ -->
+<section class="sec wrap" id="ledger" style="--n:6; --g:63.5px" aria-labelledby="h-ledger">
+  <div class="lhead rule">
+    <div class="lhead__code"><b>07</b>KR-DRM-0007-4</div>
+    <div><h2 id="h-ledger">원장</h2><p>맡긴 기분의 장부. 머리글을 눌러 정렬하고, 위의 칩으로 걸러 봅니다. 새로 맡긴 것은 맨 위에 붙습니다.</p></div>
+    <div class="lbal">섹션 간격<b class="num" data-gap>63.5px</b>+8% / 행</div>
+  </div>
+  <div class="lrow">
+    <div class="lrow__name"><h3>정렬 표 · 쪽</h3><code>aria-sort · pager</code></div>
+    <div class="stage col">
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <caption>예치 원장 · 머리글 버튼으로 정렬 · <span id="tblCount">0</span>건</caption>
+          <thead><tr>
+            <th scope="col" data-k="ep"><button type="button">꿈 회차 <span class="ar" aria-hidden="true">↕</span></button></th>
+            <th scope="col" data-k="feel"><button type="button">기분 <span class="ar" aria-hidden="true">↕</span></button></th>
+            <th scope="col" class="r" data-k="amt"><button type="button">원금 <span class="ar" aria-hidden="true">↕</span></button></th>
+            <th scope="col" class="r" data-k="bal"><button type="button">만기 잔고 <span class="ar" aria-hidden="true">↕</span></button></th>
+            <th scope="col" data-k="st"><button type="button">상태 <span class="ar" aria-hidden="true">↕</span></button></th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+          <tfoot><tr><td colspan="2">합계</td><td class="r n" id="sumAmt">0</td><td class="r n" id="sumBal">0</td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <nav class="pager" aria-label="원장 쪽" id="pager"></nav>
+    </div>
+    <div class="lrow__note"><p>합계선은 두 줄. 원장이 끝났다는 뜻입니다.</p></div>
+  </div>
+</section>
+
+<!-- ============ 08 도킹 ============ -->
+<section class="sec wrap" id="dock" style="--n:7; --g:68.6px" aria-labelledby="h-dock">
+  <div class="lhead rule">
+    <div class="lhead__code"><b>08</b>KR-DRM-0008-8</div>
+    <div><h2 id="h-dock">도킹 · 생명 유지</h2><p>꿈이 정거장에 붙는 순서, 숨 쉴 공기, 그리고 쌓다 만 눈사람.</p></div>
+    <div class="lbal">섹션 간격<b class="num" data-gap>68.6px</b>+8% / 행</div>
+  </div>
+  <div class="lrow">
+    <div class="lrow__name"><h3>단계</h3><code>aria-current="step"</code></div>
+    <div class="stage col">
+      <ol class="steps" id="steps">
+        <li class="sc"><b>접근</b>꿈이 다가옴</li>
+        <li class="sc"><b>정렬</b>기분을 맞춤</li>
+        <li class="sc"><b>접촉</b>눈이 닿음</li>
+        <li class="sc"><b>결합</b>벨크로 고정</li>
+        <li class="sc"><b>균압</b>금고 문 열림</li>
+      </ol>
+      <div class="stage"><button class="btn btn--sm sc" type="button" id="stPrev">이전 단계</button><button class="btn btn--packed btn--sm sc" type="button" id="stNext">다음 단계</button><span class="t" id="stSay" aria-live="polite"></span></div>
+    </div>
+    <div class="lrow__note"><p>관제 교신처럼 단계마다 한 줄을 읽어 줍니다.</p></div>
+  </div>
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>진행 막대</h3><code>role=progressbar</code></div>
+    <div class="stage col">
+      <div class="meters">
+        <div><div class="meter__top"><span id="o2Lab">산소 O₂</span><span class="num" id="o2Val">21.0%</span></div>
+          <div class="meter__bar sc" role="progressbar" aria-labelledby="o2Lab" aria-valuemin="0" aria-valuemax="25" aria-valuenow="21" aria-valuetext="21.0퍼센트" id="o2Bar"></div></div>
+        <div><div class="meter__top"><span id="co2Lab">이산화탄소 CO₂ · 낮을수록 좋음</span><span class="num" id="co2Val">0.4%</span></div>
+          <div class="meter__bar sc" role="progressbar" aria-labelledby="co2Lab" aria-valuemin="0" aria-valuemax="2" aria-valuenow="0.4" aria-valuetext="0.4퍼센트" id="co2Bar"></div></div>
+      </div>
+      <div class="snowman">
+        <svg viewBox="0 0 110 150" role="progressbar" aria-label="눈사람 쌓기" aria-valuemin="0" aria-valuemax="3" aria-valuenow="1" aria-valuetext="3단 중 1단" id="snowman">
+          <circle cx="55" cy="114" r="32" fill="url(#snowg)" stroke="#6b757e" stroke-width="2"/>
+          <circle cx="55" cy="66" r="24" fill="url(#snowg)" stroke="#6b757e" stroke-width="2" class="off"/>
+          <circle cx="55" cy="28" r="17" fill="url(#snowg)" stroke="#6b757e" stroke-width="2" class="off"/>
+        </svg>
+        <div class="stage"><button class="btn btn--sm sc" type="button" id="smAdd">한 단 쌓기</button><button class="btn btn--sm btn--slush sc" type="button" id="smReset">무너뜨리기</button></div>
+      </div>
+    </div>
+    <div class="lrow__note"><p>공기 눈금은 작은 눈덩이 열두 개. 숫자는 실제처럼 아주 조금씩 흔들립니다.</p></div>
+  </div>
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>아코디언</h3><code>aria-expanded</code></div>
+    <div class="stage">
+      <div class="acc" id="acc">
+        <div class="acc__item sc"><h3><button class="acc__btn" type="button" aria-expanded="true" aria-controls="a1" id="ab1"><span class="acc__hatch" aria-hidden="true"></span><span>아이가 깨면 예금은 어떻게 되나요?</span><span class="t">해치 1</span></button></h3>
+          <div class="acc__panel" id="a1" role="region" aria-labelledby="ab1"><p style="margin:0">휴면계좌가 됩니다. 다음 꿈에서 같은 정거장이 다시 떠오르면, 그동안 붙은 이자까지 함께 돌아옵니다. 대부분은 기억나지 않는 채로요.</p></div></div>
+        <div class="acc__item sc"><h3><button class="acc__btn" type="button" aria-expanded="false" aria-controls="a2" id="ab2"><span class="acc__hatch" aria-hidden="true"></span><span>왜 말실수가 시세판에 올라오나요?</span><span class="t">해치 2</span></button></h3>
+          <div class="acc__panel" id="a2" role="region" aria-labelledby="ab2" hidden><p style="margin:0">미끄러진 낱말은 숨겨 둔 값이 드러난 순간입니다. 시장은 드러난 값에 값을 매깁니다.</p></div></div>
+        <div class="acc__item sc"><h3><button class="acc__btn" type="button" aria-expanded="false" aria-controls="a3" id="ab3"><span class="acc__hatch" aria-hidden="true"></span><span>이자는 누가 붙이나요?</span><span class="t">해치 3</span></button></h3>
+          <div class="acc__panel" id="a3" role="region" aria-labelledby="ab3" hidden><p style="margin:0">아무도 붙이지 않습니다. 맡긴 기분이 밤마다 되풀이되며 스스로 불어납니다. 되풀이가 곧 복리입니다.</p></div></div>
+      </div>
+    </div>
+    <div class="lrow__note"><p>해치는 돌려서 엽니다. 반 바퀴 반.</p></div>
+  </div>
+</section>
+
+<!-- ============ 09 금고 ============ -->
+<section class="sec wrap" id="vault" style="--n:8; --g:74px" aria-labelledby="h-vault">
+  <div class="lhead rule">
+    <div class="lhead__code"><b>09</b>KR-DRM-0009-6</div>
+    <div><h2 id="h-vault">금고 · 교신</h2><p>에어록이 곧 금고 문입니다. 열기 전에 기압을 맞춥니다. 관제와의 교신은 옆에서 열립니다.</p></div>
+    <div class="lbal">섹션 간격<b class="num" data-gap>74.0px</b>+8% / 행</div>
+  </div>
+  <div class="lrow">
+    <div class="lrow__name"><h3>대화상자 · 옆 패널 · 알림</h3><code>showModal · focus trap · role=status</code></div>
+    <div class="stage">
+      <button class="btn btn--crack sc gh gh--s" type="button" data-shadow="도망" data-vault><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l5 6-3 4 5 6M13 3l2 5 4 1-2 5 3 6"/></svg>금고에서 찾아가기</button>
+      <button class="btn sc" type="button" data-panel>관제 교신 열기</button>
+      <button class="btn btn--slush sc" type="button" data-toast="영수증|기쁨 ❄12 · 꿈 3회 · 말실수 없음">영수증 띄우기</button>
+    </div>
+    <div class="lrow__note"><p>알림은 영수증처럼 오른쪽 아래에서 올라와 5초 뒤 사라집니다.</p></div>
+  </div>
+  <div class="lrow rule">
+    <div class="lrow__name"><h3>원칙</h3><code>합계</code></div>
+    <div class="stage">
+      <ol class="rules">
+        <li class="sc"><b>색은 시계가 정한다</b><span>사용자가 고르는 것은 고정할지 말지뿐입니다.</span></li>
+        <li class="sc"><b>부품은 눈이다</b><span>조작하는 것에는 흰색과 회색만. 상태는 진하기와 낱말로.</span></li>
+        <li class="sc"><b>모든 선은 두 줄</b><span>빨강만, 파랑만 긋지 않습니다. 장부는 늘 맞습니다.</span></li>
+        <li class="sc"><b>그림자는 말한다</b><span>깊이는 어둠이 아니라 숨겨 둔 낱말입니다.</span></li>
+      </ol>
+    </div>
+    <div class="lrow__note"><p>이 행 아래 두 줄이 합계선입니다.</p></div>
+  </div>
+  <div class="total" style="height:12px"></div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="../">← 디자인 시스템 모음</a>
+    <span>Dormant · 휴면계좌 · 시드 20261101 · 출연진과 마을은 이 페이지를 위해 지어낸 것입니다</span>
+    <span class="t" id="footOrbit">궤도 --</span>
+  </div>
+</footer>
+
+<dialog class="vault" id="vaultDlg" aria-labelledby="vT" aria-describedby="vD">
+  <form method="dialog" class="vault__in sc" style="--fill: var(--panel)">
+    <svg class="vault__door" viewBox="0 0 150 150" aria-hidden="true">
+      <circle cx="75" cy="75" r="70" fill="var(--bg2)" stroke="var(--up)" stroke-width="2.5"/>
+      <circle cx="75" cy="75" r="64" fill="none" stroke="var(--down)" stroke-width="1.2"/>
+      <g class="wheel"><circle cx="75" cy="75" r="30" fill="none" stroke="var(--ink)" stroke-width="5"/><path d="M75 30v90M30 75h90M43 43l64 64M107 43l-64 64" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/><circle cx="75" cy="75" r="8" fill="var(--ink)"/></g>
+    </svg>
+    <h2 id="vT">금고 에어록을 엽니다</h2>
+    <p id="vD" style="margin:0">만기 전에 찾아가면 붙던 이자가 꿈속에 남습니다. 남은 이자는 다른 기분으로 바뀌어 나중에 돌아올 수 있습니다.</p>
+    <p class="t" style="margin:0" id="vPress">기압 평형 중 · 101.3 kPa</p>
+    <div class="vault__acts">
+      <button class="btn sc" value="cancel" type="submit" autofocus>그대로 두기</button>
+      <button class="btn btn--packed sc" value="ok" type="submit">찾아가기</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="veil" id="veil" hidden></div>
+<aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelT" hidden>
+  <div class="panel__head rule" style="background-position:0 100%, 0 calc(100% - 4px)">
+    <h2 id="panelT">관제 교신</h2>
+    <button class="ibtn sc" type="button" id="panelClose" aria-label="교신 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="panel__body">
+    <ol class="log" id="log">
+      <li><span class="t">00:02</span><span><b>관제</b> 도르만트-1, 여기는 꿈 관제. 렘수면 진입 확인.</span></li>
+      <li><span class="t">00:03</span><span><b>엄지</b> 확인. 창구 엽니다. 도장 준비.</span></li>
+      <li><span class="t">00:05</span><span><b>관제</b> 그리움 이율 7퍼센트. 반복합니다, 7퍼센트.</span></li>
+      <li><span class="t">00:06</span><span><b>보온이</b> 산소 21. 따뜻합니다.</span></li>
+    </ol>
+    <div class="field"><label for="chan">채널</label><div class="inp sc"><select id="chan"><option>예금부</option><option>생명 유지</option><option>눈마을 지상국</option></select></div></div>
+    <div class="field"><label for="msg">보낼 말</label><div class="inp sc"><textarea id="msg" placeholder="예: 잔고 확인 바람"></textarea></div></div>
+    <div class="stage"><button class="btn btn--packed sc" type="button" id="send">보내기</button><button class="btn sc" type="button" id="panelClose2">닫기</button></div>
+  </div>
+</aside>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const root = document.documentElement;
+
+  /* ── 1. the draw, re-run and checked against the printed table ── */
+  function m32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const AX = ['색','질감','선·테두리','모양','깊이·그림자','조명','글자','움직임','레이아웃','간격','장식','조작 은유','상태 표현','배경','소리·시간','말투'];
+  const SRC = ['금융','무의식','눈마을 만화','우주정거장'];
+  const OP = ['그대로','반전','과장','축소','해체','반복','결핍','감속','뒤집기','흑백화','다른 축으로 이식','어긋내기'];
+  (function verify() {
+    const r = m32(20261101), ax = AX.slice();
+    for (let i = ax.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [ax[i], ax[j]] = [ax[j], ax[i]]; }
+    const drawn = ax.slice(0, 9).map(a => [a, SRC[Math.floor(r() * 4)], OP[Math.floor(r() * 12)]]);
+    const rows = $$('#xtBody tr');
+    const ok = rows.length === 9 && drawn.every((d, i) => {
+      const td = rows[i].children;
+      return td[1].textContent === d[0] && td[2].textContent.includes(d[1]) && td[3].textContent === d[2];
+    });
+    $('#verify').textContent = ok ? '다시 뽑은 결과와 일치 ✓' : '불일치 — 표를 확인하세요';
+  })();
+
+  /* ── sound: one pitch ── */
+  let soundOn = false, ac = null;
+  function ding() {
+    if (!soundOn) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+      o.type = 'sine'; o.frequency.value = 659.25;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + .5);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + .55);
+    } catch (e) {}
+  }
+
+  /* ── toasts ── */
+  const toastBox = $('#toasts');
+  function toast(title, body) {
+    const el = document.createElement('div');
+    el.className = 'toast sc';
+    const now = new Date();
+    el.innerHTML = '<b></b><span></span><div class="t"></div>';
+    el.children[0].textContent = title; el.children[1].textContent = body || '';
+    el.children[2].textContent = '수령 ' + now.toTimeString().slice(0, 8) + ' · 5초 뒤 사라짐';
+    toastBox.appendChild(el); ding();
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), reduce ? 0 : 400); }, 5000);
+  }
+  $$('[data-toast]').forEach(b => b.addEventListener('click', () => { const [a, c] = b.dataset.toast.split('|'); toast(a, c); }));
+
+  /* ── odometer ── */
+  function setOdo(el, text, srEl) {
+    const chars = [...text];
+    if (el.childElementCount !== chars.length || el.dataset.shape !== chars.map(c => /\d/.test(c) ? '#' : c).join('')) {
+      el.innerHTML = '';
+      chars.forEach(c => {
+        const col = document.createElement('span'); col.className = 'odo__c';
+        if (/\d/.test(c)) { const s = document.createElement('span'); for (let i = 0; i < 10; i++) { const d = document.createElement('span'); d.textContent = i; s.appendChild(d); } col.appendChild(s); }
+        else col.textContent = c;
+        el.appendChild(col);
+      });
+      el.dataset.shape = chars.map(c => /\d/.test(c) ? '#' : c).join('');
+      void el.offsetHeight;
+    }
+    chars.forEach((c, i) => { if (/\d/.test(c)) el.children[i].firstChild.style.transform = `translateY(${-c * 1.1}em)`; });
+    if (srEl) srEl.textContent = text;
+  }
+  const fmt = n => n.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  let demo = 1204.0;
+  setOdo($('#odoDemo'), fmt(demo), $('#odoDemoSr'));
+  $('#odoBtn').addEventListener('click', () => { demo = Math.round((demo * (0.9 + Math.random() * 0.25)) * 10) / 10; setOdo($('#odoDemo'), fmt(demo), $('#odoDemoSr')); ding(); });
+
+  /* ── 3. colour obeys the orbit ── */
+  const PERIOD = 92 * 60, DAY = 56 * 60;
+  let sideMode = 'orbit';
+  const mmss = s => { s = Math.max(0, Math.floor(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  function orbitTick() {
+    const t = (Date.now() / 1000) % PERIOD;
+    const day = t < DAY;
+    const left = day ? DAY - t : PERIOD - t;
+    const side = sideMode === 'orbit' ? (day ? 'day' : 'night') : sideMode;
+    if (root.dataset.side !== side) root.dataset.side = side;
+    const sideKo = side === 'day' ? '낮면' : '밤면';
+    $('#sideName').textContent = sideKo;
+    $('#orbitClock').textContent = (day ? '일몰 ' : '해돋이 ') + mmss(left);
+    $('#orbitLine').textContent = `궤도 ${Math.floor(t / 60)}분 ${Math.floor(t % 60)}초 / 92분 · 지금 실제 위치는 ${day ? '낮면' : '밤면'} · ${day ? '일몰' : '해돋이'}까지 ${mmss(left)}` + (sideMode === 'orbit' ? '' : ` · 화면은 ${sideKo}에 고정`);
+    $('#footOrbit').textContent = `궤도 ${((t / PERIOD) * 360).toFixed(1)}° · ${mmss(left)}`;
+    const ep = (Date.now() / 1000) % 660;
+    $('#epTime').textContent = `에피소드 07 · ${mmss(ep)} / 11:00`;
+  }
+  orbitTick(); setInterval(orbitTick, 1000);
+
+  /* swatches */
+  const SW = [['--bg', '바탕', '베타 천'], ['--bg2', '바탕 2', '격벽'], ['--panel', '판', '판넬'], ['--ink', '먹', '태양전지 남색'], ['--mute', '시간', '회색'], ['--foil', '금박', '장식만'], ['--earth', '지구', '현창'], ['--up', '오름 · 대변', '빨강'], ['--down', '내림 · 차변', '파랑']];
+  function paintSw() {
+    const cs = getComputedStyle(root);
+    $('#swatches').innerHTML = SW.map(([v, n, d]) => `<div class="sc" style="--r:10px"><i style="background:var(${v})"></i><b>${n}</b>${cs.getPropertyValue(v).trim()} · ${d}</div>`).join('');
+  }
+  const SNOW = [['--sn0', '새 눈'], ['--sn1', '쌓인 눈'], ['--sn2', '눌린 눈'], ['--sn3', '그늘'], ['--sn4', '발자국'], ['--sn5', '다진 눈'], ['--sn-ink', '숯']];
+  function paintSnow() {
+    const cs = getComputedStyle(root);
+    $('#snowSw').innerHTML = SNOW.map(([v, n]) => `<div class="sc" style="--r:10px"><i style="background:var(${v})"></i><b>${n}</b>${cs.getPropertyValue(v).trim()}</div>`).join('');
+  }
+  paintSw(); paintSnow();
+  new MutationObserver(() => { paintSw(); paintSnow(); }).observe(root, { attributes: true, attributeFilter: ['data-side'] });
+
+  /* segmented controls (radiogroup, roving tabindex, arrow keys) */
+  function segment(group, onChange) {
+    const btns = $$('[role=radio]', group);
+    const sync = () => btns.forEach(b => b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1);
+    const pick = (b, focus) => { btns.forEach(x => x.setAttribute('aria-checked', x === b ? 'true' : 'false')); sync(); if (focus) b.focus(); onChange(b.dataset.v); ding(); };
+    btns.forEach((b, i) => {
+      b.addEventListener('click', () => pick(b));
+      b.addEventListener('keydown', e => {
+        let j = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % btns.length;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + btns.length) % btns.length;
+        else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = btns.length - 1;
+        if (j !== null) { e.preventDefault(); pick(btns[j], true); }
+      });
+    });
+    sync();
+  }
+  segment($('#sideSeg'), v => { sideMode = v; orbitTick(); });
+
+  /* spacing bars */
+  $('#spacebars').innerHTML = Array.from({ length: 9 }, (_, i) => {
+    const v = 8 * Math.pow(1.25, i);
+    return `<div><span>s${i + 1}</span><i style="width:${v * 2}px;max-width:100%"></i><span>${(Math.round(v * 10) / 10).toFixed(1)}px</span></div>`;
+  }).join('');
+  /* section gaps: show the actual computed interest */
+  $$('.sec').forEach(s => { const b = $('[data-gap]', s); if (b) b.textContent = parseFloat(getComputedStyle(s).paddingTop).toFixed(1) + 'px'; });
+
+  $('#toneBtn').addEventListener('click', () => { const was = soundOn; soundOn = true; ding(); soundOn = was; });
+
+  /* ── ticker of slips ── */
+  const SLIPS = [['예금','예감'],['이자','의자'],['잔고','잔소리'],['원금','원망'],['적금','적막'],['대출','탈출'],['상환','상상'],['만기','만개'],['통장','통증'],['채권','체념'],['배당','배낭'],['금리','그리움'],['주가','주인'],['환율','환영'],['담보','담요']];
+  const tr = m32(92);
+  const slipData = SLIPS.map(([a, b]) => { const ch = Math.round((tr() * 9 - 4) * 10) / 10 || 0.4; return { a, b, ch }; });
+  const slipHtml = slipData.map(s => `<span><s>${s.a}</s> → ${s.b} <span class="${s.ch >= 0 ? 'u' : 'd'}">${s.ch >= 0 ? '▲' : '▼'} ${Math.abs(s.ch).toFixed(1)}</span></span>`).join('');
+  $('#ticker').innerHTML = slipHtml + slipHtml.replace(/<span>/g, '<span aria-hidden="true">');
+  $('#slips').innerHTML = slipData.map(s => `<li><span><s>${s.a}</s> → ${s.b}</span><span class="${s.ch >= 0 ? 'badge badge--up sc' : 'badge badge--down sc'}">${s.ch >= 0 ? '▲ 오름' : '▼ 내림'} ${Math.abs(s.ch).toFixed(1)}</span></li>`).join('');
+
+  /* ── switches ── */
+  function bindSwitch(btn, on) {
+    btn.addEventListener('click', () => {
+      const v = btn.getAttribute('aria-checked') !== 'true';
+      btn.setAttribute('aria-checked', v); $('.switch__st', btn).textContent = v ? '켜짐' : '꺼짐';
+      on && on(v); ding();
+    });
+  }
+  bindSwitch($('#swAuto'));
+  bindSwitch($('#swSound'), v => { soundOn = v; if (v) ding(); });
+
+  /* ── checklist with indeterminate ── */
+  const all = $('#ckAll'), kids = $$('.ckKid');
+  function syncAll() { const n = kids.filter(k => k.checked).length; all.checked = n === kids.length; all.indeterminate = n > 0 && n < kids.length; }
+  all.addEventListener('change', () => { kids.forEach(k => k.checked = all.checked); syncAll(); ding(); });
+  kids.forEach(k => k.addEventListener('change', () => { syncAll(); ding(); }));
+  syncAll();
+
+  /* ── deposit machine ── */
+  const amt = $('#amt'), term = $('#term'), memo = $('#memo');
+  const rate = () => +$('input[name=feel]:checked').dataset.rate;
+  const feel = () => $('input[name=feel]:checked').value;
+  function forecast() {
+    const a = +amt.value, n = +term.value, r = rate();
+    const p = (a - 1) / 39;
+    amt.style.setProperty('--p', (p * 100) + '%');
+    amt.style.setProperty('--sz', Math.round(22 + p * 22) + 'px');
+    $('#amtOut').textContent = '❄ ' + a;
+    amt.setAttribute('aria-valuetext', '눈덩이 ' + a);
+    const out = a * Math.pow(1 + r / 100, n);
+    $('#forecast').innerHTML = `<b class="num">❄ ${fmt(out)}</b>만기 예상 · ${feel()} ${r}% · ${term.selectedOptions[0].textContent} 복리`;
+    return out;
+  }
+  [amt, term].forEach(el => el.addEventListener('input', forecast));
+  $$('input[name=feel]').forEach(el => el.addEventListener('change', () => { forecast(); ding(); }));
+  forecast();
+  memo.addEventListener('input', () => {
+    const n = [...memo.value].length;
+    $('#memoCount').textContent = n + '/20';
+    if (n <= 20) clearErr();
+  });
+  function clearErr() { $('#memoErr').hidden = true; memo.removeAttribute('aria-invalid'); $('#memoBox').removeAttribute('data-bad'); }
+
+  /* ledger data */
+  const FEELS = ['기쁨','불안','그리움','심심'], RATE = { 기쁨: 3, 불안: 11, 그리움: 7, 심심: 1 };
+  const STS = ['복리 중','만기','억압됨','전치됨'];
+  const dr = m32(20261101 ^ 0xBEEF);
+  let rows = Array.from({ length: 14 }, (_, i) => {
+    const f = FEELS[Math.floor(dr() * 4)], a = 1 + Math.floor(dr() * 30), n = [1, 3, 7, 30][Math.floor(dr() * 4)];
+    return { ep: 101 + i, feel: f, amt: a, bal: Math.round(a * Math.pow(1 + RATE[f] / 100, n) * 10) / 10, st: STS[Math.floor(dr() * 4)] };
+  });
+  let sortK = 'ep', sortDir = -1, page = 1;
+  const PER = 5;
+  const active = () => $$('#chips .chip').filter(c => c.getAttribute('aria-pressed') === 'true').map(c => c.dataset.f);
+  const badge = st => st === '복리 중' ? '<span class="badge badge--grow sc">복리 중</span>' : st === '만기' ? '<span class="badge badge--due sc">만기</span>' : st === '억압됨' ? '<span class="badge badge--rep sc">억압됨</span>' : '<span class="badge badge--dis sc"><s>원금</s> 원망</span>';
+  function balance() { return rows.reduce((s, r) => s + r.bal, 0); }
+  function renderTable() {
+    const f = active();
+    const list = rows.filter(r => f.includes(r.feel)).sort((a, b) => (a[sortK] > b[sortK] ? 1 : a[sortK] < b[sortK] ? -1 : 0) * sortDir);
+    const pages = Math.max(1, Math.ceil(list.length / PER));
+    page = Math.min(page, pages);
+    $('#tbody').innerHTML = list.slice((page - 1) * PER, page * PER).map(r => `<tr><td class="n">${r.ep}회</td><td>${r.feel}</td><td class="r n">❄ ${r.amt}</td><td class="r n">❄ ${fmt(r.bal)}</td><td>${badge(r.st)}</td></tr>`).join('') || '<tr><td colspan="5">걸러 낸 결과가 없습니다. 위의 칩을 하나 이상 켜세요.</td></tr>';
+    $('#tblCount').textContent = list.length;
+    $('#sumAmt').textContent = '❄ ' + list.reduce((s, r) => s + r.amt, 0);
+    $('#sumBal').textContent = '❄ ' + fmt(list.reduce((s, r) => s + r.bal, 0));
+    $$('.tbl th').forEach(th => { if (th.dataset.k === sortK) th.setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending'); else th.removeAttribute('aria-sort'); $('.ar', th).textContent = th.dataset.k === sortK ? (sortDir > 0 ? '↑' : '↓') : '↕'; });
+    const pg = $('#pager');
+    let h = `<button class="btn btn--sm sc" type="button" data-p="${page - 1}" ${page === 1 ? 'disabled' : ''} aria-label="이전 쪽">‹</button>`;
+    for (let i = 1; i <= pages; i++) h += `<button class="btn btn--sm sc" type="button" data-p="${i}" ${i === page ? 'aria-current="page"' : ''} aria-label="${i}쪽">${i}</button>`;
+    h += `<button class="btn btn--sm sc" type="button" data-p="${page + 1}" ${page === pages ? 'disabled' : ''} aria-label="다음 쪽">›</button><span class="pager__info">${page} / ${pages}쪽</span>`;
+    pg.innerHTML = h;
+  }
+  $('#pager').addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if (!b || b.disabled) return; page = +b.dataset.p; renderTable(); const c = $(`#pager button[data-p="${page}"][aria-current]`); c && c.focus(); ding(); });
+  $$('.tbl th button').forEach(b => b.addEventListener('click', () => { const k = b.parentElement.dataset.k; if (sortK === k) sortDir *= -1; else { sortK = k; sortDir = 1; } renderTable(); ding(); }));
+  $$('#chips .chip').forEach(c => c.addEventListener('click', () => { c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'); page = 1; renderTable(); ding(); }));
+  function rollBalance() { setOdo($('#balTop'), fmt(balance()), $('#balTopSr')); }
+  renderTable(); rollBalance();
+
+  $('#depForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const n = [...memo.value].length;
+    if (n > 20) {
+      $('#memoErr').textContent = `메모가 ${n}자입니다. 20자 이내로 줄여 주세요.`; $('#memoErr').hidden = false;
+      memo.setAttribute('aria-invalid', 'true'); $('#memoBox').setAttribute('data-bad', ''); memo.focus(); return;
+    }
+    const out = forecast();
+    const f = feel(), slip = SLIPS[Math.floor(Math.random() * SLIPS.length)];
+    rows.unshift({ ep: Math.max(...rows.map(r => r.ep)) + 1, feel: f, amt: +amt.value, bal: Math.round(out * 10) / 10, st: '복리 중' });
+    sortK = 'ep'; sortDir = -1; page = 1;
+    renderTable(); rollBalance();
+    toast(`${f} ❄${amt.value} 예치됨`, `${memo.value || '무의식이 적음: ' + slip[1]} · 만기 ❄${fmt(out)} · 말실수 ${slip[0]} → ${slip[1]}`);
+  });
+
+  /* busy button */
+  $('#busyBtn').addEventListener('click', function () {
+    if (this.classList.contains('busy')) return;
+    const t = this.textContent; this.classList.add('busy'); this.setAttribute('aria-disabled', 'true');
+    this.innerHTML = '<span class="spin" aria-hidden="true"></span>굴리는 중…';
+    setTimeout(() => { this.classList.remove('busy'); this.removeAttribute('aria-disabled'); this.textContent = t; toast('이자 계산 끝', '잔고 ❄ ' + fmt(balance())); }, 2200);
+  });
+
+  /* ── tabs ── */
+  const tabs = $$('[role=tab]');
+  function selTab(t, focus) {
+    tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; });
+    if (focus) t.focus(); ding();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => selTab(t));
+    t.addEventListener('keydown', e => {
+      let j = null;
+      if (e.key === 'ArrowRight') j = (i + 1) % tabs.length; else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = tabs.length - 1;
+      if (j !== null) { e.preventDefault(); selTab(tabs[j], true); }
+    });
+  });
+
+  /* ── candlestick chart ── */
+  const cr = m32(7);
+  let px = 100; const candles = Array.from({ length: 48 }, () => {
+    const o = px, c = Math.max(60, o + (cr() - 0.47) * 9), h = Math.max(o, c) + cr() * 4, l = Math.min(o, c) - cr() * 4; px = c; return { o, c, h, l };
+  });
+  function drawChart(n) {
+    const d = candles.slice(-n), W = 600, H = 250, L = 8, R = 46, T = 12, B = 26;
+    const hi = Math.max(...d.map(x => x.h)), lo = Math.min(...d.map(x => x.l));
+    const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+    const step = (W - L - R) / n, bw = Math.max(3, step * 0.56);
+    let g = '<g class="grid">';
+    const ticks = 4; let ax = '';
+    for (let i = 0; i <= ticks; i++) { const v = lo + (hi - lo) * i / ticks, yy = y(v); g += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}"/>`; ax += `<text class="ax" x="${W - R + 6}" y="${yy + 4}">${v.toFixed(0)}</text>`; }
+    g += '</g>';
+    let cs = '';
+    d.forEach((k, i) => {
+      const x = L + step * i + step / 2, up = k.c >= k.o, cls = up ? 'c-up' : 'c-dn';
+      const top = y(Math.max(k.o, k.c)), bot = y(Math.min(k.o, k.c));
+      cs += `<g class="${cls}"><line x1="${x}" x2="${x}" y1="${y(k.h)}" y2="${y(k.l)}" stroke-width="1.4"/><rect x="${x - bw / 2}" y="${top}" width="${bw}" height="${Math.max(1.5, bot - top)}"/></g>`;
+    });
+    let pts = [];
+    d.forEach((k, i) => { if (i >= 4) { const avg = d.slice(i - 4, i + 1).reduce((s, q) => s + q.c, 0) / 5; pts.push(`${(L + step * i + step / 2).toFixed(1)},${y(avg).toFixed(1)}`); } });
+    const ma = `<polyline class="ma" points="${pts.join(' ')}"/>`;
+    const xl = `<text class="ax" x="${L}" y="${H - 6}">${101 + 48 - n}회</text><text class="ax" x="${W - R}" y="${H - 6}" text-anchor="end">${148}회</text>`;
+    const last = d[d.length - 1], prev = d[d.length - 2], diff = last.c - prev.c;
+    const ups = d.filter(k => k.c >= k.o).length;
+    $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="chT chD"><title id="chT">아이 기분 지수 촛대 차트, 최근 ${n}장면</title><desc id="chD">최고 ${hi.toFixed(1)}, 최저 ${lo.toFixed(1)}, 마지막 ${last.c.toFixed(1)}. 오른 장면 ${ups}개, 내린 장면 ${n - ups}개.</desc>${g}${cs}${ma}${ax}${xl}</svg>`;
+    $('#chartQ').innerHTML = `<b class="num">${last.c.toFixed(1)}</b>현재 · <span style="color:var(${diff >= 0 ? '--up' : '--down'})">${diff >= 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}</span>`;
+  }
+  segment($('#rangeSeg'), v => drawChart(+v));
+  drawChart(24);
+
+  /* ── steps ── */
+  const steps = $$('#steps li'); let st = 2;
+  const SAY = ['접근 중. 거리 200미터.', '정렬 확인. 기분 축 일치.', '접촉. 눈이 닿았습니다.', '결합 완료. 벨크로 소리 확인.', '균압 완료. 금고 문 열어도 좋습니다.'];
+  function renderSteps() {
+    steps.forEach((li, i) => { li.classList.toggle('done', i < st); if (i === st) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
+    $('#stSay').textContent = '관제: ' + SAY[st];
+    $('#stPrev').disabled = st === 0; $('#stNext').disabled = st === steps.length - 1;
+  }
+  $('#stPrev').addEventListener('click', () => { st = Math.max(0, st - 1); renderSteps(); ding(); });
+  $('#stNext').addEventListener('click', () => { st = Math.min(steps.length - 1, st + 1); renderSteps(); ding(); });
+  renderSteps();
+
+  /* ── meters ── */
+  function meter(bar, val, max) { if (!bar.childElementCount) bar.innerHTML = '<i></i>'.repeat(12); const on = Math.round(val / max * 12); $$('i', bar).forEach((x, i) => x.classList.toggle('off', i >= on)); }
+  let o2 = 21.0, co2 = 0.4;
+  function lifeTick() {
+    o2 = Math.min(23, Math.max(19.5, o2 + (Math.random() - 0.5) * 0.2)); co2 = Math.min(1, Math.max(0.2, co2 + (Math.random() - 0.5) * 0.05));
+    $('#o2Val').textContent = o2.toFixed(1) + '%'; $('#co2Val').textContent = co2.toFixed(1) + '%';
+    const ob = $('#o2Bar'), cb = $('#co2Bar');
+    ob.setAttribute('aria-valuenow', o2.toFixed(1)); ob.setAttribute('aria-valuetext', o2.toFixed(1) + '퍼센트');
+    cb.setAttribute('aria-valuenow', co2.toFixed(1)); cb.setAttribute('aria-valuetext', co2.toFixed(1) + '퍼센트');
+    meter(ob, o2, 25); meter(cb, co2, 2);
+  }
+  lifeTick(); setInterval(lifeTick, 4000);
+  let sm = 1; const smEl = $('#snowman'), balls = $$('circle', smEl);
+  function renderSm() { balls.forEach((b, i) => b.classList.toggle('off', i >= sm)); smEl.setAttribute('aria-valuenow', sm); smEl.setAttribute('aria-valuetext', `3단 중 ${sm}단`); $('#smAdd').disabled = sm >= 3; }
+  $('#smAdd').addEventListener('click', () => { sm = Math.min(3, sm + 1); renderSm(); ding(); if (sm === 3) toast('눈사람 완성', '오늘의 배움: 아껴 둔 것은 커져요'); });
+  $('#smReset').addEventListener('click', () => { sm = 0; renderSm(); ding(); $('#smAdd').focus(); });
+  renderSm();
+
+  /* ── accordion ── */
+  $$('.acc__btn').forEach(b => b.addEventListener('click', () => { const on = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', on); $('#' + b.getAttribute('aria-controls')).hidden = !on; ding(); }));
+
+  /* ── vault dialog ── */
+  const dlg = $('#vaultDlg');
+  $$('[data-vault]').forEach(b => b.addEventListener('click', () => {
+    dlg.showModal(); ding();
+    let k = 70; const press = $('#vPress');
+    press.textContent = '기압 평형 중 · 70.0 kPa';
+    const iv = setInterval(() => { k = Math.min(101.3, k + 6.3); press.textContent = (k >= 101.3 ? '기압 평형 완료 · ' : '기압 평형 중 · ') + k.toFixed(1) + ' kPa'; if (k >= 101.3 || !dlg.open) clearInterval(iv); }, 200);
+  }));
+  dlg.addEventListener('close', () => { if (dlg.returnValue === 'ok') toast('찾아갔습니다', '남은 이자는 다른 기분으로 바뀌어 꿈속에 남았습니다'); });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close('cancel'); });
+
+  /* ── side panel with focus trap ── */
+  const panel = $('#panel'), veil = $('#veil'); let lastFocus = null;
+  const focusables = () => $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', panel).filter(el => !el.disabled && el.offsetParent !== null);
+  function openPanel(from) { lastFocus = from || document.activeElement; panel.hidden = false; veil.hidden = false; document.body.style.overflow = 'hidden'; $('#panelClose').focus(); ding(); }
+  function closePanel() { panel.hidden = true; veil.hidden = true; document.body.style.overflow = ''; lastFocus && lastFocus.focus(); }
+  $('#panelOpen').addEventListener('click', e => openPanel(e.currentTarget));
+  $$('[data-panel]').forEach(b => b.addEventListener('click', e => openPanel(e.currentTarget)));
+  [$('#panelClose'), $('#panelClose2'), veil].forEach(el => el.addEventListener('click', closePanel));
+  panel.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); closePanel(); return; }
+    if (e.key !== 'Tab') return;
+    const f = focusables(), first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  $('#send').addEventListener('click', () => {
+    const m = $('#msg').value.trim(); if (!m) { $('#msg').focus(); return; }
+    const li = document.createElement('li'), t = new Date();
+    li.innerHTML = `<span class="t">${String(t.getMinutes()).padStart(2, '0')}:${String(t.getSeconds()).padStart(2, '0')}</span><span><b>나</b> </span>`;
+    li.children[1].append(`[${$('#chan').value}] ${m}`);
+    $('#log').appendChild(li); $('#msg').value = '';
+    const rep = document.createElement('li');
+    rep.innerHTML = `<span class="t">+00:02</span><span><b>관제</b> 수신. ${m.replace(/[<>&]/g, '').slice(0, 2)}… 다시 말하면, 들었습니다.</span>`;
+    setTimeout(() => $('#log').appendChild(rep), 900);
+    toast('교신 송신', $('#chan').value + ' 채널');
+  });
+})();
+</script>
+<script src="../systems-nav.js?v=20261101" defer></script>
+</body>
+</html>

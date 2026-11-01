@@ -204,7 +204,7 @@ select.inp { appearance: none; -webkit-appearance: none; padding-right: 50px; cu
 fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 legend { padding: 0; margin-bottom: 6px; font: 400 16px/1.3 var(--f-label); }
 .opts { display: grid; gap: 2px; }
-.opts.sub { padding-left: 34px; }
+.opts.nest { padding-left: 34px; }
 .opt { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
 .opt input { appearance: none; -webkit-appearance: none; flex: none; width: 26px; height: 26px; margin: 3px 0 0; border: 2px solid var(--ink); border-radius: 0; background: var(--cream-hi) no-repeat center / 100% 100%; box-shadow: 0 -3px 0 0 var(--ink); cursor: pointer; }
 .opt input:checked { background-color: var(--bur); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 12l2.5-2.5 3.5 3.5 7.5-7.5L20 8 10 18Z' fill='%23fbf4e4'/%3E%3C/svg%3E"); }
@@ -276,7 +276,7 @@ input[type="range"]:focus-visible { outline: 3px solid var(--ink); outline-offse
 .acc details:last-child { border-bottom: 2px solid var(--ink); }
 .acc summary { list-style: none; cursor: pointer; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 2px; font: 400 18px/1.35 var(--f-label); }
 .acc summary::-webkit-details-marker { display: none; }
-.acc summary::after { content: "+"; flex: none; display: grid; place-items: center; width: 30px; height: 30px; border: 2px solid var(--ink); font: 400 20px/1 var(--f-label); background: var(--cream-hi); }
+.acc summary::after { content: "+"; flex: none; display: grid; place-items: center; width: 30px; height: 30px; border: 2px solid var(--ink); font: 700 22px/1 var(--f-head); background: var(--cream-hi); }
 .acc details[open] summary::after { content: "−"; background: var(--bur); color: var(--cream-hi); }
 .acc .body { padding: 0 2px 18px; color: var(--ink-2); font-size: 16px; }
 
@@ -337,7 +337,7 @@ footer a { display: inline-grid; place-items: center; min-height: 44px; font: 40
 @media (max-width: 720px) {
   .wrap { padding-inline: 16px; }
   .huds { position: static; display: flex; flex-wrap: wrap; gap: 14px 12px; padding: 16px 12px 14px; background: var(--cream); border-top: 2px solid var(--ink); }
-  .hud { position: relative; inset: auto; max-width: none; flex: 1 1 140px; }
+  .hud.a, .hud.b, .hud.c { position: relative; inset: auto; max-width: none; flex: 1 1 140px; }
   .ret span { display: none; }
   .xt thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .xt tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; padding: 14px; border-bottom: 2px solid var(--ink); }
@@ -487,7 +487,7 @@ footer a { display: inline-grid; place-items: center; min-height: 44px; font: 40
             <legend>출격 전 점검</legend>
             <div class="opts">
               <label class="opt"><input type="checkbox" id="chkAll"><span>전부</span></label>
-              <div class="opts sub" id="chkKids">
+              <div class="opts nest" id="chkKids">
                 <label class="opt"><input type="checkbox" checked><span>연료</span></label>
                 <label class="opt"><input type="checkbox"><span>바닷물 호스 잠금</span></label>
                 <label class="opt"><input type="checkbox" checked><span>국밥 한 그릇</span></label>
@@ -725,7 +725,7 @@ footer a { display: inline-grid; place-items: center; min-height: 44px; font: 40
     ];
     let s = '<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1100" viewBox="0 0 1100 1100">';
     for (const [isHole, d] of shapes) s += '<path d="' + d + '" ' + (isHole ? hole : cut) + '/>';
-    s += '<g font-family="sans-serif" font-size="13" fill="rgba(34,7,14,.32)"><text x="44" y="330">No.01 산동네</text><text x="740" y="340">No.04 크레인</text><text x="380" y="680">No.07 여객선</text><text x="120" y="975">No.09 국밥</text></g></svg>';
+    s += "</svg>";
     document.body.style.setProperty('--sheet', 'url("data:image/svg+xml,' + encodeURIComponent(s) + '")');
   })();
 

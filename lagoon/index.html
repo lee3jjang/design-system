@@ -685,12 +685,12 @@ dialog[open] { animation: popin .35s var(--spring); }
 @keyframes shrink { to { transform: scaleX(0); } }
 .flycoin { position: fixed; z-index: 80; width: 26px; height: 26px; pointer-events: none; }
 
-.npc-stage { position: relative; width: 100%; min-height: 300px; display: flex; align-items: flex-end; justify-content: center; gap: 24px; padding: 20px 10px 0; overflow: hidden; }
+.npc-stage { position: relative; width: 100%; min-height: 300px; display: flex; align-items: flex-end; justify-content: center; gap: 64px; padding: 20px 10px 0; overflow: hidden; }
 .npc-stage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; background: repeating-linear-gradient(90deg, #a8683a 0 30px, #7a4520 30px 33px); border-top: 3px solid var(--ol); }
 .npc { position: relative; z-index: 1; display: block; width: 110px; height: 176px; flex: none; margin-bottom: 20px; animation: idle 2s steps(2) infinite; }
 @keyframes idle { 50% { transform: translateY(2px); } }
 .npc-wrap { position: relative; z-index: 1; padding-top: 74px; }
-.float-line { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); width: 250px; font: 400 21px/1.4 var(--f-game); color: #fff; text-align: center;
+.float-line { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); width: 220px; font: 400 21px/1.4 var(--f-game); color: #fff; text-align: center;
   text-shadow: 0 2px 0 var(--ol), 2px 0 0 var(--ol), -2px 0 0 var(--ol), 0 -2px 0 var(--ol), 2px 2px 0 var(--ol), -2px 2px 0 var(--ol); }
 .say { position: relative; z-index: 1; align-self: center; max-width: 280px; padding: 14px 16px; background: #fff; color: var(--ink); font: 400 19px/1.45 var(--f-game); box-shadow: var(--edge); margin-bottom: 70px; min-height: 76px; }
 .say::after { content: ""; position: absolute; left: -16px; bottom: 16px; border: 9px solid transparent; border-right: 13px solid #fff; border-left: 0; filter: drop-shadow(-3px 0 0 var(--ol)); }

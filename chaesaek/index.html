@@ -364,7 +364,9 @@ svg { display: block; }
     (o.lines || []).forEach((ln, j) => {
       const mid = 'm' + id + '_' + j, cl = jitter(ln.pts, ctx.j * .8, false, r, [[1.2, 1], [2.7, .5], [9, .2]]), w = ln.w || ctx.lw;
       const dl = (ctx.lineBase ?? o.d) + (ctx.lineStep || .14) * (ctx.li = (ctx.li || 0) + 1) * (ctx.lineBase != null ? 1 : .15);
-      ctx.defs += `<mask id="${mid}" maskUnits="userSpaceOnUse" x="-100" y="-100" width="2400" height="2400"><path class="mk" style="--d:${dl.toFixed(2)}s" d="${smooth(cl, false)}" pathLength="1" stroke-width="${fx(w * 5)}"/></mask>`;
+      const xs = cl.map(q => q[0]), ys = cl.map(q => q[1]), pad = w * 4;
+      const bx = Math.min(...xs) - pad, by = Math.min(...ys) - pad;
+      ctx.defs += `<mask id="${mid}" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="${fx(bx)}" y="${fx(by)}" width="${fx(Math.max(...xs) - bx + pad)}" height="${fx(Math.max(...ys) - by + pad)}"><path class="mk" style="--d:${dl.toFixed(2)}s" d="${smooth(cl, false)}" pathLength="1" stroke-width="${fx(w * 5)}"/></mask>`;
       s += `<path class="ln" d="${brush(cl, w, r)}" fill="${c.line}" opacity="${ln.op || 1}" mask="url(#${mid})"/>`;
     });
     return `<g class="o${o.cls ? ' ' + o.cls : ''}" style="--d:${(o.d || 0).toFixed(2)}s">${s}</g>`;

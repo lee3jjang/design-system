@@ -708,7 +708,7 @@ dialog[open] { animation: rise .2s var(--ease); }
 
 <!-- 코드 -->
 <section class="zone" id="code" aria-labelledby="h-code">
-  <div class="zone__head"><span class="bolt" aria-hidden="true"><svg><use href="#rivet"/></svg></span><div><small>08 · CODE</small><h2 id="h-code">코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 바탕 토큰은 흰색 하나, 테두리는 <code>ring-1</code>–<code>ring-4</code> 유틸리티로 겹을 셉니다.</p></div></div>
+  <div class="zone__head"><span class="bolt" aria-hidden="true"><svg><use href="#rivet"/></svg></span><div><small>08 · CODE</small><h2 id="h-code">코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 바탕 토큰은 흰색 하나, 테두리는 <code>rings-1</code>–<code>rings-4</code> 유틸리티로 겹을 셉니다.</p></div></div>
   <div class="panel"><div class="codebar"><span class="flabel">app/globals.css</span><button class="btn btn--sm" id="copyBtn">복사하기</button></div><pre class="code" id="codeBlock" tabindex="0"></pre></div>
 </section>
 </main>
@@ -901,11 +901,11 @@ dialog[open] { animation: rise .2s var(--ease); }
 }
 
 <span class="c">/* 겹테: 겹 수가 위계. 1 조용함 · 2 기본 · 3 고름 · 4 주요 */</span>
-@utility <span class="p">ring-1</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)); }
-@utility <span class="p">ring-2</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)); }
-@utility <span class="p">ring-3</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)),
+@utility <span class="p">rings-1</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)); }
+@utility <span class="p">rings-2</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)); }
+@utility <span class="p">rings-3</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)),
   0 0 0 7px var(--background), 0 0 0 8px var(--rc, var(--border)); }
-@utility <span class="p">ring-4</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)),
+@utility <span class="p">rings-4</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)),
   0 0 0 7px var(--background), 0 0 0 8px var(--rc, var(--border)), 0 0 0 10px var(--background), 0 0 0 11px var(--rc, var(--border)); }
 
 <span class="c">/* 어긋난 몸: 대각선만 둥글게, 굽은 오른쪽으로 */</span>

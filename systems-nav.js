@@ -19,6 +19,7 @@
     { id: 'carte', path: 'carte/index.html', name: 'Carte', ko: '메뉴판', c: ['#e9d7b0', '#1b1b1b', '#1f8a55'] },
     { id: 'sticker', path: 'sticker/index.html', name: 'Sticker', ko: '스티커 얼굴 꾸미기', c: ['#ffffff', '#f2c230', '#e2453a'] },
     { id: 'chaesaek', path: 'chaesaek/index.html', name: 'Chaesaek', ko: '채색화 · 선과 바림', c: ['#efebe4', '#b3243a', '#3f7a3a'] },
+    { id: 'ratio', path: 'ratio/index.html', name: 'Ratio', ko: '서양화 색 비율', c: ['#4995cc', '#4e5436', '#c2a153'] },
     { id: 'zoo', path: 'zoo/index.html', name: 'Zoo Orbit', ko: '동물 우주비행단', c: ['#101632', '#f2f0ea', '#ff7a2f'] },
     { id: 'sanctum', path: 'sanctum/index.html', name: 'Sanctum', ko: '천국과 지옥', c: ['#0f0c0b', '#c9a24a', '#d0401f'] },
     { id: 'reverie', path: 'reverie/index.html', name: 'Reverie', ko: '꿈속', c: ['#e9e2f6', '#b9a6e8', '#f7c6b4'] },

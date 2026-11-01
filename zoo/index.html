@@ -1,0 +1,1303 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zoo Orbit 디자인 시스템</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Fredoka:wght@500;600;700&family=Orbit&family=Share+Tech+Mono&family=Sunflower:wght@500;700&display=swap">
+<style>
+/* Zoo Orbit: a spaceship flown by animals.
+   A cat captain, a dog pilot, a rabbit engineer, a penguin navigator and a hamster running the generator wheel.
+   Every control is onboard equipment rebuilt for paws: chunky, rounded, guarded when dangerous.
+   One drawing style: off-white hull metal, one navy outline (3px), a top light band, a short foot, rivets at the corners.
+   Safety orange means "press this", mint means "on / done", red is behind a cover. Screens glow phosphor green. */
+:root {
+  color-scheme: light;
+  --void: #0d1330; --void-2: #161f47; --void-3: #232d5e; --nebula: #3a2f7a;
+  --hull: #f1f2f4; --hull-2: #e3e7ec; --hull-3: #c9d0d9; --steel: #8b96a8; --steel-d: #5d6880;
+  --ol: #1c2340;
+  --ink: #1c2340; --ink-2: #3e4864; --ink-3: #4f5975;
+  --orange: #ff7a1a; --orange-l: #ffb27a; --orange-d: #c9540a; --orange-wash: #ffe8d6;
+  --mint: #22b59a; --mint-l: #7fe3cc; --mint-d: #0e7a66; --mint-wash: #d3f3ea;
+  --red: #d03a40; --red-l: #f27a7e; --red-d: #8f1d22; --red-wash: #fde1e1;
+  --amber: #ffc83d; --amber-d: #b98710;
+  --paw: #ff9fb4; --lilac: #9b8cf5;
+  --crt: #0a2420; --phos: #8ff5cf;
+  --sky: #c9e6f6; --panel-dark: #2c3556;
+  --foot: 5px;
+  --spring: cubic-bezier(.3,1.6,.5,1); --ease: cubic-bezier(.2,.8,.2,1);
+  --font-title: "Fredoka", "Do Hyeon", sans-serif;
+  --font: "Sunflower", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "Share Tech Mono", "Orbit", ui-monospace, monospace;
+  --font-label: "Orbit", "Sunflower", sans-serif;
+  --rivet: radial-gradient(circle at 7px 7px, #fff 0 1px, #dfe4ea 1.6px 2.6px, #a4aebd 4px, var(--ol) 4.6px 6px, transparent 6.5px);
+  --hazard: repeating-linear-gradient(-45deg, var(--amber) 0 9px, var(--ol) 9px 18px);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--void); font-synthesis: none; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
+body { margin: 0; color: var(--ink); font: 500 17px/1.7 var(--font); word-break: keep-all; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  background: var(--stars, none) 0 0/420px 420px, radial-gradient(ellipse 1100px 700px at 85% -10%, rgba(155,140,245,.28), transparent 70%) no-repeat, radial-gradient(ellipse 900px 600px at 0% 40%, rgba(34,181,154,.10), transparent 70%) no-repeat, linear-gradient(var(--void-2), var(--void) 900px) no-repeat, var(--void); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--mint-d); text-underline-offset: 3px; }
+code { font: .88em var(--font-mono); background: var(--hull-2); padding: 1px 6px; border-radius: 4px; }
+.wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--orange); outline-offset: 4px; border-radius: 10px; }
+
+/* ---------- Top console ---------- */
+.bar { position: sticky; top: 0; z-index: 40; background: linear-gradient(#202a58, #161f47); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.bar::after { content: ""; display: block; height: 7px; background: var(--hazard); border-top: 2px solid var(--ol); }
+.bar .wrap { display: flex; align-items: center; gap: 14px; min-height: 62px; }
+.bar__brand { flex: none; display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+.bar__brand svg { width: 38px; height: 38px; }
+.bar__brand b { font: 600 22px/1 var(--font-title); letter-spacing: .01em; }
+.bar__brand small { display: block; font: 400 13px/1.2 var(--font-title); color: #c3cbe6; }
+.bar__stat { flex: none; display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border: 2px solid #3d4878; border-radius: 17px; background: var(--crt); color: var(--phos); font: 400 14px/1 var(--font-mono); }
+.bar__stat i { width: 9px; height: 9px; border-radius: 50%; background: var(--mint-l); box-shadow: 0 0 8px var(--mint-l); animation: blink 2.4s steps(1) infinite; }
+@keyframes blink { 50% { opacity: .35; } }
+.bar nav { margin-left: auto; display: flex; gap: 4px; flex: none; }
+.bar nav a { display: grid; place-items: center; height: 40px; padding: 0 12px; border-radius: 12px; color: #d6dcf0; text-decoration: none; font: 400 17px/1 var(--font-title); }
+.bar nav a:hover { background: rgba(255,255,255,.1); color: #fff; }
+.bar nav a[aria-current="true"] { background: var(--orange); color: var(--ink); box-shadow: inset 0 3px 0 rgba(255,255,255,.35), 0 3px 0 #05081a; }
+@media (max-width: 1020px) { .bar nav { display: none; } .bar__stat { margin-left: auto; } }
+@media (max-width: 420px) { .bar__stat { display: none; } }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; overflow-x: clip; padding-block: 56px 20px; }
+.hero__sky { position: absolute; inset: 0; pointer-events: none; }
+.planet { position: absolute; top: 18px; right: -70px; width: 420px; height: 340px; }
+.planet svg { width: 100%; height: 100%; overflow: visible; }
+.shoot { position: absolute; top: 90px; left: 12%; width: 120px; height: 2px; background: linear-gradient(90deg, transparent, #fff); border-radius: 2px; transform: rotate(-18deg); opacity: 0; animation: shoot 7s ease-in 2s infinite; }
+@keyframes shoot { 0% { opacity: 0; transform: translate(0, 0) rotate(-18deg); } 3% { opacity: 1; } 9% { opacity: 0; transform: translate(260px, -84px) rotate(-18deg); } 100% { opacity: 0; } }
+.hero__in { position: relative; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); gap: 30px; align-items: center; }
+.hero__k { display: inline-block; padding: 6px 14px; border: 3px solid var(--ol); border-radius: 10px; background: var(--orange); color: var(--ink); font: 400 18px/1.2 var(--font-title); box-shadow: 0 4px 0 #05081a; transform: rotate(-2deg); }
+.hero h1 { margin-top: 18px; font: 700 clamp(62px, 11.5vw, 134px)/.92 var(--font-title); color: #fff; letter-spacing: -.01em; text-shadow: 0 6px 0 #05081a; }
+.hero h1 span { color: var(--orange); }
+.hero__sub { margin-top: 14px; font: 400 clamp(24px, 3.4vw, 32px)/1.3 var(--font-title); color: #fff; }
+.hero__copy > p:not(.hero__sub) { margin-top: 14px; max-width: 44ch; color: #cdd4ec; font-size: 17.5px; }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 26px; }
+.pawpad { position: relative; justify-self: center; width: 250px; height: 250px; display: grid; place-items: center; border: 3px solid var(--ol); border-radius: 50%;
+  background: radial-gradient(circle, var(--hull) 0 66%, var(--hull-3) 66.5% 100%); box-shadow: 0 0 0 8px rgba(255,255,255,.06), 0 10px 0 #05081a, 0 30px 50px -20px rgba(0,0,0,.8); }
+.pawpad__ring { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pawpad__cap { position: absolute; bottom: -38px; left: 50%; transform: translateX(-50%); white-space: nowrap; font: 400 14px/1 var(--font-mono); color: #c3cbe6; letter-spacing: .1em; }
+@media (max-width: 860px) { .hero__in { grid-template-columns: minmax(0, 1fr); } .planet { width: 250px; height: 210px; right: -120px; top: -46px; opacity: .85; } .pawpad { margin-top: 10px; } }
+
+/* Crew roster: the bridge console where everyone sits */
+.crew { position: relative; margin-top: 74px; border: 3px solid var(--ol); border-radius: 26px; background: var(--hull); box-shadow: 0 7px 0 #05081a, 0 30px 50px -20px rgba(0,0,0,.7); }
+.crew__bar { display: flex; align-items: center; gap: 12px; min-height: 42px; padding: 0 18px; border-bottom: 3px solid var(--ol); border-radius: 23px 23px 0 0; background: linear-gradient(#d6dce4, #c4cbd6); font: 400 14px/1 var(--font-mono); color: var(--ink-2); letter-spacing: .08em; }
+.crew__bar b { font: 400 18px/1 var(--font-title); color: var(--ink); letter-spacing: 0; }
+.crew__bar span:last-child { margin-left: auto; }
+.crew__seats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px 12px; padding: 24px 20px 26px;
+  background: var(--rivet) 10px 10px/14px 14px no-repeat, var(--rivet) right 10px top 10px/14px 14px no-repeat, var(--rivet) 10px bottom 10px/14px 14px no-repeat, var(--rivet) right 10px bottom 10px/14px 14px no-repeat; }
+.seat { display: grid; justify-items: center; gap: 8px; text-align: center; }
+.seat svg { width: 112px; height: 112px; }
+.seat b { display: block; font: 400 22px/1.1 var(--font-title); }
+.seat small { display: block; font: 500 14.5px/1.3 var(--font); color: var(--ink-3); }
+.seat .lamp { margin-top: 2px; }
+@media (max-width: 560px) { .crew__seats { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 22px 12px; } .seat svg { width: 96px; height: 96px; } .crew__bar span:last-child { display: none; } }
+
+/* ---------- Zones (sections) ---------- */
+section.zone { padding-block: 104px 8px; scroll-margin-top: 80px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 34px; }
+.zone__head { display: flex; align-items: center; gap: 22px; color: #fff; }
+.patch { width: 92px; height: 92px; flex: none; filter: drop-shadow(0 5px 0 #05081a); }
+.zone__head small { display: block; font: 400 14px/1 var(--font-mono); letter-spacing: .2em; color: var(--orange-l); }
+.zone__head h2 { margin-top: 6px; font: 400 clamp(34px, 5vw, 46px)/1.1 var(--font-title); }
+.zone__head p { margin-top: 8px; max-width: 60ch; color: #cdd4ec; }
+@media (max-width: 560px) { .zone__head { align-items: flex-start; gap: 14px; } .patch { width: 66px; height: 66px; } }
+
+/* Panel: one piece of cockpit equipment. Label bar on top, rivets at the corners, a recessed deck where the specimen sits. */
+.pnl { position: relative; border: 3px solid var(--ol); border-radius: 24px; background: var(--hull); box-shadow: 0 7px 0 #05081a, 0 26px 44px -20px rgba(0,0,0,.75); }
+.pnl__bar { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 16px; border-bottom: 3px solid var(--ol); border-radius: 21px 21px 0 0; background: linear-gradient(#d6dce4, #c4cbd6); }
+.pnl__id { flex: none; padding: 3px 8px; border: 2px solid var(--ol); border-radius: 6px; background: var(--hull); font: 400 13px/1.2 var(--font-mono); letter-spacing: .12em; color: var(--ink-2); }
+.pnl__vent { flex: 1; height: 10px; min-width: 20px; border-radius: 5px; background: repeating-linear-gradient(90deg, rgba(28,35,64,.38) 0 3px, transparent 3px 9px); }
+.pnl__leds { flex: none; display: flex; gap: 6px; }
+.pnl__leds i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ol); background: #9aa5b5; }
+.pnl__leds i:first-child { background: var(--mint-l); box-shadow: 0 0 6px var(--mint); }
+.pnl__leds i:nth-child(2) { background: var(--amber); }
+.pnl__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr); gap: 4px; padding: 14px; border-radius: 0 0 21px 21px;
+  background: var(--rivet) 8px 8px/14px 14px no-repeat, var(--rivet) right 8px top 8px/14px 14px no-repeat, var(--rivet) 8px bottom 8px/14px 14px no-repeat, var(--rivet) right 8px bottom 8px/14px 14px no-repeat; }
+.pnl--wide .pnl__body { grid-template-columns: minmax(0, 1fr); }
+/* hazard edge on dangerous panels */
+.pnl--hazard::before { content: ""; position: absolute; left: -3px; top: 60px; bottom: 40px; width: 12px; border: 3px solid var(--ol); border-radius: 0 6px 6px 0; background: var(--hazard); }
+.note { min-width: 0; padding: 18px 18px 18px 16px; display: grid; gap: 8px; align-content: start; }
+.note h3 { font: 400 25px/1.25 var(--font-title); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.note h3 small { padding: 2px 7px; border-radius: 5px; background: var(--void-3); color: var(--phos); font: 400 12.5px/1.4 var(--font-mono); letter-spacing: .08em; }
+.note p { color: var(--ink-2); font-size: 16px; }
+.note ul { margin: 2px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 16px; color: var(--ink-2); }
+.note li { position: relative; padding-left: 22px; }
+.note li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--ol); background: var(--orange); }
+.deck { position: relative; min-width: 0; padding: 42px 26px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; align-content: center; min-height: 190px;
+  border: 2.5px solid var(--ol); border-radius: 16px; background: radial-gradient(circle, rgba(28,35,64,.09) 1.2px, transparent 1.8px) 0 0/14px 14px, var(--hull-2); box-shadow: inset 0 4px 0 rgba(28,35,64,.1); }
+.deck.col { flex-direction: column; align-items: stretch; }
+.deck > * { min-width: 0; max-width: 100%; }
+@media (max-width: 820px) { .pnl__body { grid-template-columns: minmax(0, 1fr); padding: 10px; } .note { padding: 18px 10px 14px; } .deck { padding: 34px 14px; } .pnl--hazard::before { top: 52px; bottom: auto; height: 90px; } }
+
+/* ---------- Foundations ---------- */
+.swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; width: 100%; }
+.sw { display: grid; gap: 6px; min-width: 0; }
+@media (max-width: 640px) { .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .parts { grid-template-columns: minmax(0, 1fr); } }
+.sw i { height: 66px; border: 3px solid var(--ol); border-radius: 14px; box-shadow: inset 0 6px 0 rgba(255,255,255,.28), inset 0 -6px 0 rgba(0,0,0,.14), 0 4px 0 var(--ol); }
+.sw b { font: 400 19px/1.2 var(--font-title); }
+.sw code { background: none; padding: 0; font-size: 13px; color: var(--ink-3); }
+.sw span { font-size: 14.5px; color: var(--ink-2); line-height: 1.4; }
+.swhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; font: 400 22px/1 var(--font-title); margin-top: 8px; }
+.swhead:first-child { margin-top: 0; }
+.swhead::after { content: ""; flex: 1; height: 8px; border-radius: 4px; border: 2px solid var(--ol); background: var(--hazard); opacity: .9; }
+.swhead span { font: 500 14.5px/1 var(--font); color: var(--ink-3); }
+.parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; width: 100%; }
+.parts figure { margin: 0; display: grid; gap: 8px; align-content: start; }
+.parts figure > div { height: 64px; border: 3px solid var(--ol); border-radius: 12px; }
+.parts b { font: 400 19px/1.2 var(--font-title); }
+.parts span { font-size: 14.5px; color: var(--ink-2); }
+.typerow { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 18px; align-items: baseline; padding: 14px 0; border-top: 2px dashed var(--hull-3); }
+.typerow:first-child { border-top: 0; }
+.typerow .k { display: grid; gap: 2px; } .typerow .k b { font: 400 18px/1.2 var(--font-title); } .typerow .k span { font: 400 13px/1.3 var(--font-mono); color: var(--ink-3); }
+@media (max-width: 560px) { .typerow { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 22px; margin: 0; padding: 0; list-style: none; counter-reset: r; }
+.rules li { counter-increment: r; position: relative; padding: 20px 20px 22px; border: 3px solid var(--ol); border-radius: 20px; background: var(--hull); box-shadow: 0 6px 0 #05081a; display: grid; gap: 6px; align-content: start; }
+.rules li::before { content: "규칙 0" counter(r); justify-self: start; padding: 3px 10px; border: 2px solid var(--ol); border-radius: 6px; background: var(--orange); font: 400 14px/1.3 var(--font-label); }
+.rules b { font: 400 23px/1.3 var(--font-title); }
+.rules span { font-size: 16px; color: var(--ink-2); }
+
+/* ---------- Buttons ---------- */
+/* Cockpit key: a chunky block with a light band on top, a shadow band below and a foot it sinks into */
+.btn { --f: var(--hull); --fl: #fff; --fd: var(--hull-3); --t: var(--ink);
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 28px; border: 3px solid var(--ol); border-radius: 16px; cursor: pointer; text-decoration: none;
+  font: 400 20px/1 var(--font-title); color: var(--t); white-space: nowrap;
+  background: linear-gradient(var(--fl) 0 6px, var(--f) 6px calc(100% - 7px), var(--fd) calc(100% - 7px));
+  box-shadow: 0 var(--foot) 0 var(--ol), 0 calc(var(--foot) + 10px) 16px -8px rgba(13,19,48,.45); transition: transform .25s var(--spring), box-shadow .25s var(--spring); }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 calc(var(--foot) + 2px) 0 var(--ol), 0 calc(var(--foot) + 14px) 18px -8px rgba(13,19,48,.45); }
+.btn:active { transform: translateY(var(--foot)); box-shadow: 0 0 0 var(--ol), 0 2px 4px rgba(13,19,48,.3); transition-duration: .05s; }
+.btn svg { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.btn--go { --f: var(--orange); --fl: var(--orange-l); --fd: var(--orange-d); }
+.btn--mint { --f: var(--mint); --fl: var(--mint-l); --fd: var(--mint-d); }
+.btn--red { --f: var(--red); --fl: var(--red-l); --fd: var(--red-d); --t: #fff; }
+/* label plate screwed onto the key */
+.btn--plate { padding: 0 24px; }
+.btn--plate span { position: relative; padding: 7px 26px; border: 2px solid var(--ol); border-radius: 7px; background: #fff; font-size: 18px; box-shadow: inset 0 -3px 0 var(--hull-2); }
+.btn--plate span { padding: 7px 16px; }
+.btn--plate span::before, .btn--plate span::after { content: ""; position: absolute; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 1px, var(--hull-3) 2px); box-shadow: 0 0 0 1.5px var(--ol); }
+.btn--plate span::before { left: -13px; } .btn--plate span::after { right: -13px; }
+.btn--ghost { background: none; border-color: transparent; box-shadow: none; padding: 0 10px; color: var(--ink-2); text-decoration: underline dashed var(--orange); text-underline-offset: 8px; text-decoration-thickness: 2.5px; }
+.btn--ghost:hover, .btn--ghost:active { transform: none; box-shadow: none; color: var(--ink); }
+.btn--sm { min-height: 46px; padding: 0 20px; font-size: 18px; --foot: 4px; border-radius: 13px; }
+.btn--sm.btn--plate { padding: 0 22px; } .btn--sm.btn--plate span { padding: 5px 12px; font-size: 16.5px; }
+.btn:disabled, .btn[aria-disabled="true"] { cursor: not-allowed; --t: var(--ink-3); transform: none; border-color: var(--steel-d); box-shadow: 0 var(--foot) 0 var(--steel-d);
+  background: repeating-linear-gradient(-45deg, #dfe3e8 0 7px, #d1d7df 7px 14px); }
+.btn[aria-disabled="true"].is-busy { --t: var(--ink); background: linear-gradient(var(--mint-l) 0 6px, var(--mint) 6px calc(100% - 7px), var(--mint-d) calc(100% - 7px)); border-color: var(--ol); box-shadow: 0 var(--foot) 0 var(--ol); }
+.spin { width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--ol); border-right-color: transparent; animation: rot .8s linear infinite; }
+@keyframes rot { to { transform: rotate(360deg); } }
+
+/* Paw button: the main "go" for the whole ship */
+.paw { position: relative; display: grid; place-items: center; width: 168px; height: 168px; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 50%; }
+.paw svg { width: 168px; height: 168px; overflow: visible; }
+.paw .toe { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .3s var(--spring); }
+.paw:hover .toe { transform: translateY(-5px); }
+.paw:hover .toe:nth-of-type(2), .paw:hover .toe:nth-of-type(3) { transform: translateY(-7px); transition-delay: .04s; }
+.paw .pad { transition: transform .2s var(--spring); transform-box: view-box; transform-origin: 80px 140px; }
+.paw:active .pad { transform: translateY(5px) scale(1, .97); }
+.paw b { position: absolute; left: 0; right: 0; top: 102px; font: 400 25px/1 var(--font-title); color: var(--ink); text-align: center; pointer-events: none; transition: transform .2s var(--spring); }
+.paw:active b { transform: translateY(5px); }
+.paw.boing svg { animation: boing .5s var(--spring); }
+@keyframes boing { 30% { transform: scale(1.08, .92); } 60% { transform: scale(.96, 1.05); } }
+.paw:focus-visible { outline-offset: 2px; border-radius: 50%; }
+
+/* Knob: round knurled icon buttons */
+.knob { position: relative; width: 58px; height: 58px; flex: none; border: 3px solid var(--ol); border-radius: 50%; cursor: pointer; display: grid; place-items: center; color: var(--ink); background: var(--hull-3); box-shadow: 0 4px 0 var(--ol); transition: transform .25s var(--spring), box-shadow .25s var(--spring); }
+.knob::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(#e4e8ee 0 7.5deg, #a2acbb 7.5deg 15deg); transition: transform .4s var(--spring); }
+.knob::after { content: ""; position: absolute; inset: 8px; border-radius: 50%; border: 2.5px solid var(--ol); background: radial-gradient(circle at 40% 30%, #fff, var(--hull) 60%, var(--hull-2)); }
+.knob svg { position: relative; z-index: 1; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.knob:hover::before { transform: rotate(40deg); }
+.knob:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ol); transition-duration: .05s; }
+.knob:focus-visible { border-radius: 50%; }
+.knob--sm { width: 48px; height: 48px; } .knob--sm::after { inset: 6px; } .knob--sm svg { width: 18px; height: 18px; }
+.knobs { display: flex; flex-wrap: wrap; gap: 22px; padding: 14px 20px; border: 3px solid var(--ol); border-radius: 40px; background: linear-gradient(#3a4566, #2a3352); box-shadow: 0 5px 0 var(--ol); }
+
+/* Guarded danger button: flip the clear cover, then press */
+.guard { position: relative; width: 168px; height: 168px; padding: 14px; border: 3px solid var(--ol); border-radius: 22px; background: var(--hazard); box-shadow: 0 6px 0 var(--ol); perspective: 500px; }
+.guard__well { position: absolute; inset: 14px; border: 3px solid var(--ol); border-radius: 14px; background: linear-gradient(#2c3556, #1f2745); display: grid; place-items: center; }
+.guard__btn { position: relative; width: 88px; height: 88px; border: 3px solid var(--ol); border-radius: 50%; cursor: pointer; color: #fff; font: 400 21px/1.05 var(--font-title);
+  background: radial-gradient(circle at 40% 30%, var(--red-l) 0 8px, transparent 22px), radial-gradient(circle, var(--red) 55%, var(--red-d)); box-shadow: 0 6px 0 #4d0e12, inset 0 -4px 0 rgba(0,0,0,.2); transition: transform .15s, box-shadow .15s; }
+.guard__btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 #4d0e12; }
+.guard__btn:disabled { cursor: not-allowed; }
+.guard__btn:focus-visible { border-radius: 50%; outline-color: var(--amber); }
+.guard__cover { position: absolute; inset: 8px; z-index: 2; padding: 0; border: 3px solid var(--ol); border-radius: 16px; cursor: pointer; background: linear-gradient(160deg, rgba(255,255,255,.55) 0 18%, rgba(201,230,246,.38) 18% 60%, rgba(255,255,255,.18) 60%); backdrop-filter: blur(1px);
+  transform-origin: 50% 0; transition: transform .45s var(--spring); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
+.guard__cover::before { content: ""; position: absolute; left: 18px; right: 18px; top: -9px; height: 12px; border: 3px solid var(--ol); border-radius: 6px; background: linear-gradient(var(--hull), var(--steel)); }
+.guard__cover span { padding: 3px 10px; border: 2px solid var(--ol); border-radius: 6px; background: var(--amber); color: var(--ink); font: 400 15px/1.2 var(--font-title); }
+.guard__cover[aria-expanded="true"] { transform: rotateX(78deg) translateY(-4px); }
+.guard__cover[aria-expanded="true"] span { opacity: 0; }
+.guard__cover:focus-visible { outline-offset: 6px; }
+.guard-wrap { display: grid; justify-items: center; gap: 14px; }
+.guard-wrap > small { font: 400 14px/1.3 var(--font-mono); color: var(--ink-2); letter-spacing: .06em; }
+
+/* Launch: countdown screen + the big orange button in a hazard ring */
+.launch { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 28px; }
+.screen { position: relative; width: 230px; height: 150px; overflow: hidden; border: 3px solid var(--ol); border-radius: 18px / 24px; background: radial-gradient(ellipse at 50% 40%, #145244, var(--crt) 75%); box-shadow: 0 0 0 7px var(--panel-dark), 0 0 0 10px var(--ol), inset 0 0 30px rgba(0,0,0,.6); color: var(--phos); }
+.screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.25) 2px 3px); }
+.screen__txt { position: absolute; top: 14px; left: 16px; right: 16px; display: flex; justify-content: space-between; font: 400 14px/1 var(--font-mono); letter-spacing: .1em; text-shadow: 0 0 6px rgba(143,245,207,.6); }
+.screen__big { position: absolute; inset: 30px 0 0; display: grid; place-items: center; font: 400 54px/1 var(--font-mono); text-shadow: 0 0 12px rgba(143,245,207,.7); }
+.screen__big.word { font: 400 30px/1.2 var(--font-title); }
+.screen__rocket { position: absolute; left: 50%; bottom: -60px; width: 34px; height: 56px; margin-left: -17px; }
+.screen.fly .screen__rocket { animation: fly 1.4s cubic-bezier(.5,0,.8,.4) forwards; }
+@keyframes fly { 0% { transform: translateY(0); } 20% { transform: translateY(-70px); } 100% { transform: translateY(-260px); } }
+.ignite { display: grid; justify-items: center; gap: 14px; }
+.ignite__ring { padding: 16px; border: 3px solid var(--ol); border-radius: 50%; background: var(--hazard); box-shadow: 0 6px 0 var(--ol); }
+.ignite__btn { display: grid; place-items: center; align-content: center; width: 150px; height: 150px; border: 3px solid var(--ol); border-radius: 50%; cursor: pointer; color: var(--ink);
+  background: radial-gradient(circle at 42% 30%, #ffd3a8 0 10px, transparent 34px), radial-gradient(circle, var(--orange) 55%, var(--orange-d)); box-shadow: 0 9px 0 #6b2a00, inset 0 -6px 0 rgba(0,0,0,.15); transition: transform .15s, box-shadow .15s; }
+.ignite__btn b { font: 400 42px/1 var(--font-title); }
+.ignite__btn small { margin-top: 4px; font: 400 13px/1 var(--font-mono); letter-spacing: .1em; }
+.ignite__btn:active, .ignite__btn.down { transform: translateY(8px); box-shadow: 0 1px 0 #6b2a00, inset 0 -3px 0 rgba(0,0,0,.15); }
+.ignite__btn:focus-visible { border-radius: 50%; }
+main.quake { animation: quake .7s linear; }
+@keyframes quake { 10%, 90% { transform: translate(-2px, 1px); } 20%, 80% { transform: translate(4px, -2px); } 30%, 50%, 70% { transform: translate(-6px, 2px); } 40%, 60% { transform: translate(6px, -1px); } }
+
+/* ---------- Toggles ---------- */
+/* Switch bank: aviation toggles behind orange guard rails */
+.bank { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 10px; padding: 18px 16px 16px; border: 3px solid var(--ol); border-radius: 20px; background: linear-gradient(#3a4566, #2a3352); box-shadow: inset 0 3px 0 rgba(255,255,255,.12), 0 6px 0 var(--ol); }
+.tgl { display: grid; justify-items: center; gap: 8px; width: 96px; padding: 0; border: 0; background: none; cursor: pointer; color: #fff; }
+.tgl svg { width: 76px; height: 112px; overflow: visible; }
+.tgl .lev { transform-box: view-box; transform-origin: 40px 64px; transition: transform .3s var(--spring); }
+.tgl[aria-checked="false"] .lev { transform: scaleY(-1); }
+.tgl .led { fill: #4a5578; transition: fill .2s; }
+.tgl[aria-checked="true"] .led { fill: var(--mint-l); filter: drop-shadow(0 0 4px var(--mint-l)); }
+.tgl b { padding: 4px 8px; border: 2px solid var(--ol); border-radius: 6px; background: var(--hull); color: var(--ink); font: 400 16px/1.2 var(--font-title); white-space: nowrap; }
+.tgl em { font-style: normal; font: 400 13.5px/1 var(--font-label); color: #c3cbe6; }
+.tgl[aria-checked="true"] em { color: var(--phos); }
+.tgl:focus-visible { outline-offset: 2px; }
+
+/* Hamster wheel generator */
+.wheel { display: inline-flex; align-items: center; gap: 18px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.wheel svg { width: 132px; height: 132px; flex: none; overflow: visible; }
+.wheel .spin-g { transform-box: view-box; transform-origin: 66px 62px; }
+.wheel[aria-checked="true"] .spin-g { animation: rot 1.1s linear infinite; }
+.wheel .ham { transform-box: view-box; transform-origin: 66px 100px; }
+.wheel[aria-checked="true"] .ham { animation: hop .28s ease-in-out infinite alternate; }
+@keyframes hop { to { transform: translateY(-3px) rotate(-3deg); } }
+.wheel .bolt { fill: #b8c0cc; transition: fill .2s; }
+.wheel[aria-checked="true"] .bolt { fill: var(--amber); filter: drop-shadow(0 0 5px var(--amber)); }
+.wheel .zz { opacity: 1; transition: opacity .2s; }
+.wheel[aria-checked="true"] .zz { opacity: 0; }
+.state { display: grid; line-height: 1.45; }
+.state em { font-style: normal; justify-self: start; padding: 2px 8px; border-radius: 5px; background: var(--hull-3); font: 400 13.5px/1.4 var(--font-label); color: var(--ink); }
+[aria-checked="true"] > .state em { background: var(--mint); }
+.state b { font: 400 22px/1.3 var(--font-title); margin-top: 4px; }
+.state small { font-size: 15px; color: var(--ink-2); }
+
+/* Slide switch: small settings */
+.slide { display: inline-flex; align-items: center; gap: 14px; min-height: 48px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.slide__t { position: relative; width: 74px; height: 40px; flex: none; border: 3px solid var(--ol); border-radius: 20px; background: var(--steel-d); box-shadow: inset 0 4px 0 rgba(0,0,0,.25), 0 3px 0 var(--ol); transition: background .25s; }
+.slide__t::before { content: "OFF"; position: absolute; right: 8px; top: 50%; margin-top: -7px; font: 400 12px/14px var(--font-mono); color: #e3e7ec; }
+.slide__t::after { content: ""; position: absolute; top: 2px; left: 2px; width: 30px; height: 30px; border: 3px solid var(--ol); border-radius: 50%; background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(28,35,64,.4) 9px 11px, transparent 11px 13px, rgba(28,35,64,.4) 13px 15px, transparent 15px) , radial-gradient(circle at 40% 30%, #fff, var(--hull-2)); box-shadow: 0 3px 0 var(--ol); transition: transform .35s var(--spring); }
+.slide[aria-checked="true"] .slide__t { background: var(--mint); }
+.slide[aria-checked="true"] .slide__t::before { content: "ON"; right: auto; left: 10px; color: var(--ink); }
+.slide[aria-checked="true"] .slide__t::after { transform: translateX(34px); }
+.slide__l { display: grid; line-height: 1.45; } .slide__l b { font: 400 20px/1.3 var(--font-title); } .slide__l small { font-size: 15px; color: var(--ink-2); }
+
+/* Checklist on a clipboard */
+.clip { position: relative; width: 100%; max-width: 460px; margin-top: 12px; padding: 30px 14px 14px; border: 3px solid var(--ol); border-radius: 18px; background: linear-gradient(var(--steel) 0 6px, #7a8598 6px); box-shadow: 0 6px 0 var(--ol); }
+.clip::before { content: ""; position: absolute; top: -16px; left: 50%; width: 130px; height: 34px; margin-left: -65px; border: 3px solid var(--ol); border-radius: 12px 12px 8px 8px; background: linear-gradient(#fff 0 5px, var(--hull-2) 5px calc(100% - 6px), var(--hull-3) calc(100% - 6px)); z-index: 1; }
+.clip::after { content: ""; position: absolute; top: -6px; left: 50%; width: 40px; height: 12px; margin-left: -20px; border: 3px solid var(--ol); border-radius: 6px; background: var(--steel-d); z-index: 2; }
+.clip__paper { padding: 22px 20px 20px; border: 2.5px solid var(--ol); border-radius: 8px; background: repeating-linear-gradient(transparent 0 35px, #dfe6f0 35px 37px), #fffdf6; }
+.clip__paper legend { float: left; width: 100%; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 0; margin-bottom: 14px; font: 400 22px/1.2 var(--font-title); }
+.clip__paper legend + .stack { clear: both; }
+.clip__paper legend small { font: 400 13px/1 var(--font-mono); color: var(--ink-3); letter-spacing: .1em; }
+.check { position: relative; display: flex; align-items: flex-start; gap: 14px; cursor: pointer; min-height: 32px; }
+.check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.check__box { position: relative; width: 32px; height: 32px; flex: none; border: 3px solid var(--ol); border-radius: 9px; background: #fff; box-shadow: 0 3px 0 var(--ol); transition: background .2s, transform .25s var(--spring); }
+.check__box svg { position: absolute; left: -2px; top: -7px; width: 36px; height: 36px; overflow: visible; }
+.check__box path { fill: none; stroke: var(--ink); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 44; stroke-dashoffset: 44; transition: stroke-dashoffset .3s var(--ease); }
+.check input:checked + .check__box { background: var(--mint); }
+.check input:checked + .check__box path { stroke-dashoffset: 0; }
+.check input:indeterminate + .check__box { background: var(--amber); }
+.check input:indeterminate + .check__box::after { content: ""; position: absolute; left: 5px; right: 5px; top: 10.5px; height: 5px; border-radius: 3px; background: var(--ink); }
+.check:hover .check__box { transform: rotate(-5deg); }
+.check input:focus-visible + .check__box, .check input:focus-visible + .orb { outline: 3px solid var(--orange); outline-offset: 4px; }
+.check input:disabled + .check__box { background: repeating-linear-gradient(-45deg, #e3e7ec 0 4px, #cfd5dd 4px 8px); border-color: var(--steel-d); box-shadow: 0 3px 0 var(--steel-d); }
+.check input:disabled ~ .check__t { color: var(--ink-3); }
+.check:has(input:disabled) { cursor: not-allowed; }
+.check__t { display: grid; line-height: 1.45; } .check__t b { font: 400 20px/1.3 var(--font-title); } .check__t small { font-size: 15px; color: var(--ink-2); }
+.stack { display: grid; gap: 16px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 14px; font: 400 17px/1.3 var(--font-title); color: var(--ink-3); }
+/* Radio: a planet; the chosen one gets a ring */
+.orb { position: relative; width: 38px; height: 38px; flex: none; margin-top: -2px; }
+.orb::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; border: 3px solid var(--ol); background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.9) 0 2px, transparent 3px), var(--hull-3); transition: background .3s; }
+.orb::after { content: ""; position: absolute; left: -3px; right: -3px; top: 50%; height: 14px; margin-top: -7px; border: 3px solid var(--ol); border-top-color: transparent; border-radius: 50%; transform: rotate(-20deg) scale(0); transition: transform .4s var(--spring); }
+.check input:checked + .orb::before { background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.9) 0 2px, transparent 3px), radial-gradient(circle at 70% 70%, rgba(0,0,0,.18) 0 4px, transparent 5px), var(--pc, var(--orange)); }
+.check input:checked + .orb::after { transform: rotate(-20deg) scale(1); }
+
+/* ---------- Choosing ---------- */
+/* Segmented: keycaps in a rail; the chosen key is pressed in and its lamp lights */
+.keys { display: inline-flex; gap: 8px; padding: 10px; max-width: 100%; overflow-x: auto; border: 3px solid var(--ol); border-radius: 18px; background: linear-gradient(#3a4566, #2a3352); box-shadow: 0 5px 0 var(--ol); scrollbar-width: none; }
+.keys button { position: relative; flex: none; min-width: 74px; min-height: 60px; padding: 16px 14px 4px; border: 3px solid var(--ol); border-radius: 12px; cursor: pointer; font: 400 18px/1 var(--font-title); color: var(--ink);
+  background: linear-gradient(#fff 0 5px, var(--hull) 5px calc(100% - 6px), var(--hull-3) calc(100% - 6px)); box-shadow: 0 5px 0 #0b1024; transition: transform .2s var(--spring), box-shadow .2s var(--spring); }
+.keys button::before { content: ""; position: absolute; top: 8px; left: 50%; width: 20px; height: 5px; margin-left: -10px; border-radius: 3px; background: #a2acbb; }
+.keys button:hover { transform: translateY(-1px); }
+.keys button[aria-checked="true"] { transform: translateY(4px); box-shadow: 0 1px 0 #0b1024; background: linear-gradient(var(--orange-l) 0 5px, var(--orange) 5px calc(100% - 6px), var(--orange-d) calc(100% - 6px)); }
+@media (max-width: 520px) { .keys { display: flex; width: 100%; gap: 6px; padding: 8px; } .keys button { flex: 1 1 0; min-width: 0; padding: 16px 4px 4px; font-size: 16px; } .knobs { gap: 12px; padding: 12px 14px; } .knobs .knob { width: 52px; height: 52px; } }
+.keys button[aria-checked="true"]::before { background: #fff7c4; box-shadow: 0 0 8px #fff7c4; }
+
+/* Tabs: channel keys over a CRT screen */
+.crt { width: 100%; padding: 14px; border: 3px solid var(--ol); border-radius: 24px; background: linear-gradient(#3a4566, #262f4d); box-shadow: 0 6px 0 var(--ol); }
+.crt__tabs { display: flex; gap: 8px; padding: 2px 2px 12px; overflow-x: auto; scrollbar-width: none; }
+.ch { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px; border: 2.5px solid var(--ol); border-radius: 12px; cursor: pointer; background: #4a5578; color: #eef1fa; font: 400 18px/1 var(--font-title); box-shadow: 0 4px 0 #0b1024; transition: transform .2s var(--spring), box-shadow .2s; }
+.ch i { font-style: normal; font: 400 12px/1 var(--font-mono); padding: 3px 5px; border-radius: 4px; background: rgba(0,0,0,.3); color: #c3cbe6; }
+.ch[aria-selected="true"] { background: var(--orange); color: var(--ink); transform: translateY(3px); box-shadow: 0 1px 0 #0b1024; }
+.ch[aria-selected="true"] i { background: rgba(28,35,64,.2); color: var(--ink); }
+.crt__screen { position: relative; min-height: 190px; padding: 22px 22px 24px; overflow: hidden; border: 3px solid var(--ol); border-radius: 20px / 28px; background: radial-gradient(ellipse at 50% 40%, #134238, var(--crt) 78%); color: var(--phos); box-shadow: inset 0 0 34px rgba(0,0,0,.65); font-size: 16.5px; text-shadow: 0 0 6px rgba(143,245,207,.45); }
+.crt__screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.22) 2px 3px); }
+.crt__screen [role="tabpanel"] { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; }
+.crt__screen h4 { font: 400 14px/1 var(--font-mono); letter-spacing: .14em; color: #c8ffe9; margin-bottom: 8px; }
+.crt__screen p { color: var(--phos); }
+.radar { position: relative; width: 112px; height: 112px; border-radius: 50%; border: 2px solid var(--phos); background: repeating-radial-gradient(circle, transparent 0 17px, rgba(143,245,207,.35) 17px 18px), linear-gradient(transparent calc(50% - .5px), rgba(143,245,207,.35) calc(50% - .5px) calc(50% + .5px), transparent calc(50% + .5px)), linear-gradient(90deg, transparent calc(50% - .5px), rgba(143,245,207,.35) calc(50% - .5px) calc(50% + .5px), transparent calc(50% + .5px)); box-shadow: 0 0 14px rgba(143,245,207,.3); }
+.radar::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(143,245,207,.55), transparent 70deg); animation: rot 3s linear infinite; }
+.radar i { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #e9fff6; box-shadow: 0 0 6px var(--phos); }
+.meter { display: grid; gap: 6px; min-width: 112px; font: 400 14px/1 var(--font-mono); }
+.meter span { display: block; height: 10px; border: 1.5px solid var(--phos); border-radius: 2px; background: linear-gradient(90deg, var(--phos) var(--v), transparent var(--v)); }
+@media (max-width: 520px) { .crt__screen [role="tabpanel"] { grid-template-columns: minmax(0, 1fr); } .crt__screen { padding: 18px 16px 20px; } }
+
+/* Chips: pill keys with a status lamp */
+.chips { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.chip { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 18px 0 13px; border: 3px solid var(--ol); border-radius: 23px; cursor: pointer; background: var(--hull); font: 400 18px/1 var(--font-title); color: var(--ink); box-shadow: 0 4px 0 var(--ol); transition: transform .25s var(--spring), box-shadow .25s var(--spring), background .2s; }
+.chip i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--ol); background: #b8c0cc; transition: background .2s, box-shadow .2s; }
+.chip:hover { transform: translateY(-2px); }
+.chip[aria-pressed="true"] { background: var(--mint-wash); transform: translateY(2px); box-shadow: 0 2px 0 var(--ol); }
+.chip[aria-pressed="true"] i { background: var(--mint); box-shadow: 0 0 0 3px rgba(34,181,154,.3), 0 0 8px var(--mint); }
+
+.field { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 8px; min-width: 0; width: 100%; }
+.field > label, .flabel { display: flex; align-items: center; gap: 8px; font: 400 19px/1.3 var(--font-title); }
+.field > label::before { content: ""; flex: none; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ol); background: #b8c0cc; transition: background .2s, box-shadow .2s; }
+.field:focus-within > label::before { background: var(--mint); box-shadow: 0 0 0 3px rgba(34,181,154,.3), 0 0 6px var(--mint); }
+.field:has(.is-err) > label::before { background: var(--red); }
+.field > label small, .flabel small { margin-left: auto; font: 500 14px/1.3 var(--font); color: var(--ink-3); }
+.help { font-size: 15px; color: var(--ink-2); }
+.help.err { display: flex; gap: 8px; align-items: flex-start; color: var(--red-d); font-weight: 700; }
+.help.err::before { content: "!"; flex: none; width: 22px; height: 20px; margin-top: 2px; display: grid; place-items: end center; padding-bottom: 1px; background: var(--amber); clip-path: polygon(50% 0, 100% 100%, 0 100%); color: var(--ink); font: 400 13px/1 var(--font-title); }
+.help.ok { color: var(--mint-d); font-weight: 700; }
+
+.select { position: relative; }
+.select select { appearance: none; width: 100%; min-height: 58px; padding: 0 66px 0 18px; border: 3px solid var(--ol); border-radius: 14px; cursor: pointer; font: 400 19px/1 var(--font-title); color: var(--ink); background: #fff; box-shadow: inset 0 4px 0 rgba(28,35,64,.07), 0 4px 0 var(--hull-3); }
+.select select:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+.select::after { content: ""; position: absolute; right: 9px; top: 50%; width: 40px; height: 40px; margin-top: -22px; border: 2.5px solid var(--ol); border-radius: 50%; background: radial-gradient(circle at 40% 30%, var(--orange-l), var(--orange) 60%); box-shadow: 0 3px 0 var(--ol); pointer-events: none; }
+.select svg { position: absolute; right: 20px; top: 50%; width: 18px; height: 18px; margin-top: -11px; z-index: 1; stroke: var(--ink); stroke-width: 3.2; fill: none; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+
+/* Range: a throttle lever in a slot */
+.thr { display: grid; gap: 8px; width: 100%; }
+.thr__top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.lcd { display: inline-flex; align-items: baseline; gap: 6px; padding: 8px 14px; border: 3px solid var(--ol); border-radius: 10px; background: var(--crt); color: var(--phos); font: 400 30px/1 var(--font-mono); text-shadow: 0 0 8px rgba(143,245,207,.6); }
+.lcd small { font: 400 15px/1 var(--font-label); color: #b8f7df; }
+.thr input { -webkit-appearance: none; appearance: none; width: 100%; height: 60px; margin: 0; background: transparent; cursor: pointer; --p: 50%; }
+.thr input::-webkit-slider-runnable-track { height: 22px; border: 3px solid var(--ol); border-radius: 11px; box-shadow: inset 0 4px 0 rgba(0,0,0,.3), 0 3px 0 var(--hull-3);
+  background: repeating-linear-gradient(-45deg, rgba(255,255,255,.18) 0 6px, transparent 6px 12px) 0 0/var(--p) 100% no-repeat, linear-gradient(90deg, var(--orange-d), var(--orange)) 0 0/var(--p) 100% no-repeat, #2a3352; }
+.thr input::-moz-range-track { height: 16px; border: 3px solid var(--ol); border-radius: 11px; background: #2a3352; }
+.thr input::-moz-range-progress { height: 16px; border-radius: 11px 0 0 11px; background: var(--orange); }
+.thr input::-webkit-slider-thumb { -webkit-appearance: none; width: 32px; height: 52px; margin-top: -18px; border: 3px solid var(--ol); border-radius: 10px;
+  background: repeating-linear-gradient(transparent 0 5px, rgba(28,35,64,.45) 5px 7px) 50% 50%/14px 26px no-repeat, linear-gradient(90deg, #fff, var(--hull) 45%, var(--hull-3)); box-shadow: 0 4px 0 var(--ol); }
+.thr input::-moz-range-thumb { width: 26px; height: 46px; border: 3px solid var(--ol); border-radius: 10px; background: linear-gradient(90deg, #fff, var(--hull) 45%, var(--hull-3)); }
+.thr input:focus-visible { outline: 3px solid var(--orange); outline-offset: 4px; }
+.thr__scale { display: flex; justify-content: space-between; font: 400 16px/1 var(--font-title); color: var(--ink-3); }
+
+/* Side menu: deck map of the ship */
+.shipwrap { position: relative; width: 270px; max-width: 100%; padding-bottom: 54px; display: grid; justify-items: center; }
+.ship__fins { position: absolute; left: 50%; bottom: 44px; width: 270px; height: 120px; margin-left: -135px; }
+.ship__flame { position: absolute; left: 50%; bottom: 0; width: 56px; height: 58px; margin-left: -28px; }
+.ship__flame path { transform-origin: 28px 0; animation: flame .18s ease-in-out infinite alternate; }
+@keyframes flame { to { transform: scale(.9, 1.12); } }
+.ship { position: relative; z-index: 1; width: 214px; padding: 84px 12px 18px; border: 3px solid var(--ol); border-radius: 107px 107px 26px 26px / 120px 120px 26px 26px;
+  background: linear-gradient(90deg, #fff 0 14%, var(--hull) 14% 80%, var(--hull-3) 80%); box-shadow: 0 6px 0 var(--ol); }
+.ship::before { content: ""; position: absolute; top: 26px; left: 50%; width: 42px; height: 42px; margin-left: -21px; border: 3px solid var(--ol); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 3px, transparent 4px), radial-gradient(circle, var(--sky), #7fb4d6); box-shadow: 0 0 0 5px var(--hull-3), 0 0 0 7.5px var(--ol); }
+.ship ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.ship li + li { border-top: 2px dashed var(--hull-3); padding-top: 6px; }
+.ship a { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 48px; padding: 0 8px; border-radius: 12px; color: var(--ink-2); text-decoration: none; font: 400 19px/1.1 var(--font-title); transition: background .2s; }
+.ship a span { display: grid; place-items: center; width: 28px; height: 28px; border: 2px solid var(--ol); border-radius: 8px; background: var(--hull-2); font: 400 13px/1 var(--font-mono); color: var(--ink); }
+.ship a em { font-style: normal; font: 400 13px/1 var(--font-label); color: var(--ink-3); }
+.ship a:hover { background: rgba(255,122,26,.12); color: var(--ink); }
+.ship a[aria-current="page"] { background: var(--orange); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ol), 0 3px 0 var(--ol); }
+.ship a[aria-current="page"] span { background: #fff; }
+.ship a[aria-current="page"] em { color: var(--ink); }
+
+/* ---------- Inputs: a white readout in a bezel; the label lamp lights while you type ---------- */
+.input { position: relative; display: flex; align-items: stretch; min-height: 58px; border: 3px solid var(--ol); border-radius: 14px; background: #fff; box-shadow: inset 0 4px 0 rgba(28,35,64,.07), 0 4px 0 var(--hull-3); transition: border-color .2s, box-shadow .2s; }
+.input:focus-within { border-color: var(--mint-d); box-shadow: inset 0 4px 0 rgba(28,35,64,.07), 0 0 0 4px var(--mint-wash), 0 4px 0 var(--hull-3); }
+.input input, .input textarea { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; padding: 0 16px; font: 500 17px/1.4 var(--font); color: var(--ink); }
+.input textarea { padding: 14px 16px; min-height: 120px; resize: vertical; line-height: 1.7; }
+.input input::placeholder, .input textarea::placeholder { color: #6b748c; }
+.input__ico { display: grid; place-items: center; padding-left: 14px; }
+.input__ico svg { width: 20px; height: 20px; stroke: var(--ink-2); fill: none; stroke-width: 2.4; stroke-linecap: round; }
+.input__aff { display: grid; place-items: center; padding: 0 16px; border-left: 3px solid var(--ol); border-radius: 0 11px 11px 0; background: var(--hull-2); font: 400 18px/1 var(--font-title); color: var(--ink); }
+.input__btn { margin: 7px; padding: 0 14px; min-width: 64px; border: 2.5px solid var(--ol); border-radius: 9px; cursor: pointer; font: 400 16px/1 var(--font-title); color: var(--ink); background: linear-gradient(#fff 0 4px, var(--hull) 4px calc(100% - 4px), var(--hull-3) calc(100% - 4px)); box-shadow: 0 3px 0 var(--ol); }
+.input__btn[aria-pressed="true"] { background: var(--mint-wash); transform: translateY(2px); box-shadow: 0 1px 0 var(--ol); }
+.input.is-err { border-color: var(--red); background: #fff7f7; box-shadow: inset 0 4px 0 rgba(208,58,64,.08), 0 4px 0 var(--red-wash); }
+.input.is-ok { border-color: var(--mint-d); }
+.input.is-off { border-color: var(--steel); background: repeating-linear-gradient(-45deg, #eceff3 0 8px, #e3e7ec 8px 16px); box-shadow: none; }
+.input.is-off input { color: var(--ink-3); cursor: not-allowed; }
+.input .num { text-align: right; font: 400 22px/1 var(--font-mono); }
+.input input[type="date"], .input input[type="time"] { font: 400 19px/1 var(--font-mono); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 22px; width: 100%; }
+.count { justify-self: end; padding: 3px 8px; border-radius: 6px; background: var(--crt); color: var(--phos); font: 400 14px/1.3 var(--font-mono); }
+
+/* ---------- Display ---------- */
+.lamps { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.lamp { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 14px 0 10px; border: 2.5px solid var(--ol); border-radius: 17px; background: var(--hull); font: 400 16.5px/1 var(--font-title); color: var(--ink); white-space: nowrap; }
+.lamp i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ol); background: var(--lc, #b8c0cc); box-shadow: 0 0 6px var(--lc, transparent); }
+.lamp--mint { --lc: var(--mint); } .lamp--orange { --lc: var(--orange); } .lamp--amber { --lc: var(--amber); } .lamp--lilac { --lc: var(--lilac); }
+.lamp--red { --lc: var(--red); background: var(--red-wash); }
+.lamp--dark { background: var(--void-3); color: #fff; border-color: var(--ol); --lc: var(--phos); }
+
+/* Crew ID cards */
+.ids { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 26px 22px; width: 100%; }
+.idc { --cc: var(--orange); position: relative; display: grid; align-content: start; border: 3px solid var(--ol); border-radius: 20px; background: var(--hull); box-shadow: 0 6px 0 var(--ol); color: inherit; text-decoration: none; transition: transform .3s var(--spring), box-shadow .3s var(--spring); }
+.idc:hover { transform: translateY(-4px) rotate(-.6deg); box-shadow: 0 10px 0 var(--ol); }
+.idc:focus-visible { outline-offset: 5px; border-radius: 20px; }
+.idc__head { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-bottom: 3px solid var(--ol); border-radius: 17px 17px 0 0; background: var(--cc); font: 400 14px/1 var(--font-mono); color: var(--ink); letter-spacing: .08em; }
+.idc__head::before { content: ""; position: absolute; left: 50%; top: 14px; width: 44px; height: 12px; margin-left: -22px; border: 2.5px solid var(--ol); border-radius: 6px; background: var(--void); }
+.idc__main { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 14px; align-items: center; padding: 16px 14px 8px; }
+.idc__main svg { width: 92px; height: 92px; }
+.idc h4 { font: 400 27px/1.1 var(--font-title); }
+.idc__role { display: block; margin-top: 4px; font-size: 15px; color: var(--ink-2); }
+.idc__rank { display: inline-block; margin-top: 8px; padding: 2px 8px; border: 2px solid var(--ol); border-radius: 6px; background: var(--hull-2); font: 400 13px/1.3 var(--font-label); }
+.stats { display: grid; gap: 7px; padding: 8px 14px 18px; }
+.stat { display: grid; grid-template-columns: 74px minmax(0, 1fr) 30px; gap: 10px; align-items: center; font-size: 15px; color: var(--ink-2); }
+.stat i { height: 12px; border: 2px solid var(--ol); border-radius: 6px; background: linear-gradient(90deg, var(--cc) var(--v), #fff var(--v)); }
+.stat b { font: 400 15px/1 var(--font-mono); color: var(--ink); text-align: right; }
+.idc__patch { position: absolute; right: 12px; top: 30px; width: 46px; height: 46px; }
+
+/* Gauges */
+.gauges { display: flex; flex-wrap: wrap; gap: 30px 34px; align-items: flex-end; justify-content: center; width: 100%; }
+.gauge { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.gauge b { font: 400 20px/1.2 var(--font-title); }
+.gauge span { font-size: 15px; color: var(--ink-2); }
+.tank svg { width: 92px; height: 170px; }
+.tank .lvl { transition: y .8s var(--ease), height .8s var(--ease); }
+.tank .bub { animation: bub 2.4s ease-in infinite; }
+.tank .bub:nth-of-type(2) { animation-delay: -.8s; } .tank .bub:nth-of-type(3) { animation-delay: -1.6s; }
+@keyframes bub { from { transform: translateY(0); opacity: .9; } to { transform: translateY(-60px); opacity: 0; } }
+.dial svg { width: 180px; height: 120px; }
+.dial .needle { transform-box: view-box; transform-origin: 90px 96px; transition: transform .8s var(--spring); }
+.snack { display: grid; gap: 10px; width: 100%; max-width: 440px; }
+.snack__top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.snack__top b { font: 400 20px/1.2 var(--font-title); }
+.snack__top output { font: 400 22px/1 var(--font-mono); color: var(--orange-d); }
+.snack__tube { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; padding: 8px 10px; border: 3px solid var(--ol); border-radius: 22px; background: linear-gradient(#ffffff 0 5px, #eef4f8 5px); box-shadow: inset 0 -5px 0 rgba(28,35,64,.08), 0 4px 0 var(--ol); }
+.snack__tube svg { width: 100%; height: 26px; }
+.snack__tube .f { fill: #e8eaee; stroke: #a9b2c0; stroke-dasharray: 3 2; transition: fill .3s; }
+.snack__tube .on .f { fill: var(--orange); stroke: var(--ol); stroke-dasharray: none; }
+.snack__tube .on .e { fill: var(--ol); }
+.snack__tube .e { fill: #c9d0d9; }
+.fuel { display: grid; gap: 8px; width: 100%; }
+.fuel__top { display: flex; justify-content: space-between; align-items: baseline; }
+.fuel__top b { font: 400 20px/1.2 var(--font-title); }
+.fuel__top output { font: 400 22px/1 var(--font-mono); color: var(--mint-d); }
+.fuel__bar { position: relative; height: 32px; overflow: hidden; border: 3px solid var(--ol); border-radius: 16px; background: #2a3352; box-shadow: inset 0 4px 0 rgba(0,0,0,.3), 0 4px 0 var(--ol); }
+.fuel__bar i { position: absolute; left: 0; top: 0; bottom: 0; border-right: 3px solid var(--ol); background: repeating-linear-gradient(-55deg, rgba(255,255,255,.22) 0 8px, transparent 8px 16px) 0 0/22px 100%, linear-gradient(var(--mint-l) 0 6px, var(--mint) 6px calc(100% - 6px), var(--mint-d) calc(100% - 6px)); transition: width .6s var(--ease); animation: slide 1s linear infinite; }
+@keyframes slide { to { background-position: 22px 0, 0 0; } }
+.fuel__bar::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent calc(25% - 1px), rgba(255,255,255,.35) calc(25% - 1px) calc(25% + 1px), transparent calc(25% + 1px) calc(50% - 1px), rgba(255,255,255,.35) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px) calc(75% - 1px), rgba(255,255,255,.35) calc(75% - 1px) calc(75% + 1px), transparent calc(75% + 1px)); pointer-events: none; }
+
+/* Steps: mission stages */
+.mission { display: flex; width: 100%; margin: 0; padding: 6px 0 4px; list-style: none; overflow-x: auto; }
+.mission li { position: relative; flex: 1; min-width: 82px; display: grid; justify-items: center; gap: 8px; text-align: center; font: 400 17px/1.2 var(--font-title); color: var(--ink-3); }
+.mission li::after { content: ""; position: absolute; top: 27px; left: calc(50% + 32px); right: calc(-50% + 32px); height: 4px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--steel) 0 8px, transparent 8px 14px); }
+.mission li:last-child::after { display: none; }
+.mission li.done::after { background: var(--mint-d); }
+.mission li span { position: relative; width: 58px; height: 58px; display: grid; place-items: center; border: 3px solid var(--ol); border-radius: 50%; background: var(--hull); box-shadow: 0 4px 0 var(--ol); }
+.mission li span svg { width: 28px; height: 28px; fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.mission li.done { color: var(--ink-2); }
+.mission li.done span { background: var(--mint); }
+.mission li.now { color: var(--ink); }
+.mission li.now span { background: var(--orange); }
+.mission li.now span::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 3px solid var(--orange); opacity: .6; animation: ping 1.6s ease-out infinite; }
+@keyframes ping { from { transform: scale(.8); opacity: .8; } to { transform: scale(1.25); opacity: 0; } }
+.mission li em { font-style: normal; font: 400 12.5px/1 var(--font-mono); color: var(--ink-3); }
+
+/* Accordion: flight manual pages behind bolted hatches */
+.faq { width: 100%; display: grid; gap: 14px; }
+.faq details { border: 3px solid var(--ol); border-radius: 16px; background: var(--hull); box-shadow: 0 4px 0 var(--ol); }
+.faq summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 26px minmax(0, 1fr) 22px; align-items: center; gap: 14px; min-height: 60px; padding: 0 18px; font: 400 20px/1.3 var(--font-title); }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary .bolt { width: 26px; height: 26px; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); background: radial-gradient(circle, var(--hull) 0 4px, var(--ol) 4px 5.5px, transparent 6px), linear-gradient(var(--hull-3), var(--steel)); transition: transform .4s var(--spring); }
+.faq summary .bolt { box-shadow: inset 0 0 0 2px var(--ol); }
+.faq details[open] summary .bolt { transform: rotate(90deg); }
+.faq summary::after { content: ""; width: 12px; height: 12px; border-right: 3px solid var(--orange-d); border-bottom: 3px solid var(--orange-d); transform: rotate(45deg) translate(-3px, -3px); transition: transform .3s var(--spring); }
+.faq details[open] summary::after { transform: rotate(-135deg); }
+.faq summary:hover { color: var(--orange-d); }
+.faq summary:focus-visible { outline-offset: -6px; }
+.faq details > div { margin: 0 18px; padding: 14px 0 18px 40px; border-top: 2px dashed var(--hull-3); color: var(--ink-2); font-size: 16px; }
+@media (max-width: 480px) { .faq details > div { padding-left: 0; } }
+
+/* Table: the supply log */
+.tablewrap { width: 100%; overflow-x: auto; border: 3px solid var(--ol); border-radius: 16px; background: #fff; box-shadow: 0 5px 0 var(--ol); }
+table { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 16px; }
+caption { padding: 14px 16px 10px; text-align: left; font: 400 20px/1 var(--font-title); }
+caption small { margin-left: 8px; font: 400 13px/1 var(--font-mono); color: var(--ink-3); letter-spacing: .1em; }
+th { text-align: left; padding: 12px 16px; background: var(--void-3); color: #f4f6fb; font: 400 17px/1.2 var(--font-title); white-space: nowrap; }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+th button:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; border-radius: 4px; }
+th[aria-sort="ascending"] button::after { content: "▲"; font-size: 11px; color: var(--orange-l); } th[aria-sort="descending"] button::after { content: "▼"; font-size: 11px; color: var(--orange-l); }
+th[aria-sort="none"] button::after { content: "↕"; font-size: 13px; opacity: .55; }
+td { padding: 12px 16px; border-bottom: 2px dashed var(--hull-2); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--orange-wash); }
+td.num, th.num { text-align: right; }
+td.num { font: 400 19px/1 var(--font-mono); }
+td .who { display: inline-flex; align-items: center; gap: 8px; }
+td .who svg { width: 34px; height: 34px; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; font: 400 15px/1 var(--font-mono); color: var(--ink-2); }
+.pager ol { display: flex; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.pager button { width: 46px; height: 46px; border: 3px solid var(--ol); border-radius: 50%; cursor: pointer; font: 400 19px/1 var(--font-title); color: var(--ink); background: radial-gradient(circle at 40% 30%, #fff, var(--hull) 60%, var(--hull-2)); box-shadow: 0 4px 0 var(--ol); transition: transform .25s var(--spring); }
+.pager button:hover:not(:disabled) { transform: translateY(-2px); }
+.pager button[aria-current="page"] { background: radial-gradient(circle at 40% 30%, var(--orange-l), var(--orange) 60%); }
+.pager button:disabled { opacity: .4; cursor: not-allowed; }
+.pager button:focus-visible { border-radius: 50%; }
+
+.empty { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 10px; }
+.empty svg { width: 230px; height: 162px; overflow: visible; }
+.empty .float { animation: float 3.5s ease-in-out infinite; transform-box: view-box; transform-origin: 85px 60px; }
+@keyframes float { 50% { transform: translateY(-6px) rotate(-4deg); } }
+.empty b { font: 400 26px/1.3 var(--font-title); }
+.empty p { color: var(--ink-2); max-width: 32ch; }
+
+/* ---------- Overlays ---------- */
+dialog { padding: 0; border: 0; background: transparent; color: var(--ink); width: 100%; max-width: min(480px, calc(100vw - 32px)); overflow: visible; }
+dialog::backdrop { background: rgba(13,19,48,.72); backdrop-filter: blur(3px); }
+dialog[open] { animation: pop .45s var(--spring); }
+@keyframes pop { from { opacity: 0; transform: scale(.88) translateY(20px); } }
+.air { position: relative; margin-top: 52px; border: 3px solid var(--ol); border-radius: 28px; background: var(--hull); box-shadow: 0 8px 0 #05081a, 0 30px 60px -20px rgba(0,0,0,.7); }
+.air__stripe { height: 26px; border-bottom: 3px solid var(--ol); border-radius: 25px 25px 0 0; background: var(--hazard); }
+.air__icon { position: absolute; top: -50px; left: 50%; width: 100px; height: 100px; margin-left: -50px; display: grid; place-items: center; border: 3px solid var(--ol); border-radius: 50%; background: radial-gradient(circle at 40% 30%, #fff, var(--hull-2) 70%); box-shadow: 0 0 0 8px var(--hull-3), 0 0 0 11px var(--ol), 0 8px 0 11px #05081a; }
+.air__icon svg { width: 56px; height: 56px; }
+.air__body { padding: 58px 26px 26px; display: grid; justify-items: center; gap: 10px; text-align: center; }
+.air h3 { font: 400 30px/1.25 var(--font-title); }
+.air p { color: var(--ink-2); }
+.air__read { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 4px; }
+.air__read span { padding: 6px 12px; border: 2.5px solid var(--ol); border-radius: 9px; background: var(--crt); color: var(--phos); font: 400 15px/1.2 var(--font-mono); }
+.air__read span.bad { background: var(--red-wash); color: var(--red-d); }
+.air__foot { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+
+/* Side panel: a sliding hatch with a bolted edge */
+.hatch { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(430px, 100vw); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding-left: 20px; background: var(--hull); border-left: 3px solid var(--ol);
+  box-shadow: -14px 0 40px rgba(0,0,0,.45); transform: translateX(105%); visibility: hidden; transition: transform .55s var(--spring), visibility 0s .55s; }
+.hatch.open { transform: none; visibility: visible; transition: transform .55s var(--spring); }
+.hatch::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 20px; border-right: 3px solid var(--ol);
+  background: radial-gradient(circle at 50% 50%, #fff 0 1px, var(--hull-2) 1.5px 3px, var(--steel) 4.5px, var(--ol) 5px 6px, transparent 6.5px) 50% 14px/20px 54px repeat-y, linear-gradient(90deg, var(--steel), var(--hull-3) 50%, var(--steel)); }
+.hatch__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 18px 16px; border-bottom: 3px solid var(--ol); background: var(--hazard) 0 100%/100% 10px no-repeat, linear-gradient(#d6dce4, #c4cbd6); padding-bottom: 24px; }
+.hatch__who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.hatch__who svg { width: 66px; height: 66px; flex: none; }
+.hatch__head small { display: block; font: 400 13px/1.2 var(--font-mono); color: var(--ink-2); letter-spacing: .1em; }
+.hatch__head h3 { font: 400 28px/1.2 var(--font-title); }
+.hatch__body { padding: 22px 20px; overflow: auto; display: grid; gap: 22px; align-content: start; }
+.hatch__foot { padding: 16px 20px 22px; display: flex; gap: 14px; justify-content: flex-end; align-items: center; flex-wrap: wrap; border-top: 3px solid var(--ol); background: var(--hull-2); }
+.scrim { position: fixed; inset: 0; z-index: 59; background: rgba(13,19,48,.62); opacity: 0; pointer-events: none; transition: opacity .3s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+/* Toast: a radio transmission */
+.radio { position: fixed; z-index: 70; top: 86px; right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 12px; width: min(350px, calc(100vw - 32px)); }
+.tx { --tc: var(--mint); position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 10px 16px 12px; border: 3px solid var(--ol); border-radius: 16px; background: var(--void-2); color: #eef1fa; box-shadow: 0 5px 0 #05081a, 0 20px 30px -10px rgba(0,0,0,.6); animation: txIn .5s var(--spring); }
+@keyframes txIn { from { opacity: 0; transform: translateX(50px) rotate(4deg); } }
+.tx.out { animation: txOut .3s var(--ease) forwards; }
+@keyframes txOut { to { opacity: 0; transform: translateX(50px); } }
+.tx__ant { width: 48px; height: 48px; display: grid; place-items: center; border: 2.5px solid var(--ol); border-radius: 12px; background: var(--crt); box-shadow: inset 0 0 0 2px rgba(143,245,207,.2); }
+.tx__ant svg { width: 34px; height: 34px; fill: none; stroke: var(--tc); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.tx__ant .w { animation: wave 1s ease-in-out infinite alternate; }
+.tx__ant .w + .w { animation-delay: .3s; }
+@keyframes wave { from { opacity: .2; } }
+.tx small { display: block; font: 400 13px/1.3 var(--font-mono); color: var(--orange-l); letter-spacing: .06em; }
+.tx b { display: block; font: 400 20px/1.25 var(--font-title); color: #fff; }
+.tx span { display: block; font-size: 15px; color: #c9d1ea; line-height: 1.45; }
+.tx .x { width: 44px; height: 44px; border: 2.5px solid #3d4878; border-radius: 50%; background: transparent; cursor: pointer; color: #dfe4f5; font: 400 20px/1 var(--font-title); }
+.tx .x:hover { background: rgba(255,255,255,.1); }
+.tx__life { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: var(--tc); transform-origin: left; animation: life 5s linear forwards; }
+@keyframes life { to { transform: scaleX(0); } }
+.tx--warn { --tc: var(--amber); } .tx--err { --tc: var(--red-l); border-color: var(--red); } .tx--go { --tc: var(--orange-l); }
+
+.tip { position: relative; display: inline-flex; }
+.tip__b { position: absolute; bottom: calc(100% + 14px); left: 50%; z-index: 10; padding: 7px 12px; border: 2.5px solid var(--ol); border-radius: 10px; background: var(--crt); color: var(--phos); font: 400 15px/1.3 var(--font-title); white-space: nowrap; pointer-events: none; opacity: 0; transform: translateX(-50%) translateY(6px) scale(.9); transition: opacity .15s, transform .3s var(--spring); box-shadow: 0 3px 0 var(--ol); }
+.tip__b::after { content: ""; position: absolute; top: 100%; left: 50%; width: 10px; height: 10px; margin: -4px 0 0 -5px; background: var(--crt); border-right: 2.5px solid var(--ol); border-bottom: 2.5px solid var(--ol); transform: rotate(45deg); }
+.tip:hover .tip__b, .tip:focus-within .tip__b { opacity: 1; transform: translateX(-50%); }
+
+.menu { position: relative; }
+.menu__list { position: absolute; right: 0; top: calc(100% + 14px); z-index: 15; min-width: 220px; padding: 8px; margin: 0; list-style: none; border: 3px solid var(--ol); border-radius: 16px; background: var(--hull); box-shadow: 0 6px 0 var(--ol), 0 20px 30px -12px rgba(0,0,0,.4); }
+.menu__list [role="menuitem"] { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; min-height: 46px; padding: 0 12px; border: 0; border-radius: 10px; background: none; cursor: pointer; text-align: left; font: 400 18px/1 var(--font-title); }
+.menu__list [role="menuitem"]:hover, .menu__list [role="menuitem"]:focus { background: var(--orange); outline: none; }
+.menu__list .danger { color: var(--red-d); }
+.menu__list .danger:hover, .menu__list .danger:focus { background: var(--red); color: #fff; }
+.menu__list kbd { font: 400 13px/1 var(--font-mono); opacity: .7; padding: 2px 5px; border: 1.5px solid currentColor; border-radius: 4px; }
+.menu__sep { height: 8px; margin: 6px 4px; border-radius: 4px; background: var(--hazard); opacity: .8; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; max-width: 460px; padding: 12px 14px; border: 3px solid var(--ol); border-radius: 16px; background: var(--hull); box-shadow: 0 4px 0 var(--ol); }
+.row > div:first-child { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row svg.item { width: 52px; height: 52px; flex: none; }
+.row b { display: block; font: 400 20px/1.3 var(--font-title); }
+.row span { font-size: 15px; color: var(--ink-3); }
+
+/* ---------- Code ---------- */
+pre.code { margin: 0; padding: 22px; overflow: auto; max-height: 540px; border: 3px solid var(--ol); border-radius: 16px; background: var(--void); color: #dfe5f7; font: 400 13.5px/1.75 var(--font-mono); box-shadow: inset 0 0 0 2px #283265, 0 5px 0 var(--ol); }
+pre.code .c { color: #8f9bc4; } pre.code .p { color: var(--orange-l); } pre.code .v { color: var(--phos); }
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; }
+
+.foot { position: relative; margin-top: 120px; overflow-x: clip; }
+.foot__ground { height: 120px; }
+.foot__ground svg { width: 100%; height: 100%; display: block; }
+.foot__in { background: #2a2466; padding-block: 18px 54px; display: grid; justify-items: center; gap: 8px; text-align: center; color: #d9dcf3; font-size: 16px; }
+.foot__in b { font: 700 36px/1 var(--font-title); color: #fff; }
+.foot__in b span { color: var(--orange); }
+.foot__in a { color: var(--orange-l); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  
+  <!-- the ship mark -->
+  <symbol id="mark" viewBox="0 0 40 40"><path d="M20 3c7 6 9 15 8 25H12C11 18 13 9 20 3z" fill="#f1f2f4" stroke="#1c2340" stroke-width="2.6" stroke-linejoin="round"/><circle cx="20" cy="15" r="4" fill="#c9e6f6" stroke="#1c2340" stroke-width="2.2"/><path d="M12 22l-6 7v4l6-3M28 22l6 7v4l-6-3" fill="#ff7a1a" stroke="#1c2340" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 28l1 6h6l1-6" fill="#ffc83d" stroke="#1c2340" stroke-width="2.2" stroke-linejoin="round"/></symbol>
+  <!-- small rocket for steps and screens -->
+  <symbol id="rocket" viewBox="0 0 34 56"><path d="M17 2c8 7 10 17 9 30H8C7 19 9 9 17 2z" fill="#f1f2f4" stroke="#1c2340" stroke-width="2.6" stroke-linejoin="round"/><circle cx="17" cy="17" r="4.5" fill="#c9e6f6" stroke="#1c2340" stroke-width="2.2"/><path d="M8 24l-6 8v5l6-3M26 24l6 8v5l-6-3" fill="#ff7a1a" stroke="#1c2340" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 32l2 6h6l2-6" fill="#ff7a1a" stroke="#1c2340" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 40c-1 6 1 10 3 14 2-4 4-8 3-14z" fill="#ffc83d" stroke="#1c2340" stroke-width="2" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="bar__brand" href="#top" aria-label="Zoo Orbit 처음으로"><svg aria-hidden="true"><use href="#mark"/></svg><span><b>Zoo Orbit</b><small>동물 우주비행단</small></span></a>
+    <span class="bar__stat"><i aria-hidden="true"></i>O₂ 82% · 간식 6/10</span>
+    <nav aria-label="섹션" id="nav"><a href="#base">기초</a><a href="#press">누르기</a><a href="#toggle">켜고 끄기</a><a href="#choose">고르기</a><a href="#type-in">입력</a><a href="#show">보여 주기</a><a href="#float">띄우기</a><a href="#code">코드</a></nav>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="hero__sky" aria-hidden="true">
+    <div class="planet"><svg viewBox="0 0 420 340">
+      <defs><radialGradient id="pl" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#b9a9ff"/><stop offset=".55" stop-color="#7a63e0"/><stop offset="1" stop-color="#3a2f7a"/></radialGradient>
+        <clipPath id="plc"><circle cx="230" cy="170" r="118"/></clipPath><clipPath id="ringfront"><rect x="0" y="170" width="460" height="120"/></clipPath></defs>
+      <g transform="rotate(-16 230 170)"><ellipse cx="230" cy="170" rx="196" ry="42" fill="none" stroke="#1c2340" stroke-width="18"/><ellipse cx="230" cy="170" rx="196" ry="42" fill="none" stroke="#ffb27a" stroke-width="11"/></g>
+      <circle cx="230" cy="170" r="118" fill="url(#pl)" stroke="#1c2340" stroke-width="4"/>
+      <g clip-path="url(#plc)" fill="#5a47c2" opacity=".75"><path d="M100 150c50 14 120 6 260-20v26c-130 30-200 34-260 18z"/><path d="M110 220c60 10 140 4 250-24v18c-110 30-190 34-250 22z"/></g>
+      <g fill="#6b56d6" stroke="#1c2340" stroke-width="3"><circle cx="190" cy="110" r="14"/><circle cx="266" cy="214" r="10"/><circle cx="292" cy="120" r="7"/></g>
+      <path d="M150 104a90 90 0 0 1 60-38" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity=".55"/>
+      <g transform="rotate(-16 230 170)" clip-path="url(#ringfront)"><ellipse cx="230" cy="170" rx="196" ry="42" fill="none" stroke="#1c2340" stroke-width="18"/><ellipse cx="230" cy="170" rx="196" ry="42" fill="none" stroke="#ffb27a" stroke-width="11"/><path d="M110 200q120 20 240 0" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".6"/></g>
+      <g><circle cx="58" cy="60" r="22" fill="#e3e7ec" stroke="#1c2340" stroke-width="4"/><circle cx="52" cy="54" r="5" fill="#c9d0d9"/><circle cx="66" cy="68" r="4" fill="#c9d0d9"/></g>
+    </svg></div>
+    <span class="shoot"></span>
+  </div>
+  <div class="wrap hero__in">
+    <div class="hero__copy">
+      <span class="hero__k">DESIGN SYSTEM · 동물 우주비행단</span>
+      <h1>Zoo <span>Orbit</span></h1>
+      <p class="hero__sub">발바닥으로 누르는 우주선 계기판</p>
+      <p>고양이 선장, 강아지 조종사, 토끼 기관사, 펭귄 항법사, 그리고 쳇바퀴를 돌리는 햄스터. 버튼은 발바닥만큼 크고 둥글게, 위험한 스위치엔 덮개를 씌웠습니다. 모든 계기는 같은 남색 외곽선, 같은 굽, 같은 나사로 만듭니다.</p>
+      <div class="hero__cta"><a class="btn btn--go" href="#press">계기판 둘러보기</a><a class="btn btn--plate" href="#code"><span>토큰 받기</span></a></div>
+    </div>
+    <div class="pawpad"><svg class="pawpad__ring" viewBox="0 0 250 250" aria-hidden="true"><g fill="#c9d0d9" stroke="#1c2340" stroke-width="2.5"><circle cx="125" cy="18" r="6"/><circle cx="200.7" cy="49.3" r="6"/><circle cx="232" cy="125" r="6"/><circle cx="200.7" cy="200.7" r="6"/><circle cx="125" cy="232" r="6"/><circle cx="49.3" cy="200.7" r="6"/><circle cx="18" cy="125" r="6"/><circle cx="49.3" cy="49.3" r="6"/></g></svg>
+      <span data-paw-slot="탑승!"></span><span class="pawpad__cap" aria-hidden="true">BOARDING · GATE 03</span></div>
+  </div>
+  <div class="wrap">
+    <div class="crew" aria-labelledby="crewT">
+      <div class="crew__bar"><span>BRIDGE</span><b id="crewT">승무원 탑승 현황</b><span>CREW 5/5 · 궤도 3바퀴째</span></div>
+      <div class="crew__seats" id="crew"></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- 기초 -->
+<section class="zone" id="base">
+  <div class="zone__head"><span data-patch="star"></span><div><small>SECTION 01</small><h2>기초</h2><p>선체는 밝은 은백색, 선은 남색 하나, 신호는 안전 주황과 박하. 빨강은 덮개 아래에만. 화면은 인광 초록으로 빛납니다.</p></div></div>
+
+  <div class="pnl pnl--wide"><div class="pnl__bar"><span class="pnl__id">PNL 01-A</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="deck col" style="padding:34px clamp(16px,4vw,30px)"><div class="swatches" id="swatches"></div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">PNL 01-B</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>부품 <small>PARTS</small></h3><p>모든 계기는 같은 부품으로 짓습니다. 같은 나사, 같은 굽, 같은 빗금. 그래서 처음 보는 장비도 한 우주선 것처럼 보입니다.</p><ul><li>빗금은 위험한 곳 가장자리에만.</li><li>굽은 5px. 누르면 그만큼 내려갑니다.</li></ul></div>
+    <div class="deck col"><div class="parts">
+      <figure><div style="background:var(--hazard)"></div><b>경고 빗금</b><span>노랑과 남색 45°. 덮개, 에어록, 머리 띠.</span></figure>
+      <figure><div style="background:var(--rivet) 10px 10px/14px 14px no-repeat,var(--rivet) right 10px top 10px/14px 14px no-repeat,var(--rivet) 10px bottom 10px/14px 14px no-repeat,var(--rivet) right 10px bottom 10px/14px 14px no-repeat,var(--hull)"></div><b>리벳</b><span>판의 네 모서리. 판 하나 = 장비 하나.</span></figure>
+      <figure><div style="background:radial-gradient(ellipse at 50% 40%,#145244,var(--crt) 75%);box-shadow:inset 0 0 18px rgba(0,0,0,.6)"></div><b>CRT 화면</b><span>숫자와 교신은 어두운 화면에 인광 글자로.</span></figure>
+      <figure><div style="background:linear-gradient(var(--orange-l) 0 7px,var(--orange) 7px calc(100% - 8px),var(--orange-d) calc(100% - 8px));box-shadow:0 5px 0 var(--ol)"></div><b>빛 띠와 굽</b><span>위쪽 밝은 띠, 아래 그늘, 그리고 굽.</span></figure>
+    </div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">PNL 01-C</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>글자 <small>TYPE</small></h3><p>제목과 버튼은 둥근 Fredoka와 도현. 본문은 해바라기, 계기의 숫자는 Share Tech Mono, 작은 라벨은 오르빗.</p></div><div class="deck col" id="typescale" style="display:block;padding:26px 26px"></div></div></div>
+
+  <ol class="rules">
+    <li><b>발바닥으로도 누른다</b><span>누르는 곳은 44px 이상, 대부분 56px. 손가락보다 큰 발바닥을 기준으로 둥글고 두툼하게.</span></li>
+    <li><b>한 손으로 그린다</b><span>외곽선은 남색 3px 하나. 같은 빛 띠, 같은 굽, 같은 나사. 장난감 같아도 싸 보이지 않게.</span></li>
+    <li><b>위험엔 덮개</b><span>되돌릴 수 없는 일은 두 번 움직여야 합니다. 덮개를 열고, 누르고. 빨강은 덮개 아래에만.</span></li>
+    <li><b>누구나 읽게</b><span>본문 17px, 글자 대비 4.5:1 이상, 초점은 주황 테. 움직임 줄이기를 켜면 흔들림과 발사 진동을 끕니다.</span></li>
+  </ol>
+</section>
+
+<!-- 누르기 -->
+<section class="zone" id="press">
+  <div class="zone__head"><span data-patch="paw"></span><div><small>SECTION 02</small><h2>누르기</h2><p>발바닥 버튼, 계기판 키, 손잡이 노브, 덮개 달린 빨간 단추, 그리고 단 하나뿐인 발사 버튼.</p></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">BTN 02-A</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>계기판 키 <small>KEY</small></h3><p>주요 동작은 안전 주황, 켜고 진행하는 일은 박하, 보조는 이름표를 나사로 박은 은색 키. 위험은 빨강.</p><ul><li>레이블은 짧은 동사: "출발하기".</li><li>한 화면에 주황 키는 하나.</li></ul></div>
+    <div class="deck"><button class="btn btn--go">출발하기</button><button class="btn btn--mint">궤도 진입</button><button class="btn btn--plate"><span>항로 보기</span></button><button class="btn">둘러보기</button><button class="btn btn--red">비상 정지</button><button class="btn btn--ghost">나중에</button></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">BTN 02-B</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>발바닥 버튼 <small>PAW</small></h3><p>가장 다정한 큰 버튼. 올리면 발가락이 꼼지락, 누르면 말랑하게 눌립니다. 탑승, 시작처럼 반가운 일에만.</p></div>
+    <div class="deck"><span data-paw-slot="출발!"></span></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">BTN 02-C</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>크기와 상태</h3><p>작은 키는 46px. 쓸 수 없는 키는 빗금 친 회색, 이유를 글자로. 기다리는 동안엔 레이더가 돕니다.</p></div>
+    <div class="deck"><button class="btn btn--go btn--sm">작게</button><button class="btn btn--sm btn--plate"><span>작은 이름표</span></button><button class="btn" disabled>연료 부족</button><button class="btn btn--mint" id="busyBtn"><span>교신 보내기</span></button></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">BTN 02-D</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>노브 <small>KNOB</small></h3><p>아이콘만 있는 버튼은 톱니 테가 있는 둥근 노브. 올리면 테가 돌아갑니다.</p><ul><li>이름(aria-label)과 말풍선을 꼭 붙입니다.</li></ul></div>
+    <div class="deck"><div class="knobs">
+      <span class="tip"><button class="knob" aria-label="무전"><svg viewBox="0 0 24 24"><path d="M5 19l5-5"/><path d="M4 9a10 10 0 0 0 11 11z"/><path d="M14 4a6 6 0 0 1 6 6M14 8a2 2 0 0 1 2 2"/></svg></button><span class="tip__b" role="tooltip">무전</span></span>
+      <span class="tip"><button class="knob" aria-label="별지도"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/></svg></button><span class="tip__b" role="tooltip">별지도</span></span>
+      <span class="tip"><button class="knob" aria-label="간식 칸"><svg viewBox="0 0 24 24"><path d="M3 12c3-5 9-6 13-2l4-3v10l-4-3c-4 4-10 3-13-2z"/><circle cx="8" cy="11" r=".6"/></svg></button><span class="tip__b" role="tooltip">간식 칸</span></span>
+      <span class="tip"><button class="knob" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg></button><span class="tip__b" role="tooltip">설정</span></span>
+    </div></div></div></div>
+
+  <div class="pnl pnl--hazard"><div class="pnl__bar"><span class="pnl__id">BTN 02-E</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>덮개 단추 <small>GUARDED</small></h3><p>되돌릴 수 없는 일. 투명 덮개를 먼저 들어 올려야 빨간 단추를 누를 수 있습니다. 실수로 꾹 눌릴 일이 없어요.</p><ul><li>덮개도 버튼입니다. 키보드로 열고 닫습니다.</li><li>누르고 나면 덮개는 저절로 닫힙니다.</li></ul></div>
+    <div class="deck"><div class="guard-wrap"><div class="guard"><div class="guard__well"><button class="guard__btn" id="purgeBtn" disabled aria-describedby="purgeHint">털뭉치<br>배출</button></div><button class="guard__cover" id="coverBtn" aria-expanded="false" aria-controls="purgeBtn" aria-label="안전 덮개 열기"><span aria-hidden="true">들어 올리기</span></button></div><small id="purgeHint">덮개를 먼저 여세요</small></div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">BTN 02-F</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>발사 버튼 <small>IGNITION</small></h3><p>한 화면에 하나뿐인 가장 큰 행동. 누르면 화면이 3, 2, 1을 세고, 발사 순간 화면이 덜컹 흔들립니다.</p><ul><li>움직임 줄이기를 켜면 흔들림 없이 숫자만 셉니다.</li></ul></div>
+    <div class="deck"><div class="launch">
+      <div class="screen" id="lScreen"><div class="screen__txt" aria-hidden="true"><span>T-MINUS</span><span>PAD 03</span></div><div class="screen__big word" id="lBig" aria-live="polite">대기 중</div><svg class="screen__rocket" aria-hidden="true"><use href="#rocket"/></svg></div>
+      <div class="ignite"><div class="ignite__ring"><button class="ignite__btn" id="launchBtn"><b>발사</b><small>3초 카운트</small></button></div></div>
+    </div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">BTN 02-G</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>더보기 메뉴</h3><p>자주 쓰지 않는 동작은 노브 뒤에 접어 둡니다. ↑↓로 이동, Esc로 닫기.</p></div>
+    <div class="deck" style="min-height:340px;align-content:start;padding-top:46px"><div class="row"><div><svg class="item" aria-hidden="true" viewBox="0 0 34 56"><use href="#rocket"/></svg><div><b>달 기지 보급선</b><span>11월 22일 출발 · 간식 40상자</span></div></div>
+      <div class="menu"><button class="knob knob--sm" aria-label="더보기" aria-haspopup="menu" aria-expanded="false" aria-controls="menuList" id="menuBtn"><svg viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+        <ul class="menu__list" role="menu" id="menuList" aria-label="보급선" hidden><li role="none"><button role="menuitem" tabindex="-1">자세히 <kbd>V</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">출발 날짜 바꾸기 <kbd>D</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">짐 목록 <kbd>L</kbd></button></li><li role="none" class="menu__sep"></li><li role="none"><button role="menuitem" tabindex="-1" class="danger">출발 취소</button></li></ul></div></div></div></div></div>
+</section>
+
+<!-- 켜고 끄기 -->
+<section class="zone" id="toggle">
+  <div class="zone__head"><span data-patch="toggle"></span><div><small>SECTION 03</small><h2>켜고 끄기</h2><p>큰 설정은 덮개 레일이 달린 항공 스위치, 전기는 햄스터 쳇바퀴, 작은 설정은 미끄럼 스위치. 고르는 것은 점검표와 행성.</p></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">SW 03-A</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>스위치 뱅크 <small>TOGGLE</small></h3><p>조종석 머리 위에 줄지어 선 레버. 위로 올리면 켜짐, 램프가 박하색으로 켜집니다. 주황 레일이 발에 걸려 넘어가는 것을 막아 줍니다.</p><ul><li>켜짐/꺼짐을 글자로도 적습니다.</li></ul></div>
+    <div class="deck"><div class="bank" id="bank"></div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">SW 03-B</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>쳇바퀴 발전기 <small>WHEEL</small></h3><p>전기를 만드는 스위치. 켜면 도토리가 쳇바퀴를 달리고 번개 램프가 들어옵니다. 끄면 쳇바퀴 안에서 잠들어요.</p></div>
+    <div class="deck col" style="align-items:flex-start;gap:22px" id="wheels"></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">SW 03-C</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>미끄럼 스위치</h3><p>작은 설정. 손잡이가 홈을 따라 미끄러지고, 켜지면 홈이 박하색이 됩니다.</p></div>
+    <div class="deck col" style="align-items:flex-start">
+      <button class="slide" role="switch" aria-checked="true"><span class="slide__t" aria-hidden="true"></span><span class="slide__l"><b>꼬리 안전벨트 알림</b><small>벨트를 안 매면 삐- 하고 알려요</small></span></button>
+      <button class="slide" role="switch" aria-checked="false"><span class="slide__t" aria-hidden="true"></span><span class="slide__l"><b>자동 낮잠 모드</b><small>순항 중엔 조명을 낮춥니다</small></span></button>
+    </div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">CHK 03-D</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>발사 전 점검표 <small>CHECK</small></h3><p>여러 개를 고를 때. 클립보드에 꽂은 점검표. 일부만 고르면 "전부" 칸은 노란 막대로 반쯤 찹니다.</p></div>
+    <div class="deck col" style="align-items:center"><div class="clip"><fieldset class="clip__paper"><legend>발사 전 점검표 <small>CHK-07</small></legend><div class="stack">
+      <label class="check"><input type="checkbox" id="chkAll"><span class="check__box"><svg viewBox="0 0 36 36"><path d="M8 19l7 7L30 9"/></svg></span><span class="check__t"><b>전부</b></span></label>
+      <div class="stack" style="padding-left:44px">
+        <label class="check"><input type="checkbox" class="ci" checked><span class="check__box"><svg viewBox="0 0 36 36"><path d="M8 19l7 7L30 9"/></svg></span><span class="check__t"><b>헬멧 잠금</b><small>딸깍 소리가 두 번 나야 해요</small></span></label>
+        <label class="check"><input type="checkbox" class="ci"><span class="check__box"><svg viewBox="0 0 36 36"><path d="M8 19l7 7L30 9"/></svg></span><span class="check__t"><b>간식 칸 채우기</b><small>생선 10칸</small></span></label>
+        <label class="check"><input type="checkbox" class="ci"><span class="check__box"><svg viewBox="0 0 36 36"><path d="M8 19l7 7L30 9"/></svg></span><span class="check__t"><b>꼬리 안전벨트</b></span></label>
+        <label class="check"><input type="checkbox" disabled><span class="check__box"><svg viewBox="0 0 36 36"><path d="M8 19l7 7L30 9"/></svg></span><span class="check__t"><b>토끼 귀 덮개</b><small>정비 중이라 고를 수 없어요</small></span></label>
+      </div></div></fieldset></div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">RAD 03-E</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>행성 라디오 <small>ORBIT</small></h3><p>하나만 고를 때. 고른 행성에 색이 돌고 고리가 생깁니다. 화살표 키로 옮겨 다닙니다.</p></div>
+    <div class="deck col" style="align-items:flex-start"><fieldset class="stack"><legend>다음 목적지</legend>
+      <label class="check"><input type="radio" name="dest" checked><span class="orb" style="--pc:#ffe08a"></span><span class="check__t"><b>달 기지</b><small>사흘 · 치즈 창고가 있어요</small></span></label>
+      <label class="check"><input type="radio" name="dest"><span class="orb" style="--pc:#ff7a1a"></span><span class="check__t"><b>화성 정거장</b><small>아흐레 · 붉은 모래 목욕</small></span></label>
+      <label class="check"><input type="radio" name="dest"><span class="orb" style="--pc:#9b8cf5"></span><span class="check__t"><b>당근 행성</b><small>열이틀 · 당근의 고향</small></span></label>
+    </fieldset></div></div></div>
+</section>
+
+<!-- 고르기 -->
+<section class="zone" id="choose">
+  <div class="zone__head"><span data-patch="dial"></span><div><small>SECTION 04</small><h2>고르기</h2><p>고른 것은 눌려 들어가고, 램프가 켜지고, 주황으로 물듭니다.</p></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">SEG 04-A</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>중력 키 <small>SEGMENT</small></h3><p>두셋 중 하나를 바로 바꿀 때. 레일 위 키캡 중 고른 키가 눌려 들어가고 램프가 켜집니다.</p><ul><li>←→ 키로 옮깁니다.</li></ul></div>
+    <div class="deck"><div class="keys" role="radiogroup" aria-label="중력"><button role="radio" aria-checked="false">무중력</button><button role="radio" aria-checked="false">달</button><button role="radio" aria-checked="true">지구</button><button role="radio" aria-checked="false">목성</button></div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">TAB 04-B</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>채널 탭 <small>CRT</small></h3><p>탭은 CRT 화면의 채널 키. 고른 채널 키가 눌리고, 화면에 그 채널이 나옵니다.</p><ul><li>←→ 키로 채널을 넘깁니다.</li></ul></div>
+    <div class="deck col"><div class="crt">
+      <div class="crt__tabs" role="tablist" aria-label="화면 채널"><button class="ch" role="tab" aria-selected="true" aria-controls="tp1" id="t1"><i>CH1</i>레이더</button><button class="ch" role="tab" aria-selected="false" aria-controls="tp2" id="t2" tabindex="-1"><i>CH2</i>생명 신호</button><button class="ch" role="tab" aria-selected="false" aria-controls="tp3" id="t3" tabindex="-1"><i>CH3</i>교신</button></div>
+      <div class="crt__screen">
+        <div role="tabpanel" id="tp1" aria-labelledby="t1" tabindex="0"><div><h4>RADAR · 반경 2,000km</h4><p>소행성 세 개와 우주 고래 한 마리. 고래는 북북동으로 천천히 헤엄치는 중입니다. 항로는 그대로.</p></div><div class="radar" aria-hidden="true"><i style="left:28px;top:34px"></i><i style="left:74px;top:58px"></i><i style="left:44px;top:80px"></i></div></div>
+        <div role="tabpanel" id="tp2" aria-labelledby="t2" tabindex="0" hidden><div><h4>VITALS · 승무원 5</h4><p>모두 건강합니다. 나비 선장은 조금 졸려요. 도토리는 쳇바퀴를 너무 오래 달렸습니다.</p></div><div class="meter" aria-hidden="true">심박<span style="--v:72%"></span>졸림<span style="--v:58%"></span>배고픔<span style="--v:34%"></span></div></div>
+        <div role="tabpanel" id="tp3" aria-labelledby="t3" tabindex="0" hidden><div><h4>COMMS · 지구 관제센터</h4><p>"삐- 여기는 지구. 다음 교신은 18시. 간식 시간을 지켜 주세요." 수신 상태 양호.</p></div></div>
+      </div>
+    </div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">FLT 04-C</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>램프 필터 <small>CHIP</small></h3><p>여러 개를 켜고 끄는 필터. 켠 필터는 눌린 채로 램프가 박하색으로 빛납니다.</p></div>
+    <div class="deck"><div class="chips"><button class="chip" aria-pressed="true"><i></i>소행성</button><button class="chip" aria-pressed="false"><i></i>혜성</button><button class="chip" aria-pressed="true"><i></i>우주 고래</button><button class="chip" aria-pressed="false"><i></i>위성</button><button class="chip" aria-pressed="false"><i></i>간식 보급선</button></div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">SEL 04-D</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>드롭다운과 추진 레버 <small>THROTTLE</small></h3><p>목록이 길면 드롭다운. 값을 밀어서 정할 때는 추진 레버. 손잡이를 밀면 홈에 주황이 차오르고 계기에 숫자가 뜹니다.</p></div>
+    <div class="deck col" style="gap:30px">
+      <div class="field"><label for="sel1">조종석 자리 <small>창가는 선장 먼저</small></label><div class="select"><select id="sel1"><option>1번 · 조종석 왼쪽</option><option>2번 · 조종석 오른쪽</option><option>3번 · 항법 콘솔</option><option>4번 · 쳇바퀴 옆</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+      <div class="thr"><div class="thr__top"><label class="flabel" for="rg">추진력</label><output class="lcd" id="rgOut" for="rg">60<small>% 순항</small></output></div><input type="range" id="rg" min="0" max="100" step="5" value="60"><div class="thr__scale" aria-hidden="true"><span>정지</span><span>순항</span><span>전속력</span></div></div>
+    </div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">NAV 04-E</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>선실 지도 <small>DECKS</small></h3><p>사이드 메뉴는 우주선 단면도. 위에서부터 조종실, 식당, 엔진실, 수면칸. 지금 있는 칸은 주황.</p><ul><li>지금 칸에는 aria-current="page".</li></ul></div>
+    <div class="deck"><div class="shipwrap">
+      <svg class="ship__fins" viewBox="0 0 270 120" aria-hidden="true"><path d="M44 8L6 80q-4 14 10 14h46z" fill="#ff7a1a" stroke="#1c2340" stroke-width="3" stroke-linejoin="round"/><path d="M226 8l38 72q4 14-10 14h-46z" fill="#ff7a1a" stroke="#1c2340" stroke-width="3" stroke-linejoin="round"/><path d="M20 70l20-36" stroke="#ffb27a" stroke-width="4" stroke-linecap="round"/></svg>
+      <nav class="ship" aria-label="선실"><ol id="decks">
+        <li><a href="#" aria-current="page"><span>01</span>조종실<em>지금</em></a></li>
+        <li><a href="#"><span>02</span>식당<em>간식</em></a></li>
+        <li><a href="#"><span>03</span>엔진실<em>3</em></a></li>
+        <li><a href="#"><span>04</span>수면칸<em>zz</em></a></li>
+        <li><a href="#"><span>05</span>화물칸<em></em></a></li>
+      </ol></nav>
+      <svg class="ship__flame" viewBox="0 0 56 58" aria-hidden="true"><path d="M8 0c0 26 10 40 20 58C38 40 48 26 48 0z" fill="#ffc83d" stroke="#1c2340" stroke-width="3" stroke-linejoin="round"/><path d="M18 0c0 16 4 26 10 38 6-12 10-22 10-38z" fill="#fff4c2"/></svg>
+    </div></div></div></div>
+</section>
+
+<!-- 입력 -->
+<section class="zone" id="type-in">
+  <div class="zone__head"><span data-patch="keys"></span><div><small>SECTION 05</small><h2>입력</h2><p>입력 칸은 남색 테를 두른 하얀 판독창. 쓰는 동안 이름 옆 램프가 박하색으로 켜집니다.</p></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">INP 05-A</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>글자 입력</h3><p>이름은 칸 위에. 틀리면 테가 빨강으로 바뀌고, 무엇을 어떻게 고칠지 한 문장으로 알려 줍니다.</p><ul><li>오류는 색과 경고 삼각형, 글자 세 가지로.</li></ul></div>
+    <div class="deck col"><div class="grid2">
+      <div class="field"><label for="i1">호출 부호</label><div class="input"><input id="i1" placeholder="예: 나비-1" autocomplete="nickname"></div></div>
+      <div class="field"><label for="i2">교신 주소</label><div class="input is-err"><input id="i2" type="email" value="nabi@orbit" aria-invalid="true" aria-describedby="i2e" autocomplete="email"></div><span class="help err" id="i2e">주소 끝이 빠졌어요. nabi@orbit.space처럼 적어 주세요.</span></div>
+      <div class="field"><label for="i3">별 찾기</label><div class="input"><span class="input__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></span><input id="i3" type="search" placeholder="별, 행성, 정거장"></div></div>
+      <div class="field"><label for="i4">출입 암호</label><div class="input is-ok"><input id="i4" type="password" value="tunacan42" autocomplete="new-password"><button class="input__btn" type="button" id="pwBtn" aria-pressed="false" aria-controls="i4">보기</button></div><span class="help ok">충분히 단단해요</span></div>
+      <div class="field"><label for="i5">탑승 인원</label><div class="input"><input id="i5" class="num" type="number" value="5" min="1" max="8"><span class="input__aff">마리</span></div></div>
+      <div class="field"><label for="i6">선체 번호 <small>바꿀 수 없음</small></label><div class="input is-off"><input id="i6" value="ZO-0322-NABI" disabled></div></div>
+    </div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">INP 05-B</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>날짜와 항해 일지</h3><p>날짜와 시각은 기본 달력으로. 여러 줄 입력은 남은 글자 수를 작은 화면에.</p></div>
+    <div class="deck col">
+      <div class="grid2"><div class="field"><label for="d1">발사일</label><div class="input"><input id="d1" type="date" value="2026-11-22"></div></div><div class="field"><label for="d2">발사 시각</label><div class="input"><input id="d2" type="time" value="09:30"></div></div></div>
+      <div class="field"><label for="ta">항해 일지</label><div class="input"><textarea id="ta" maxlength="140" placeholder="예: 우주 고래를 만났다">궤도 3바퀴째. 보리가 창밖 별을 보고 짖었다. 도토리는 쳇바퀴에서 잠들었다.</textarea></div><div class="count" id="taCount" aria-live="polite"></div></div>
+    </div></div></div>
+</section>
+
+<!-- 보여 주기 -->
+<section class="zone" id="show">
+  <div class="zone__head"><span data-patch="screen"></span><div><small>SECTION 06</small><h2>보여 주기</h2><p>상태 램프, 승무원 신분증, 산소 탱크와 간식 칸, 임무 단계, 비행 매뉴얼, 보급품 일지.</p></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">LMP 06-A</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>상태 램프 <small>BADGE</small></h3><p>상태는 램프 달린 이름표. 램프 색이 종류를 알리고, 글자로도 적습니다.</p></div>
+    <div class="deck"><div class="lamps"><span class="lamp"><i></i>대기</span><span class="lamp lamp--mint"><i></i>비행 중</span><span class="lamp lamp--orange"><i></i>지금</span><span class="lamp lamp--amber"><i></i>정비 필요</span><span class="lamp lamp--lilac"><i></i>새 교신</span><span class="lamp lamp--red"><i></i>위험</span><span class="lamp lamp--dark"><i></i>궤도 3</span></div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">IDC 06-B</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>승무원 신분증 <small>CARD</small></h3><p>카드는 목줄 구멍이 있는 신분증. 머리 띠 색이 맡은 일, 오른쪽 위는 임무 패치. 능력치는 막대로.</p><ul><li>카드 전체가 하나의 링크입니다.</li></ul></div>
+    <div class="deck"><div class="ids" id="ids"></div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">GAU 06-C</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>계기 <small>GAUGE</small></h3><p>남은 양은 산소 탱크와 간식 칸, 오래 걸리는 일은 차오르는 연료 막대. 모두 role="progressbar"로 값을 알립니다.</p><ul><li>간식 버튼을 누르면 생선이 한 칸 찹니다.</li></ul></div>
+    <div class="deck col" style="gap:34px">
+      <div class="gauges"><div class="gauge tank" id="tank"></div><div class="gauge dial" id="dial"></div></div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:center"><div class="snack"><div class="snack__top"><b>간식 칸</b><output id="snackOut">6 / 10</output></div><div class="snack__tube" id="snack" role="progressbar" aria-label="간식 칸" aria-valuemin="0" aria-valuemax="10" aria-valuenow="6" aria-valuetext="10칸 중 6칸"></div></div><button class="btn btn--sm btn--go" id="snackBtn">간식 넣기</button></div>
+      <div class="fuel"><div class="fuel__top"><b>연료 채우는 중</b><output id="fuelOut">48%</output></div><div class="fuel__bar" role="progressbar" aria-label="연료 채우기" aria-valuemin="0" aria-valuemax="100" aria-valuenow="48" id="fuel"><i style="width:48%"></i></div></div>
+    </div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">STP 06-D</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>임무 단계 <small>STEPS</small></h3><p>지나온 단계는 박하, 지금은 주황이 맥박처럼 퍼지고, 남은 단계는 점선으로.</p></div>
+    <div class="deck"><ol class="mission" aria-label="달 착륙 임무">
+      <li class="done"><span><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></span>발사<em>완료</em></li>
+      <li class="done"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-20 12 12)"/></svg></span>궤도 진입<em>완료</em></li>
+      <li class="now" aria-current="step"><span><svg viewBox="0 0 24 24"><path d="M15 4a8 8 0 1 0 5 13A7 7 0 0 1 15 4z"/><path d="M8 20v-8l4 2-4 2"/></svg></span>달 착륙<em>진행 중</em></li>
+      <li><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M5 9c3 1 4 4 7 3s2-4 6-4M7 17c2-2 5-1 6 1"/></svg></span>귀환<em>예정</em></li>
+    </ol></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">MAN 06-E</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>비행 매뉴얼 <small>FAQ</small></h3><p>긴 설명은 볼트로 잠근 해치 안에. 열면 볼트가 반 바퀴 돌아갑니다.</p></div>
+    <div class="deck"><div class="faq">
+      <details open><summary><span class="bolt" aria-hidden="true"></span>무중력에서 간식은 어떻게 먹나요?</summary><div>간식은 모두 빨대 봉지에 들어 있습니다. 생선 과자는 공중에 띄우지 말고 바로 입에. 부스러기는 쳇바퀴 옆 청소기가 빨아들입니다.</div></details>
+      <details><summary><span class="bolt" aria-hidden="true"></span>빠진 털은 어디로 가나요?</summary><div>환풍구 필터에 모입니다. 매주 월요일 털뭉치 배출 단추로 우주에 내보냅니다. 덮개를 먼저 여세요.</div></details>
+      <details><summary><span class="bolt" aria-hidden="true"></span>펭귄이 왜 항법사인가요?</summary><div>얼음은 남극에서 별을 보며 길을 찾던 집안 출신입니다. 그리고 추운 곳에서도 손이 떨리지 않아요.</div></details>
+    </div></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">LOG 06-F</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>보급품 일지 <small>TABLE</small></h3><p>남색 머리, 점선 줄. 숫자는 계기 글꼴로 오른쪽 정렬, 상태는 램프로.</p><ul><li>품목·수량 머리글을 누르면 정렬됩니다.</li></ul></div>
+    <div class="deck col">
+      <div class="tablewrap"><table id="tbl"><caption>보급품 재고<small>CARGO · DECK 05</small></caption><thead><tr><th scope="col" aria-sort="none"><button data-k="0">품목</button></th><th scope="col">담당</th><th scope="col" class="num" aria-sort="descending"><button data-k="2">수량</button></th><th scope="col">상태</th></tr></thead>
+      <tbody id="tbody"></tbody></table></div>
+      <div class="pager"><span id="pgInfo">보급품 12종 중 1–4</span><nav aria-label="쪽"><ol><li><button aria-label="이전 쪽" disabled>‹</button></li><li><button aria-current="page">1</button></li><li><button>2</button></li><li><button>3</button></li><li><button aria-label="다음 쪽">›</button></li></ol></nav></div>
+    </div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">EMP 06-G</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>비어 있음</h3><p>빈 곳에는 둥둥 떠 있는 빈 그릇 하나와 할 일 하나.</p></div>
+    <div class="deck"><div class="empty"><svg viewBox="0 0 170 120" aria-hidden="true"><g fill="#a4aebd"><circle cx="20" cy="22" r="2"/><circle cx="150" cy="30" r="2.5"/><circle cx="140" cy="96" r="1.6"/><circle cx="30" cy="96" r="1.6"/></g><path d="M118 18l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#ffc83d" stroke="#1c2340" stroke-width="2" stroke-linejoin="round"/><ellipse cx="85" cy="112" rx="40" ry="5" fill="rgba(28,35,64,.14)"/>
+      <g class="float"><path d="M40 54h90c0 24-20 40-45 40S40 78 40 54z" fill="#ff7a1a" stroke="#1c2340" stroke-width="3.5" stroke-linejoin="round"/><path d="M48 66c4 10 14 18 26 20" stroke="#ffb27a" stroke-width="4" stroke-linecap="round" fill="none"/><ellipse cx="85" cy="54" rx="45" ry="11" fill="#c9540a" stroke="#1c2340" stroke-width="3.5"/><ellipse cx="85" cy="54" rx="36" ry="6" fill="#7a3306"/><path d="M64 78h42" stroke="#1c2340" stroke-width="3" stroke-linecap="round" opacity=".35"/><g transform="translate(64 26) rotate(-18)"><path d="M2 8c4-6 12-7 17-2l5-4v12l-5-4C14 15 6 14 2 8z" fill="#e3e7ec" stroke="#1c2340" stroke-width="2.4" stroke-linejoin="round"/></g></g></svg><b>간식 칸이 비었어요</b><p>배고픈 승무원이 생기기 전에, 다음 보급선에 생선 과자를 실어 주세요.</p><button class="btn btn--sm btn--go">보급 요청</button></div></div></div></div>
+</section>
+
+<!-- 띄우기 -->
+<section class="zone" id="float">
+  <div class="zone__head"><span data-patch="antenna"></span><div><small>SECTION 07</small><h2>띄우기</h2><p>확인 창은 경고 빗금을 두른 에어록, 옆 판은 볼트로 잠긴 미닫이 해치, 알림은 지구에서 온 무전.</p></div></div>
+
+  <div class="pnl pnl--hazard"><div class="pnl__bar"><span class="pnl__id">DLG 07-A</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>에어록 경고 <small>DIALOG</small></h3><p>되돌릴 수 없는 일 앞에서. 뒤는 남색으로 가라앉고, 무엇이 바뀌는지 계기로 보여 줍니다. 버튼은 결과를 말합니다.</p></div>
+    <div class="deck"><button class="btn btn--red" id="dlgOpen">에어록 열기…</button></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">HCH 07-B</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>미닫이 해치 <small>SIDE</small></h3><p>지금 화면을 떠나지 않고 자세히 볼 때. 볼트 박힌 해치가 오른쪽에서 미끄러져 나옵니다. Esc나 바깥을 누르면 닫히고, 초점은 해치 안에 머뭅니다.</p></div>
+    <div class="deck"><button class="btn btn--plate" id="sideOpen"><span>선장 정보 보기</span></button></div></div></div>
+
+  <div class="pnl"><div class="pnl__bar"><span class="pnl__id">TX 07-C</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="note"><h3>무전 알림 <small>TOAST</small></h3><p>방금 일어난 일. "삐-" 소리와 함께 오른쪽 위로 무전이 들어오고, 아래 막대가 줄어들어 5초 뒤 끊깁니다. 경보는 role="alert".</p></div>
+    <div class="deck"><button class="btn btn--mint" data-toast="ok">교신 받기</button><button class="btn" data-toast="info">보급 알림</button><button class="btn btn--red" data-toast="err">경보 교신</button></div></div></div>
+</section>
+
+<!-- 코드 -->
+<section class="zone" id="code">
+  <div class="zone__head"><span data-patch="code"></span><div><small>SECTION 08</small><h2>코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code style="background:var(--void-3);color:var(--phos)">app/globals.css</code>에 붙여 넣으세요. 계기판 키와 리벳 판을 유틸리티로 씁니다.</p></div></div>
+  <div class="pnl pnl--wide"><div class="pnl__bar"><span class="pnl__id">SRC 08-A</span><span class="pnl__vent"></span><span class="pnl__leds" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="pnl__body"><div class="deck col" style="padding:26px clamp(14px,3vw,26px)"><div class="codebar"><span class="flabel">app/globals.css</span><button class="btn btn--sm btn--plate" id="copyBtn"><span>복사하기</span></button></div><pre class="code" id="codeBlock" tabindex="0" aria-label="globals.css 코드"></pre></div></div></div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="foot__ground" aria-hidden="true"><svg viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0 120 V70 C200 30 420 20 600 22 S1000 30 1200 70 V120Z" fill="#2a2466"/><path d="M0 70 C200 30 420 20 600 22 S1000 30 1200 70" fill="none" stroke="#9b8cf5" stroke-width="3"/><g fill="#3a3285"><ellipse cx="260" cy="70" rx="40" ry="8"/><ellipse cx="820" cy="60" rx="56" ry="9"/><ellipse cx="1040" cy="88" rx="30" ry="6"/></g></svg></div>
+  <div class="foot__in"><b>Zoo <span>Orbit</span></b><span>Fredoka · 도현 · 해바라기 · Share Tech Mono · 오르빗</span><span>다른 시스템: <a href="../">Oat</a> · <a href="../riso/">Riso</a> · <a href="../arcology/">Arcology</a> · <a href="../dal/">Dal</a> · <a href="../canopy/">Canopy</a> · <a href="../sansa/">Sansa</a></span></div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgT" aria-describedby="dlgD">
+  <div class="air">
+    <div class="air__icon" aria-hidden="true"><svg viewBox="0 0 56 56"><path d="M28 6L52 48H4z" fill="#ffc83d" stroke="#1c2340" stroke-width="3.5" stroke-linejoin="round"/><path d="M28 20v14" stroke="#1c2340" stroke-width="5" stroke-linecap="round"/><circle cx="28" cy="41" r="3" fill="#1c2340"/></svg></div>
+    <div class="air__stripe" aria-hidden="true"></div>
+    <div class="air__body">
+      <h3 id="dlgT">에어록을 열까요?</h3>
+      <p id="dlgD">문 밖은 진공입니다. 헬멧을 잠그지 않은 승무원은 지금 바로 안쪽 문 뒤로 가 주세요. 열린 문은 2분 동안 닫을 수 없어요.</p>
+      <div class="air__read"><span>기압 1.0 → <b>0.0</b></span><span class="bad">헬멧 미착용 1</span></div>
+      <div class="air__foot"><button class="btn" data-close>닫아 두기</button><button class="btn btn--red" data-close data-after="air">에어록 열기</button></div>
+    </div>
+  </div>
+</dialog>
+
+<div class="scrim" id="scrim"></div>
+<aside class="hatch" id="side" role="dialog" aria-modal="true" aria-labelledby="sideT" aria-hidden="true">
+  <div class="hatch__head"><div class="hatch__who"><span id="sideFace"></span><div><small>CREW · ZO-01</small><h3 id="sideT">나비 선장</h3></div></div><button class="knob knob--sm" aria-label="해치 닫기" data-sclose><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="hatch__body">
+    <div class="field"><label for="s1">호출 부호</label><div class="input"><input id="s1" value="나비-1"></div></div>
+    <div class="field"><label for="s2">하루 간식</label><div class="input"><input id="s2" class="num" type="number" value="3" min="0"><span class="input__aff">봉지</span></div></div>
+    <button class="slide" role="switch" aria-checked="true"><span class="slide__t" aria-hidden="true"></span><span class="slide__l"><b>선장 의자 데우기</b><small>궤도 밤에만 켜집니다</small></span></button>
+  </div>
+  <div class="hatch__foot"><button class="btn btn--ghost" data-sclose>닫기</button><button class="btn btn--go" data-sclose data-after="saved">저장</button></div>
+</aside>
+<div class="radio" id="radio" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const OL = '#1c2340';
+  const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Starfield tile
+  const st = [[22,40,1.2],[90,18,.8],[150,70,1.6],[210,30,1],[300,52,1.3],[380,20,.8],[60,130,1],[130,160,.7],[250,120,1.8],[340,150,1],[20,230,.8],[110,260,1.4],[190,210,1],[280,250,.8],[400,230,1.2],[50,330,1.1],[160,350,.8],[230,310,1.5],[320,380,1],[390,320,.7]];
+  const tile = `<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><g fill='#fff'>${st.map(([x, y, r], i) => `<circle cx='${x}' cy='${y}' r='${r}' opacity='${i % 3 ? .55 : .9}'/>`).join('')}</g></svg>`;
+  document.documentElement.style.setProperty('--stars', `url("data:image/svg+xml,${encodeURIComponent(tile)}")`);
+
+  // Mission patches for section heads
+  const P = {
+    star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',
+    paw: '<ellipse cx="12" cy="15.5" rx="5" ry="4"/><circle cx="5.5" cy="10" r="1.9"/><circle cx="9.5" cy="6.2" r="1.9"/><circle cx="14.5" cy="6.2" r="1.9"/><circle cx="18.5" cy="10" r="1.9"/>',
+    toggle: '<rect x="6" y="13" width="12" height="7" rx="2.5"/><path d="M12 13V6"/><circle cx="12" cy="5" r="2"/>',
+    dial: '<circle cx="12" cy="12" r="8"/><path d="M12 12l4-4M12 4v2M20 12h-2M4 12h2"/>',
+    keys: '<rect x="3" y="7" width="18" height="11" rx="2"/><path d="M7 11h1M11 11h1M15 11h2M7 14.5h10"/>',
+    screen: '<rect x="3" y="5" width="18" height="12" rx="2"/><path d="M6 13l3-3 3 2 5-5M9 20h6"/>',
+    antenna: '<path d="M5 19l5-5M4 9a10 10 0 0 0 11 11zM14 4a6 6 0 0 1 6 6M14 8a2 2 0 0 1 2 2"/>',
+    code: '<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>'
+  };
+  const patch = (k, cls = 'patch') => `<svg class="${cls}" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="#ff7a1a" stroke="${OL}" stroke-width="4"/><circle cx="50" cy="50" r="41" fill="none" stroke="#fff" stroke-width="1.8" stroke-dasharray="3 3"/><circle cx="50" cy="50" r="35" fill="#232d5e" stroke="${OL}" stroke-width="3"/><g fill="#fff"><circle cx="30" cy="36" r="1.5"/><circle cx="72" cy="32" r="1.9"/><circle cx="70" cy="70" r="1.3"/><circle cx="31" cy="66" r="1"/></g><g transform="translate(26 26) scale(2)" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${P[k]}</g></svg>`;
+  $$('[data-patch]').forEach(el => el.outerHTML = patch(el.dataset.patch));
+
+  // Crew portraits: one face per animal, all in the same helmet
+  let uid = 0;
+  const FACES = {
+    cat: `<path d="M34 52L31 24l23 14z" fill="#f4a259" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/><path d="M86 52l3-28-23 14z" fill="#f4a259" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/><path d="M37 45l-1-13 11 7zM83 45l1-13-11 7z" fill="#ff9fb4"/>
+      <ellipse cx="60" cy="63" rx="31" ry="26" fill="#f4a259" stroke="${OL}" stroke-width="3"/><path d="M53 39v8M60 38v10M67 39v8" stroke="#c9742c" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="60" cy="74" rx="14" ry="9" fill="#fff4e6"/><ellipse cx="41" cy="71" rx="5" ry="3" fill="#ff9fb4" opacity=".8"/><ellipse cx="79" cy="71" rx="5" ry="3" fill="#ff9fb4" opacity=".8"/>
+      <circle cx="48" cy="61" r="4.6" fill="${OL}"/><circle cx="72" cy="61" r="4.6" fill="${OL}"/><circle cx="49.6" cy="59.4" r="1.6" fill="#fff"/><circle cx="73.6" cy="59.4" r="1.6" fill="#fff"/>
+      <path d="M56 69h8l-4 4z" fill="#e8708a" stroke="${OL}" stroke-width="1.6" stroke-linejoin="round"/><path d="M60 73q-3 5-7 3M60 73q3 5 7 3" stroke="${OL}" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M38 72H27M38 76l-10 3M82 72h11M82 76l10 3" stroke="${OL}" stroke-width="1.8" stroke-linecap="round"/>`,
+    dog: `<path d="M60 35c18 0 27 13 27 28 0 17-12 27-27 27S33 80 33 63c0-15 9-28 27-28z" fill="#f3dcb5" stroke="${OL}" stroke-width="3"/>
+      <path d="M64 47c9-2 16 5 14 15-6 2-13-1-14-15z" fill="#c98b52"/><path d="M60 35v14" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+      <path d="M35 42C22 44 19 68 27 80c6 5 13-1 13-12z" fill="#9a5f35" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/><path d="M85 42c13 2 16 26 8 38-6 5-13-1-13-12z" fill="#9a5f35" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="50" cy="60" r="4.6" fill="${OL}"/><circle cx="70" cy="60" r="4.6" fill="${OL}"/><circle cx="51.6" cy="58.4" r="1.6" fill="#fff"/><circle cx="71.6" cy="58.4" r="1.6" fill="#fff"/>
+      <ellipse cx="60" cy="71" rx="7.5" ry="5.2" fill="${OL}"/><ellipse cx="58" cy="69.5" rx="2.4" ry="1.4" fill="#fff" opacity=".7"/>
+      <path d="M60 76v3M60 79q-5 4-9 1M60 79q5 4 9 1" stroke="${OL}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M56 81q4 9 8 0z" fill="#e8708a" stroke="${OL}" stroke-width="1.6" stroke-linejoin="round"/>`,
+    rabbit: `<path d="M47 54c-7-14-8-30-2-37 7 3 10 20 9 37z" fill="#eef0f5" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/><path d="M48 48c-4-10-4-20-1-26 3 4 4 14 4 26z" fill="#ff9fb4"/>
+      <path d="M66 54c1-15 7-25 20-26 4 5-1 14-13 27z" fill="#eef0f5" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/><path d="M70 50c2-9 6-15 13-17 1 4-4 10-11 18z" fill="#ff9fb4"/>
+      <ellipse cx="60" cy="71" rx="27" ry="22" fill="#eef0f5" stroke="${OL}" stroke-width="3"/>
+      <ellipse cx="44" cy="77" rx="5" ry="3" fill="#ff9fb4" opacity=".8"/><ellipse cx="76" cy="77" rx="5" ry="3" fill="#ff9fb4" opacity=".8"/>
+      <circle cx="50" cy="68" r="4.4" fill="${OL}"/><circle cx="70" cy="68" r="4.4" fill="${OL}"/><circle cx="51.5" cy="66.5" r="1.5" fill="#fff"/><circle cx="71.5" cy="66.5" r="1.5" fill="#fff"/>
+      <path d="M57 75h6l-3 3z" fill="#e8708a" stroke="${OL}" stroke-width="1.4" stroke-linejoin="round"/><path d="M60 78v2M60 80q-3 3-6 1M60 80q3 3 6 1" stroke="${OL}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <rect x="57" y="81" width="6" height="6" rx="1.5" fill="#fff" stroke="${OL}" stroke-width="1.5"/><path d="M60 81v6" stroke="${OL}" stroke-width="1"/>`,
+    penguin: `<ellipse cx="60" cy="65" rx="31" ry="28" fill="#2f3a63" stroke="${OL}" stroke-width="3"/><path d="M58 38q2-9 7-7" stroke="${OL}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <path d="M60 53c6-8 22-6 22 10 0 15-12 23-22 23S38 78 38 63c0-16 16-18 22-10z" fill="#fff"/>
+      <ellipse cx="44" cy="72" rx="4.5" ry="2.8" fill="#ff9fb4" opacity=".85"/><ellipse cx="76" cy="72" rx="4.5" ry="2.8" fill="#ff9fb4" opacity=".85"/>
+      <circle cx="50" cy="63" r="4.4" fill="${OL}"/><circle cx="70" cy="63" r="4.4" fill="${OL}"/><circle cx="51.5" cy="61.5" r="1.5" fill="#fff"/><circle cx="71.5" cy="61.5" r="1.5" fill="#fff"/>
+      <path d="M51 71q9-5 18 0-9 8-18 0z" fill="#ffb02e" stroke="${OL}" stroke-width="2.2" stroke-linejoin="round"/>`,
+    hamster: `<circle cx="38" cy="45" r="9" fill="#e9a25e" stroke="${OL}" stroke-width="3"/><circle cx="82" cy="45" r="9" fill="#e9a25e" stroke="${OL}" stroke-width="3"/><circle cx="38" cy="45" r="4.4" fill="#ff9fb4"/><circle cx="82" cy="45" r="4.4" fill="#ff9fb4"/>
+      <ellipse cx="60" cy="67" rx="32" ry="26" fill="#f0b36d" stroke="${OL}" stroke-width="3"/><path d="M60 44v9" stroke="#c9843f" stroke-width="5" stroke-linecap="round"/>
+      <path d="M31 73c4 14 16 19 29 19s25-5 29-19c-6-6-14-4-20-2-3-3-6-4-9-4s-6 1-9 4c-6-2-14-4-20 2z" fill="#fff6ea"/>
+      <ellipse cx="42" cy="74" rx="5" ry="3" fill="#ff9fb4" opacity=".85"/><ellipse cx="78" cy="74" rx="5" ry="3" fill="#ff9fb4" opacity=".85"/>
+      <circle cx="49" cy="63" r="3.8" fill="${OL}"/><circle cx="71" cy="63" r="3.8" fill="${OL}"/><circle cx="50.3" cy="61.7" r="1.3" fill="#fff"/><circle cx="72.3" cy="61.7" r="1.3" fill="#fff"/>
+      <circle cx="60" cy="70" r="2.4" fill="#e8708a" stroke="${OL}" stroke-width="1.2"/><path d="M60 72.5q-3 3-6 1M60 72.5q3 3 6 1" stroke="${OL}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <rect x="57.5" y="75" width="5" height="5" rx="1.2" fill="#fff" stroke="${OL}" stroke-width="1.4"/>`
+  };
+  const COLLAR = { cat: '#ff7a1a', dog: '#22b59a', rabbit: '#ffc83d', penguin: '#9b8cf5', hamster: '#ffb27a' };
+  const face = (k, label) => { const id = 'hc' + (++uid);
+    return `<svg viewBox="0 0 120 120" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}><defs><clipPath id="${id}"><circle cx="60" cy="56" r="44"/></clipPath></defs>
+      <circle cx="60" cy="56" r="46" fill="#c9e6f6"/><g clip-path="url(#${id})"><circle cx="60" cy="130" r="56" fill="#a9d3ec"/>${FACES[k]}</g>
+      <circle cx="60" cy="56" r="46" fill="rgba(201,230,246,.12)" stroke="${OL}" stroke-width="4"/>
+      <path d="M26 44a36 36 0 0 1 22-26" stroke="#fff" stroke-width="5.5" stroke-linecap="round" fill="none" opacity=".9"/><circle cx="56" cy="15" r="2.6" fill="#fff" opacity=".9"/>
+      <rect x="24" y="96" width="72" height="20" rx="10" fill="${COLLAR[k]}" stroke="${OL}" stroke-width="3"/><path d="M28 101h64" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".5"/>
+      <circle cx="35" cy="106" r="2.6" fill="#f1f2f4" stroke="${OL}" stroke-width="1.6"/><circle cx="85" cy="106" r="2.6" fill="#f1f2f4" stroke="${OL}" stroke-width="1.6"/></svg>`; };
+
+  const CREW = [['cat', '나비', '고양이 · 선장', '조종석', 'orange'], ['dog', '보리', '강아지 · 조종사', '조종석', 'mint'], ['rabbit', '당근', '토끼 · 기관사', '엔진실', 'amber'], ['penguin', '얼음', '펭귄 · 항법사', '항법 콘솔', 'lilac'], ['hamster', '도토리', '햄스터 · 발전 담당', '쳇바퀴', 'mint']];
+  $('#crew').innerHTML = CREW.map(([k, n, r, at, c]) => `<div class="seat">${face(k)}<div><b>${n}</b><small>${r}</small></div><span class="lamp lamp--${c}"><i></i>${at}</span></div>`).join('');
+  $('#sideFace').innerHTML = face('cat');
+
+  // Swatches + type
+  const G = [
+    ['우주와 선체', '바탕과 판', [['깊은 우주', '#0D1330', '--void', '페이지 바탕'], ['성운', '#3A2F7A', '--nebula', '행성, 땅'], ['외곽선', '#1C2340', '--ol', '모든 선, 본문'], ['선체', '#F1F2F4', '--hull', '패널, 카드, 입력']]],
+    ['신호', '동작과 상태', [['안전 주황', '#FF7A1A', '--orange', '주요 동작, 지금'], ['박하', '#22B59A', '--mint', '켜짐, 완료, 초점'], ['경보 빨강', '#D03A40', '--red', '위험, 오류'], ['경고 노랑', '#FFC83D', '--amber', '주의, 빗금']]],
+    ['계기와 털', '조금만', [['인광', '#8FF5CF', '--phos', 'CRT 글자'], ['화면', '#0A2420', '--crt', 'CRT 바탕'], ['젤리', '#FF9FB4', '--paw', '발바닥, 볼'], ['강철', '#8B96A8', '--steel', '나사, 레일']]],
+  ];
+  $('#swatches').innerHTML = G.map(([g, s, it]) => `<div class="swhead">${g}<span>${s}</span></div>` + it.map(([n, hex, v, u]) => `<div class="sw"><i style="background:${hex}"></i><b>${n}</b><code>${v} · ${hex}</code><span>${u}</span></div>`).join('')).join('');
+  $('#typescale').innerHTML = [
+    ['제목', 'Fredoka 700 · 도현 · 34–134', '<span style="font:700 46px/1.1 var(--font-title)">Zoo <span style="color:var(--orange-d)">Orbit</span> 출발</span>'],
+    ['버튼 · 라벨', '도현 · 17–25', '<span style="font:400 24px/1.3 var(--font-title)">궤도 진입하기</span>'],
+    ['본문', 'Sunflower 500 · 17/1.7', '<span>나비 선장은 창가 자리에서 지구를 내려다보며 꼬리를 살랑입니다. 다음 교신까지 두 시간.</span>'],
+    ['계기', 'Share Tech Mono · 14–54', '<span style="font:400 32px/1 var(--font-mono);color:var(--mint-d)">T-00:03 · O₂ 82%</span>'],
+    ['작은 라벨', 'Orbit · 13–15', '<span style="font:400 15px/1.3 var(--font-label)">켜짐 · 꺼짐 · 정비 중</span>'],
+  ].map(([k, s, ex]) => `<div class="typerow"><div class="k"><b>${k}</b><span>${s}</span></div><div>${ex}</div></div>`).join('');
+
+  // Nav highlight
+  const links = $$('#nav a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute('aria-current', a.hash === '#' + e.target.id ? 'true' : 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.zone').forEach(s => io.observe(s));
+
+  // Radio transmissions (toasts)
+  const T = {
+    ok: ['지구 관제센터', '궤도 진입을 확인했어요', '모두 안전벨트를 풀어도 좋아요', ''], info: ['달 기지', '보급선이 곧 도착해요', '생선 과자 40상자, 해바라기씨 2자루', 'warn'],
+    err: ['경보', '선체에 털뭉치가 부딪혔어요', '엔진실 환풍구를 확인해 주세요', 'err'], launch: ['지구 관제센터', '발사 성공!', '모두 잘 다녀와요. 간식 시간 지키기', 'go'],
+    board: ['탑승구 03', '탑승을 환영해요', '헬멧을 잠그고 자리에 앉아 주세요', 'go'], done: ['지구 관제센터', '교신을 받았어요', '다음 교신은 18시입니다', ''],
+    purge: ['엔진실', '털뭉치를 배출했어요', '환풍구 필터가 깨끗해졌어요', 'err'], saved: ['조종실', '선장 정보를 바꿨어요', '호출 부호와 간식 수가 저장됐어요', ''],
+    air: ['경보', '에어록이 열렸어요', '2분 뒤 다시 닫을 수 있어요', 'err'], snack: ['식당', '간식 칸이 가득 찼어요', '다음 보급까지 든든해요', '']
+  };
+  function toast(k) { const [from, t, s, c] = T[k]; const el = document.createElement('div');
+    el.className = 'tx' + (c ? ' tx--' + c : ''); el.setAttribute('role', c === 'err' ? 'alert' : 'status');
+    el.innerHTML = `<span class="tx__ant" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 20l5-5M4 10a10 10 0 0 0 10 10z"/><path class="w" d="M14 5a5 5 0 0 1 5 5"/><path class="w" d="M14 1.5a8.5 8.5 0 0 1 8.5 8.5"/></svg></span><div><small>삐- ${from}</small><b>${t}</b><span>${s}</span></div><button class="x" aria-label="무전 닫기">×</button><i class="tx__life" aria-hidden="true"></i>`;
+    const kill = () => { if (el.classList.contains('out')) return; el.classList.add('out'); setTimeout(() => el.remove(), 300); }; $('.x', el).onclick = kill;
+    const box = $('#radio'); box.prepend(el); while (box.children.length > 3) box.lastChild.remove(); setTimeout(kill, 5000); }
+  $$('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+
+  // Paw buttons
+  const paw = label => `<button class="paw" data-paw><svg viewBox="0 0 160 160" aria-hidden="true">
+      <ellipse cx="80" cy="156" rx="50" ry="6" fill="rgba(13,19,48,.2)"/>
+      <g class="toe"><ellipse cx="30" cy="66" rx="15" ry="19" transform="rotate(-24 30 66)" fill="#ff9fb4" stroke="${OL}" stroke-width="3.5"/><path d="M24 58q2-7 8-9" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".75"/></g>
+      <g class="toe"><ellipse cx="60" cy="38" rx="16" ry="20" transform="rotate(-8 60 38)" fill="#ff9fb4" stroke="${OL}" stroke-width="3.5"/><path d="M53 31q2-7 8-9" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".75"/></g>
+      <g class="toe"><ellipse cx="100" cy="38" rx="16" ry="20" transform="rotate(8 100 38)" fill="#ff9fb4" stroke="${OL}" stroke-width="3.5"/><path d="M93 30q3-7 9-8" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".75"/></g>
+      <g class="toe"><ellipse cx="130" cy="66" rx="15" ry="19" transform="rotate(24 130 66)" fill="#ff9fb4" stroke="${OL}" stroke-width="3.5"/><path d="M124 56q3-6 9-7" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".75"/></g>
+      <g class="pad"><path d="M80 80c24 0 52 20 52 44 0 18-15 26-31 24-8-1-14-5-21-5s-13 4-21 5c-16 2-31-6-31-24 0-24 28-44 52-44z" fill="${OL}" transform="translate(0 6)"/>
+      <path d="M80 80c24 0 52 20 52 44 0 18-15 26-31 24-8-1-14-5-21-5s-13 4-21 5c-16 2-31-6-31-24 0-24 28-44 52-44z" fill="#ff7a1a" stroke="${OL}" stroke-width="3.5"/>
+      <path d="M46 104c8-11 20-16 32-16" stroke="#ffb27a" stroke-width="5" stroke-linecap="round" fill="none"/></g></svg><b>${label}</b></button>`;
+  $$('[data-paw-slot]').forEach(el => el.outerHTML = paw(el.dataset.pawSlot));
+  $$('[data-paw]').forEach(b => b.addEventListener('click', () => { b.classList.remove('boing'); void b.offsetWidth; b.classList.add('boing'); toast('board'); }));
+
+  // Busy
+  $('#busyBtn').addEventListener('click', e => { const b = e.currentTarget; if (b.dataset.busy) return; b.dataset.busy = 1; b.setAttribute('aria-disabled', 'true'); b.classList.add('is-busy');
+    b.innerHTML = '<span class="spin" aria-hidden="true"></span><span>보내는 중</span>';
+    setTimeout(() => { b.innerHTML = '<span>받았어요</span>'; toast('done'); }, 1600); setTimeout(() => { delete b.dataset.busy; b.removeAttribute('aria-disabled'); b.classList.remove('is-busy'); b.innerHTML = '<span>교신 보내기</span>'; }, 3200); });
+
+  // Guarded button
+  const cover = $('#coverBtn'), purge = $('#purgeBtn'), hint = $('#purgeHint');
+  const setCover = open => { cover.setAttribute('aria-expanded', open); cover.setAttribute('aria-label', open ? '안전 덮개 닫기' : '안전 덮개 열기'); purge.disabled = !open; hint.textContent = open ? '덮개가 열렸어요. 이제 누를 수 있어요' : '덮개를 먼저 여세요'; };
+  cover.addEventListener('click', () => { const open = cover.getAttribute('aria-expanded') !== 'true'; setCover(open); if (open) purge.focus(); });
+  purge.addEventListener('click', () => { toast('purge'); setTimeout(() => { setCover(false); cover.focus(); }, 500); });
+
+  // Launch
+  const lb = $('#launchBtn'), big = $('#lBig'), scr = $('#lScreen'); let flying = false;
+  lb.addEventListener('click', () => { if (flying) return; flying = true; lb.setAttribute('aria-disabled', 'true'); lb.classList.add('down');
+    const seq = ['3', '2', '1']; let i = 0; big.classList.remove('word');
+    const tick = () => { if (i < seq.length) { big.textContent = seq[i++]; setTimeout(tick, 750); return; }
+      big.classList.add('word'); big.textContent = '발사!'; scr.classList.add('fly');
+      if (!reduce()) { const m = $('main'); m.classList.remove('quake'); void m.offsetWidth; m.classList.add('quake'); setTimeout(() => m.classList.remove('quake'), 800); }
+      toast('launch');
+      setTimeout(() => { scr.classList.remove('fly'); big.textContent = '대기 중'; lb.classList.remove('down'); lb.removeAttribute('aria-disabled'); flying = false; }, 2600); };
+    tick(); });
+
+  // Menu
+  const mb = $('#menuBtn'), ml = $('#menuList'), mi = $$('[role=menuitem]', ml);
+  const closeM = f => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); if (f) mb.focus(); };
+  mb.addEventListener('click', () => { if (ml.hidden) { ml.hidden = false; mb.setAttribute('aria-expanded', 'true'); mi[0].focus(); } else closeM(); });
+  mb.addEventListener('keydown', e => { if (e.key === 'ArrowDown' && ml.hidden) { e.preventDefault(); mb.click(); } });
+  ml.addEventListener('keydown', e => { const i = mi.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); mi[(i + 1) % mi.length].focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); mi[(i - 1 + mi.length) % mi.length].focus(); }
+    if (e.key === 'Home') { e.preventDefault(); mi[0].focus(); } if (e.key === 'End') { e.preventDefault(); mi.at(-1).focus(); }
+    if (e.key === 'Escape') closeM(true); if (e.key === 'Tab') closeM(); });
+  mi.forEach(m => m.addEventListener('click', () => { closeM(true); if (m.classList.contains('danger')) $('#dlg').showModal(); }));
+  document.addEventListener('click', e => { if (!ml.hidden && !e.target.closest('.menu')) closeM(); });
+
+  // Switch bank
+  const tgl = (t, on) => `<button class="tgl" role="switch" aria-checked="${on}"><svg viewBox="0 0 80 120" aria-hidden="true">
+      <rect x="4" y="4" width="72" height="112" rx="14" fill="#dfe3e8" stroke="${OL}" stroke-width="3"/><path d="M10 12h60" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+      <g fill="#c9d0d9" stroke="${OL}" stroke-width="1.6"><circle cx="13" cy="13" r="3"/><circle cx="67" cy="13" r="3"/><circle cx="13" cy="107" r="3"/><circle cx="67" cy="107" r="3"/></g>
+      <circle class="led" cx="40" cy="16" r="5.5" stroke="${OL}" stroke-width="2.2"/>
+      <rect x="12" y="34" width="9" height="58" rx="4.5" fill="#ff7a1a" stroke="${OL}" stroke-width="2.6"/><rect x="59" y="34" width="9" height="58" rx="4.5" fill="#ff7a1a" stroke="${OL}" stroke-width="2.6"/>
+      <path d="M15 40v40M62 40v40" stroke="#ffb27a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M28 64l6-10h12l6 10-6 10H34z" fill="#c9d0d9" stroke="${OL}" stroke-width="2.6" stroke-linejoin="round"/>
+      <g class="lev"><path d="M36.5 64L35 34h10l-1.5 30z" fill="#eef0f2" stroke="${OL}" stroke-width="2.6" stroke-linejoin="round"/><path d="M39 60l-.8-22" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="40" cy="31" r="8" fill="#f1f2f4" stroke="${OL}" stroke-width="2.6"/><circle cx="37.5" cy="28.5" r="2.2" fill="#fff"/></g>
+      <circle cx="40" cy="64" r="4.5" fill="#8b96a8" stroke="${OL}" stroke-width="2"/></svg><b>${t}</b><em>${on ? '켜짐' : '꺼짐'}</em></button>`;
+  $('#bank').innerHTML = tgl('보조 엔진', true) + tgl('인공 중력', true) + tgl('실내 조명', false);
+
+  // Hamster wheels
+  const wheel = (t, s, on) => `<button class="wheel" role="switch" aria-checked="${on}"><svg viewBox="0 0 132 132" aria-hidden="true">
+      <path d="M44 126l22-62 22 62" fill="none" stroke="${OL}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 126l22-62 22 62" fill="none" stroke="#8b96a8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="30" y="122" width="72" height="8" rx="4" fill="#c9d0d9" stroke="${OL}" stroke-width="2.6"/>
+      <circle cx="66" cy="62" r="52" fill="rgba(255,255,255,.65)" stroke="${OL}" stroke-width="3.5"/>
+      <g class="spin-g"><circle cx="66" cy="62" r="46" fill="none" stroke="#8b96a8" stroke-width="2.5"/><circle cx="66" cy="62" r="49" fill="none" stroke="${OL}" stroke-width="4" stroke-dasharray="2.5 9"/>
+        <path d="M66 16v92M20 62h92M33.5 29.5l65 65M98.5 29.5l-65 65" stroke="#b8c0cc" stroke-width="2.5"/></g>
+      <circle cx="66" cy="62" r="8" fill="#ff7a1a" stroke="${OL}" stroke-width="3"/>
+      <g class="ham"><ellipse cx="62" cy="96" rx="22" ry="14" fill="#f0b36d" stroke="${OL}" stroke-width="3"/><ellipse cx="72" cy="100" rx="9" ry="6.5" fill="#fff6ea"/>
+        <circle cx="66" cy="83" r="4.6" fill="#ff9fb4" stroke="${OL}" stroke-width="2.2"/><circle cx="76" cy="92" r="2.2" fill="${OL}"/><circle cx="83.5" cy="95" r="1.9" fill="#e8708a"/>
+        <ellipse cx="50" cy="109" rx="5" ry="3" fill="#ff9fb4" stroke="${OL}" stroke-width="1.8"/><ellipse cx="70" cy="109.5" rx="5" ry="3" fill="#ff9fb4" stroke="${OL}" stroke-width="1.8"/>
+        <text class="zz" x="84" y="80" font-family="Fredoka, sans-serif" font-weight="600" font-size="13" fill="${OL}">z z</text></g>
+      <path class="bolt" d="M114 4l-10 16h7l-5 14 13-19h-8l5-11z" stroke="${OL}" stroke-width="2.2" stroke-linejoin="round"/></svg>
+    <span class="state"><em>${on ? '발전 중 · 12W' : '쉬는 중'}</em><b>${t}</b><small>${s}</small></span></button>`;
+  $('#wheels').innerHTML = wheel('쳇바퀴 발전기', '도토리가 달려서 조명 전기를 만들어요', true) + wheel('예비 쳇바퀴', '정전일 때만 돌려요', false);
+  const WHEEL_ON = ['발전 중 · 12W', '발전 중 · 6W'];
+  document.addEventListener('click', e => {
+    const t = e.target.closest('.tgl'); if (t) { const on = t.getAttribute('aria-checked') !== 'true'; t.setAttribute('aria-checked', on); $('em', t).textContent = on ? '켜짐' : '꺼짐'; }
+    const w = e.target.closest('.wheel'); if (w) { const on = w.getAttribute('aria-checked') !== 'true'; w.setAttribute('aria-checked', on); $('em', w).textContent = on ? WHEEL_ON[$$('.wheel').indexOf(w)] : '쉬는 중'; }
+    const s = e.target.closest('.slide'); if (s) s.setAttribute('aria-checked', s.getAttribute('aria-checked') !== 'true');
+    const c = e.target.closest('.chip'); if (c) c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+  });
+
+  // Checklist
+  const all = $('#chkAll'), ci = $$('.ci'); const sync = () => { const n = ci.filter(c => c.checked).length; all.checked = n === ci.length; all.indeterminate = n > 0 && n < ci.length; };
+  ci.forEach(c => c.addEventListener('change', sync)); all.addEventListener('change', () => { ci.forEach(c => c.checked = all.checked); sync(); }); sync();
+
+  // Gravity keys
+  $$('.keys').forEach(g => { const bs = $$('button', g);
+    const pick = b => { bs.forEach(x => { x.setAttribute('aria-checked', x === b); x.tabIndex = x === b ? 0 : -1; }); b.focus(); };
+    bs.forEach(b => { b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1; b.addEventListener('click', () => pick(b)); });
+    g.addEventListener('keydown', e => { const i = bs.indexOf(document.activeElement); if (['ArrowRight', 'ArrowDown'].includes(e.key)) { e.preventDefault(); pick(bs[(i + 1) % bs.length]); } if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); pick(bs[(i - 1 + bs.length) % bs.length]); } });
+  });
+
+  // CRT channel tabs
+  const tabs = $$('[role=tab]'); const sel = t => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); };
+  tabs.forEach(t => t.addEventListener('click', () => sel(t)));
+  $('[role=tablist]').addEventListener('keydown', e => { const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); sel(tabs[(i + 1) % tabs.length]); } if (e.key === 'ArrowLeft') { e.preventDefault(); sel(tabs[(i - 1 + tabs.length) % tabs.length]); }
+    if (e.key === 'Home') { e.preventDefault(); sel(tabs[0]); } if (e.key === 'End') { e.preventDefault(); sel(tabs.at(-1)); } });
+
+  // Throttle
+  const rg = $('#rg'), ro = $('#rgOut');
+  const upd = () => { const v = +rg.value; rg.style.setProperty('--p', v + '%'); const w = v === 0 ? '정지' : v < 40 ? '느긋하게' : v < 80 ? '순항' : '전속력'; ro.innerHTML = `${v}<small>% ${w}</small>`; rg.setAttribute('aria-valuetext', `${v}%, ${w}`); };
+  rg.addEventListener('input', upd); upd();
+
+  // Deck map
+  $$('#decks a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $$('#decks a').forEach(x => x.removeAttribute('aria-current')); a.setAttribute('aria-current', 'page'); }));
+
+  // Inputs
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; e.currentTarget.textContent = on ? '숨기기' : '보기'; e.currentTarget.setAttribute('aria-pressed', on); });
+  $('#i2').addEventListener('input', e => { const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.target.value.trim()); const w = e.target.closest('.input'); w.classList.toggle('is-err', !ok); w.classList.toggle('is-ok', ok); e.target.setAttribute('aria-invalid', !ok); $('#i2e').hidden = ok; });
+  const ta = $('#ta'), tc = $('#taCount'); const cnt = () => tc.textContent = `${ta.value.length} / 140`; ta.addEventListener('input', cnt); cnt();
+
+  // Crew ID cards
+  const IDS = [['cat', '나비', '선장', 'ZO-01', '함장 3호봉', '#ff7a1a', [['용기', 92], ['간식 욕심', 70], ['낮잠', 88]]], ['dog', '보리', '조종사', 'ZO-02', '1급 조종', '#22b59a', [['용기', 84], ['간식 욕심', 96], ['낮잠', 40]]],
+    ['rabbit', '당근', '기관사', 'ZO-03', '엔진 정비', '#ffc83d', [['용기', 58], ['간식 욕심', 62], ['낮잠', 52]]], ['penguin', '얼음', '항법사', 'ZO-04', '별자리 박사', '#9b8cf5', [['용기', 74], ['간식 욕심', 80], ['낮잠', 30]]]];
+  $('#ids').innerHTML = IDS.map(([k, n, r, id, rank, c, st]) => `<a class="idc" href="#show" style="--cc:${c}"><span class="idc__head"><span>${id}</span><span>CREW</span></span>${patch('star', 'idc__patch')}<span class="idc__main">${face(k)}<span><h4>${n}</h4><span class="idc__role">${r}</span><span class="idc__rank">${rank}</span></span></span><span class="stats">${st.map(([l, v]) => `<span class="stat"><span>${l}</span><i style="--v:${v}%" aria-hidden="true"></i><b>${v}</b></span>`).join('')}</span></a>`).join('');
+
+  // Oxygen tank
+  const tank = v => { const top = 30 + (1 - v / 100) * 124;
+    $('#tank').innerHTML = `<div role="progressbar" aria-label="산소 탱크" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${v}"><svg viewBox="0 0 92 170" aria-hidden="true"><defs><clipPath id="tk"><rect x="16" y="30" width="60" height="124" rx="30"/></clipPath></defs>
+      <rect x="34" y="6" width="24" height="18" rx="5" fill="#c9d0d9" stroke="${OL}" stroke-width="3"/><rect x="26" y="20" width="40" height="12" rx="4" fill="#8b96a8" stroke="${OL}" stroke-width="3"/>
+      <rect x="16" y="30" width="60" height="124" rx="30" fill="#fff"/>
+      <g clip-path="url(#tk)"><rect class="lvl" x="0" y="${top}" width="92" height="${170 - top}" fill="#22b59a"/><rect x="0" y="${top}" width="92" height="6" fill="#7fe3cc"/>
+        <circle class="bub" cx="36" cy="146" r="3" fill="#d3f3ea"/><circle class="bub" cx="52" cy="150" r="2.2" fill="#d3f3ea"/><circle class="bub" cx="44" cy="144" r="1.6" fill="#d3f3ea"/></g>
+      <rect x="16" y="30" width="60" height="124" rx="30" fill="none" stroke="${OL}" stroke-width="3.5"/><path d="M26 56v60" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+      <g stroke="${OL}" stroke-width="2.2" stroke-linecap="round"><path d="M76 62h-8M76 92h-8M76 122h-8"/></g>
+      <text x="46" y="104" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="16" fill="${OL}">O₂</text></svg></div><b>산소 ${v}%</b><span>약 41시간 남음</span>`; };
+  tank(82);
+  // Gravity dial
+  $('#dial').innerHTML = `<svg viewBox="0 0 180 120" role="img" aria-label="중력 1.0G, 정상"><path d="M14 96a76 76 0 0 1 152 0z" fill="#fff" stroke="${OL}" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M26 96a64 64 0 0 1 32-55" fill="none" stroke="#7fe3cc" stroke-width="10"/><path d="M58 41a64 64 0 0 1 64 0" fill="none" stroke="#22b59a" stroke-width="10"/><path d="M122 41a64 64 0 0 1 32 55" fill="none" stroke="#ffc83d" stroke-width="10"/>
+      <g stroke="${OL}" stroke-width="2.5" stroke-linecap="round"><path d="M26 96h10M154 96h-10M90 32v10M45 51l7 7M135 51l-7 7"/></g>
+      <g class="needle" style="transform:rotate(-8deg)"><path d="M90 96L87 46h6z" fill="#ff7a1a" stroke="${OL}" stroke-width="2.4" stroke-linejoin="round"/></g><circle cx="90" cy="96" r="8" fill="#c9d0d9" stroke="${OL}" stroke-width="3"/>
+      <rect x="14" y="96" width="152" height="22" rx="6" fill="#c9d0d9" stroke="${OL}" stroke-width="3"/><circle cx="90" cy="96" r="8" fill="#c9d0d9" stroke="${OL}" stroke-width="3"/><text x="140" y="112" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="14" fill="${OL}">1.0G</text></svg><b>인공 중력</b><span>정상 범위</span>`;
+
+  // Snack pellets
+  let snack = 6;
+  const drawSnack = () => { $('#snack').innerHTML = Array.from({ length: 10 }, (_, i) => `<svg viewBox="0 0 40 26" aria-hidden="true" class="${i < snack ? 'on' : ''}"><path class="f" d="M4 13c6-9 18-10 25-3l7-6v18l-7-6c-7 7-19 6-25-3z" stroke-width="2.4" stroke-linejoin="round"/><circle class="e" cx="13" cy="11" r="2"/></svg>`).join('');
+    const s = $('#snack'); s.setAttribute('aria-valuenow', snack); s.setAttribute('aria-valuetext', `10칸 중 ${snack}칸`); $('#snackOut').textContent = `${snack} / 10`; };
+  drawSnack(); $('#snackBtn').addEventListener('click', () => { snack = snack >= 10 ? 0 : snack + 1; drawSnack(); if (snack === 10) toast('snack'); });
+
+  let fp = 48; setInterval(() => { fp = fp >= 100 ? 8 : fp + 4; const b = $('#fuel'); b.setAttribute('aria-valuenow', fp); $('i', b).style.width = fp + '%'; $('#fuelOut').textContent = fp + '%'; }, 1000);
+
+  // Supply table
+  const ROWS = [['참치 통조림', 'cat', '나비', 24, 'mint', '넉넉'], ['해바라기씨', 'hamster', '도토리', 140, 'mint', '넉넉'], ['당근 스틱', 'rabbit', '당근', 9, 'amber', '보통'], ['냉동 멸치', 'penguin', '얼음', 3, 'red', '모자람']];
+  const tb = $('#tbody');
+  tb.innerHTML = ROWS.map(([n, k, who, q, c, s]) => `<tr><td><b style="font:400 18px/1 var(--font-title)">${n}</b></td><td><span class="who">${face(k)}${who}</span></td><td class="num">${q}</td><td><span class="lamp lamp--${c}"><i></i>${s}</span></td></tr>`).join('');
+  $$('#tbl th button').forEach(b => b.addEventListener('click', () => { const th = b.parentElement, k = +b.dataset.k, dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    $$('#tbl th[aria-sort]').forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', dir);
+    $$('tr', tb).sort((a, c) => { const x = a.cells[k].textContent.trim(), y = c.cells[k].textContent.trim(); const q = k === 2 ? +x - +y : x.localeCompare(y, 'ko'); return dir === 'ascending' ? q : -q; }).forEach(r => tb.appendChild(r)); }));
+  const pb = $$('.pager li button'), pages = pb.slice(1, -1); let cur = 1;
+  const go = n => { cur = n; pages.forEach((b, i) => i + 1 === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')); pb[0].disabled = n === 1; pb.at(-1).disabled = n === pages.length; $('#pgInfo').textContent = `보급품 12종 중 ${(n - 1) * 4 + 1}–${n * 4}`; };
+  pages.forEach((b, i) => b.addEventListener('click', () => go(i + 1))); pb[0].addEventListener('click', () => go(Math.max(1, cur - 1))); pb.at(-1).addEventListener('click', () => go(Math.min(pages.length, cur + 1)));
+
+  // Airlock dialog
+  const dlg = $('#dlg'); $('#dlgOpen').addEventListener('click', () => dlg.showModal());
+  $$('[data-close]', dlg).forEach(b => b.addEventListener('click', () => { dlg.close(); if (b.dataset.after) toast(b.dataset.after); }));
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Sliding hatch
+  const sd = $('#side'), sc = $('#scrim'); let opener;
+  const openS = () => { opener = document.activeElement; sd.classList.add('open'); sc.classList.add('open'); sd.setAttribute('aria-hidden', 'false'); setTimeout(() => $('#s1').focus(), 120); };
+  const closeS = () => { if (!sd.classList.contains('open')) return; sd.classList.remove('open'); sc.classList.remove('open'); sd.setAttribute('aria-hidden', 'true'); opener && opener.focus(); };
+  $('#sideOpen').addEventListener('click', openS); sc.addEventListener('click', closeS);
+  $$('[data-sclose]', sd).forEach(b => b.addEventListener('click', () => { closeS(); if (b.dataset.after) toast(b.dataset.after); }));
+  sd.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); closeS(); }
+    if (e.key === 'Tab') { const f = $$('button, input', sd).filter(x => !x.disabled), a = f[0], z = f.at(-1);
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } } });
+
+  // Code
+  $('#codeBlock').innerHTML = `<span class="c">/* Zoo Orbit — 동물 우주비행단 · Tailwind v4 + shadcn */</span>
+@import "tailwindcss";
+
+<span class="p">:root</span> {
+  <span class="v">--background</span>: #0d1330;  <span class="v">--foreground</span>: #1c2340;      <span class="c">/* 깊은 우주, 남색 */</span>
+  <span class="v">--card</span>: #f1f2f4;  <span class="v">--card-foreground</span>: #1c2340;            <span class="c">/* 선체 */</span>
+  <span class="v">--popover</span>: #f1f2f4;  <span class="v">--popover-foreground</span>: #1c2340;
+  <span class="v">--primary</span>: #ff7a1a;  <span class="v">--primary-foreground</span>: #1c2340;      <span class="c">/* 안전 주황 */</span>
+  <span class="v">--secondary</span>: #22b59a;  <span class="v">--secondary-foreground</span>: #1c2340;  <span class="c">/* 박하 */</span>
+  <span class="v">--muted</span>: #e3e7ec;  <span class="v">--muted-foreground</span>: #4f5975;
+  <span class="v">--accent</span>: #ffc83d;  <span class="v">--accent-foreground</span>: #1c2340;        <span class="c">/* 경고 노랑 */</span>
+  <span class="v">--destructive</span>: #d03a40;                                      <span class="c">/* 경보 빨강, 덮개 아래 */</span>
+  <span class="v">--border</span>: #1c2340;  <span class="v">--input</span>: #1c2340;  <span class="v">--ring</span>: #ff7a1a;
+  <span class="v">--radius</span>: 1rem;
+
+  <span class="v">--ol</span>: #1c2340;      <span class="c">/* 모든 계기의 외곽선 3px */</span>
+  <span class="v">--foot</span>: 5px;        <span class="c">/* 굽 = 누르면 내려가는 거리 */</span>
+  <span class="v">--crt</span>: #0a2420;  <span class="v">--phos</span>: #8ff5cf;   <span class="c">/* 화면과 인광 */</span>
+  <span class="v">--paw</span>: #ff9fb4;
+  <span class="v">--hazard</span>: repeating-linear-gradient(-45deg, #ffc83d 0 9px, #1c2340 9px 18px);
+}
+
+@theme inline {
+  <span class="v">--color-background</span>: var(--background);
+  <span class="v">--color-foreground</span>: var(--foreground);
+  <span class="v">--color-card</span>: var(--card);
+  <span class="v">--color-primary</span>: var(--primary);
+  <span class="v">--color-secondary</span>: var(--secondary);
+  <span class="v">--color-accent</span>: var(--accent);
+  <span class="v">--color-destructive</span>: var(--destructive);
+  <span class="v">--color-crt</span>: var(--crt);
+  <span class="v">--color-phos</span>: var(--phos);
+  <span class="v">--font-title</span>: "Fredoka", "Do Hyeon", sans-serif;
+  <span class="v">--font-sans</span>: "Sunflower", system-ui, sans-serif;
+  <span class="v">--font-mono</span>: "Share Tech Mono", "Orbit", monospace;
+}
+
+<span class="c">/* 계기판 키: 외곽선 + 위쪽 빛 띠 + 아래 그늘 + 굽 */</span>
+@utility <span class="p">cockpit-key</span> {
+  border: 3px solid var(--ol); border-radius: var(--radius);
+  font-family: var(--font-title); color: var(--primary-foreground);
+  background: linear-gradient(color-mix(in oklab, var(--primary), white 45%) 0 6px,
+              var(--primary) 6px calc(100% - 7px), color-mix(in oklab, var(--primary), black 22%) calc(100% - 7px));
+  box-shadow: 0 var(--foot) 0 var(--ol);
+  transition: transform .25s cubic-bezier(.3,1.6,.5,1), box-shadow .25s cubic-bezier(.3,1.6,.5,1);
+  &:active { transform: translateY(var(--foot)); box-shadow: 0 0 0 var(--ol); transition-duration: .05s; }
+}
+
+<span class="c">/* 리벳 판: 네 모서리 리벳 + 선체색 */</span>
+@utility <span class="p">rivet-panel</span> {
+  --rv: radial-gradient(circle at 7px 7px, #fff 0 1px, #dfe4ea 1.6px 2.6px, #a4aebd 4px, #1c2340 4.6px 6px, transparent 6.5px);
+  background: var(--rv) 8px 8px/14px 14px no-repeat, var(--rv) right 8px top 8px/14px 14px no-repeat,
+              var(--rv) 8px bottom 8px/14px 14px no-repeat, var(--rv) right 8px bottom 8px/14px 14px no-repeat, var(--card);
+  border: 3px solid var(--ol); border-radius: 1.5rem; box-shadow: 0 7px 0 #05081a;
+}
+
+@utility <span class="p">hazard-edge</span> { border: 3px solid var(--ol); background: var(--hazard); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}`;
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget, s = $('span', b); try { await navigator.clipboard.writeText($('#codeBlock').textContent); s.textContent = '복사했어요!'; } catch { s.textContent = '직접 선택해 주세요'; } setTimeout(() => s.textContent = '복사하기', 1800); });
+})();
+</script>
+</body>
+</html>

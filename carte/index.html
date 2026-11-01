@@ -1707,6 +1707,6 @@ pre.code:focus-visible { outline-color: var(--chalk-y); box-shadow: none; }
   $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget; try { await navigator.clipboard.writeText($('#codeBlock').textContent); b.textContent = '복사했어요!'; } catch { b.textContent = '직접 골라 복사해 주세요'; } setTimeout(() => b.textContent = '복사하기', 1800); });
 })();
 </script>
-<script src="../systems-nav.js" defer></script>
+<script src="../systems-nav.js?v=20261101" defer></script>
 </body>
 </html>

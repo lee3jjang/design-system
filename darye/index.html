@@ -85,7 +85,7 @@ svg { display: block; }
 .lede .sub { align-self: end; }
 
 /* lacquer band: the cabinet along the wall */
-.cabinet { margin-top: clamp(64px, 9vw, 120px); height: clamp(150px, 26vw, 340px); background:
+.cabinet { margin-top: clamp(64px, 9vw, 120px); height: clamp(150px, 32vw, 420px); background:
     linear-gradient(90deg, transparent 0 calc(25% - 1px), rgba(120,90,70,.35) calc(25% - 1px) 25%, transparent 25% calc(50% - 1px), rgba(120,90,70,.35) calc(50% - 1px) 50%, transparent 50% calc(75% - 1px), rgba(120,90,70,.35) calc(75% - 1px) 75%, transparent 75%),
     linear-gradient(180deg, rgba(255,240,225,.07) 0, transparent 22%, transparent 70%, rgba(0,0,0,.25)),
     linear-gradient(100deg, var(--lacquer-2), var(--lacquer) 40%, #2b1d18 62%, var(--lacquer));
@@ -192,7 +192,7 @@ input[type=range]:focus-visible { outline-offset: 2px; }
 .notes { background:
     linear-gradient(180deg, rgba(255,240,225,.06), transparent 30%),
     linear-gradient(100deg, var(--lacquer-2), var(--lacquer) 45%, #2a1c17 70%, var(--lacquer)); color: var(--ivory-ink); border-top: 1px solid var(--lacquer-edge); }
-.notes .wrap { max-width: 1180px; margin: 0 auto; padding: clamp(64px, 9vw, 120px) max(16px, 4vw) 48px; display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px 64px; }
+.notes .wrap { max-width: 1180px; margin: 0 auto; padding: clamp(72px, 12vw, 170px) max(16px, 4vw) 72px; display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px 64px; }
 .notes h2 { font: 400 clamp(28px, 3vw, 36px)/1.3 var(--f-title); }
 .notes .wrap > div > p { color: var(--ivory-ink-2); margin-top: 14px; max-width: 22em; }
 details { border-top: 1px solid rgba(239,233,223,.18); }
@@ -204,7 +204,7 @@ details[open] summary::after { transform: rotate(225deg) translate(-3px, -3px); 
 details p { color: var(--ivory-ink-2); padding: 0 2px 22px; max-width: 34em; }
 .notes a { color: var(--ivory-ink); }
 .notes :focus-visible { outline-color: var(--sky); }
-footer { max-width: 1180px; margin: 0 auto; padding: 40px max(16px, 4vw) 110px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; color: var(--ivory-ink-2); border-top: 1px solid rgba(239,233,223,.12); }
+footer { max-width: 1180px; margin: 0 auto; padding: 40px max(16px, 4vw) 150px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; color: var(--ivory-ink-2); border-top: 1px solid rgba(239,233,223,.12); }
 footer a { display: inline-flex; align-items: center; min-height: 44px; }
 
 /* ───────── dialog and toasts ───────── */
@@ -216,9 +216,9 @@ dialog[open] { animation: settle 1.2s var(--slow); }
 .dlg::before { content: ""; position: absolute; right: 30px; top: -3px; width: 4px; height: 46px; background: var(--red); border-radius: 0 0 2px 2px; }
 .dlg h2 { font: 400 30px/1.3 var(--f-title); }
 .dlg p { color: var(--ink-2); margin-top: 10px; }
-.field { display: grid; gap: 6px; margin-top: 22px; }
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; margin-top: 22px; }
 .field label { color: var(--ink-2); }
-.field input { min-height: 50px; padding: 10px 14px; border: 0; border-bottom: 1px solid var(--ink-3); background: rgba(255,255,255,.4); font-size: 18px; border-radius: 2px 2px 0 0; }
+.field input { width: 100%; min-width: 0; min-height: 50px; padding: 10px 14px; border: 0; border-bottom: 1px solid var(--ink-3); background: rgba(255,255,255,.4); font-size: 18px; border-radius: 2px 2px 0 0; }
 .field input:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
 .dlg .row { justify-content: flex-end; }
 

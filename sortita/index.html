@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Molo Lento · 산복도로 불빛 아래 마지막 곡에 맞춘 출격</title>
+<meta name="description" content="Molo Lento: 펜선 해칭, 조종석 HUD, 아이들 스티커북, 1940년대 마지막 발라드의 무드를 시드 51110으로 무작위 추출해 억지로 붙이고, 자정의 부산 항구에 녹인 디자인 시스템.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600;6..96,700&family=Noto+Sans+KR:wght@300;400;700&display=swap">
+<style>
+/* Molo Lento — seed 51110, four sources forced together.
+   depth   ← Cockpit, flipped     : the hard plinth sits ABOVE a key; pressing lifts it up into it. Screens protrude.
+   shape   ← Sticker, subtracted  : no rounding anywhere. Radios, knobs, bulbs, reticles: all square.
+   type    ← Tratteggio, flipped  : biggest = thin Noto Sans KR 300, smallest = Black Han Sans, Bodoni upright + backslant.
+   bg      ← Sticker, exaggerated : the page is one huge sticker backing sheet full of die-cut holes.
+   ornament← Sticker, slowed      : peel corners and crooked stickers move at a quarter speed, 60 bpm.
+   light   ← Tratteggio, flipped  : light from the LOWER RIGHT; hatching piles upper-left; cream knife cuts lower-right.
+   colour  ← Mood, reduced        : burgundy, cream, honey. Nothing else.
+   texture ← Mood, monochrome     : grain, LP grooves and crackle in black / white / grey only.
+   Unpicked (plain): state display, layout, interaction metaphor, motion, spacing, line/border. */
+:root {
+  color-scheme: light;
+  --cream: #f3e7cf; --cream-hi: #fbf4e4; --cream-2: #e6d3ae;
+  --honey: #d29a3c; --honey-hi: #e8bd6a;
+  --bur: #6e1a2c; --bur-l: #8d2d42; --bur-d: #3c0d18;
+  --ink: #22070e; --ink-2: #4e2a31;
+  --f-head: "Noto Sans KR", system-ui, sans-serif;
+  --f-label: "Black Han Sans", "Noto Sans KR", sans-serif;
+  --f-body: "Bodoni Moda", "Noto Sans KR", serif;
+  --up: 0 -6px 0 0 var(--ink);           /* flipped plinth */
+  --up-press: 0 -2px 0 0 var(--ink);
+  --out: 0 6px 0 0 var(--ink);           /* screens protrude */
+  --beat: 1s;                            /* 60 bpm */
+  --hatch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 60' preserveAspectRatio='none'%3E%3Cpath d='M0 1.2C6 1.6 14 2.6 24 4.2 14 3.6 6 3.6 0 4.6ZM0 8.2C5 8.6 11 9.4 19 10.6 11 10.4 5 10.6 0 11.6ZM0 15.2C6 15.6 12 16.4 22 17.8 12 17.4 6 17.6 0 18.6ZM0 22.2C4 22.6 9 23.2 15 24.2 9 24.2 4 24.6 0 25.6ZM0 29.2C6 29.6 12 30.4 20 31.6 12 31.4 6 31.6 0 32.6ZM0 36.2C4 36.6 8 37.2 13 38.2 8 38.2 4 38.6 0 39.6ZM0 43.2C5 43.6 10 44.4 17 45.6 10 45.4 5 45.6 0 46.6ZM0 50.2C3 50.6 7 51.2 11 52.2 7 52.2 3 52.6 0 53.6ZM0 56.2C3 56.6 6 57 9 57.8 6 58 3 58.4 0 59.2Z' fill='black'/%3E%3C/svg%3E");
+}
+* { box-sizing: border-box; }
+html { background: var(--cream); overflow-x: clip; scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); font: 400 17px/1.75 var(--f-body); word-break: keep-all; overflow-wrap: break-word; overflow-x: clip; -webkit-font-smoothing: antialiased;
+  background: var(--sheet, none) 0 0 / 1100px 1100px repeat, var(--cream); }
+/* texture ← mood, monochrome: grain with no colour in it */
+body::after { content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: .16; mix-blend-mode: multiply;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+h1, h2, h3, h4, p, figure { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--bur); text-underline-offset: 4px; text-decoration-thickness: 2px; }
+svg { display: block; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 7px var(--honey-hi); }
+.wrap { max-width: 1180px; margin-inline: auto; padding-inline: 28px; }
+.bs { display: inline-block; font-family: "Bodoni Moda", serif; font-weight: 600; transform: skewX(12deg); }  /* flipped italic: leans left */
+.lbl { font: 400 16px/1.3 var(--f-label); letter-spacing: .02em; }
+
+/* ---------- top ---------- */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 8px 20px; flex-wrap: wrap; padding-block: 18px 6px; }
+.mark { display: flex; align-items: baseline; gap: 12px; color: var(--ink); text-decoration: none; min-height: 44px; align-items: center; }
+.mark b { font: 300 28px/1 var(--f-head); letter-spacing: -.02em; }
+.mark span { font: 400 16px/1 var(--f-label); color: var(--bur); }
+.top nav { display: flex; flex-wrap: wrap; }
+.top nav a { display: inline-grid; place-items: center; min-height: 44px; padding: 0 12px; color: var(--ink); text-decoration: none; font: 400 16px/1 var(--f-label); }
+.top nav a:hover { text-decoration: underline 2px; text-underline-offset: 6px; }
+
+/* ---------- hero ---------- */
+.hero { padding-block: 26px 40px; }
+.hero-head { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 10px 40px; align-items: end; margin-bottom: 26px; }
+.kicker { font: 400 16px/1.4 var(--f-label); color: var(--bur); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.kicker .bs { font-size: 20px; color: var(--ink); }
+.hero h1 { font: 300 clamp(60px, 10.4vw, 148px)/.9 var(--f-head); letter-spacing: -.045em; margin: 10px 0 12px -.04em; }
+.sub { font: 400 clamp(18px, 2vw, 22px)/1.4 var(--f-label); color: var(--bur); }
+.lede { font-size: 18px; line-height: 1.85; color: var(--ink-2); max-width: 34em; }
+.lede b { color: var(--ink); font-weight: 700; }
+.lede q { font-family: var(--f-label); font-weight: 400; color: var(--bur); quotes: "“" "”"; }
+
+.view { position: relative; border: 2px solid var(--ink); background: var(--bur-d); box-shadow: var(--out); }
+.view > svg { width: 100%; height: auto; }
+.huds { position: absolute; inset: 0; pointer-events: none; }
+.hud { position: absolute; padding: 8px 14px 10px; background: var(--cream-hi); border: 2px solid var(--ink); font-size: 16px; line-height: 1.35; color: var(--ink); transform: rotate(var(--r, -2deg)); transform-origin: 30% 80%;
+  animation: hudlift calc(var(--beat) * 4) ease-in-out infinite alternate; pointer-events: auto; max-width: 270px; }
+.hud .lbl { display: block; color: var(--bur); font-size: 16px; }
+.hud .bs { font-size: 22px; line-height: 1; }
+.hud.a { left: 3.4%; top: 7%; --r: -3deg; }
+.hud.b { right: 3.4%; top: 7%; --r: 2.4deg; animation-delay: calc(var(--beat) * -2); }
+.hud.c { left: 34%; bottom: 13%; --r: -1.4deg; background: var(--honey-hi); animation-delay: calc(var(--beat) * -1); }
+@keyframes hudlift { to { transform: rotate(calc(var(--r) * 1.4)) translateY(-3px); } }
+/* ornament ← sticker, slowed: the peel corner takes two full beats */
+.peel:not(.hud) { position: relative; }
+.peel::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 0; height: 0; pointer-events: none;
+  background: linear-gradient(to top left, var(--cream) 50%, var(--cream-2) 50%, var(--cream-hi) 80%); border-left: 2px solid var(--ink); border-top: 2px solid var(--ink); border-width: 0;
+  transition: width calc(var(--beat) * 2) ease, height calc(var(--beat) * 2) ease, border-width 0s calc(var(--beat) * 2); }
+.peel:hover::after, .hud::after { width: 22px; height: 22px; border-width: 2px; transition: width calc(var(--beat) * 2) ease, height calc(var(--beat) * 2) ease, border-width 0s; }
+.hud::after { width: 14px; height: 14px; }
+
+.ret { position: absolute; left: 0; top: 0; width: clamp(40px, 7%, 84px); aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; }
+.ret::before, .ret::after { content: ""; position: absolute; inset: 0; border: 2px solid var(--cream); clip-path: polygon(0 0, 30% 0, 30% 2px, 2px 2px, 2px 30%, 0 30%, 0 70%, 2px 70%, 2px calc(100% - 2px), 30% calc(100% - 2px), 30% 100%, 70% 100%, 70% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 70%, 100% 70%, 100% 30%, calc(100% - 2px) 30%, calc(100% - 2px) 2px, 70% 2px, 70% 0, 100% 0, 100% 100%, 0 100%); }
+.ret::after { inset: 36%; border-color: var(--honey); clip-path: none; }
+.ret span { position: absolute; left: 100%; top: -6px; margin-left: 8px; white-space: nowrap; font: 400 16px/1.2 var(--f-label); color: var(--cream); background: var(--ink); padding: 2px 8px; }
+.ret.lock::before { border-color: var(--honey); inset: 12%; }
+.ret.lock span { background: var(--honey); color: var(--ink); }
+
+.sortie { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 18px 24px; align-items: center; margin-top: 32px; }
+.beats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.beats span { display: grid; place-items: center; min-height: 48px; border: 2px solid var(--ink); background: var(--cream-hi); font: 400 17px/1 var(--f-label); color: var(--ink-2); }
+.beats span.on { background: var(--bur); color: var(--cream); box-shadow: var(--up); transform: translateY(-4px); }
+.beats span.done { background: var(--honey); color: var(--ink); }
+.sortie-side { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.tempo { display: grid; gap: 2px; min-width: 200px; }
+.tempo label { font: 400 16px/1.3 var(--f-label); display: flex; justify-content: space-between; gap: 10px; }
+.tempo output { font-family: "Bodoni Moda", serif; font-weight: 700; }
+
+/* ---------- buttons: plinth above, light from below right ---------- */
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 10px 24px 10px 30px; margin-top: 6px;
+  border: 2px solid var(--ink); border-radius: 0; background: var(--cream-hi); color: var(--ink); cursor: pointer; text-decoration: none;
+  font: 400 17px/1.2 var(--f-label); letter-spacing: .02em; box-shadow: var(--up); transition: transform .12s ease, box-shadow .12s ease; --hc: var(--ink); --cut: var(--cream); }
+.btn > span { position: relative; z-index: 1; }
+.btn::before { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 100%; background: var(--hc); -webkit-mask: var(--hatch) 0 0 / 100% 100% no-repeat; mask: var(--hatch) 0 0 / 100% 100% no-repeat; opacity: .85; pointer-events: none; }
+.btn::after { content: ""; position: absolute; right: 3px; bottom: 3px; width: 46%; height: 64%; background: var(--cut); pointer-events: none;
+  clip-path: polygon(0 100%, calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 0, 100% 30%, 100% 100%); }
+.btn:hover { --cut: var(--honey-hi); }
+.btn:active, .btn[aria-pressed="true"] { transform: translateY(-4px); box-shadow: var(--up-press); }
+.btn:active::before, .btn[aria-pressed="true"]::before { left: auto; right: 0; transform: scale(-1, -1); }
+.btn:active::after, .btn[aria-pressed="true"]::after { right: auto; bottom: auto; left: 3px; top: 3px; transform: rotate(180deg); }
+.btn.bur { background: var(--bur); color: var(--cream-hi); --hc: var(--ink); --cut: var(--honey-hi); }
+.btn.honey { background: var(--honey); --cut: var(--cream-hi); }
+.btn.ghost { background: transparent; box-shadow: none; --hc: var(--bur); }
+.btn.ghost:active { box-shadow: none; }
+.btn.lg { min-height: 64px; padding: 14px 32px 14px 38px; font-size: 21px; }
+.btn.lg::before { width: 28px; }
+.btn.sm { min-height: 44px; padding: 6px 16px 6px 22px; font-size: 16px; }
+.btn.sm::before { width: 14px; }
+.btn[disabled], .btn[aria-disabled="true"] { cursor: not-allowed; background: var(--cream-2); color: var(--ink-2); box-shadow: none; transform: none; border-style: dashed; }
+.btn[disabled]::before, .btn[disabled]::after, .btn[aria-disabled="true"]::after { display: none; }
+.btn svg { width: 20px; height: 20px; position: relative; z-index: 1; }
+
+/* ---------- sections ---------- */
+section.blk { padding-block: 64px 24px; scroll-margin-top: 10px; }
+.hd { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 22px; align-items: end; margin-bottom: 30px; }
+.hd .no { grid-row: span 2; font-size: 64px; line-height: .8; color: var(--bur); }
+.hd h2 { font: 300 clamp(34px, 4.4vw, 56px)/1.05 var(--f-head); letter-spacing: -.03em; }
+.hd p { color: var(--ink-2); max-width: 44em; }
+.panel { background: var(--cream-hi); border: 2px solid var(--ink); }
+
+/* extraction table */
+.seedline { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; margin-bottom: 16px; }
+.seed { display: inline-flex; align-items: center; gap: 12px; padding: 6px 16px; background: var(--ink); color: var(--cream-hi); font: 400 16px/1.3 var(--f-label); }
+.seed .bs { font-size: 26px; color: var(--honey-hi); }
+#verify { font-size: 16px; color: var(--ink-2); }
+#verify b { color: var(--bur); font-family: var(--f-label); font-weight: 400; }
+.xt-wrap { border: 2px solid var(--ink); background: var(--cream-hi); box-shadow: var(--out); }
+.xt { width: 100%; border-collapse: collapse; font-size: 16px; line-height: 1.6; }
+.xt caption { text-align: left; padding: 14px 16px; border-bottom: 2px solid var(--ink); font: 400 18px/1.4 var(--f-label); }
+.xt caption small { display: block; font: 400 16px/1.5 var(--f-body); color: var(--ink-2); }
+.xt th, .xt td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid rgba(34,7,14,.3); }
+.xt thead th { background: var(--bur); color: var(--cream-hi); font: 400 16px/1.3 var(--f-label); }
+.xt tbody th { font: 400 17px/1.4 var(--f-label); white-space: nowrap; }
+.src { display: inline-block; padding: 1px 8px; border: 2px solid var(--ink); font: 400 16px/1.4 var(--f-label); white-space: nowrap; }
+.src.t { background: var(--cream); } .src.c { background: var(--ink); color: var(--cream-hi); } .src.s { background: var(--honey); } .src.m { background: var(--bur); color: var(--cream-hi); }
+.op { display: inline-block; padding: 1px 8px; background: var(--cream-2); font: 400 16px/1.4 var(--f-label); white-space: nowrap; }
+.xt td:last-child { color: var(--ink); font-weight: 500; }
+.plainrow { margin-top: 14px; color: var(--ink-2); font-size: 16px; }
+.plainrow b { font-family: var(--f-label); font-weight: 400; color: var(--ink); }
+.sources { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-top: 34px; }
+.sources > div { padding: 18px 18px 20px; display: grid; gap: 8px; align-content: start; }
+.sources h3 { display: flex; gap: 10px; align-items: center; font: 300 24px/1.2 var(--f-head); }
+.sources p { font-size: 16px; color: var(--ink-2); line-height: 1.7; }
+.busan { margin-top: 18px; padding: 18px 20px; background: var(--bur); color: var(--cream-hi); border: 2px solid var(--ink); }
+.busan b { font: 400 18px/1.4 var(--f-label); color: var(--honey-hi); }
+
+/* ---------- component sheet ---------- */
+.sheet { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 26px; }
+.cell { grid-column: span 6; padding: 24px 24px 26px; display: grid; gap: 16px; align-content: start; background: var(--cream-hi); border: 2px solid var(--ink); min-width: 0; }
+.cell.w4 { grid-column: span 4; } .cell.w8 { grid-column: span 8; } .cell.w12 { grid-column: span 12; }
+.cell h3 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; font: 300 26px/1.2 var(--f-head); letter-spacing: -.02em; }
+.cell h3 small { font: 400 16px/1 var(--f-label); color: var(--bur); }
+.note { font-size: 16px; color: var(--ink-2); }
+.row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+
+/* inputs: screens protrude */
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label, .flabel { font: 400 16px/1.3 var(--f-label); }
+.hint { font-size: 16px; color: var(--ink-2); }
+.inp { width: 100%; min-height: 50px; padding: 10px 14px; border: 2px solid var(--ink); border-radius: 0; background: var(--cream-hi); box-shadow: var(--out); margin-bottom: 6px; font-family: var(--f-body); font-size: 17px; }
+.inp::placeholder { color: #7a5a5f; }
+.inp:focus-visible { outline: 3px solid var(--honey); outline-offset: 0; box-shadow: var(--out), 0 0 0 6px var(--ink); }
+textarea.inp { min-height: 100px; resize: vertical; line-height: 1.6; }
+.field.err .inp { border-color: var(--bur); background: #f8e6df; box-shadow: 0 6px 0 0 var(--bur); }
+.msg { display: flex; gap: 8px; align-items: center; font-size: 16px; color: var(--bur); font-weight: 700; }
+.msg::before { content: "!"; flex: none; display: grid; place-items: center; width: 22px; height: 22px; background: var(--bur); color: var(--cream-hi); font: 400 15px/1 var(--f-label); }
+select.inp { appearance: none; -webkit-appearance: none; padding-right: 50px; cursor: pointer;
+  background: var(--cream-hi) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 6h14v3l-7 6-7-6Z' fill='%2322070e'/%3E%3C/svg%3E") no-repeat right 14px center / 18px 18px; }
+
+/* switch */
+.sw-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; }
+.sw-row > span { display: grid; }
+.sw-row small { font-size: 16px; color: var(--ink-2); }
+.switch { position: relative; flex: none; width: 72px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; }
+.switch::before { content: ""; position: absolute; left: 0; right: 0; top: 6px; bottom: 6px; background: var(--cream-2); border: 2px solid var(--ink); }
+.switch i { position: absolute; left: 6px; top: 12px; width: 22px; height: 22px; background: var(--cream-hi); border: 2px solid var(--ink); box-shadow: 0 -4px 0 0 var(--ink); transition: transform .18s ease, background .18s; }
+.switch[aria-checked="true"]::before { background: var(--bur); }
+.switch[aria-checked="true"] i { transform: translate(38px, -3px); background: var(--honey); }
+
+/* checks & radios: square, every one of them */
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 6px; font: 400 16px/1.3 var(--f-label); }
+.opts { display: grid; gap: 2px; }
+.opts.sub { padding-left: 34px; }
+.opt { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.opt input { appearance: none; -webkit-appearance: none; flex: none; width: 26px; height: 26px; margin: 3px 0 0; border: 2px solid var(--ink); border-radius: 0; background: var(--cream-hi) no-repeat center / 100% 100%; box-shadow: 0 -3px 0 0 var(--ink); cursor: pointer; }
+.opt input:checked { background-color: var(--bur); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 12l2.5-2.5 3.5 3.5 7.5-7.5L20 8 10 18Z' fill='%23fbf4e4'/%3E%3C/svg%3E"); }
+.opt input[type="checkbox"]:indeterminate { background-color: var(--honey); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 10.5h14v3H5Z' fill='%2322070e'/%3E%3C/svg%3E"); }
+.opt input[type="radio"]:checked { background-image: none; background-color: var(--bur); box-shadow: 0 -3px 0 0 var(--ink), inset 0 0 0 5px var(--cream-hi); }
+.opt input:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 7px var(--honey-hi); }
+
+/* segmented */
+.seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 2px solid var(--ink); background: var(--cream-2); margin-top: 6px; }
+.seg button { min-height: 52px; padding: 6px 4px; border: 0; border-left: 2px solid var(--ink); background: transparent; cursor: pointer; font: 400 16px/1.2 var(--f-label); color: var(--ink-2); }
+.seg button:first-child { border-left: 0; }
+.seg button[aria-checked="true"] { background: var(--bur); color: var(--cream-hi); box-shadow: var(--up); transform: translateY(-4px); position: relative; z-index: 1; }
+.seg-out { font-size: 16px; color: var(--ink-2); min-height: 28px; }
+
+/* tabs */
+[role="tablist"] { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 2px solid var(--ink); padding-top: 6px; }
+[role="tab"] { min-height: 48px; padding: 8px 16px; border: 2px solid var(--ink); border-bottom: 0; background: var(--cream-2); cursor: pointer; font: 400 16px/1.2 var(--f-label); color: var(--ink-2); }
+[role="tab"][aria-selected="true"] { background: var(--bur); color: var(--cream-hi); box-shadow: var(--up); }
+[role="tabpanel"] { padding-top: 14px; color: var(--ink-2); }
+[role="tabpanel"] b { color: var(--ink); font-family: var(--f-label); font-weight: 400; }
+
+/* chips & badges */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { min-height: 44px; padding: 6px 16px; border: 2px solid var(--ink); border-radius: 0; background: var(--cream-hi); cursor: pointer; font: 400 16px/1.2 var(--f-label); color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--cream-hi); }
+.chip[aria-pressed="true"]::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 8px; background: var(--honey); vertical-align: 1px; }
+.badges { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 2px solid var(--ink); font: 400 16px/1.3 var(--f-label); }
+.badge.b { background: var(--bur); color: var(--cream-hi); } .badge.h { background: var(--honey); } .badge.k { background: var(--ink); color: var(--cream-hi); } .badge.c { background: var(--cream); }
+.badge .bs { font-size: 17px; }
+
+/* range */
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; cursor: pointer; --p: 50%; }
+input[type="range"]::-webkit-slider-runnable-track { height: 14px; border: 2px solid var(--ink); background: linear-gradient(90deg, var(--bur) var(--p), var(--cream-2) var(--p)); }
+input[type="range"]::-moz-range-track { height: 10px; border: 2px solid var(--ink); background: var(--cream-2); }
+input[type="range"]::-moz-range-progress { height: 10px; background: var(--bur); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 34px; margin-top: -12px; border: 2px solid var(--ink); border-radius: 0; background: var(--honey); box-shadow: 0 -4px 0 0 var(--ink); }
+input[type="range"]::-moz-range-thumb { width: 16px; height: 30px; border: 2px solid var(--ink); border-radius: 0; background: var(--honey); box-shadow: 0 -4px 0 0 var(--ink); }
+input[type="range"]:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: none; }
+.range-out { display: flex; justify-content: space-between; font-size: 16px; color: var(--ink-2); }
+.range-out output { font-family: "Bodoni Moda", serif; font-weight: 700; color: var(--ink); font-size: 20px; }
+
+/* progress */
+.meter { height: 30px; border: 2px solid var(--ink); background: var(--cream-2); box-shadow: var(--out); margin-bottom: 6px; }
+.meter i { display: block; height: 100%; width: 40%; background: var(--bur); border-right: 2px solid var(--ink); transition: width .5s ease; }
+.meter-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 16px; color: var(--ink-2); }
+.meter-row output { font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 22px; color: var(--ink); }
+
+/* steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; gap: 6px; padding: 10px 8px 12px 0; border-top: 6px solid var(--cream-2); font-size: 16px; color: var(--ink-2); line-height: 1.4; }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 34px; height: 34px; border: 2px solid var(--ink); background: var(--cream-hi); font: 400 17px/1 var(--f-label); color: var(--ink); }
+.steps li.done { border-top-color: var(--honey); }
+.steps li.done::before { content: "✓"; background: var(--honey); }
+.steps li[aria-current="step"] { border-top-color: var(--bur); color: var(--ink); }
+.steps li[aria-current="step"]::before { background: var(--bur); color: var(--cream-hi); box-shadow: 0 -4px 0 0 var(--ink); }
+
+/* cards */
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
+.card { display: grid; gap: 12px; align-content: start; padding-bottom: 22px; background: var(--cream-hi); border: 2px solid var(--ink); min-width: 0; }
+.card .pic { position: relative; border-bottom: 2px solid var(--ink); background: var(--bur-d); }
+.card .pic svg { width: 100%; height: auto; }
+.card h4 { margin: 0; padding-inline: 20px; font: 300 24px/1.25 var(--f-head); letter-spacing: -.02em; }
+.card p { padding-inline: 20px; font-size: 16px; color: var(--ink-2); }
+.card .row { padding-inline: 20px; }
+
+/* accordion */
+.acc details { border-top: 2px solid var(--ink); }
+.acc details:last-child { border-bottom: 2px solid var(--ink); }
+.acc summary { list-style: none; cursor: pointer; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 2px; font: 400 18px/1.35 var(--f-label); }
+.acc summary::-webkit-details-marker { display: none; }
+.acc summary::after { content: "+"; flex: none; display: grid; place-items: center; width: 30px; height: 30px; border: 2px solid var(--ink); font: 400 20px/1 var(--f-label); background: var(--cream-hi); }
+.acc details[open] summary::after { content: "−"; background: var(--bur); color: var(--cream-hi); }
+.acc .body { padding: 0 2px 18px; color: var(--ink-2); font-size: 16px; }
+
+/* table */
+.tbl-wrap { overflow-x: auto; border: 2px solid var(--ink); background: var(--cream-hi); }
+table.data { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 16px; }
+table.data caption { text-align: left; padding: 12px 14px; font: 400 17px/1.3 var(--f-label); border-bottom: 2px solid var(--ink); }
+table.data th, table.data td { text-align: left; padding: 10px 12px; border-bottom: 1px solid rgba(34,7,14,.25); }
+table.data thead th { background: var(--cream-2); padding: 0; }
+table.data th button { width: 100%; min-height: 48px; padding: 8px 12px; border: 0; background: none; cursor: pointer; text-align: left; font: 400 16px/1.2 var(--f-label); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+table.data th button::after { content: "↕"; color: var(--ink-2); }
+table.data th[aria-sort="ascending"] button { background: var(--bur); color: var(--cream-hi); }
+table.data th[aria-sort="ascending"] button::after { content: "▲"; color: inherit; }
+table.data th[aria-sort="descending"] button { background: var(--bur); color: var(--cream-hi); }
+table.data th[aria-sort="descending"] button::after { content: "▼"; color: inherit; }
+table.data td.num, table.data th.num button { text-align: right; }
+table.data td.num { font-family: "Bodoni Moda", serif; font-weight: 600; }
+table.data tbody tr:hover { background: var(--cream); }
+table.data tr[hidden] { display: none; }
+
+/* dialog: a screen, so it protrudes */
+dialog { padding: 0; border: 2px solid var(--ink); width: min(500px, calc(100vw - 32px)); background: var(--cream-hi); color: var(--ink); box-shadow: 0 10px 0 0 var(--ink); }
+dialog::backdrop { background: rgba(60, 13, 24, .78); }
+dialog[open] { animation: rise .3s ease both; }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } }
+.dlg { padding: 28px 26px 26px; display: grid; gap: 14px; }
+.dlg .lbl { color: var(--bur); }
+.dlg h2 { font: 300 32px/1.15 var(--f-head); letter-spacing: -.02em; }
+.dlg p { color: var(--ink-2); }
+.dlg svg { width: 100%; height: auto; border: 2px solid var(--ink); }
+
+/* toasts */
+.toasts { position: fixed; right: 16px; bottom: 16px; z-index: 80; display: grid; gap: 14px; justify-items: end; width: min(380px, calc(100vw - 112px)); pointer-events: none; }
+.toast { pointer-events: auto; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 8px; align-items: center; padding: 12px 8px 14px 18px; background: var(--ink); color: var(--cream-hi); border: 2px solid var(--ink); box-shadow: 0 -6px 0 0 var(--honey); animation: tin .4s ease both; font-size: 16px; line-height: 1.5; }
+.toast b { display: block; font: 400 18px/1.35 var(--f-label); color: var(--honey-hi); }
+.toast button { width: 44px; height: 44px; border: 2px solid var(--cream-hi); background: none; color: var(--cream-hi); cursor: pointer; font: 400 18px/1 var(--f-label); }
+.toast button:focus-visible { outline-color: var(--honey); box-shadow: none; }
+.toast.out { animation: tout .25s ease-in both; }
+@keyframes tin { from { opacity: 0; transform: translateY(14px); } }
+@keyframes tout { to { opacity: 0; transform: translateX(24px); } }
+
+/* fireworks in the hero */
+#fw g.burst { transform-box: fill-box; transform-origin: center; animation: boom calc(var(--beat) * 2.4) cubic-bezier(.15, .8, .3, 1) both; }
+@keyframes boom { 0% { transform: scale(.15); opacity: 0; } 18% { opacity: 1; } 100% { transform: none; opacity: .9; } }
+#ferry { will-change: transform; }
+
+/* footer */
+footer { margin-top: 80px; padding: 26px 0 44px 80px; border-top: 2px solid var(--ink); display: flex; flex-wrap: wrap; gap: 8px 28px; justify-content: space-between; align-items: center; font-size: 16px; color: var(--ink-2); }
+footer a { display: inline-grid; place-items: center; min-height: 44px; font: 400 17px/1 var(--f-label); color: var(--bur); }
+
+@media (max-width: 980px) {
+  .hero-head { grid-template-columns: minmax(0, 1fr); }
+  .cell, .cell.w4, .cell.w8 { grid-column: span 12; }
+  .cards { grid-template-columns: minmax(0, 1fr); max-width: 560px; }
+  .sources { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sortie { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .wrap { padding-inline: 16px; }
+  .huds { position: static; display: flex; flex-wrap: wrap; gap: 14px 12px; padding: 16px 12px 14px; background: var(--cream); border-top: 2px solid var(--ink); }
+  .hud { position: relative; inset: auto; max-width: none; flex: 1 1 140px; }
+  .ret span { display: none; }
+  .xt thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .xt tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; padding: 14px; border-bottom: 2px solid var(--ink); }
+  .xt th, .xt td { display: block; padding: 0; border: 0; }
+  .xt tbody th { white-space: normal; font-size: 19px; }
+  .xt td:nth-of-type(1) { grid-column: 1; grid-row: 2; }
+  .xt td:nth-of-type(2) { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
+  .xt td:nth-of-type(3), .xt td:nth-of-type(4) { grid-column: 1 / -1; }
+  .xt td:nth-of-type(3)::before { content: "추출한 성질"; display: block; font: 400 16px/1.6 var(--f-label); color: var(--bur); }
+  .xt td:nth-of-type(4)::before { content: "결과 규칙"; display: block; font: 400 16px/1.6 var(--f-label); color: var(--bur); }
+  .sources { grid-template-columns: minmax(0, 1fr); }
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .cell { padding: 20px 16px 22px; }
+  .seg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .seg button:nth-child(3) { border-left: 0; }
+  .seg button:nth-child(n+3) { border-top: 2px solid var(--ink); }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 8px; }
+  .hd .no { font-size: 46px; }
+  section.blk { padding-block: 48px 16px; }
+  .top nav a { padding: 0 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="#top" aria-label="Molo Lento 처음으로"><b>Molo Lento</b><span>자정의 부두</span></a>
+    <nav aria-label="페이지 안">
+      <a href="#draw">추첨표</a>
+      <a href="#parts">부품</a>
+      <a href="#harbour">부두 카드</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="ttl">
+      <div class="hero-head">
+        <div>
+          <p class="kicker"><span>SEED <span class="bs">51110</span></span><span>네 갈래 억지 교배 · 부산</span></p>
+          <h1 id="ttl">Molo Lento</h1>
+          <p class="sub">산복도로 불빛 아래, 마지막 곡에 맞춘 출격</p>
+        </div>
+        <p class="lede">문 닫기 전 마지막 곡이 흐르는 자정의 항구. <b>조종석은 펜으로 해칭되어 부두에 묶여 있고</b>, 계기판은 비뚤게 붙인 스티커, 빛은 바닥에 놓인 텅스텐 전구에서 거꾸로 올라온다. 출격 카운트는 1분에 60박, 천천히 추는 춤의 셈이다. <q>마, 함 들어 봐라.</q></p>
+      </div>
+
+      <figure class="view" aria-labelledby="viewcap">
+        <svg id="harbour" viewBox="0 0 1200 760" role="img" aria-labelledby="harbourT">
+          <title id="harbourT">조종석 창 너머 자정의 부산 항구를 펜으로 해칭한 그림. 왼쪽 비탈에 네모난 집들이 계단처럼 쌓여 있고, 가운데 현수교 위로 꿀빛 등이 줄지어 있다. 오른쪽에는 컨테이너 크레인과 쌓인 상자, 왼쪽 아래 절벽에 등대가 있고, 바다 위로 여객선 한 척이 천천히 건너간다.</title>
+          <rect width="1200" height="760" fill="#3c0d18"/>
+        </svg>
+        <div class="ret" id="ret" aria-hidden="true"><span id="retT">여객선 · 추적</span></div>
+        <div class="huds">
+          <div class="hud a peel"><span class="lbl">침로 · 남남동</span><span class="bs">042</span> 영도 앞바다</div>
+          <div class="hud b peel"><span class="lbl">마지막 곡</span><span class="bs" id="hudBpm">60</span> BPM · <span id="hudLeft">3:58</span> 남음</div>
+          <div class="hud c peel"><span class="lbl">주의</span>파고 <span class="bs">0.4</span> m — 단디 해래이</div>
+        </div>
+        <figcaption id="viewcap" class="sr">자정의 항구 조종석 화면. 조준선은 다리 아래를 지나는 여객선을 따라간다.</figcaption>
+      </figure>
+
+      <div class="sortie">
+        <button class="btn lg bur" type="button" id="launch"><span>출격 — 바늘 내리기</span></button>
+        <div>
+          <div class="beats" id="beats" aria-hidden="true"><span>하나</span><span>둘</span><span>셋</span><span>넷</span></div>
+        </div>
+        <div class="sortie-side">
+          <div class="tempo">
+            <label for="bpm"><span>곡 템포</span><output id="bpmO" for="bpm">60 BPM</output></label>
+            <input type="range" id="bpm" min="40" max="90" step="2" value="60">
+          </div>
+          <button class="btn sm ghost" type="button" id="pause" aria-pressed="false"><span>배 멈춤</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="blk" id="draw" aria-labelledby="h-draw">
+      <div class="hd"><span class="no bs" aria-hidden="true">i</span><h2 id="h-draw">추첨표</h2><p>열네 개의 추상 축에서 여덟 개를 시드로 뽑았다. 축마다 네 출처 중 하나와 연산 하나를 기계적으로 골랐고, 그 결과가 어색해도 그대로 지었다. 어울리게 다듬지 않았다.</p></div>
+      <div class="seedline">
+        <span class="seed">SEED <span class="bs">51110</span> · mulberry32</span>
+        <span id="verify" aria-live="polite">검증 대기</span>
+      </div>
+      <div class="xt-wrap">
+        <table class="xt" id="xt">
+          <caption>추출 표<small>축 · 출처 · 연산은 시드 51110의 난수로 추첨. 성질과 규칙은 출처를 읽고 뽑았다.</small></caption>
+          <thead><tr><th scope="col">축</th><th scope="col">출처</th><th scope="col">연산</th><th scope="col">추출한 성질</th><th scope="col">결과 규칙</th></tr></thead>
+          <tbody>
+            <tr data-a="깊이·그림자" data-s="Cockpit" data-o="뒤집기"><th scope="row">깊이·그림자</th><td><span class="src c">Cockpit</span></td><td><span class="op">뒤집기</span></td><td>장갑 키는 판에서 솟아 있고 아래로 6px 단단한 받침이 깔린다. 누르면 4px 꺼져 들어가고, 입력창과 화면은 판 안으로 움푹 들어가 있다.</td><td>받침이 위로 간다. 누르는 것은 모두 위쪽에 6px 먹 받침을 달고, 누르면 4px 솟아올라 받침에 붙는다. 화면(입력창·대화상자·그림)은 들어가지 않고 아래로 튀어나온다.</td></tr>
+            <tr data-a="형태" data-s="Sticker" data-o="결핍"><th scope="row">형태</th><td><span class="src s">Sticker</span></td><td><span class="op">결핍</span></td><td>14px 둥근 모서리, 알약 버튼, 동그란 점 스티커, 그림 따라 둥글게 오린 실루엣.</td><td>둥긂을 전부 뺀다. 반지름 0. 라디오도, 스위치 손잡이도, 조준선도, 전구도, 국밥 그릇도 네모. 이 페이지에 원은 없다(LP 홈은 질감이라 남는다).</td></tr>
+            <tr data-a="타이포그래피" data-s="Tratteggio" data-o="뒤집기"><th scope="row">타이포그래피</th><td><span class="src t">Tratteggio</span></td><td><span class="op">뒤집기</span></td><td>가장 큰 글자는 Bodoni Moda 굵은 이탤릭, 한글 제목은 Black Han Sans, 본문은 조용한 Noto Sans KR.</td><td>위계를 거꾸로 세운다. 가장 큰 제목은 Noto Sans KR 300으로 가늘게, 가장 작은 라벨·버튼은 Black Han Sans로 굵게. 본문 라틴·숫자는 Bodoni 정체, 이탤릭은 반대로 왼쪽으로 눕는다.</td></tr>
+            <tr data-a="배경" data-s="Sticker" data-o="과장"><th scope="row">배경</th><td><span class="src s">Sticker</span></td><td><span class="op">과장</span></td><td>흰 대지 위에 스티커가 붙어 있고, 떼어 낸 자리엔 칼선만 남는다.</td><td>페이지 전체가 거대한 스티커 대지. 손바닥보다 큰 칼선(산동네 집, 갈매기, 크레인, 컨테이너, 여객선, 등대, 국밥 그릇)이 빈틈없이 깔리고, 몇 개는 이미 떼어 가 구멍만 남았다.</td></tr>
+            <tr data-a="장식" data-s="Sticker" data-o="느리게"><th scope="row">장식</th><td><span class="src s">Sticker</span></td><td><span class="op">느리게</span></td><td>올리면 모서리가 0.25초 만에 말려 올라가고, 바쁠 때 0.5초 주기로 흔들린다.</td><td>장식은 모두 네 배 느리게, 1분에 60박. 모서리는 두 박에 걸쳐 말리고, 계기판 스티커는 네 박 주기로 비뚤게 들썩인다. 템포를 바꾸면 장식도 따라 늘어진다.</td></tr>
+            <tr data-a="조명" data-s="Tratteggio" data-o="뒤집기"><th scope="row">조명</th><td><span class="src t">Tratteggio</span></td><td><span class="op">뒤집기</span></td><td>빛은 왼쪽 위. 그늘은 오른쪽 아래에 해칭으로 쌓이고, 크림 하이라이트를 칼로 도려낸다. 누르면 빛이 180° 돈다.</td><td>빛은 오른쪽 아래, 낮게 놓인 텅스텐 전구와 항구 불빛에서 올라온다. 해칭은 왼쪽 위에 쌓이고 크림 칼자국은 오른쪽 아래. 누르면 빛이 원래 자리, 왼쪽 위로 돌아간다.</td></tr>
+            <tr data-a="색" data-s="마지막 곡(무드)" data-o="축소"><th scope="row">색</th><td><span class="src m">마지막 곡</span></td><td><span class="op">축소</span></td><td>꿀빛 텅스텐, 버건디 벨벳, 크림, 오래된 금, 연기 낀 갈색.</td><td>세 가지로 줄인다. 버건디(#6e1a2c와 그 먹), 크림(#f3e7cf), 꿀(#d29a3c). 산동네의 파스텔 지붕도, 어시장 붉은 대야도, 불꽃도 이 셋으로만 칠한다.</td></tr>
+            <tr data-a="질감" data-s="마지막 곡(무드)" data-o="흑백화"><th scope="row">질감</th><td><span class="src m">마지막 곡</span></td><td><span class="op">흑백화</span></td><td>호박빛 안개, LP 지직거림, 따뜻한 필름 입자.</td><td>질감에서 색을 뺀다. 입자는 흑백 노이즈, LP 홈은 회색 동심선, 지직거림은 흰 점과 검은 점. 따뜻함은 색 축에만 남는다.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="plainrow"><b>뽑히지 않은 축 — 그대로 평범하게:</b> 상태 표현, 레이아웃, 상호작용 은유, 움직임, 간격, 선·테두리. 테두리는 고른 2px 먹선, 칸은 평범한 열두 칸 격자, 상태는 글자와 채움으로만 말한다.</p>
+
+      <div class="sources">
+        <div class="panel"><h3><span class="src t">T</span>Tratteggio</h3><p>80–90년대 극화의 펜선. 굵어졌다 바늘로 빠지는 획, 그라데이션 대신 해칭, 칼로 도려낸 크림 하이라이트.</p></div>
+        <div class="panel"><h3><span class="src c">C</span>Cockpit</h3><p>거대 로봇 조종석. 녹색 HUD 선, 조준선, 출격 카운트, 장갑 키와 그 아래 단단한 받침 그림자.</p></div>
+        <div class="panel"><h3><span class="src s">S</span>Sticker</h3><p>아이들 스티커북. 3px 외곽선, 흰 키스컷 테두리, 칼선, 말려 올라가는 모서리, 큰소리 나는 색.</p></div>
+        <div class="panel"><h3><span class="src m">M</span>마지막 곡</h3><p>페이지가 아닌 무드. 1940년대, 문 닫기 전 작은 클럽의 느린 발라드. 벨벳 같은 바리톤과 피아노 트리오, 텅스텐 전구, 연기, LP 잡음, 60bpm의 느린 춤.</p></div>
+      </div>
+      <p class="busan"><b>부산은 축이 아니라 내용이다.</b> 비탈에 쌓인 산동네 집, 밤의 현수교, 컨테이너 크레인, 어시장의 대야와 바닷물 호스, 갈매기, 여객선, 들어 올리는 다리, 절벽 등대, 해변의 불꽃, 국밥 김과 밀면, 그리고 사투리 몇 마디가 그림과 문장과 부품 이름으로 녹아 있다.</p>
+    </section>
+
+    <section class="blk" id="parts" aria-labelledby="h-parts">
+      <div class="hd"><span class="no bs" aria-hidden="true">ii</span><h2 id="h-parts">부품</h2><p>버튼은 받침이 위에 있다. 누르면 솟아오르고, 해칭이 오른쪽 아래로 넘어가며 빛이 왼쪽 위로 돌아간다. 입력창은 화면이라 아래로 튀어나와 있다.</p></div>
+
+      <div class="sheet">
+        <div class="cell w12">
+          <h3>버튼 <small>누르면 솟는다</small></h3>
+          <div class="row">
+            <button class="btn bur" type="button" data-toast="욕봤데이|버건디 판, 받침에 딱 붙었다."><span>출항</span></button>
+            <button class="btn" type="button" data-toast="괘안타|크림 판. 천천히 가자."><span>기본</span></button>
+            <button class="btn honey" type="button" data-toast="와 이리 좋노|꿀빛 판은 가장 좋은 순간에만."><span>꿀빛 강조</span></button>
+            <button class="btn" type="button" aria-pressed="false" data-latch><span>닻 고정</span></button>
+            <button class="btn ghost" type="button" data-toast="그냥 글자|받침도 빛도 없는 버튼."><span>글자만</span></button>
+            <button class="btn" type="button" disabled><span>정박 중</span></button>
+            <button class="btn bur" type="button" id="openDlg"><span>도개교 들기</span></button>
+          </div>
+          <p class="note">‘닻 고정’은 눌린 채로 남는다. 솟아 있는 동안이 켜진 상태다.</p>
+        </div>
+
+        <div class="cell">
+          <h3>입력 <small>화면은 튀어나온다</small></h3>
+          <div class="field"><label for="f-call">호출부호</label><input class="inp" id="f-call" type="text" placeholder="니 호출부호 뭐꼬?" autocomplete="off"></div>
+          <div class="field err"><label for="f-pier">정박 부두 번호</label><input class="inp" id="f-pier" type="text" inputmode="numeric" value="7번" aria-invalid="true" aria-describedby="f-pier-m"><p class="msg" id="f-pier-m">숫자만 적어라. 1부터 5까지 있다.</p></div>
+          <div class="two">
+            <div class="field"><label for="f-food">밤참 뭐 무꼬?</label>
+              <select class="inp" id="f-food"><option>돼지국밥</option><option>밀면</option><option>어묵 한 꼬치</option><option>씨앗 호떡</option></select></div>
+            <div class="field"><label for="f-time">출항 시각</label><input class="inp" id="f-time" type="time" value="23:40"></div>
+          </div>
+          <div class="field"><label for="f-memo">선곡 메모</label><textarea class="inp" id="f-memo" placeholder="마지막 곡 다음엔 아무것도 틀지 마라." aria-describedby="f-memo-h"></textarea><p class="hint" id="f-memo-h">불 끄기 전에 한 줄만.</p></div>
+        </div>
+
+        <div class="cell">
+          <h3>켜고 고르기 <small>모두 네모</small></h3>
+          <div class="sw-row"><span id="sw1-l">다리 조명<small>현수교 등을 켠다</small></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="sw1-l"><i></i></button></div>
+          <div class="sw-row"><span id="sw2-l">등대 신호<small>절벽 위, 네 박에 한 번</small></span><button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="sw2-l"><i></i></button></div>
+          <fieldset>
+            <legend>출격 전 점검</legend>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" id="chkAll"><span>전부</span></label>
+              <div class="opts sub" id="chkKids">
+                <label class="opt"><input type="checkbox" checked><span>연료</span></label>
+                <label class="opt"><input type="checkbox"><span>바닷물 호스 잠금</span></label>
+                <label class="opt"><input type="checkbox" checked><span>국밥 한 그릇</span></label>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>들고 갈 것</legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="carry" checked><span>LP 한 장</span></label>
+              <label class="opt"><input type="radio" name="carry"><span>꽃 한 다발</span></label>
+              <label class="opt"><input type="radio" name="carry"><span>우산</span></label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="cell">
+          <h3>세그먼트 <small>← → 키</small></h3>
+          <div class="flabel" id="seg-l">오늘 밤 정박할 곳</div>
+          <div class="seg" role="radiogroup" aria-labelledby="seg-l" id="seg">
+            <button type="button" role="radio" aria-checked="true" tabindex="0" data-d="비탈 끝까지 계단 이백 개. 지붕마다 불이 하나씩.">산복도로</button>
+            <button type="button" role="radio" aria-checked="false" tabindex="-1" data-d="꿀빛 등 아래로 지나간다. 머리 위로 케이블이 운다.">다리 밑</button>
+            <button type="button" role="radio" aria-checked="false" tabindex="-1" data-d="크레인 팔 그늘. 상자는 네 줄로 쌓여 있다.">컨테이너 부두</button>
+            <button type="button" role="radio" aria-checked="false" tabindex="-1" data-d="새벽 네 시, 붉은 대야와 바닷물 호스 소리.">어시장</button>
+          </div>
+          <p class="seg-out" id="seg-out" aria-live="polite">비탈 끝까지 계단 이백 개. 지붕마다 불이 하나씩.</p>
+
+          <h3>탭 <small>관제 채널</small></h3>
+          <div class="tabs">
+            <div role="tablist" aria-label="관제 채널">
+              <button role="tab" type="button" id="t1" aria-selected="true" aria-controls="p1" tabindex="0">항구</button>
+              <button role="tab" type="button" id="t2" aria-selected="false" aria-controls="p2" tabindex="-1">다리</button>
+              <button role="tab" type="button" id="t3" aria-selected="false" aria-controls="p3" tabindex="-1">해변</button>
+            </div>
+            <div role="tabpanel" id="p1" aria-labelledby="t1" tabindex="0"><b>항구 관제.</b> 크레인 세 대 정지, 여객선 한 척 입항 중. 갈매기는 아직 안 잔다.</div>
+            <div role="tabpanel" id="p2" aria-labelledby="t2" tabindex="0" hidden><b>다리 관제.</b> 도개교는 내려와 있다. 들 때는 한 박 쉬고, 두 박에 걸쳐 올린다.</div>
+            <div role="tabpanel" id="p3" aria-labelledby="t3" tabindex="0" hidden><b>해변 관제.</b> 불꽃은 넷을 센 다음. 모래 위 사람들은 다 위를 보고 있다.</div>
+          </div>
+        </div>
+
+        <div class="cell">
+          <h3>칩과 배지 <small>aria-pressed</small></h3>
+          <div class="flabel" id="chips-l">입출항 표 거르기</div>
+          <div class="chips" role="group" aria-labelledby="chips-l">
+            <button class="chip" type="button" aria-pressed="true" data-kind="여객선">여객선</button>
+            <button class="chip" type="button" aria-pressed="true" data-kind="예인선">예인선</button>
+            <button class="chip" type="button" aria-pressed="true" data-kind="작업선">작업선</button>
+            <button class="chip" type="button" aria-pressed="true" data-kind="어선">어선</button>
+          </div>
+          <div class="badges">
+            <span class="badge b">입항 <span class="bs">3</span></span>
+            <span class="badge h">출항 대기</span>
+            <span class="badge k">단디!</span>
+            <span class="badge c">정박</span>
+          </div>
+          <h3>범위 <small>LP 볼륨</small></h3>
+          <div>
+            <label class="flabel" for="vol">바늘 아래 소리</label>
+            <input type="range" id="vol" min="0" max="100" value="35">
+            <div class="range-out"><span>조용히</span><output id="vol-o" for="vol">35</output><span>문 닫기 전</span></div>
+          </div>
+        </div>
+
+        <div class="cell">
+          <h3>진행 <small>국밥 데우는 중</small></h3>
+          <div class="meter" role="progressbar" id="meter" aria-label="국밥 데우기" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40"><i id="meterFill"></i></div>
+          <div class="meter-row"><span>김이 오른다</span><output id="meterO">40%</output></div>
+          <div class="row"><button class="btn sm" type="button" id="meterUp"><span>불 올리기</span></button><button class="btn sm ghost" type="button" id="meterRe"><span>처음부터</span></button></div>
+
+          <h3>단계 <small>출격 순서</small></h3>
+          <ol class="steps" id="steps" aria-label="출격 순서">
+            <li>바늘 내리기</li><li>다리 밑 통과</li><li>등대 신호</li><li>해변 불꽃</li>
+          </ol>
+          <div class="row"><button class="btn sm ghost" type="button" id="stPrev"><span>이전</span></button><button class="btn sm" type="button" id="stNext"><span>다음</span></button></div>
+        </div>
+
+        <div class="cell w12">
+          <h3>표 <small>머리를 누르면 정렬</small></h3>
+          <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="tblcap">
+            <table class="data" id="ships">
+              <caption id="tblcap">오늘 밤 입출항</caption>
+              <thead><tr>
+                <th scope="col" aria-sort="none"><button type="button" data-k="0">선박</button></th>
+                <th scope="col" aria-sort="none"><button type="button" data-k="1">종류</button></th>
+                <th scope="col" aria-sort="none"><button type="button" data-k="2">부두</button></th>
+                <th scope="col" aria-sort="ascending"><button type="button" data-k="3">시각</button></th>
+                <th scope="col" class="num" aria-sort="none"><button type="button" data-k="4" data-n="1">파고 m</button></th>
+              </tr></thead>
+              <tbody>
+                <tr><td>영도호</td><td>여객선</td><td>2부두</td><td>22:55</td><td class="num">0.3</td></tr>
+                <tr><td>갈매기 3호</td><td>여객선</td><td>1부두</td><td>23:40</td><td class="num">0.4</td></tr>
+                <tr><td>초량 7</td><td>예인선</td><td>3부두</td><td>00:15</td><td class="num">0.6</td></tr>
+                <tr><td>남항 크레인선</td><td>작업선</td><td>5부두</td><td>01:20</td><td class="num">0.8</td></tr>
+                <tr><td>밤바다</td><td>어선</td><td>어시장</td><td>04:30</td><td class="num">1.1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cell w12 acc">
+          <h3>아코디언 <small>자주 묻는 것</small></h3>
+          <details><summary>와 이리 느리노?</summary><div class="body">장식이 스티커북보다 네 배 느리게 움직이도록 추첨됐다. 기준은 1분에 60박, 마지막 곡의 느린 춤. 위 템포를 바꾸면 모서리 말림도 계기판 들썩임도 같이 늘어지거나 빨라진다.</div></details>
+          <details><summary>그림자가 와 위에 붙어 있노?</summary><div class="body">조종석의 깊이를 뒤집었다. 받침은 위에, 누르면 솟는다. 대신 화면들은 아래로 튀어나와 있어서 한 페이지 안에 그림자 방향이 둘이다. 일부러 맞추지 않았다.</div></details>
+          <details><summary>동그란 건 하나도 없나?</summary><div class="body">스티커의 둥긂을 빼는 연산이 나왔다. 라디오, 전구, 조준선, 국밥 그릇까지 네모다. LP 홈만 질감 축이라 둥글게 남았다.</div></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="blk" id="harbour" aria-labelledby="h-harbour">
+      <div class="hd"><span class="no bs" aria-hidden="true">iii</span><h2 id="h-harbour">부두 카드</h2><p>그림은 해칭이 왼쪽 위에 쌓이고, 오른쪽 아래 모서리에 크림 칼자국이 남는다. 카드에 올리면 모서리가 두 박에 걸쳐 천천히 말린다.</p></div>
+      <div class="cards">
+        <article class="card peel"><div class="pic"><svg data-pic="village" viewBox="0 0 400 220" aria-hidden="true"></svg></div><h4>산복도로 계단집</h4><p>비탈에 네모가 네모를 업고 쌓였다. 지붕은 꿀, 크림, 버건디 셋뿐. 창마다 불 하나.</p><div class="row"><button class="btn sm" type="button" data-toast="밥 뭇나?|계단 이백 개 올라가면 국밥집 있다."><span>올라가 보기</span></button></div></article>
+        <article class="card peel"><div class="pic"><svg data-pic="bridge" viewBox="0 0 400 220" aria-hidden="true"></svg></div><h4>자정의 현수교</h4><p>케이블은 고른 선, 등은 네모난 꿀빛. 바다에 비친 줄은 바늘처럼 가늘어진다.</p><div class="row"><button class="btn sm" type="button" data-toast="와 이리 좋노|다리 등이 바다에 다 비친다."><span>건너기</span></button></div></article>
+        <article class="card peel"><div class="pic"><svg data-pic="market" viewBox="0 0 400 220" aria-hidden="true"></svg></div><h4>새벽 어시장</h4><p>붉은 고무 대야는 네모난 버건디, 바닷물 호스는 크림 한 줄. 갈매기가 먼저 와 있다.</p><div class="row"><button class="btn sm" type="button" data-toast="마 함 무 봐라|갓 잡은 거다. 천천히 무라."><span>한 바퀴</span></button></div></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Molo Lento · 시드 51110 · Tratteggio × Cockpit × Sticker × 마지막 곡, 부산에서</span>
+    <a href="../">← 모든 시스템</a>
+  </footer>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgT">
+  <div class="dlg">
+    <span class="lbl">도개교 관제</span>
+    <h2 id="dlgT">다리 들어 올릴까예?</h2>
+    <svg data-pic="draw" viewBox="0 0 400 150" aria-hidden="true"></svg>
+    <p>들면 차는 못 지나가고 배만 지나간다. 한 박 쉬고, 두 박에 걸쳐 천천히 올린다.</p>
+    <div class="row"><button class="btn bur" type="button" id="dlgOk"><span>퍼뜩 들어라</span></button><button class="btn" type="button" id="dlgNo"><span>쪼매 있다가</span></button></div>
+  </div>
+</dialog>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const RM = matchMedia('(prefers-reduced-motion: reduce)');
+  const f = n => Math.round(n * 10) / 10;
+  const C = { sky: '#3c0d18', sea: '#2a0912', bur: '#6e1a2c', burL: '#8d2d42', burM: '#4c1222', ink: '#1a0509', cream: '#f3e7cf', honey: '#d29a3c', honeyHi: '#e8bd6a' };
+
+  /* ---------- the seeded draw, recomputed and checked against the table ---------- */
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  (function verify() {
+    const AX = ['색', '질감', '선·테두리', '형태', '깊이·그림자', '조명', '타이포그래피', '움직임', '레이아웃', '간격', '장식', '상호작용 은유', '상태 표현', '배경'];
+    const SRC = ['Tratteggio', 'Cockpit', 'Sticker', '마지막 곡(무드)'];
+    const OP = ['그대로', '반전', '과장', '축소', '해체', '반복', '결핍', '느리게', '뒤집기', '흑백화', '다른 축으로 이식', '어긋내기'];
+    const r = mulberry32(51110), ax = AX.slice();
+    for (let i = ax.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [ax[i], ax[j]] = [ax[j], ax[i]]; }
+    const out = ax.slice(0, 8).map(a => { const s = SRC[Math.floor(r() * 4)], o = OP[Math.floor(r() * 12)]; if (o === '다른 축으로 이식') r(); return [a, s, o]; });
+    const rows = [...document.querySelectorAll('#xt tbody tr')];
+    const ok = rows.length === 8 && out.every((x, i) => rows[i].dataset.a === x[0] && rows[i].dataset.s === x[1] && rows[i].dataset.o === x[2]);
+    document.getElementById('verify').innerHTML = ok ? '검증: 이 페이지가 시드 51110으로 다시 뽑은 여덟 줄과 표가 <b>일치</b>' : '검증: 불일치';
+  })();
+
+  /* ---------- ink engine (after Tratteggio) ---------- */
+  const rng = mulberry32;
+  function hash(s) { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; }
+  function stroke(A, B, w, bend = 0) {
+    const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, nx = -uy, ny = ux, h = w / 2;
+    const at = (s, o) => [A[0] + ux * L * s + nx * (o + bend * Math.sin(Math.PI * s)), A[1] + uy * L * s + ny * (o + bend * Math.sin(Math.PI * s))];
+    const p = q => f(q[0]) + ' ' + f(q[1]);
+    return 'M' + p(at(0, h * .35)) + 'C' + p(at(.14, h * 1.15)) + ' ' + p(at(.5, h * .85)) + ' ' + p(B) + 'C' + p(at(.5, -h * .85)) + ' ' + p(at(.14, -h * 1.15)) + ' ' + p(at(0, -h * .35)) + 'Z';
+  }
+  function hatch(poly, o) {
+    const r = rng(o.seed || 7), a = o.ang * Math.PI / 180, d = [Math.cos(a), Math.sin(a)], nv = [-d[1], d[0]];
+    const dot = (p, v) => p[0] * v[0] + p[1] * v[1];
+    let lo = Infinity, hi = -Infinity; for (const p of poly) { const k = dot(p, nv); lo = Math.min(lo, k); hi = Math.max(hi, k); }
+    const gap = o.gap || 6, w = o.w || 2, len = o.len || [.4, 1], jit = o.jit ?? .25, fr = o.freq ?? .35, ph = r() * 6;
+    let out = '';
+    for (let k = lo + gap * (.3 + r() * .5); k < hi; k += gap * (1 + (r() - .5) * .35)) {
+      const ts = [];
+      for (let i = 0; i < poly.length; i++) {
+        const P = poly[i], Q = poly[(i + 1) % poly.length], pk = dot(P, nv) - k, qk = dot(Q, nv) - k;
+        if ((pk > 0) !== (qk > 0)) { const s = pk / (pk - qk); ts.push(dot([P[0] + (Q[0] - P[0]) * s, P[1] + (Q[1] - P[1]) * s], d)); }
+      }
+      ts.sort((x, y) => x - y);
+      for (let i = 0; i + 1 < ts.length; i += 2) {
+        const t0 = ts[i] + 1.5 * r(), t1 = ts[i + 1] - 1.5 * r();
+        if (t1 - t0 < 3) continue;
+        const A = [nv[0] * k + d[0] * t0, nv[1] * k + d[1] * t0], B = [nv[0] * k + d[0] * t1, nv[1] * k + d[1] * t1];
+        const fr0 = (len[0] + (len[1] - len[0]) * (.5 + .5 * Math.sin(k * fr + ph))) * (1 - jit * r());
+        if (fr0 <= .04) continue;
+        const ww = w * (.7 + .6 * r());
+        if (o.both) {
+          const c = .2 + r() * .6, half = fr0 * (t1 - t0) / 2, m = [A[0] + (B[0] - A[0]) * c, A[1] + (B[1] - A[1]) * c];
+          const P1 = [m[0] - d[0] * half, m[1] - d[1] * half], P2 = [m[0] + d[0] * half, m[1] + d[1] * half];
+          out += stroke(P1, P2, ww) + stroke(P2, P1, ww * .6); continue;
+        }
+        let base = A, far = B;
+        if (o.from) { if (Math.hypot(B[0] - o.from[0], B[1] - o.from[1]) < Math.hypot(A[0] - o.from[0], A[1] - o.from[1])) { base = B; far = A; } }
+        out += stroke(base, [base[0] + (far[0] - base[0]) * fr0, base[1] + (far[1] - base[1]) * fr0], ww, (r() - .5) * 2);
+      }
+    }
+    return out;
+  }
+  const poly = P => 'M' + P.map(p => f(p[0]) + ' ' + f(p[1])).join('L') + 'Z';
+  const rectP = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+  function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  const P = (g, d, fill, extra = {}) => el('path', Object.assign({ d, fill }, extra), g);
+  // a flat plane lit from the lower right: hatch piles on its upper-left, a cream knife cut on its lower-right edge
+  function block(g, x, y, w, h, fill, o = {}) {
+    P(g, poly(rectP(x, y, w, h)), fill, o.stroke ? { stroke: C.ink, 'stroke-width': o.stroke } : {});
+    if (o.hatch !== false && w > 10 && h > 10) P(g, hatch([[x, y], [x + w * .7, y], [x, y + h * .9]], { ang: o.ang ?? 35, gap: o.gap ?? 4.5, w: o.hw ?? 1.6, len: [.3, .9], from: [x, y], seed: hash(x + ',' + y) }), C.ink, { opacity: .85 });
+    if (o.cut !== false) P(g, poly([[x + w * .35, y + h - 1], [x + w - 1.5, y + h - 2.6], [x + w - 1.5, y + h * .4], [x + w - .2, y + h * .5], [x + w, y + h], [x + w * .3, y + h]]), o.cutCol || C.cream, { opacity: .9 });
+  }
+
+  /* ---------- background ← sticker, exaggerated: the page is a die-cut backing sheet ---------- */
+  (function sheet() {
+    const cut = 'fill="none" stroke="rgba(34,7,14,.26)" stroke-width="2" stroke-dasharray="9 6"';
+    const hole = 'fill="#e9d9b9" stroke="rgba(34,7,14,.3)" stroke-width="1.5"';
+    const shapes = [
+      // a block of hillside houses
+      [false, 'M40 300h70v-60h60v-50h70v110h-40v60h-160Z'], [false, 'M110 240v60M170 190v110M200 300v60'],
+      // gull
+      [true, 'M420 120l70 40 60-30 70 50-75-20-55 35-60-40-60 10Z'],
+      // gantry crane
+      [false, 'M760 80h40v40h150v24h-150v160h-14v-160h-12v160h-14v-160h-90v-24h90Z'],
+      // container
+      [true, 'M60 520h230v100h-230Z'], [false, 'M90 520v100M120 520v100M150 520v100M180 520v100M210 520v100M240 520v100'],
+      // ferry
+      [false, 'M380 600h280l-30 50h-220Zm50 0v-40h170v40Zm40-40v-24h80v24Z'],
+      // lighthouse
+      [true, 'M860 440h40v-30h-40Zm-6 30h52l14 210h-80Z'],
+      // bowl of soup (square, since nothing is round) with steam cuts
+      [false, 'M120 860h220l-30 90h-160Z'], [false, 'M170 840l20-30-20-30M230 840l20-30-20-30M290 840l20-30-20-30'],
+      // fish
+      [true, 'M520 900l90-50 90 50-90 50Zm180 0l60-40v80Z'],
+      // bridge tower
+      [false, 'M860 760h30v280h-30Zm110 0h30v280h-30Zm-110 70h140M860 900h140'],
+      // stacked roofs, small
+      [true, 'M600 330h90v60h-90Z'],
+    ];
+    let s = '<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1100" viewBox="0 0 1100 1100">';
+    for (const [isHole, d] of shapes) s += '<path d="' + d + '" ' + (isHole ? hole : cut) + '/>';
+    s += '<g font-family="sans-serif" font-size="13" fill="rgba(34,7,14,.32)"><text x="44" y="330">No.01 산동네</text><text x="740" y="340">No.04 크레인</text><text x="380" y="680">No.07 여객선</text><text x="120" y="975">No.09 국밥</text></g></svg>';
+    document.body.style.setProperty('--sheet', 'url("data:image/svg+xml,' + encodeURIComponent(s) + '")');
+  })();
+
+  /* ---------- hero: midnight harbour through the canopy ---------- */
+  let ferry, fwG, retEl = document.getElementById('ret');
+  function village(g, x0, x1, top, bottom, seed) {
+    const r = rng(seed);
+    const fills = [C.cream, C.honey, C.burL, C.cream, C.honey];
+    for (let x = x0; x < x1;) {
+      const w = 24 + r() * 16;
+      let y = top(x + w / 2) + r() * 8;
+      while (y < bottom) {
+        const h = 18 + r() * 12, wf = fills[Math.floor(r() * fills.length)];
+        P(g, poly(rectP(x, y, w - 2, h)), wf, { stroke: C.ink, 'stroke-width': 1.4 });
+        let roof = [C.bur, C.honey, C.cream, C.ink][Math.floor(r() * 4)]; if (roof === wf) roof = C.ink;
+        P(g, poly(rectP(x - 1, y - 4, w, 5)), roof, { stroke: C.ink, 'stroke-width': 1.2 });
+        P(g, poly(rectP(x, y, 3, h)), C.ink, { opacity: .7 });
+        const nwin = w > 32 ? 2 : 1;
+        for (let i = 0; i < nwin; i++) P(g, poly(rectP(x + 7 + i * 13, y + 6, 6, 7)), r() < .55 ? (wf === C.honey ? C.cream : C.honey) : C.ink);
+        P(g, poly([[x + w * .4, y + h - 1.4], [x + w - 3, y + h - 2.4], [x + w - 3, y + h * .5], [x + w - 2, y + h]]), C.cream, { opacity: .8 });
+        y += h + 1;
+      }
+      x += w;
+    }
+  }
+  function drawHero(svg) {
+    const r = rng(51110);
+    const clip = el('clipPath', { id: 'hc' }, el('defs', {}, svg)); el('rect', { width: 1200, height: 760 }, clip);
+    const g = el('g', { 'clip-path': 'url(#hc)' }, svg);
+    // sky; shade piles up in the upper left, far from the low light
+    P(g, poly(rectP(0, 0, 1200, 760)), C.sky);
+    P(g, hatch([[0, 0], [820, 0], [0, 470]], { ang: 28, gap: 7, w: 2.4, len: [.25, .85], from: [0, 0], seed: 3 }), C.ink);
+    P(g, hatch([[0, 0], [420, 0], [0, 260]], { ang: 118, gap: 8, w: 2, len: [.3, .9], from: [0, 0], seed: 4 }), C.ink);
+    for (let i = 0; i < 46; i++) { const x = 300 + r() * 880, y = 50 + r() * 260, s = 1.5 + r() * 2; P(g, poly(rectP(x, y, s, s)), C.cream, { opacity: .5 + r() * .5 }); }
+    // far ridge
+    const ridge = [[0, 330], [120, 300], [260, 318], [420, 292], [600, 336], [760, 318], [900, 352], [1060, 326], [1200, 340], [1200, 480], [0, 480]];
+    P(g, poly(ridge), C.burM);
+    P(g, hatch(ridge, { ang: 62, gap: 6, w: 1.6, len: [.15, .55], from: [0, 290], seed: 5 }), C.ink, { opacity: .9 });
+    // fireworks layer sits behind the bridge
+    fwG = el('g', { id: 'fw' }, g);
+    // hillside village on the left slope
+    const vt = [[0, 214], [120, 236], [240, 280], [360, 342], [470, 410], [560, 462]];
+    const topY = x => { for (let i = 0; i < vt.length - 1; i++) if (x <= vt[i + 1][0]) { const t = (x - vt[i][0]) / (vt[i + 1][0] - vt[i][0]); return vt[i][1] + (vt[i + 1][1] - vt[i][1]) * t; } return 470; };
+    const vClip = el('clipPath', { id: 'vc' }, svg.querySelector('defs')); P(vClip, poly([...vt, [560, 482], [0, 482]]), '#000');
+    const vg = el('g', { 'clip-path': 'url(#vc)' }, g);
+    P(vg, poly([...vt, [560, 482], [0, 482]]), C.burM);
+    village(vg, -6, 560, topY, 482, 11);
+    P(vg, hatch([...vt, [560, 482], [0, 482]], { ang: 58, gap: 9, w: 1.8, len: [.12, .5], from: [0, 214], seed: 6 }), C.ink, { opacity: .75 });
+    P(g, 'M40 470L40 440 70 440 70 410 100 410 100 380 132 380 132 350 160 350 160 318 190 318 190 290', 'none', { stroke: C.cream, 'stroke-width': 2, opacity: .8 });
+    // sea
+    const sea = [[0, 470], [1200, 470], [1200, 760], [0, 760]];
+    P(g, poly(sea), C.sea);
+    P(g, hatch(sea, { ang: 0, gap: 9, w: 2.6, len: [.03, .14], both: true, seed: 8, jit: .5 }), C.bur);
+    // suspension bridge
+    const deckY = 436, tw = [600, 940], tTop = 226;
+    const bg = el('g', {}, g);
+    const cab = 'M360 ' + deckY + 'Q470 330 ' + (tw[0] + 9) + ' ' + tTop + 'Q770 590 ' + (tw[1] + 9) + ' ' + tTop + 'Q1080 330 1210 392';
+    // reflections first, under everything on the water
+    let refl = '';
+    for (let x = 372; x < 1200; x += 32) { const L = 60 + r() * 150; refl += stroke([x, 488 + r() * 10], [x + (r() - .5) * 10, 488 + L], 3.2 + r() * 2); }
+    P(g, refl, C.honey, { opacity: .7 });
+    P(bg, cab, 'none', { stroke: C.cream, 'stroke-width': 2.6 });
+    // hangers: sample the quadratic segments
+    const q = (p0, p1, p2, t) => [(1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0], (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1]];
+    let hang = '';
+    [[[360, deckY], [470, 330], [tw[0] + 9, tTop]], [[tw[0] + 9, tTop], [770, 590], [tw[1] + 9, tTop]], [[tw[1] + 9, tTop], [1080, 330], [1210, 392]]].forEach(seg => {
+      for (let t = .04; t < 1; t += .045) { const p = q(...seg, t); if (p[1] < deckY - 4) hang += 'M' + f(p[0]) + ' ' + f(p[1]) + 'V' + deckY; }
+    });
+    P(bg, hang, 'none', { stroke: C.cream, 'stroke-width': 1, opacity: .55 });
+    tw.forEach(x => {
+      block(bg, x, tTop, 8, 300 - 26, C.burL, { stroke: 1.4, hatch: false });
+      block(bg, x + 10, tTop, 8, 300 - 26, C.burL, { stroke: 1.4, hatch: false });
+      P(bg, poly(rectP(x, tTop, 3, 274)), C.ink);
+      [[tTop + 18], [tTop + 110], [deckY + 20]].forEach(([y]) => P(bg, poly(rectP(x - 3, y, 24, 7)), C.burL, { stroke: C.ink, 'stroke-width': 1.2 }));
+      P(bg, poly(rectP(x + 6, tTop - 8, 6, 8)), C.honey);
+    });
+    P(bg, poly(rectP(352, deckY, 860, 11)), C.ink);
+    P(bg, poly([[640, deckY + 10.4], [1200, deckY + 9], [1200, deckY + 11], [600, deckY + 11]]), C.cream, { opacity: .8 });
+    let lights = ''; for (let x = 364; x < 1200; x += 16) lights += 'M' + x + ' ' + (deckY - 5) + 'h4v4h-4Z';
+    P(bg, lights, C.honeyHi);
+    // lighthouse on a cliff, lower left
+    const cliff = [[0, 590], [70, 584], [150, 606], [208, 660], [236, 760], [0, 760]];
+    P(g, poly(cliff), C.ink);
+    P(g, hatch(cliff, { ang: 80, gap: 6, w: 1.8, len: [.2, .7], from: [0, 590], seed: 9 }), C.burM);
+    P(g, poly([[106, 456], [470, 380], [470, 470]]), C.cream, { opacity: .14 });
+    const tower = [[72, 474], [96, 474], [104, 592], [64, 592]];
+    P(g, poly(tower), C.cream, { stroke: C.ink, 'stroke-width': 1.6 });
+    P(g, poly([[70, 506], [98, 506], [99, 520], [69, 520]]), C.bur); P(g, poly([[67, 548], [101, 548], [102, 562], [66, 562]]), C.bur);
+    P(g, hatch([[72, 474], [84, 474], [84, 592], [64, 592]], { ang: 60, gap: 4, w: 1.4, len: [.5, 1], from: [64, 474], seed: 10 }), C.ink);
+    P(g, poly(rectP(70, 452, 28, 22)), C.honeyHi, { stroke: C.ink, 'stroke-width': 1.6 });
+    P(g, poly([[66, 452], [84, 438], [102, 452]]), C.ink);
+    // container port, foreground right
+    const quay = [[860, 612], [1200, 600], [1200, 760], [840, 760]];
+    P(g, poly(quay), C.ink);
+    const cols = [C.cream, C.honey, C.bur, C.burL, C.honey, C.cream];
+    for (let row = 0; row < 4; row++) for (let i = 0; i < 4; i++) {
+      if (row === 3 && i % 2) continue;
+      const x = 968 + i * 56, y = 588 - row * 22, cf = cols[(row * 3 + i) % cols.length];
+      block(g, x, y, 54, 21, cf, { stroke: 1.2, gap: 3.6, hw: 1.1 });
+      let cor = ''; for (let k = x + 5; k < x + 52; k += 5) cor += 'M' + k + ' ' + (y + 3) + 'v15';
+      P(g, cor, 'none', { stroke: C.ink, 'stroke-width': .8, opacity: .45 });
+    }
+    // gantry cranes
+    [[880, C.honey], [1060, C.cream]].forEach(([x, cf], i) => {
+      const cg = el('g', {}, g);
+      block(cg, x, 380, 10, 230, cf, { stroke: 1.4, hatch: false });
+      block(cg, x + 74, 380, 10, 224, cf, { stroke: 1.4, hatch: false });
+      P(cg, poly(rectP(x, 380, 4, 230)), C.ink, { opacity: .8 });
+      block(cg, x - 170, 368, 290, 12, cf, { stroke: 1.4, hatch: false });
+      block(cg, x + 34, 316, 10, 52, cf, { stroke: 1.4, hatch: false });
+      P(cg, 'M' + (x + 39) + ' 318L' + (x - 166) + ' 368M' + (x + 39) + ' 318L' + (x + 118) + ' 368', 'none', { stroke: C.cream, 'stroke-width': 1.6 });
+      block(cg, x + 18, 380, 28, 20, C.bur, { stroke: 1.4, hatch: false });
+      P(cg, poly(rectP(x + 24, 385, 8, 7)), C.honeyHi);
+      P(cg, 'M' + (x - 120 + i * 30) + ' 380v' + (90 + i * 30), 'none', { stroke: C.cream, 'stroke-width': 1.2 });
+      P(cg, hatch([[x - 170, 368], [x - 20, 368], [x - 170, 380]], { ang: 8, gap: 3, w: 1.2, len: [.5, 1], from: [x - 170, 368], seed: 20 + i }), C.ink);
+    });
+    // ferry, crossing slowly under the bridge
+    ferry = el('g', { id: 'ferry' }, g);
+    let wake = ''; for (let i = 0; i < 7; i++) wake += stroke([2, 30 + i * 1.5], [-60 - i * 26 - r() * 20, 30 + i * 3], 3 - i * .25);
+    P(ferry, wake, C.cream, { opacity: .55 });
+    P(ferry, poly([[0, 8], [130, 8], [118, 32], [10, 32]]), C.cream, { stroke: C.ink, 'stroke-width': 1.6 });
+    P(ferry, poly([[0, 8], [40, 8], [36, 32], [10, 32]]), C.ink, { opacity: .5 });
+    block(ferry, 18, -10, 90, 18, C.cream, { stroke: 1.4, gap: 3.4, hw: 1 });
+    block(ferry, 36, -24, 56, 14, C.cream, { stroke: 1.4, gap: 3.4, hw: 1 });
+    P(ferry, poly(rectP(70, -38, 10, 14)), C.bur, { stroke: C.ink, 'stroke-width': 1.2 });
+    let win = ''; for (let k = 24; k < 102; k += 10) win += 'M' + k + ' -5h6v6h-6Z'; for (let k = 42; k < 86; k += 10) win += 'M' + k + ' -19h6v5h-6Z';
+    P(ferry, win, C.honey);
+    P(ferry, poly([[6, 21], [124, 21], [122, 24], [8, 24]]), C.bur);
+    // gulls
+    let gulls = '';
+    for (let i = 0; i < 8; i++) { const x = 240 + r() * 760, y = 110 + r() * 200, s = 8 + r() * 10; gulls += stroke([x, y], [x - s, y - s * .55], 2.4) + stroke([x, y], [x + s, y - s * .6], 2.4); }
+    P(g, gulls, C.cream);
+    // LP grooves + crackle: monochrome texture over the whole view
+    let grooves = ''; for (let R = 24; R < 1500; R += 7) grooves += 'M' + (1180 + R) + ' 744a' + R + ' ' + R + ' 0 1 0 ' + (-2 * R) + ' 0a' + R + ' ' + R + ' 0 1 0 ' + (2 * R) + ' 0';
+    P(g, grooves, 'none', { stroke: '#fff', 'stroke-width': .7, opacity: .05 });
+    let wsp = '', bsp = ''; for (let i = 0; i < 260; i++) { const x = r() * 1200, y = r() * 760, s = .8 + r() * 1.6; (r() < .6 ? (wsp += 'M' + f(x) + ' ' + f(y) + 'h' + f(s) + 'v' + f(s) + 'h-' + f(s) + 'Z') : (bsp += 'M' + f(x) + ' ' + f(y) + 'h' + f(s) + 'v' + f(s) + 'h-' + f(s) + 'Z')); }
+    P(g, wsp, '#fff', { opacity: .35 }); P(g, bsp, '#000', { opacity: .5 });
+    // canopy frame and console
+    const fr = el('g', {}, g);
+    P(fr, poly(rectP(0, 0, 1200, 30)), C.ink);
+    P(fr, poly([[0, 30], [150, 30], [24, 150], [0, 150]]), C.ink);
+    P(fr, poly([[1200, 30], [1050, 30], [1176, 150], [1200, 150]]), C.ink);
+    P(fr, poly(rectP(0, 0, 24, 760)), C.ink); P(fr, poly(rectP(1176, 0, 24, 760)), C.ink);
+    P(fr, poly([[600, 30.5], [1176, 29], [1176, 31.6], [560, 32]]), C.cream, { opacity: .9 });
+    P(fr, poly([[22, 420], [23.6, 760], [20.6, 760]]), C.cream, { opacity: .8 });
+    const con = [[0, 690], [1200, 690], [1200, 760], [0, 760]];
+    P(fr, poly(con), C.bur);
+    P(fr, hatch([[0, 690], [700, 690], [0, 760]], { ang: 20, gap: 4, w: 1.8, len: [.3, .9], from: [0, 690], seed: 12 }), C.ink);
+    P(fr, poly(rectP(0, 686, 1200, 5)), C.ink);
+    for (let i = 0; i < 12; i++) { const x = 260 + i * 58; P(fr, poly(rectP(x, 712, 34, 18)), i % 4 === 1 ? C.honey : C.burM, { stroke: C.ink, 'stroke-width': 1.4 }); P(fr, poly([[x + 12, 729], [x + 33, 728], [x + 33, 716]]), C.cream, { opacity: .7 }); }
+    P(fr, poly([[700, 757], [1200, 754], [1200, 760], [660, 760]]), C.honeyHi, { opacity: .7 });
+    // the tungsten bulb, low on the right: the only light source
+    let rays = ''; for (let i = 0; i < 9; i++) { const a = Math.PI * (1.05 + i * .055); rays += stroke([1112 + Math.cos(a) * 26, 662 + Math.sin(a) * 26], [1112 + Math.cos(a) * (90 + r() * 60), 662 + Math.sin(a) * (90 + r() * 60)], 4); }
+    P(fr, rays, C.honeyHi, { opacity: .6 });
+    P(fr, 'M1112 640V600', 'none', { stroke: C.ink, 'stroke-width': 3 });
+    P(fr, poly(rectP(1100, 650, 24, 24)), C.honeyHi, { stroke: C.ink, 'stroke-width': 2 });
+    P(fr, poly(rectP(1104, 640, 16, 10)), C.ink);
+    P(fr, poly([[1110, 670], [1121, 670], [1121, 658]]), C.cream);
+  }
+
+  function burst(cx, cy, R, seed, col) {
+    const r = rng(seed), b = el('g', { class: 'burst' }, fwG);
+    let d = '', tips = '';
+    const n = 34;
+    for (let i = 0; i < n; i++) {
+      const a = i / n * Math.PI * 2 + r() * .08, r0 = R * (.16 + r() * .1), r1 = R * (.75 + r() * .35);
+      d += stroke([cx + Math.cos(a) * r0, cy + Math.sin(a) * r0], [cx + Math.cos(a) * r1, cy + Math.sin(a) * r1], 3 + r() * 4);
+      const tx = cx + Math.cos(a) * (r1 + 8), ty = cy + Math.sin(a) * (r1 + 8);
+      tips += 'M' + f(tx) + ' ' + f(ty) + 'h4v4h-4Z';
+    }
+    P(b, d, col); P(b, tips, C.cream);
+    P(b, poly(rectP(cx - 5, cy - 5, 10, 10)), C.cream);
+    return b;
+  }
+
+  const hero = document.getElementById('harbour');
+  drawHero(hero);
+
+  /* ---------- small drawings for cards and the dialog ---------- */
+  const pics = {
+    village(s) {
+      P(s, poly(rectP(0, 0, 400, 220)), C.sky);
+      P(s, hatch([[0, 0], [300, 0], [0, 160]], { ang: 30, gap: 7, w: 2, len: [.3, .9], from: [0, 0], seed: 41 }), C.ink);
+      const tt = x => 40 + x * .32;
+      village(s, -4, 404, tt, 222, 42);
+      P(s, hatch([[0, 40], [400, 168], [400, 222], [0, 222]], { ang: 58, gap: 10, w: 1.6, len: [.1, .4], from: [0, 40], seed: 43 }), C.ink, { opacity: .6 });
+    },
+    bridge(s) {
+      P(s, poly(rectP(0, 0, 400, 220)), C.sky);
+      P(s, hatch([[0, 0], [280, 0], [0, 130]], { ang: 28, gap: 7, w: 2, len: [.3, .9], from: [0, 0], seed: 51 }), C.ink);
+      P(s, poly(rectP(0, 150, 400, 70)), C.sea);
+      let refl = ''; const r = rng(52); for (let x = 10; x < 400; x += 18) refl += stroke([x, 156], [x + (r() - .5) * 6, 170 + r() * 45], 3);
+      P(s, refl, C.honey, { opacity: .7 });
+      P(s, 'M0 132Q60 70 110 36Q200 170 290 36Q340 70 400 100', 'none', { stroke: C.cream, 'stroke-width': 2.4 });
+      [110, 290].forEach(x => { block(s, x - 6, 36, 12, 112, C.burL, { stroke: 1.2, hatch: false }); P(s, poly(rectP(x - 6, 36, 3, 112)), C.ink); });
+      P(s, poly(rectP(0, 132, 400, 8)), C.ink);
+      let l = ''; for (let x = 4; x < 400; x += 12) l += 'M' + x + ' 128h3v3h-3Z'; P(s, l, C.honeyHi);
+      P(s, poly([[200, 139.4], [400, 139], [400, 140], [180, 140]]), C.cream);
+    },
+    market(s) {
+      P(s, poly(rectP(0, 0, 400, 220)), C.burM);
+      P(s, hatch([[0, 0], [300, 0], [0, 200]], { ang: 35, gap: 6, w: 1.8, len: [.3, .9], from: [0, 0], seed: 61 }), C.ink);
+      P(s, poly(rectP(0, 150, 400, 70)), C.sea);
+      const r = rng(62);
+      [[30, 112], [130, 120], [236, 108], [320, 124]].forEach(([x, y], i) => {
+        block(s, x, y, 70, 44, C.bur, { stroke: 1.6, gap: 4, hw: 1.4 });
+        P(s, poly(rectP(x + 4, y + 4, 62, 8)), C.sea);
+        let fish = ''; for (let k = 0; k < 3; k++) { const fx = x + 12 + k * 18, fy = y + 6 + r() * 3; fish += 'M' + fx + ' ' + fy + 'l7-4 7 4-7 4Z'; } P(s, fish, C.cream);
+      });
+      P(s, 'M400 60C330 70 300 90 270 100S210 96 190 112', 'none', { stroke: C.cream, 'stroke-width': 3 });
+      let sp = ''; for (let i = 0; i < 6; i++) sp += stroke([190, 112], [180 - i * 4, 124 + i * 3], 2); P(s, sp, C.cream);
+      P(s, stroke([90, 40], [74, 30], 2.4) + stroke([90, 40], [108, 29], 2.4) + stroke([300, 30], [288, 22], 2) + stroke([300, 30], [314, 22], 2), C.cream);
+    },
+    draw(s) {
+      P(s, poly(rectP(0, 0, 400, 150)), C.sky);
+      P(s, poly(rectP(0, 104, 400, 46)), C.sea);
+      P(s, hatch([[0, 104], [400, 104], [400, 150], [0, 150]], { ang: 0, gap: 7, w: 2, len: [.04, .15], both: true, seed: 71 }), C.bur);
+      block(s, 0, 88, 150, 12, C.burL, { stroke: 1.4, hatch: false });
+      P(s, poly([[150, 100], [158, 88], [290, 20], [298, 30]]), C.honey, { stroke: C.ink, 'stroke-width': 1.6 });
+      block(s, 300, 88, 100, 12, C.burL, { stroke: 1.4, hatch: false });
+      P(s, poly(rectP(144, 88, 10, 30)), C.ink); P(s, poly(rectP(296, 88, 10, 30)), C.ink);
+      P(s, hatch([[0, 0], [200, 0], [0, 80]], { ang: 30, gap: 7, w: 1.8, len: [.3, .8], from: [0, 0], seed: 72 }), C.ink);
+    }
+  };
+  document.querySelectorAll('[data-pic]').forEach(s => pics[s.dataset.pic](s));
+
+  /* ---------- ferry + reticle (plain linear motion, pausable) ---------- */
+  const view = document.querySelector('.view');
+  let fx = 470, paused = false, last = 0, locked = false;
+  const pauseBtn = document.getElementById('pause');
+  function placeFerry() {
+    ferry.setAttribute('transform', 'translate(' + f(fx) + ' 560)');
+    const vb = view.getBoundingClientRect(), b = ferry.getBoundingClientRect();
+    const hb = hero.getBoundingClientRect(), k = hb.width / 1200;
+    retEl.style.left = (hb.left - vb.left + (fx + 65) * k) + 'px';
+    retEl.style.top = (hb.top - vb.top + 552 * k) + 'px';
+  }
+  function tick(t) {
+    const dt = last ? Math.min(t - last, 60) : 0; last = t;
+    if (!paused && !RM.matches) { fx += dt * .028 * (bpm / 60); if (fx > 1240) fx = -160; }
+    placeFerry();
+    requestAnimationFrame(tick);
+  }
+  pauseBtn.addEventListener('click', () => { paused = !paused; pauseBtn.setAttribute('aria-pressed', paused); pauseBtn.querySelector('span').textContent = paused ? '배 다시 가기' : '배 멈춤'; });
+
+  /* ---------- tempo drives every slow ornament ---------- */
+  let bpm = 60;
+  const bpmIn = document.getElementById('bpm');
+  const setPct = i => i.style.setProperty('--p', ((i.value - i.min) / (i.max - i.min) * 100) + '%');
+  bpmIn.addEventListener('input', () => {
+    bpm = +bpmIn.value; setPct(bpmIn);
+    document.getElementById('bpmO').textContent = bpm + ' BPM';
+    document.getElementById('hudBpm').textContent = bpm;
+    document.documentElement.style.setProperty('--beat', (60 / bpm).toFixed(3) + 's');
+  });
+  setPct(bpmIn);
+  const vol = document.getElementById('vol'), volO = document.getElementById('vol-o');
+  vol.addEventListener('input', () => { setPct(vol); volO.textContent = vol.value; }); setPct(vol);
+
+  // song clock in the HUD
+  let left = 238; const hudLeft = document.getElementById('hudLeft');
+  setInterval(() => { left = left > 0 ? left - 1 : 238; hudLeft.textContent = Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0'); }, 1000);
+
+  /* ---------- toasts ---------- */
+  const tbox = document.getElementById('toasts');
+  function toast(msg) {
+    const [t, b] = msg.split('|');
+    const n = document.createElement('div');
+    n.className = 'toast';
+    n.innerHTML = '<div><b></b><span></span></div><button type="button" aria-label="알림 닫기">✕</button>';
+    n.querySelector('b').textContent = t; n.querySelector('span').textContent = b || '';
+    tbox.appendChild(n);
+    while (tbox.children.length > 3) tbox.firstElementChild.remove();
+    let gone = false;
+    const kill = () => { if (gone) return; gone = true; if (RM.matches) { n.remove(); return; } n.classList.add('out'); setTimeout(() => n.remove(), 260); };
+    n.querySelector('button').addEventListener('click', kill);
+    setTimeout(kill, 5000);
+  }
+  document.querySelectorAll('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+
+  /* ---------- sortie: a slow-dance count, then fireworks over the beach ---------- */
+  const launch = document.getElementById('launch'), beats = [...document.querySelectorAll('#beats span')];
+  const retT = document.getElementById('retT');
+  let running = false;
+  launch.addEventListener('click', () => {
+    if (running) return;
+    running = true; launch.setAttribute('aria-disabled', 'true');
+    fwG.innerHTML = ''; locked = false; retEl.classList.remove('lock'); retT.textContent = '여객선 · 추적';
+    beats.forEach(b => b.className = '');
+    const ms = 60000 / bpm;
+    toast('바늘 내린다|하나, 둘, 셋, 넷. 천천히.');
+    beats.forEach((b, i) => setTimeout(() => {
+      beats.forEach((x, j) => x.className = j < i ? 'done' : j === i ? 'on' : '');
+      setStep(i);
+    }, i * ms));
+    setTimeout(() => {
+      beats.forEach(x => x.className = 'done');
+      retEl.classList.add('lock'); retT.textContent = '여객선 · 고정';
+      burst(380, 170, 120, 7, C.honeyHi);
+      setTimeout(() => burst(250, 110, 80, 8, C.cream), ms * .6);
+      setTimeout(() => burst(520, 120, 96, 9, C.honey), ms * 1.2);
+      toast('욕봤데이|해변에 불꽃 올라갔다. 오늘 밤 마지막 곡이다.');
+      setStep(4);
+      running = false; launch.removeAttribute('aria-disabled');
+    }, 4 * ms);
+  });
+
+  /* ---------- small behaviours ---------- */
+  document.querySelectorAll('.switch').forEach(b => b.addEventListener('click', () => b.setAttribute('aria-checked', b.getAttribute('aria-checked') !== 'true')));
+  document.querySelectorAll('[data-latch]').forEach(b => b.addEventListener('click', () => b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true')));
+
+  // checkbox parent with indeterminate
+  const all = document.getElementById('chkAll'), kids = [...document.querySelectorAll('#chkKids input')];
+  const sync = () => { const n = kids.filter(k => k.checked).length; all.checked = n === kids.length; all.indeterminate = n > 0 && n < kids.length; };
+  all.addEventListener('change', () => { kids.forEach(k => k.checked = all.checked); sync(); });
+  kids.forEach(k => k.addEventListener('change', sync)); sync();
+
+  // segmented, arrow keys
+  const segBtns = [...document.querySelectorAll('#seg [role="radio"]')], segOut = document.getElementById('seg-out');
+  function pickSeg(b, focus) { segBtns.forEach(x => { const on = x === b; x.setAttribute('aria-checked', on); x.tabIndex = on ? 0 : -1; }); segOut.textContent = b.dataset.d; if (focus) b.focus(); }
+  segBtns.forEach((b, i) => {
+    b.addEventListener('click', () => pickSeg(b));
+    b.addEventListener('keydown', e => {
+      const k = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (k) { e.preventDefault(); pickSeg(segBtns[(i + k + segBtns.length) % segBtns.length], true); }
+      if (e.key === 'Home') { e.preventDefault(); pickSeg(segBtns[0], true); }
+      if (e.key === 'End') { e.preventDefault(); pickSeg(segBtns[segBtns.length - 1], true); }
+    });
+  });
+
+  // tabs
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  function selTab(t, focus) { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; document.getElementById(x.getAttribute('aria-controls')).hidden = !on; }); if (focus) t.focus(); }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => selTab(t));
+    t.addEventListener('keydown', e => {
+      const k = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+      if (k) { e.preventDefault(); selTab(tabs[(i + k + tabs.length) % tabs.length], true); }
+      if (e.key === 'Home') { e.preventDefault(); selTab(tabs[0], true); }
+      if (e.key === 'End') { e.preventDefault(); selTab(tabs[tabs.length - 1], true); }
+    });
+  });
+
+  // chips filter the table
+  const rows = () => [...document.querySelectorAll('#ships tbody tr')];
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+    const on = [...document.querySelectorAll('.chip[aria-pressed="true"]')].map(x => x.dataset.kind);
+    rows().forEach(r => r.hidden = !on.includes(r.cells[1].textContent));
+  }));
+
+  // sortable table
+  const ths = [...document.querySelectorAll('#ships thead th')];
+  const timeKey = s => { const [h, m] = s.split(':').map(Number); return (h < 12 ? h + 24 : h) * 60 + m; };
+  ths.forEach(th => th.querySelector('button').addEventListener('click', () => {
+    const btn = th.querySelector('button'), k = +btn.dataset.k;
+    const dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    ths.forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', dir);
+    const tb = document.querySelector('#ships tbody');
+    const val = r => { const t = r.cells[k].textContent; return btn.dataset.n ? parseFloat(t) : k === 3 ? timeKey(t) : t; };
+    rows().sort((a, b) => { const A = val(a), B = val(b); const c = typeof A === 'number' ? A - B : A.localeCompare(B, 'ko'); return dir === 'ascending' ? c : -c; }).forEach(r => tb.appendChild(r));
+  }));
+
+  // progress
+  const meter = document.getElementById('meter'), fill = document.getElementById('meterFill'), meterO = document.getElementById('meterO');
+  let mv = 40;
+  const setMeter = v => { mv = Math.max(0, Math.min(100, v)); fill.style.width = mv + '%'; meter.setAttribute('aria-valuenow', mv); meterO.textContent = mv + '%'; };
+  document.getElementById('meterUp').addEventListener('click', () => { setMeter(mv + 20); if (mv === 100) toast('다 데웠다|김 펄펄 난다. 마 함 무 봐라.'); });
+  document.getElementById('meterRe').addEventListener('click', () => setMeter(0));
+
+  // steps
+  const stepEls = [...document.querySelectorAll('#steps li')];
+  let step = 0;
+  function setStep(i) {
+    step = Math.max(0, Math.min(stepEls.length, i));
+    stepEls.forEach((li, j) => { li.classList.toggle('done', j < step); if (j === step) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
+  }
+  setStep(0);
+  document.getElementById('stPrev').addEventListener('click', () => setStep(step - 1));
+  document.getElementById('stNext').addEventListener('click', () => setStep(step + 1));
+
+  // dialog
+  const dlg = document.getElementById('dlg');
+  document.getElementById('openDlg').addEventListener('click', () => dlg.showModal());
+  document.getElementById('dlgNo').addEventListener('click', () => dlg.close());
+  document.getElementById('dlgOk').addEventListener('click', () => { dlg.close(); toast('다리 든다|한 박 쉬고, 두 박에 걸쳐 올린다.'); });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  placeFerry();
+  requestAnimationFrame(tick);
+  addEventListener('resize', placeFerry);
+})();
+</script>
+<script src="../systems-nav.js?v=20261101" defer></script>
+</body>
+</html>

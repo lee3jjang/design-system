@@ -28,6 +28,7 @@
     { id: 'tratteggio', path: 'tratteggio/index.html', name: 'Tratteggio', ko: '해칭과 펜선', c: ['#e4e3d1', '#efab8f', '#17120f'] },
     { id: 'doppio', path: 'doppio/index.html', name: 'Doppio', ko: '소꿉 계산대와 아침 커피', c: ['#f3c9a8', '#1a1a1c', '#9fdcc4'] },
     { id: 'gloam', path: 'gloam/index.html', name: 'Gloam', ko: '가라앉은 왕국의 등불', c: ['#123a3a', '#f1ece0', '#7a1f3a'] },
+    { id: 'dabang', path: 'dabang/index.html', name: '판방', ko: '오래된 집의 음악 다방', c: ['#eee6d6', '#6a3d22', '#2b1f17'] },
     { id: 'inkstone', path: 'inkstone/index.html', name: 'Inkstone', ko: '크로스오버 · Sansa×Dal×Riso', c: ['#f3eee2', '#24418f', '#8e3b2a'], x: true },
     { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },
     { id: 'mix1', path: 'mix1/index.html', name: 'Lacuna', ko: '추상 크로스오버 · 바탕 없는 겹테 장치', c: ['#ffffff', '#111111', '#2457d6'], m: true },

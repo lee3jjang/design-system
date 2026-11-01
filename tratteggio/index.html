@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tratteggio · 해칭과 펜선</title>
+<meta name="description" content="Tratteggio: 살빛 평면 위에 먹선을 겹쳐 형태를 깎아 내는 체계. 끝이 날카로운 윤곽, 쌓이는 해칭, 새겨 낸 흰 하이라이트.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,600;1,6..96,800&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Tratteggio — hatching.
+   Every surface is a flat cel plane of colour. Form is carved, never blended:
+   ink contours that swell and taper to a needle, parallel hatching that starts at the edge
+   and dies into the light, and cream highlights left uncoloured like cut paper.
+   Light comes from the upper left. Pressing anything turns the light around. */
+:root {
+  color-scheme: light;
+  --paper: #e4e3d1;     /* pale sage paper */
+  --paper-2: #d6d7c0;
+  --sage: #a2a888;      /* background wash */
+  --sage-d: #858c6c;
+  --skin: #efab8f;      /* salmon plane */
+  --skin-hi: #f6c5aa;
+  --terra: #c86a51;     /* shadow plane */
+  --terra-d: #8a3a2c;   /* terracotta as text: 5.3:1 on paper */
+  --mauve: #ab92ad;     /* lavender shadow core */
+  --mauve-d: #6f5876;
+  --plum: #9b3a58;      /* lip rose */
+  --plum-d: #64203a;
+  --ice: #bcd6e2;       /* pale iris */
+  --cream: #fff6e8;     /* carved highlight */
+  --ink: #17120f;
+  --ink-2: #463631;     /* 8:1 on paper */
+  --f-disp: "Black Han Sans", "Noto Sans KR", sans-serif;
+  --f-lat: "Bodoni Moda", "Didot", serif;
+  --f-body: "Noto Sans KR", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); overflow-x: clip; scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--paper); font: 400 17px/1.75 var(--f-body); word-break: keep-all; overflow-wrap: break-word; overflow-x: clip; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p, figure { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--plum-d); text-underline-offset: 4px; }
+svg { display: block; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 7px var(--ice); }
+.wrap { max-width: 1220px; margin-inline: auto; padding-inline: 28px; }
+
+/* ---------- ink primitives (svg drawn by script) ---------- */
+.ink { fill: var(--ink); }
+.cr { fill: var(--cream); }
+.tr { fill: var(--terra); }
+.sk { fill: var(--skin); }
+.mv { fill: var(--mauve); }
+
+/* ---------- top ---------- */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; padding-block: 22px 8px; }
+.mark { display: flex; align-items: baseline; gap: 12px; color: var(--ink); text-decoration: none; }
+.mark b { font: italic 800 30px/1 var(--f-lat); letter-spacing: -.01em; }
+.mark span { font: 400 17px/1 var(--f-disp); color: var(--terra-d); }
+.top nav { display: flex; flex-wrap: wrap; }
+.top nav a { display: inline-grid; place-items: center; min-height: 44px; padding: 0 14px; color: var(--ink); text-decoration: none; font-weight: 500; font-size: 16px; position: relative; }
+.top nav a::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 8px; height: 4px; background: var(--ink); clip-path: polygon(0 60%, 30% 0, 100% 50%, 30% 100%); transform: scaleX(0); transform-origin: left; transition: transform .2s; }
+.top nav a:hover::after { transform: none; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: 20px 40px; align-items: center; padding-block: 18px 64px; overflow-x: clip; }
+.hero-txt { display: grid; gap: 22px; position: relative; z-index: 1; }
+.kicker { font: 500 15px/1.4 var(--f-body); letter-spacing: .28em; color: var(--ink-2); }
+.hero h1 { display: grid; gap: 6px; }
+.hero h1 .lat { font: italic 800 clamp(58px, 8.6vw, 128px)/.86 var(--f-lat); letter-spacing: -.035em; margin-left: -.04em; }
+.hero h1 .ko { font: 400 clamp(30px, 3.4vw, 46px)/1.1 var(--f-disp); color: var(--terra-d); display: flex; align-items: center; gap: 14px; }
+.hero h1 .ko svg { width: clamp(70px, 10vw, 150px); height: 18px; }
+.lede { font-size: 18px; line-height: 1.85; max-width: 32em; color: var(--ink-2); }
+.lede b { color: var(--ink); font-weight: 700; }
+.row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.art { position: relative; width: 100%; max-width: 640px; justify-self: end; }
+.art svg { width: 100%; height: auto; overflow: visible; }
+.art figcaption { font-size: 16px; color: var(--ink-2); margin-top: 10px; text-align: right; }
+
+/* ---------- plates: buttons and other faceted surfaces ---------- */
+.pl { position: relative; isolation: isolate; --pf: var(--skin); --ps: var(--terra); --ph: var(--ink); --pc: var(--cream); --pl: var(--ink); }
+.pl > .plate { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: -1; pointer-events: none; }
+.plate .b { fill: var(--pf); }
+.plate .s { fill: var(--ps); }
+.plate .h { fill: var(--ph); }
+.plate .c { fill: var(--pc); }
+.plate .l { fill: var(--pl); }
+.plate .flip { transform-box: view-box; transform-origin: 50% 50%; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 10px 28px; border: 0; background: none; cursor: pointer; font: 700 17px/1.2 var(--f-body); letter-spacing: .02em; color: var(--ink); text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.no-js .btn { background: var(--skin); box-shadow: inset 0 0 0 3px var(--ink); }
+.btn > span { transform: translate(0, 0); }
+.btn:active > span, .btn[aria-pressed="true"] > span { transform: translate(1px, 2px); }
+.btn:active .flip, .btn[aria-pressed="true"] .flip { transform: rotate(180deg); }
+.btn.dark { --pf: var(--ink); --ps: #3a2a2c; --ph: var(--mauve); --pc: var(--cream); --pl: var(--ink); color: var(--cream); }
+.btn.pale { --pf: var(--cream); --ps: var(--mauve); --ph: var(--mauve-d); }
+.btn.rose { --pf: var(--plum); --ps: var(--plum-d); --ph: var(--ink); --pc: #ffd9df; color: #fff6f4; }
+.btn[disabled] { cursor: not-allowed; color: #5f5650; --pf: var(--paper-2); --ps: var(--paper-2); --ph: #8d8b78; --pc: transparent; --pl: #7d7b6a; }
+.btn.sm { min-height: 44px; padding: 8px 18px; font-size: 16px; }
+.btn svg.ic { width: 20px; height: 20px; }
+
+/* ---------- sections ---------- */
+section.blk { padding-block: 56px; }
+.hd { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 20px; align-items: end; margin-bottom: 34px; }
+.hd .no { font: italic 800 64px/.8 var(--f-lat); color: var(--terra); grid-row: span 2; }
+.hd h2 { font: 400 clamp(30px, 3.6vw, 44px)/1.1 var(--f-disp); }
+.hd p { color: var(--ink-2); max-width: 40em; }
+.hd .rule { grid-column: 1 / -1; height: 16px; width: 100%; }
+
+/* rules */
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 26px; }
+.rule-c { display: grid; gap: 12px; align-content: start; }
+.rule-c svg { width: 100%; height: auto; }
+.rule-c h3 { font: 400 22px/1.25 var(--f-disp); }
+.rule-c p { color: var(--ink-2); font-size: 16px; line-height: 1.7; }
+
+/* tone ladder + palette */
+.ladder { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.ladder figure { display: grid; gap: 8px; }
+.ladder svg { width: 100%; height: auto; }
+.ladder figcaption { font-size: 16px; color: var(--ink-2); }
+.ladder figcaption b { display: block; color: var(--ink); font-weight: 700; }
+.pal { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 14px; margin-top: 40px; }
+.sw { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 14px; align-items: center; }
+.sw svg { width: 64px; height: 64px; }
+.sw b { display: block; font-weight: 700; }
+.sw code { font: 500 15px/1.4 ui-monospace, monospace; color: var(--ink-2); }
+.sw span { font-size: 16px; color: var(--ink-2); }
+
+/* ---------- component sheet ---------- */
+.sheet { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 28px; }
+.cell { grid-column: span 6; padding: 28px 28px 30px; display: grid; gap: 18px; align-content: start; --pf: #f1eddf; --ps: var(--paper-2); --ph: var(--ink); }
+.cell.w4 { grid-column: span 4; } .cell.w8 { grid-column: span 8; } .cell.w12 { grid-column: span 12; }
+.cell h3 { font: 400 21px/1.2 var(--f-disp); display: flex; align-items: baseline; gap: 10px; }
+.cell h3 small { font: italic 600 17px/1 var(--f-lat); color: var(--terra-d); }
+.cell .note { font-size: 16px; color: var(--ink-2); }
+
+/* inputs */
+.field { display: grid; gap: 6px; }
+.field label, .lbl { font-weight: 700; font-size: 16px; }
+.field .hint { font-size: 16px; color: var(--ink-2); }
+.inp { width: 100%; min-height: 50px; padding: 10px 4px 14px; border: 0; border-radius: 0; background: transparent no-repeat 0 100% / 100% 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M0 6.5C40 3.6 90 2.2 140 2.6 165 2.8 185 4 200 6.2 170 7.6 120 8.6 70 8.6 40 8.6 15 7.8 0 6.5Z' fill='%2317120f'/%3E%3C/svg%3E"); font-size: 18px; color: var(--ink); appearance: none; -webkit-appearance: none; }
+.inp::placeholder { color: #6e625b; }
+.inp:focus-visible { outline: none; box-shadow: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M0 5C30 1 90 0 150 .6 175 1 192 2.6 200 5.4 172 8.4 120 10 60 9.8 30 9.6 10 8 0 5Z' fill='%239b3a58'/%3E%3C/svg%3E"); }
+.field:focus-within label { color: var(--plum-d); }
+.field:focus-within label::before { content: ""; display: inline-block; width: 18px; height: 10px; margin-right: 8px; background: var(--plum); clip-path: polygon(0 40%, 100% 0, 70% 50%, 100% 100%, 0 60%); }
+.field.err .inp { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M0 5C30 1 90 0 150 .6 175 1 192 2.6 200 5.4 172 8.4 120 10 60 9.8 30 9.6 10 8 0 5Z' fill='%2364203a'/%3E%3C/svg%3E"); }
+.field .msg { color: var(--plum-d); font-weight: 500; font-size: 16px; display: flex; gap: 8px; align-items: center; }
+.field .msg::before { content: ""; width: 14px; height: 14px; flex: none; background: var(--plum-d); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+textarea.inp { min-height: 96px; resize: vertical; line-height: 1.6; }
+select.inp { padding-right: 40px; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 7.5C8 9 10 12 12 19 14 12 16 9 21 7.5 16 8.6 13.6 10.6 12 13.6 10.4 10.6 8 8.6 3 7.5Z' fill='%2317120f'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M0 6.5C40 3.6 90 2.2 140 2.6 165 2.8 185 4 200 6.2 170 7.6 120 8.6 70 8.6 40 8.6 15 7.8 0 6.5Z' fill='%2317120f'/%3E%3C/svg%3E"); background-size: 22px 22px, 100% 10px; background-position: right 6px top 14px, 0 100%; }
+select.inp:focus-visible { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 7.5C8 9 10 12 12 19 14 12 16 9 21 7.5 16 8.6 13.6 10.6 12 13.6 10.4 10.6 8 8.6 3 7.5Z' fill='%239b3a58'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M0 5C30 1 90 0 150 .6 175 1 192 2.6 200 5.4 172 8.4 120 10 60 9.8 30 9.6 10 8 0 5Z' fill='%239b3a58'/%3E%3C/svg%3E"); }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+
+/* switch */
+.sw-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; }
+.switch { position: relative; width: 84px; height: 44px; flex: none; border: 0; padding: 0; background: none; cursor: pointer; }
+.switch svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.switch .trk { fill: var(--paper-2); transition: fill .15s; }
+.switch .hk { fill: var(--ink); opacity: .55; }
+.switch .knob { transition: transform .22s cubic-bezier(.5, 0, .2, 1.4); }
+.switch .kb { fill: var(--cream); }
+.switch .ks { fill: var(--mauve); }
+.switch[aria-checked="true"] .trk { fill: var(--plum); }
+.switch[aria-checked="true"] .hk { fill: var(--plum-d); opacity: 1; }
+.switch[aria-checked="true"] .knob { transform: translateX(38px); }
+.switch[aria-checked="true"] .ks { fill: var(--terra); }
+
+/* checks & radios */
+.opts { display: grid; gap: 4px; border: 0; padding: 0; margin: 0; }
+.opts legend { font-weight: 700; font-size: 16px; padding: 0; margin-bottom: 6px; }
+.opt { display: flex; align-items: center; gap: 14px; min-height: 44px; cursor: pointer; }
+.opt input { appearance: none; -webkit-appearance: none; margin: 0; width: 30px; height: 30px; flex: none; cursor: pointer; background: no-repeat center / 100% 100%; }
+.opt input[type="checkbox"] { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M7 2H28V23L23 28H2V7Z' fill='%23fff6e8'/%3E%3Cpath d='M28 12V23L23 28H10L14 24H22L24 22V12Z' fill='%23ab92ad'/%3E%3Cpath d='M7 2H28V23L23 28H2V7ZM8.3 4.4 4.4 8.3V25.6H21.7L25.6 21.7V4.4Z' fill='%2317120f'/%3E%3Cpath d='M28 6V23L23 28H6L8 25.4H22L25.4 22V6Z' fill='%2317120f'/%3E%3C/svg%3E"); }
+.opt input[type="checkbox"]:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M7 2H28V23L23 28H2V7Z' fill='%23efab8f'/%3E%3Cpath d='M28 12V23L23 28H10L14 24H22L24 22V12Z' fill='%23c86a51'/%3E%3Cpath d='M7 2H28V23L23 28H2V7ZM8.3 4.4 4.4 8.3V25.6H21.7L25.6 21.7V4.4Z' fill='%2317120f'/%3E%3Cpath d='M28 6V23L23 28H6L8 25.4H22L25.4 22V6Z' fill='%2317120f'/%3E%3Cpath d='M6 15.5C8.6 16 10.6 18 12.6 21.6 16 13.4 20.4 7.6 27.5 2.5 21 9.6 17.4 16 13.6 25.6 12.8 26.2 12 26 11.6 25.2 10.2 21 8.4 17.8 6 15.5Z' fill='%2317120f'/%3E%3Cpath d='M9 6.4H17L15.6 7.4H8.4Z' fill='%23fff6e8'/%3E%3C/svg%3E"); }
+.opt input[type="radio"] { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M15 1 29 15 15 29 1 15Z' fill='%23fff6e8'/%3E%3Cpath d='M29 15 15 29 11 25 22 15Z' fill='%23ab92ad'/%3E%3Cpath d='M15 1 29 15 15 29 1 15ZM15 4.4 4.4 15 15 25.6 25.6 15Z' fill='%2317120f'/%3E%3Cpath d='M29 15 15 29 13.6 26.4 26.2 15Z' fill='%2317120f'/%3E%3C/svg%3E"); }
+.opt input[type="radio"]:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M15 1 29 15 15 29 1 15Z' fill='%23fff6e8'/%3E%3Cpath d='M15 1 29 15 15 29 1 15ZM15 4.4 4.4 15 15 25.6 25.6 15Z' fill='%2317120f'/%3E%3Cpath d='M29 15 15 29 13.6 26.4 26.2 15Z' fill='%2317120f'/%3E%3Cpath d='M15 7.5 22.5 15 15 22.5 7.5 15Z' fill='%239b3a58'/%3E%3Cpath d='M22.5 15 15 22.5 13.4 20.9 19.3 15Z' fill='%2364203a'/%3E%3Cpath d='M15 8.8 10.6 13.2 11.4 13.4 15 10Z' fill='%23ffd9df'/%3E%3C/svg%3E"); }
+.opt input:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* tabs */
+.tabs [role="tablist"] { display: flex; gap: 6px; flex-wrap: wrap; position: relative; padding-bottom: 12px; }
+.tabs [role="tablist"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 7px; background: var(--ink); clip-path: polygon(0 70%, 8% 20%, 60% 0, 100% 60%, 96% 100%, 40% 100%); }
+.tab { min-height: 48px; padding: 8px 20px; font-size: 16px; --pf: transparent; --ps: transparent; --ph: transparent; --pc: transparent; --pl: transparent; color: var(--ink-2); }
+.tab[aria-selected="true"] { --pf: var(--skin); --ps: var(--terra); --ph: var(--ink); --pc: var(--cream); --pl: var(--ink); color: var(--ink); }
+.tab:hover:not([aria-selected="true"]) { color: var(--ink); text-decoration: underline 3px; text-underline-offset: 8px; }
+.tabpanel { padding-top: 18px; color: var(--ink-2); }
+.tabpanel b { color: var(--ink); }
+
+/* chips & badges */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { min-height: 44px; padding: 6px 20px 6px 18px; border: 0; cursor: pointer; font: 500 16px/1.2 var(--f-body); color: var(--ink); background: var(--cream); clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); position: relative; }
+.chip::after { content: ""; position: absolute; inset: 0; background: var(--ink); clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%, 0 calc(100% - 2px), calc(100% - 11.5px) calc(100% - 2px), calc(100% - 3px) 2px, 11px 2px, 1.6px calc(100% - 2px), 0 calc(100% - 2px)); pointer-events: none; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--cream); padding-left: 30px; }
+.chip[aria-pressed="true"]::before { content: ""; position: absolute; left: 14px; top: 50%; width: 10px; height: 10px; margin-top: -5px; background: var(--ice); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.chip:focus-visible { outline: 3px solid var(--plum); outline-offset: -6px; box-shadow: none; }
+.badges { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px 4px 12px; font: 700 15px/1.3 var(--f-body); letter-spacing: .04em; clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px); }
+.badge.k { background: var(--ink); color: var(--cream); }
+.badge.t { background: var(--terra-d); color: var(--cream); }
+.badge.p { background: var(--plum); color: #fff4f2; }
+.badge.i { background: var(--ice); color: var(--ink); }
+.badge.m { background: var(--mauve); color: var(--ink); }
+.badge .n { font: italic 800 17px/1 var(--f-lat); }
+
+/* range */
+.range { position: relative; height: 44px; --p: 60%; }
+.range::before, .range::after { content: ""; position: absolute; left: 0; right: 0; top: 13px; height: 18px; clip-path: polygon(0 52%, 12% 44%, 100% 0, 100% 100%, 12% 60%); }
+.range::before { background: var(--ink); }
+.range::after { left: 3px; right: 3px; top: 16px; height: 12px; background: linear-gradient(90deg, var(--plum) var(--p), var(--paper-2) var(--p)); clip-path: polygon(0 52%, 12% 46%, 100% 0, 100% 100%, 12% 56%); }
+.range input { position: relative; z-index: 1; width: 100%; height: 44px; margin: 0; background: transparent; appearance: none; -webkit-appearance: none; cursor: pointer; }
+.range input::-webkit-slider-runnable-track { height: 44px; background: transparent; }
+.range input::-moz-range-track { height: 44px; background: transparent; }
+.range input::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 44px; border: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 44'%3E%3Cpath d='M15 2 28 22 15 42 2 22Z' fill='%23efab8f'/%3E%3Cpath d='M28 22 15 42 11 34 20 22Z' fill='%23c86a51'/%3E%3Cpath d='M15 2 28 22 15 42 2 22ZM15 7 5.2 22 15 37 24.8 22Z' fill='%2317120f'/%3E%3Cpath d='M28 22 15 42 14 37.5 25 22Z' fill='%2317120f'/%3E%3Cpath d='M15 8.6 8 19.6 9 20 15 11.6Z' fill='%23fff6e8'/%3E%3C/svg%3E") center / 30px 44px no-repeat; }
+.range input::-moz-range-thumb { width: 30px; height: 44px; border: 0; border-radius: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 44'%3E%3Cpath d='M15 2 28 22 15 42 2 22Z' fill='%23efab8f'/%3E%3Cpath d='M28 22 15 42 11 34 20 22Z' fill='%23c86a51'/%3E%3Cpath d='M15 2 28 22 15 42 2 22ZM15 7 5.2 22 15 37 24.8 22Z' fill='%2317120f'/%3E%3C/svg%3E") center / 30px 44px no-repeat; }
+.range input:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; box-shadow: 0 0 0 8px var(--ice); }
+.range-out { display: flex; justify-content: space-between; font-size: 16px; color: var(--ink-2); }
+.range-out output { font: italic 800 22px/1 var(--f-lat); color: var(--ink); }
+
+/* progress */
+.meter { position: relative; height: 34px; }
+.meter svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.meter .fillclip rect { transition: width .5s cubic-bezier(.4, 0, .2, 1); }
+.meter-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 16px; color: var(--ink-2); }
+.meter-row b { font: italic 800 24px/1 var(--f-lat); color: var(--ink); }
+
+/* cards */
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
+.card { padding: 0 0 24px; display: grid; gap: 12px; align-content: start; --pf: var(--cream); --ps: var(--paper-2); }
+.card .pic { height: 170px; margin: 0 0 6px; overflow: hidden; clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px); }
+.card .pic svg { width: 100%; height: 100%; }
+.card h4 { margin: 0; padding-inline: 24px; font: 400 22px/1.25 var(--f-disp); }
+.card p { padding-inline: 24px; font-size: 16px; color: var(--ink-2); }
+.card .row { padding-inline: 24px; }
+
+/* accordion */
+.acc details { position: relative; }
+.acc details + details { margin-top: 2px; }
+.acc summary { list-style: none; cursor: pointer; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 6px; font: 400 20px/1.3 var(--f-disp); background: no-repeat 0 100% / 100% 8px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M0 5C50 2 120 1.4 200 3.6 140 6 60 7 0 5Z' fill='%2317120f'/%3E%3C/svg%3E"); }
+.acc summary::-webkit-details-marker { display: none; }
+.acc summary::after { content: ""; width: 26px; height: 26px; flex: none; background: var(--ink); clip-path: polygon(0 30%, 50% 58%, 100% 30%, 54% 82%, 50% 100%, 46% 82%); transition: transform .2s; }
+.acc details[open] summary::after { transform: rotate(180deg); background: var(--plum); }
+.acc summary:hover { color: var(--plum-d); }
+.acc .body { padding: 14px 6px 22px; color: var(--ink-2); }
+
+/* table */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 16px; }
+caption { text-align: left; font-weight: 700; padding-bottom: 8px; }
+th, td { text-align: left; padding: 12px 12px 14px; vertical-align: middle; }
+thead th { font: 400 17px/1.3 var(--f-disp); background: no-repeat 0 100% / 100% 9px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 9' preserveAspectRatio='none'%3E%3Cpath d='M0 6C40 1.6 120 .6 200 4 160 8.6 60 9 0 6Z' fill='%2317120f'/%3E%3C/svg%3E"); }
+tbody tr { background: no-repeat 0 100% / 100% 4px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 4' preserveAspectRatio='none'%3E%3Cpath d='M0 2.4C60 .8 150 .6 200 2 140 3.6 50 3.6 0 2.4Z' fill='%23463631'/%3E%3C/svg%3E"); }
+tbody tr:hover { background-color: rgba(239, 171, 143, .28); }
+td.num { font: italic 800 19px/1 var(--f-lat); text-align: right; }
+th.num { text-align: right; }
+.sq { display: inline-block; width: 18px; height: 18px; vertical-align: -3px; margin-right: 8px; clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); }
+
+/* dialog with focus lines */
+dialog.scene { padding: 0; border: 0; margin: 0; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; background: transparent; overflow: hidden; color: var(--ink); }
+dialog.scene::backdrop { background: rgba(228, 227, 209, .9); }
+dialog.scene .lines { position: fixed; inset: 0; width: 100%; height: 100%; }
+dialog.scene .lines path { fill: var(--ink); }
+dialog.scene[open] .lines { animation: burst .38s cubic-bezier(.2, .8, .2, 1) both; }
+dialog.scene[open] .dlg { animation: thrust .32s cubic-bezier(.2, .9, .25, 1.15) both; }
+@keyframes burst { from { opacity: 0; transform: scale(1.18); } to { opacity: 1; transform: none; } }
+@keyframes thrust { from { opacity: 0; transform: scale(.88) rotate(-2deg); } to { opacity: 1; transform: none; } }
+.dlg-center { position: relative; min-height: 100%; display: grid; place-items: center; padding: 24px 16px; }
+.dlg { width: min(520px, 100%); padding: 34px 32px 30px; display: grid; gap: 16px; --pf: var(--cream); --ps: var(--skin); }
+.dlg h2 { font: 400 32px/1.15 var(--f-disp); }
+.dlg h2 i { display: block; font: italic 800 20px/1.2 var(--f-lat); color: var(--terra-d); margin-bottom: 6px; }
+.dlg p { color: var(--ink-2); }
+
+/* toasts */
+.toasts { position: fixed; right: 16px; bottom: 16px; z-index: 50; display: grid; gap: 12px; justify-items: end; width: min(380px, calc(100vw - 112px)); pointer-events: none; }
+.toast { pointer-events: auto; width: 100%; padding: 16px 18px 16px 22px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; --pf: var(--ink); --ps: #3a2a2c; --ph: var(--mauve); --pc: var(--cream); color: var(--cream); font-size: 16px; animation: tin .26s cubic-bezier(.2, .9, .2, 1.2) both; }
+.toast.out { animation: tout .22s ease-in both; }
+.toast b { display: block; font: 400 18px/1.3 var(--f-disp); color: var(--skin-hi); }
+.toast button { width: 44px; height: 44px; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.toast button::before { content: ""; width: 18px; height: 18px; background: var(--cream); clip-path: polygon(0 8%, 8% 0, 50% 40%, 92% 0, 100% 8%, 60% 50%, 100% 92%, 92% 100%, 50% 60%, 8% 100%, 0 92%, 40% 50%); }
+.toast button:focus-visible { outline-color: var(--ice); box-shadow: none; }
+@keyframes tin { from { opacity: 0; transform: translateX(40px) skewX(-8deg); } }
+@keyframes tout { to { opacity: 0; transform: translateX(30px); } }
+
+/* footer */
+footer { margin-top: 70px; padding: 30px 0 48px 80px; display: flex; flex-wrap: wrap; gap: 8px 28px; justify-content: space-between; align-items: center; font-size: 16px; color: var(--ink-2); position: relative; }
+footer::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 8px; background: var(--ink); clip-path: polygon(0 50%, 20% 10%, 70% 0, 100% 40%, 85% 80%, 30% 100%); }
+footer a { display: inline-grid; place-items: center; min-height: 44px; font-weight: 700; color: var(--ink); }
+
+@media (max-width: 980px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .art { justify-self: center; }
+  .cell, .cell.w4, .cell.w8 { grid-column: span 12; }
+  .cards { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
+  .pal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .wrap { padding-inline: 16px; }
+  body { font-size: 16px; }
+  .lede { font-size: 17px; }
+  .cell { padding: 22px 18px 24px; }
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .ladder { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .ladder figcaption { font-size: 16px; line-height: 1.35; }
+  .ladder figcaption b { font-size: 16px; }
+  .hd .no { font-size: 48px; }
+  section.blk { padding-block: 40px; }
+  .top nav a { padding: 0 10px; }
+  .pal { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body class="no-js">
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="#top" aria-label="Tratteggio 처음으로"><b>Tratteggio</b><span>해칭과 펜선</span></a>
+    <nav aria-label="페이지 안">
+      <a href="#rules">선의 규칙</a>
+      <a href="#tone">명암과 색</a>
+      <a href="#parts">부품</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="ttl">
+      <div class="hero-txt">
+        <p class="kicker">펜 · 먹 · 살빛 평면</p>
+        <h1 id="ttl"><span class="lat">Tratteggio</span><span class="ko">해칭과 펜선<svg data-ribbon="hero" viewBox="0 0 150 18" aria-hidden="true"></svg></span></h1>
+        <p class="lede">선 하나가 각도를 바꾼다. <b>살빛 평면 위에 먹선을 겹쳐 형태를 깎아 내는</b> 체계. 그늘은 흐려지지 않고 줄을 지어 쌓이고, 빛은 칠하지 않고 남겨 둔다 — 종이를 칼로 도려낸 것처럼.</p>
+        <div class="row">
+          <button class="btn pl" type="button" data-open-scene><span>장면 열기</span></button>
+          <a class="btn pl pale" href="#parts"><span>부품 보기</span></a>
+        </div>
+      </div>
+      <figure class="art">
+        <svg id="art" viewBox="0 0 800 1000" role="img" aria-labelledby="artT">
+          <title id="artT">목과 쇄골의 평면 연구: 위로 젖힌 턱 아래로 해칭이 쌓이고, 쇄골 위에 흰 하이라이트가 새겨진 펜화</title>
+          <rect width="800" height="1000" fill="#a2a888"/>
+        </svg>
+        <figcaption>연구 I — 젖힌 목, 왼쪽 위의 빛</figcaption>
+      </figure>
+    </section>
+
+    <section class="blk" id="rules" aria-labelledby="h-rules">
+      <div class="hd"><span class="no" aria-hidden="true">i</span><h2 id="h-rules">선의 규칙</h2><p>모든 부품은 이 다섯 가지로만 그린다. 흐림, 그라데이션, 그림자 효과는 쓰지 않는다.</p><svg class="rule" data-ribbon="rule" viewBox="0 0 1000 16" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+      <div class="rules">
+        <div class="rule-c"><svg data-demo="taper" viewBox="0 0 260 120" aria-hidden="true"></svg><h3>끝은 바늘처럼</h3><p>윤곽은 가늘게 들어가 굵어졌다가 다시 날카롭게 빠진다. 그늘 쪽 선은 빛 쪽 선의 두 배.</p></div>
+        <div class="rule-c"><svg data-demo="hatch" viewBox="0 0 260 120" aria-hidden="true"></svg><h3>그늘은 긋는다</h3><p>해칭은 윤곽에서 출발해 빛 쪽으로 사그라진다. 어두울수록 각도를 하나 더 겹친다.</p></div>
+        <div class="rule-c"><svg data-demo="carve" viewBox="0 0 260 120" aria-hidden="true"></svg><h3>빛은 남긴다</h3><p>하이라이트는 크림색의 납작한 조각. 칠한 것이 아니라 색을 도려낸 자리다.</p></div>
+        <div class="rule-c"><svg data-demo="claw" viewBox="0 0 260 120" aria-hidden="true"></svg><h3>가장자리의 발톱</h3><p>면이 꺾이는 모서리에는 짧은 획을 몰아 친다. 긴장은 가장자리에 모인다.</p></div>
+      </div>
+    </section>
+
+    <section class="blk" id="tone" aria-labelledby="h-tone">
+      <div class="hd"><span class="no" aria-hidden="true">ii</span><h2 id="h-tone">명암과 색</h2><p>명암은 다섯 단계, 색은 여덟 개의 평면. 단계는 색을 바꾸지 않고 선의 겹을 늘려 내려간다.</p><svg class="rule" data-ribbon="rule" viewBox="0 0 1000 16" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+      <div class="ladder">
+        <figure><svg data-tone="0" viewBox="0 0 120 150" aria-hidden="true"></svg><figcaption><b>0</b>빛 · 남김</figcaption></figure>
+        <figure><svg data-tone="1" viewBox="0 0 120 150" aria-hidden="true"></svg><figcaption><b>1</b>평면</figcaption></figure>
+        <figure><svg data-tone="2" viewBox="0 0 120 150" aria-hidden="true"></svg><figcaption><b>2</b>한 겹</figcaption></figure>
+        <figure><svg data-tone="3" viewBox="0 0 120 150" aria-hidden="true"></svg><figcaption><b>3</b>교차</figcaption></figure>
+        <figure><svg data-tone="4" viewBox="0 0 120 150" aria-hidden="true"></svg><figcaption><b>4</b>먹</figcaption></figure>
+      </div>
+      <div class="pal">
+        <div class="sw"><svg data-sw="#efab8f" data-sd="#c86a51" viewBox="0 0 64 64" aria-hidden="true"></svg><div><b>살빛</b><code>#efab8f</code></div></div>
+        <div class="sw"><svg data-sw="#c86a51" data-sd="#8a3a2c" viewBox="0 0 64 64" aria-hidden="true"></svg><div><b>테라코타 그늘</b><code>#c86a51</code></div></div>
+        <div class="sw"><svg data-sw="#ab92ad" data-sd="#6f5876" viewBox="0 0 64 64" aria-hidden="true"></svg><div><b>라벤더 속그늘</b><code>#ab92ad</code></div></div>
+        <div class="sw"><svg data-sw="#9b3a58" data-sd="#64203a" viewBox="0 0 64 64" aria-hidden="true"></svg><div><b>자두빛 입술</b><code>#9b3a58</code></div></div>
+        <div class="sw"><svg data-sw="#bcd6e2" data-sd="#8fb1c2" viewBox="0 0 64 64" aria-hidden="true"></svg><div><b>얼음 홍채</b><code>#bcd6e2</code></div></div>
+        <div class="sw"><svg data-sw="#17120f" data-sd="#3a2a2c" viewBox="0 0 64 64" aria-hidden="true"></svg><div><b>먹</b><code>#17120f</code></div></div>
+        <div class="sw"><svg data-sw="#fff6e8" data-sd="#e4d6c4" viewBox="0 0 64 64" aria-hidden="true"></svg><div><b>새긴 빛</b><code>#fff6e8</code></div></div>
+        <div class="sw"><svg data-sw="#a2a888" data-sd="#858c6c" viewBox="0 0 64 64" aria-hidden="true"></svg><div><b>세이지 바탕</b><code>#a2a888</code></div></div>
+      </div>
+    </section>
+
+    <section class="blk" id="parts" aria-labelledby="h-parts">
+      <div class="hd"><span class="no" aria-hidden="true">iii</span><h2 id="h-parts">부품</h2><p>판은 왼쪽 위와 오른쪽 아래가 깎여 있다. 누르면 빛이 반대편으로 돌아간다 — 해칭이 옮겨 가고 흰 조각이 아래로 내려온다.</p><svg class="rule" data-ribbon="rule" viewBox="0 0 1000 16" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+
+      <div class="sheet">
+        <div class="cell pl w12">
+          <h3>버튼 <small>Bottone</small></h3>
+          <div class="row">
+            <button class="btn pl" type="button" data-toast="살빛 판|빛이 왼쪽 위에서 들어온다."><span>기본</span></button>
+            <button class="btn pl dark" type="button" data-toast="먹 판|그늘은 라벤더 선으로 긋는다."><span>먹 판</span></button>
+            <button class="btn pl rose" type="button" data-toast="자두빛 판|가장 강한 순간에만 쓴다."><span>강조</span></button>
+            <button class="btn pl pale" type="button" data-toast="크림 판|보조 동작."><span>보조</span></button>
+            <button class="btn pl" type="button" aria-pressed="false" data-latch><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path class="ink" d="M3 17C6 12 10 7 17 3 13 8 9 12 4.6 17.8Z"/><path class="ink" d="M5 13 7.4 15.6 4.2 17.4Z"/></svg><span>펜 고정</span></button>
+            <button class="btn pl" type="button" disabled><span>잠김</span></button>
+          </div>
+          <p class="note">‘펜 고정’은 눌린 채로 남는다 — 그늘이 왼쪽 위로 넘어가 있는 동안이 켜진 상태다.</p>
+        </div>
+
+        <div class="cell pl">
+          <h3>입력 <small>Linea</small></h3>
+          <div class="field"><label for="f-name">이름</label><input class="inp" id="f-name" type="text" placeholder="펜으로 쓰듯이" autocomplete="name"></div>
+          <div class="field err"><label for="f-mail">이메일</label><input class="inp" id="f-mail" type="email" value="ink@" aria-invalid="true" aria-describedby="f-mail-m"><p class="msg" id="f-mail-m">@ 뒤에 주소가 비어 있다.</p></div>
+          <div class="two">
+            <div class="field"><label for="f-nib">펜촉</label>
+              <select class="inp" id="f-nib"><option>G펜 — 굵기 변화 큼</option><option>둥근펜 — 가늘고 단단함</option><option>스쿨펜 — 고른 선</option><option>붓펜 — 먹 덩어리</option></select></div>
+            <div class="field"><label for="f-pg">쪽 수</label><input class="inp" id="f-pg" type="number" inputmode="numeric" value="24" min="1"></div>
+          </div>
+          <div class="field"><label for="f-memo">메모</label><textarea class="inp" id="f-memo" placeholder="그늘은 어디에서 시작하는가"></textarea><p class="hint">선은 짧게, 그러나 끝까지.</p></div>
+        </div>
+
+        <div class="cell pl">
+          <h3>선택 <small>Scelta</small></h3>
+          <div class="sw-row"><span class="lbl" id="sw1">스크린톤 대신 해칭</span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="sw1"><svg data-switch viewBox="0 0 84 44" aria-hidden="true"></svg></button></div>
+          <div class="sw-row"><span class="lbl" id="sw2">효과선 자동</span><button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="sw2"><svg data-switch viewBox="0 0 84 44" aria-hidden="true"></svg></button></div>
+          <div class="two">
+            <fieldset class="opts"><legend>그늘에 넣을 것</legend>
+              <label class="opt"><input type="checkbox" checked> 평행선</label>
+              <label class="opt"><input type="checkbox" checked> 교차선</label>
+              <label class="opt"><input type="checkbox"> 점묘</label>
+            </fieldset>
+            <fieldset class="opts"><legend>빛의 방향</legend>
+              <label class="opt"><input type="radio" name="light" checked> 왼쪽 위</label>
+              <label class="opt"><input type="radio" name="light"> 정면</label>
+              <label class="opt"><input type="radio" name="light"> 아래에서</label>
+            </fieldset>
+          </div>
+        </div>
+
+        <div class="cell pl w8">
+          <h3>탭 <small>Schede</small></h3>
+          <div class="tabs">
+            <div role="tablist" aria-label="선의 종류">
+              <button class="tab btn pl" role="tab" type="button" id="t1" aria-selected="true" aria-controls="p1"><span>윤곽</span></button>
+              <button class="tab btn pl" role="tab" type="button" id="t2" aria-selected="false" aria-controls="p2" tabindex="-1"><span>해칭</span></button>
+              <button class="tab btn pl" role="tab" type="button" id="t3" aria-selected="false" aria-controls="p3" tabindex="-1"><span>효과선</span></button>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="p1" aria-labelledby="t1" tabindex="0"><p><b>윤곽</b>은 형태의 가장자리를 한 번에 긋는다. 빛을 받는 쪽은 2px, 등진 쪽은 5px 이상. 모서리에서 선은 서로 만나지 않고 살짝 지나친다.</p></div>
+            <div class="tabpanel" role="tabpanel" id="p2" aria-labelledby="t2" tabindex="0" hidden><p><b>해칭</b>은 같은 방향의 짧은 선을 4–7px 간격으로 놓는다. 길이는 일정하지 않게 — 끝이 들쭉날쭉해야 빛이 스며든다.</p></div>
+            <div class="tabpanel" role="tabpanel" id="p3" aria-labelledby="t3" tabindex="0" hidden><p><b>효과선</b>은 한 점을 향해 모이는 방사선. 대화상자가 열리는 순간처럼, 페이지에서 단 한 번의 강조에만 쓴다.</p></div>
+          </div>
+        </div>
+
+        <div class="cell pl w4">
+          <h3>표지 <small>Segni</small></h3>
+          <div class="badges">
+            <span class="badge k">먹</span><span class="badge t">초고</span><span class="badge p">마감 <span class="n">3</span></span><span class="badge i">검토</span><span class="badge m">보류</span>
+          </div>
+          <p class="lbl" id="chips-l">칩 — 고르기</p>
+          <div class="chips" role="group" aria-labelledby="chips-l">
+            <button class="chip" type="button" aria-pressed="true">턱 아래</button>
+            <button class="chip" type="button" aria-pressed="false">쇄골</button>
+            <button class="chip" type="button" aria-pressed="true">눈두덩</button>
+            <button class="chip" type="button" aria-pressed="false">목덜미</button>
+          </div>
+        </div>
+
+        <div class="cell pl">
+          <h3>범위 <small>Pressione</small></h3>
+          <label class="lbl" for="rng">펜 압력</label>
+          <div class="range" style="--p:62%"><input id="rng" type="range" min="0" max="100" value="62" aria-describedby="rng-o"></div>
+          <div class="range-out"><span>가볍게</span><output id="rng-o" for="rng">62</output><span>눌러서</span></div>
+          <svg data-pressure viewBox="0 0 400 60" aria-hidden="true" style="width:100%;height:auto"></svg>
+        </div>
+
+        <div class="cell pl">
+          <h3>진행 <small>Avanzamento</small></h3>
+          <div class="meter-row"><span id="mt-l">원고 펜 입히기</span><b id="mt-v">40%</b></div>
+          <div class="meter" role="progressbar" aria-labelledby="mt-l" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40"><svg data-meter viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+          <div class="row"><button class="btn pl sm" type="button" id="mt-up"><span>한 쪽 더</span></button><button class="btn pl pale sm" type="button" id="mt-re"><span>처음부터</span></button></div>
+        </div>
+      </div>
+
+      <div class="hd" style="margin-top:64px"><span class="no" aria-hidden="true">iv</span><h2>카드</h2><p>각 카드에는 작은 평면 연구가 하나씩 — 같은 빛, 같은 규칙.</p><svg class="rule" data-ribbon="rule" viewBox="0 0 1000 16" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+      <div class="cards">
+        <article class="card pl"><div class="pic"><svg data-study="jaw" viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div><h4>턱의 아랫면</h4><p>가장 짙은 그늘. 교차 해칭 두 겹, 그 안쪽에 라벤더 반사광.</p><div class="row"><span class="badge t">해칭 3</span></div></article>
+        <article class="card pl"><div class="pic"><svg data-study="clav" viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div><h4>쇄골의 능선</h4><p>뼈 위에는 흰 조각, 바로 아래 오목한 곳에는 짧은 평행선.</p><div class="row"><span class="badge i">빛 0</span></div></article>
+        <article class="card pl"><div class="pic"><svg data-study="hand" viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div><h4>손가락의 마디</h4><p>마디마다 발톱 같은 획을 몰아 친다. 손톱은 얼음색으로 남긴다.</p><div class="row"><span class="badge m">발톱 획</span></div></article>
+      </div>
+
+      <div class="sheet" style="margin-top:56px">
+        <div class="cell pl w8">
+          <h3>표 <small>Tavola</small></h3>
+          <div class="tbl-wrap">
+            <table>
+              <caption class="sr">명암 단계별 선 사양</caption>
+              <thead><tr><th scope="col">단계</th><th scope="col">평면</th><th scope="col">선</th><th scope="col" class="num">간격 px</th></tr></thead>
+              <tbody>
+                <tr><td>빛</td><td><span class="sq" style="background:#fff6e8;box-shadow:inset 0 0 0 2px #17120f"></span>새긴 빛</td><td>없음</td><td class="num">—</td></tr>
+                <tr><td>평면</td><td><span class="sq" style="background:#efab8f"></span>살빛</td><td>윤곽만</td><td class="num">—</td></tr>
+                <tr><td>한 겹</td><td><span class="sq" style="background:#c86a51"></span>테라코타</td><td>평행 해칭</td><td class="num">7</td></tr>
+                <tr><td>교차</td><td><span class="sq" style="background:#ab92ad"></span>라벤더</td><td>두 방향</td><td class="num">5</td></tr>
+                <tr><td>먹</td><td><span class="sq" style="background:#17120f"></span>먹</td><td>세 방향 + 덩어리</td><td class="num">3</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="cell pl w4">
+          <h3>대화상자 · 알림 <small>Scena</small></h3>
+          <p class="note">대화상자는 효과선과 함께 열린다. 알림은 오른쪽 아래에 5초 머문다.</p>
+          <div class="row">
+            <button class="btn pl rose" type="button" data-open-scene><span>장면 열기</span></button>
+            <button class="btn pl dark" type="button" data-toast="저장됨|24쪽의 펜선이 마르는 중."><span>알림 띄우기</span></button>
+          </div>
+        </div>
+        <div class="cell pl w12 acc">
+          <h3>펼침 <small>Piega</small></h3>
+          <details open><summary>왜 그라데이션을 쓰지 않는가</summary><div class="body"><p>번지는 그늘은 형태를 부드럽게 만들지만, 이 체계가 원하는 것은 긴장이다. 면과 면 사이의 경계는 칼로 자른 것처럼 분명해야 하고, 어둠은 선의 개수로만 셈한다.</p></div></details>
+          <details><summary>흰 조각은 어디에 두는가</summary><div class="body"><p>빛을 정면으로 받는 능선 — 이마의 뼈, 콧등, 아랫입술, 쇄골의 위쪽. 판에서는 왼쪽 위 모서리를 따라 가늘고 날카롭게.</p></div></details>
+          <details><summary>누르면 무엇이 바뀌는가</summary><div class="body"><p>판 전체가 180도 돌아 빛의 방향이 뒤집힌다. 해칭은 왼쪽 위로, 흰 조각은 오른쪽 아래로. 글자는 2px 가라앉는다.</p></div></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Tratteggio · 해칭과 펜선 · Black Han Sans, Bodoni Moda, Noto Sans KR</span>
+    <a href="../">다른 체계들로</a>
+  </footer>
+</div>
+
+<dialog class="scene" id="scene" aria-labelledby="dlg-t">
+  <svg class="lines" id="lines" aria-hidden="true"></svg>
+  <div class="dlg-center" id="dlg-bg">
+    <div class="dlg pl">
+      <h2 id="dlg-t"><i>Scena</i>이 장면을 확정할까?</h2>
+      <p>확정하면 연필 밑그림을 지우고 펜선만 남긴다. 한 번 지운 연필은 되돌릴 수 없다.</p>
+      <div class="row">
+        <button class="btn pl rose" type="button" id="dlg-ok"><span>펜선만 남기기</span></button>
+        <button class="btn pl pale" type="button" id="dlg-no"><span>그대로 두기</span></button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  document.body.classList.remove('no-js');
+  const NS = 'http://www.w3.org/2000/svg';
+  const RM = matchMedia('(prefers-reduced-motion: reduce)');
+  const f = n => Math.round(n * 10) / 10;
+
+  /* ---------- ink engine ---------- */
+  function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function hash(s) { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; }
+  // Catmull-Rom through control points
+  function curve(P, seg = 10) {
+    if (P.length < 3) return P.map(p => p.slice());
+    const out = [];
+    for (let i = 0; i < P.length - 1; i++) {
+      const p0 = P[i - 1] || P[i], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2] || P[i + 1];
+      for (let j = 0; j < seg; j++) {
+        const t = j / seg, t2 = t * t, t3 = t2 * t;
+        const q = k => .5 * (2 * p1[k] + (-p0[k] + p2[k]) * t + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t2 + (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * t3);
+        out.push([q(0), q(1)]);
+      }
+    }
+    out.push(P[P.length - 1].slice());
+    return out;
+  }
+  // straight polyline, subdivided (for chamfered plates: no spline overshoot at corners)
+  function dens(P, step = 5) {
+    const out = [];
+    for (let i = 0; i < P.length - 1; i++) { const a = P[i], b = P[i + 1], n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step)); for (let j = 0; j < n; j++) out.push([a[0] + (b[0] - a[0]) * j / n, a[1] + (b[1] - a[1]) * j / n]); }
+    out.push(P[P.length - 1].slice()); return out;
+  }
+  // variable-width brush stroke along control points: swells and tapers to needles
+  function ribbon(P, w, o = {}) {
+    const pts = o.raw ? P : o.lin ? dens(P) : curve(P, o.seg || 10), n = pts.length;
+    const cum = [0];
+    for (let i = 1; i < n; i++) cum[i] = cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    const tot = cum[n - 1] || 1, a = o.a ?? .2, b = o.b ?? .3, pw = o.pw ?? .65, wob = o.wob ?? .14, ph = o.ph ?? 0, mn = o.min ?? 0;
+    const L = [], R = [];
+    for (let i = 0; i < n; i++) {
+      const t = cum[i] / tot;
+      let k = Math.min(1, a ? t / a : 1, b ? (1 - t) / b : 1);
+      k = mn + (1 - mn) * Math.pow(Math.max(k, 0), pw);
+      const h = w / 2 * k * (1 + wob * Math.sin(t * 9 + ph));
+      const p = pts[Math.max(i - 1, 0)], q = pts[Math.min(i + 1, n - 1)];
+      let dx = q[0] - p[0], dy = q[1] - p[1]; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+      L.push(f(pts[i][0] - dy * h) + ' ' + f(pts[i][1] + dx * h));
+      R.push(f(pts[i][0] + dy * h) + ' ' + f(pts[i][1] - dx * h));
+    }
+    return 'M' + L.join('L') + 'L' + R.reverse().join('L') + 'Z';
+  }
+  // one hatch stroke: blunt-ish base at A, swelling, tapering to a needle at B
+  function stroke(A, B, w, bend = 0) {
+    const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, nx = -uy, ny = ux, h = w / 2;
+    const at = (s, o) => [A[0] + ux * L * s + nx * (o + bend * Math.sin(Math.PI * s)), A[1] + uy * L * s + ny * (o + bend * Math.sin(Math.PI * s))];
+    const p = (q) => f(q[0]) + ' ' + f(q[1]);
+    return 'M' + p(at(0, h * .35)) + 'C' + p(at(.14, h * 1.15)) + ' ' + p(at(.5, h * .85)) + ' ' + p(B) + 'C' + p(at(.5, -h * .85)) + ' ' + p(at(.14, -h * 1.15)) + ' ' + p(at(0, -h * .35)) + 'Z';
+  }
+  // parallel hatching inside a polygon; strokes start at the edge nearest `from` and die toward the light
+  function hatch(poly, o) {
+    const r = rng(o.seed || 7), a = o.ang * Math.PI / 180, d = [Math.cos(a), Math.sin(a)], nv = [-d[1], d[0]];
+    const dot = (p, v) => p[0] * v[0] + p[1] * v[1];
+    let lo = Infinity, hi = -Infinity; for (const p of poly) { const k = dot(p, nv); lo = Math.min(lo, k); hi = Math.max(hi, k); }
+    const gap = o.gap || 6, w = o.w || 2, len = o.len || [.4, 1], ins = o.ins ?? 1.5, jit = o.jit ?? .25, fr = o.freq ?? .35, ph = r() * 6, bend = o.bend ?? .06;
+    let out = '';
+    for (let k = lo + gap * (.3 + r() * .5); k < hi; k += gap * (1 + ((r() - .5) * (o.gj ?? .35)))) {
+      const ts = [];
+      for (let i = 0; i < poly.length; i++) {
+        const P = poly[i], Q = poly[(i + 1) % poly.length], pk = dot(P, nv) - k, qk = dot(Q, nv) - k;
+        if ((pk > 0) !== (qk > 0)) { const s = pk / (pk - qk); ts.push(dot([P[0] + (Q[0] - P[0]) * s, P[1] + (Q[1] - P[1]) * s], d)); }
+      }
+      ts.sort((x, y) => x - y);
+      for (let i = 0; i + 1 < ts.length; i += 2) {
+        const t0 = ts[i] + ins * r(), t1 = ts[i + 1] - ins * r();
+        if (t1 - t0 < 3) continue;
+        const A = [nv[0] * k + d[0] * t0, nv[1] * k + d[1] * t0], B = [nv[0] * k + d[0] * t1, nv[1] * k + d[1] * t1];
+        const env = o.env ? o.env(k, lo, hi) : 1;
+        let fr0 = (len[0] + (len[1] - len[0]) * (.5 + .5 * Math.sin(k * fr + ph))) * (1 - jit * r()) * env;
+        if (fr0 <= .04) continue;
+        const sl = Math.hypot(B[0] - A[0], B[1] - A[1]);
+        if (o.max) fr0 = Math.min(fr0, o.max / sl);
+        const ww = w * (.7 + .6 * r());
+        if (o.both) {
+          const c = .5 + (r() - .5) * .3, half = fr0 / 2;
+          const m = [A[0] + (B[0] - A[0]) * c, A[1] + (B[1] - A[1]) * c];
+          const P1 = [m[0] + (A[0] - m[0]) * half * 2, m[1] + (A[1] - m[1]) * half * 2], P2 = [m[0] + (B[0] - m[0]) * half * 2, m[1] + (B[1] - m[1]) * half * 2];
+          out += stroke(P1, P2, ww, (r() - .5) * bend * sl) + stroke(P2, P1, ww * .6, 0);
+          continue;
+        }
+        let base = A, far = B;
+        if (o.from) { const dA = Math.hypot(A[0] - o.from[0], A[1] - o.from[1]), dB = Math.hypot(B[0] - o.from[0], B[1] - o.from[1]); if (dB < dA) { base = B; far = A; } }
+        const tip = [base[0] + (far[0] - base[0]) * fr0, base[1] + (far[1] - base[1]) * fr0];
+        out += stroke(base, tip, ww, (r() - .5) * bend * sl * fr0 + (o.curl || 0) * sl * fr0);
+      }
+    }
+    return out;
+  }
+  // short claw strokes clustered along an edge, pointing along `ang` (or the inward normal)
+  function claws(P, o) {
+    const r = rng(o.seed || 3), pts = curve(P, 12), out = [];
+    const n = o.n || 8;
+    for (let i = 0; i < n; i++) {
+      const t = (i + .5 + (r() - .5) * .6) / n, idx = Math.min(pts.length - 2, Math.floor(t * (pts.length - 1)));
+      const p = pts[idx], q = pts[idx + 1];
+      let dx = q[0] - p[0], dy = q[1] - p[1]; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+      const side = o.side || 1, nx = -dy * side, ny = dx * side;
+      const L = (o.len || 18) * (.55 + .7 * r()) * (o.env ? o.env(t) : 1);
+      const tilt = (o.tilt || 0) + (r() - .5) * .35;
+      const ux = nx * Math.cos(tilt) - ny * Math.sin(tilt), uy = nx * Math.sin(tilt) + ny * Math.cos(tilt);
+      const A = [p[0] - ux * 2, p[1] - uy * 2], B = [p[0] + ux * L, p[1] + uy * L];
+      out.push(stroke(A, B, (o.w || 3) * (.7 + .6 * r()), (o.curl || 0) * L + (r() - .5) * L * .12));
+    }
+    return out.join('');
+  }
+  const poly = P => 'M' + P.map(p => f(p[0]) + ' ' + f(p[1])).join('L') + 'Z';
+  const smooth = (P, seg = 6) => poly(curve(P, seg));
+  function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function path(parent, d, cls, extra = {}) { return el('path', Object.assign({ d, class: cls }, extra), parent); }
+  const shift = (P, dx, dy) => P.map(p => [p[0] + dx, p[1] + dy]);
+
+  /* ---------- hero: a study of a thrown-back neck ---------- */
+  // a lock of hair: a spiral that starts thick and winds down to a needle
+  function curlD(cx, cy, R, a0, dir, turns, w) {
+    const P = [], n = 16;
+    for (let j = 0; j <= n; j++) { const a = a0 + dir * j / n * turns * Math.PI * 2, rr = R * (1 - .62 * j / n); P.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
+    return ribbon(P, w, { a: .04, b: .7, pw: .8, wob: .1, seg: 4 });
+  }
+  function drawArt(svg) {
+    svg.querySelectorAll(':scope > :not(title)').forEach(n => n.remove());
+    const C = { sage: '#a2a888', sageD: '#8b9273', skin: '#efab8f', terra: '#c86a51', terraD: '#a9503e', mauve: '#ab92ad', mauveD: '#8c7192', plum: '#b04d6a', plumD: '#7a2a45', cream: '#fff6e8', ink: '#17120f', ice: '#bcd6e2', hairHi: '#6a4038' };
+    const defs = el('defs', {}, svg);
+    const frame = [[34, 18], [790, 0], [800, 968], [8, 1000]];
+    const cp = el('clipPath', { id: 'frm' }, defs); path(cp, poly(frame), '');
+    const g = el('g', { 'clip-path': 'url(#frm)' }, svg);
+    let tgt = g;
+    const fill = (d, c, op) => el('path', Object.assign({ d, fill: c }, op ? { opacity: op } : {}), tgt);
+
+    // ground: sage wash, a darker sage plane cutting across, focus lines converging on the throat
+    fill(poly([[0, 0], [800, 0], [800, 1000], [0, 1000]]), C.sage);
+    fill(poly([[0, 330], [400, 0], [580, 0], [0, 560]]), C.sageD, .5);
+    {
+      const r = rng(11), F = [440, 380]; let d = '';
+      for (let i = 0; i < 130; i++) {
+        const a = (i / 130) * Math.PI * 2 + r() * .03, r0 = 330 + r() * 170, r1 = 900;
+        d += stroke([F[0] + Math.cos(a) * r1, F[1] + Math.sin(a) * r1], [F[0] + Math.cos(a) * r0, F[1] + Math.sin(a) * r0], 3 + r() * 8, 0);
+      }
+      fill(d, C.sageD, .85);
+    }
+    tgt = el('g', { transform: 'translate(24 84) scale(.93)' }, g);
+
+    const face = [[140, -110], [600, -110], [640, 60], [648, 130], [640, 152], [560, 196], [450, 238], [350, 264], [302, 258], [262, 224], [224, 162], [190, 88], [168, 0]];
+    const under = [[640, 152], [560, 196], [450, 238], [350, 264], [302, 258], [318, 286], [336, 298], [430, 304], [530, 290], [612, 258], [656, 214]];
+    const body = [[336, 292], [656, 210], [662, 330], [676, 440], [716, 515], [880, 560], [880, 1000], [-60, 1000], [-60, 660], [118, 592], [226, 556], [292, 486], [312, 400], [322, 330]];
+
+    // hair, right: a dark mass whose edge breaks into spirals
+    const hairR = [[580, -120], [880, -120], [880, 640], [700, 600], [660, 520], [630, 400], [620, 280], [610, 160], [600, 40], [590, -40]];
+    fill(smooth(hairR, 4), C.ink);
+    {
+      const r = rng(5); let d = '', hi = '';
+      for (let i = 0; i < 9; i++) {
+        const cy = 480 + i * 16 + r() * 10, cx = 720 + i * 14 + r() * 20, R = 22 + r() * 14;
+        d += curlD(cx, cy, R, Math.PI * (.3 + r() * .6), 1, 1 + r() * .3, 9 + r() * 4);
+      }
+      for (let i = 0; i < 15; i++) {
+        const cx = 690 + (i % 3) * 66 + r() * 46, cy = -110 + Math.floor(i / 3) * 140 + r() * 100, R = 28 + r() * 16, a0 = 2.4 + r() * 1.2;
+        hi += curlD(cx, cy, R, a0, 1, .42, 6 + r() * 2) + curlD(cx + 4, cy + 4, R * .6, a0 + .4, 1, .38, 4);
+      }
+      fill(d, C.ink); fill(hi, C.hairHi);
+    }
+    // hair, left
+    const hairL = [[-60, -120], [150, -120], [130, -40], [100, 30], [60, 100], [10, 170], [-60, 220]];
+    fill(smooth(hairL, 4), C.ink);
+    {
+      const r = rng(9); let d = '', hi = '';
+      const edge = curve([[140, -80], [110, 10], [70, 90], [20, 160], [-30, 210]], 6);
+      for (let i = 1; i < edge.length; i += 3) { const p = edge[i], R = 20 + r() * 16; d += curlD(p[0] - R * .2, p[1] + (r() - .5) * 8, R, Math.PI * (1.6 + r() * .4), -1, 1 + r() * .3, 9 + r() * 4); }
+      for (let i = 0; i < 4; i++) { const cx = -20 + r() * 90, cy = -80 + i * 60, R = 22 + r() * 10; hi += curlD(cx, cy, R, 2.6, 1, .42, 5.5) + curlD(cx + 3, cy + 3, R * .6, 3, 1, .38, 3.5); }
+      fill(d, C.ink); fill(hi, C.hairHi);
+    }
+
+    // body and neck
+    fill(poly(body), C.skin);
+    const neckSh = [[586, 246], [656, 210], [662, 330], [676, 440], [700, 498], [640, 488], [604, 420], [580, 340]];
+    fill(poly(neckSh), C.terra);
+    fill(hatch(neckSh, { ang: 102, gap: 5.6, w: 2.8, len: [.45, 1], from: [680, 470], seed: 31, jit: .3 }), C.ink);
+    fill(hatch([[612, 300], [660, 290], [670, 420], [640, 440]], { ang: 20, gap: 6, w: 2.2, len: [.4, .9], from: [670, 360], seed: 33 }), C.ink);
+    const throat = [[336, 296], [392, 304], [380, 400], [362, 480], [300, 488], [314, 400], [322, 330]];
+    fill(hatch(throat, { ang: 84, gap: 7, w: 2, len: [.25, .75], from: [330, 300], seed: 41, jit: .45 }), C.ink);
+    fill(claws([[334, 300], [322, 360], [312, 420], [298, 480]], { n: 8, len: 26, w: 3.8, side: -1, tilt: .1, seed: 12 }), C.ink);
+    // larynx: a carved block
+    const larS = [[414, 388], [440, 392], [456, 360], [460, 404], [424, 412]];
+    fill(poly(larS), C.terra);
+    fill(hatch(larS, { ang: 10, gap: 4.5, w: 1.8, len: [.6, 1], from: [460, 400], seed: 43 }), C.ink);
+    fill(ribbon([[414, 330], [420, 350], [428, 372]], 7, { a: .1, b: .5 }), C.cream);
+    fill(ribbon([[404, 392], [432, 400], [462, 392]], 5, { a: .2, b: .3 }), C.ink);
+    // long neck muscle: cream ridge, ink on its shadow side, a few long claws falling off it
+    fill(ribbon([[598, 236], [570, 300], [530, 400], [490, 490], [468, 560]], 14, { a: .12, b: .4 }), C.cream);
+    fill(ribbon([[612, 250], [586, 320], [552, 410], [512, 500], [486, 566]], 5, { a: .15, b: .4 }), C.ink);
+    fill(claws([[598, 290], [566, 370], [532, 450]], { n: 5, len: 34, w: 3, side: 1, tilt: .5, seed: 19 }), C.ink);
+
+    // collarbones
+    const holL = [[426, 604], [330, 616], [220, 628], [120, 656], [-40, 700], [-40, 760], [130, 712], [230, 676], [330, 650], [420, 632]];
+    fill(smooth(holL, 4), C.terra);
+    fill(smooth([[400, 618], [300, 636], [190, 660], [110, 690], [120, 704], [220, 674], [320, 650], [404, 628]], 4), C.mauve);
+    fill(hatch(holL, { ang: 96, gap: 5.6, w: 2.6, len: [.5, 1], from: [250, 610], seed: 51, jit: .3 }), C.ink);
+    const holR = [[488, 600], [580, 598], [690, 590], [880, 610], [880, 670], [700, 632], [590, 628], [494, 622]];
+    fill(smooth(holR, 4), C.terra);
+    fill(hatch(holR, { ang: 80, gap: 5.6, w: 2.6, len: [.5, 1], from: [650, 590], seed: 53, jit: .3 }), C.ink);
+    fill(ribbon([[420, 588], [340, 594], [240, 604], [140, 628], [-20, 676]], 17, { a: .25, b: .1 }), C.cream);
+    fill(ribbon([[426, 604], [330, 616], [220, 628], [120, 656], [-40, 706]], 7, { a: .15, b: 0, min: .3 }), C.ink);
+    fill(ribbon([[494, 586], [590, 580], [690, 574], [880, 596]], 14, { a: .3, b: .05 }), C.cream);
+    fill(ribbon([[488, 600], [580, 598], [690, 590], [890, 612]], 8, { a: .1, b: 0, min: .3 }), C.ink);
+    // sternal notch
+    const notch = [[420, 566], [490, 562], [474, 590], [456, 618], [438, 592]];
+    fill(poly(notch), C.terraD);
+    fill(hatch(notch, { ang: 60, gap: 4, w: 2, len: [.7, 1], from: [456, 610], seed: 57 }), C.ink);
+    fill(hatch(notch, { ang: 120, gap: 4.5, w: 1.8, len: [.5, .9], from: [456, 610], seed: 58 }), C.ink);
+    fill(ribbon([[418, 562], [440, 594], [456, 622], [474, 592], [494, 560]], 7, { a: .25, b: .25 }), C.ink);
+    // sternum and chest
+    fill(ribbon([[458, 650], [456, 720], [452, 790]], 7, { a: .3, b: .5 }), C.cream);
+    const pec = [[650, 672], [880, 680], [880, 790], [770, 780], [700, 730]];
+    fill(poly(pec), C.terra);
+    fill(hatch(pec, { ang: 150, gap: 6, w: 2.4, len: [.4, 1], from: [880, 740], seed: 61, jit: .35 }), C.ink);
+    // shoulders
+    fill(ribbon([[312, 470], [262, 530], [190, 570], [100, 600], [-60, 652]], 8, { a: .1, b: 0, min: .3 }), C.ink);
+    fill(ribbon([[296, 500], [250, 548], [170, 584]], 9, { a: .3, b: .4 }), C.cream);
+    const shR = [[690, 500], [880, 548], [880, 590], [720, 556]];
+    fill(poly(shR), C.terra);
+    fill(hatch(shR, { ang: 70, gap: 4.6, w: 2.2, len: [.6, 1], from: [880, 570], seed: 63 }), C.ink);
+    // garment, with a carved cream band at its neckline and the shadow it casts
+    const neckline = [[-60, 820], [150, 846], [300, 880], [440, 900], [580, 880], [700, 846], [880, 800]];
+    fill(smooth([...neckline, [880, 1100], [-60, 1100]], 6), C.ink);
+    const castP = shift(neckline, 0, -30).reverse().concat(neckline);
+    fill(smooth(castP, 4), C.terra);
+    fill(hatch(shift(neckline, 0, -64).reverse().concat(neckline), { ang: 96, gap: 5.5, w: 2.4, len: [.2, .95], freq: .09, from: [400, 940], seed: 71, jit: .55 }), C.ink);
+    fill(ribbon(shift(neckline, 0, 28), 19, { a: .1, b: .1, min: .25 }), C.cream);
+    fill(ribbon(shift(neckline, 0, 2), 8, { a: .05, b: .05, min: .6 }), C.ink);
+    // rim light along the shadowed neck edge, pale as an iris
+    fill(ribbon([[652, 232], [656, 330], [668, 430], [700, 500]], 6.5, { a: .2, b: .3 }), C.ice);
+
+    // the face, seen from below: only a mouth and a chin
+    fill(poly(face), C.skin);
+    const faceSh = [[530, -110], [600, -110], [640, 60], [648, 130], [640, 152], [560, 196], [556, 120], [540, 20]];
+    fill(poly(faceSh), C.terra);
+    fill(hatch(faceSh, { ang: 70, gap: 5.6, w: 2.6, len: [.4, 1], from: [640, 120], seed: 81 }), C.ink);
+    fill(claws([[548, -60], [552, 40], [560, 140]], { n: 7, len: 24, w: 3.2, side: 1, tilt: -.6, seed: 83 }), C.ink);
+    // mouth, slightly open
+    const upper = [[236, 30], [262, 8], [300, -24], [348, -40], [372, -34], [404, -56], [470, -40], [486, -32], [470, -28], [380, -20], [300, 0]];
+    fill(smooth(upper, 5), C.plumD);
+    fill(hatch(upper, { ang: 160, gap: 4.6, w: 2, len: [.3, .8], from: [480, -34], seed: 87 }), C.ink);
+    fill(ribbon([[290, -14], [330, -32], [352, -36]], 6, { a: .3, b: .4 }), C.cream);
+    const lower = [[236, 32], [300, 24], [380, 4], [474, -26], [466, 4], [420, 42], [360, 66], [300, 68], [258, 52]];
+    fill(smooth(lower, 5), C.plum);
+    fill(smooth([[330, 62], [400, 46], [466, 0], [466, 4], [420, 42], [360, 66], [304, 68]], 5), C.plumD);
+    fill(ribbon([[296, 46], [336, 40], [376, 28], [404, 16]], 12, { a: .25, b: .45 }), C.cream);
+    fill(ribbon([[424, 12], [446, 2]], 5, { a: .3, b: .4 }), C.cream);
+    const gape = [[232, 32], [300, 0], [380, -20], [480, -32], [380, 4], [300, 24]];
+    fill(smooth(gape, 5), C.ink);
+    fill(ribbon([[300, 6], [346, -6], [392, -14]], 6, { a: .3, b: .3 }), C.cream);
+    fill(ribbon([[250, 52], [300, 70], [360, 68], [430, 42], [470, 4]], 4.5, { a: .2, b: .3 }), C.ink);
+    const fold = [[272, 70], [330, 80], [400, 66], [452, 34], [460, 62], [404, 94], [330, 104], [284, 90]];
+    fill(smooth(fold, 4), C.terra);
+    fill(hatch(fold, { ang: 14, gap: 4.8, w: 2.2, len: [.35, .9], from: [462, 50], seed: 89 }), C.ink);
+    // chin: horizontal arcs, sculpted
+    const chin = [[262, 186], [330, 196], [372, 214], [370, 252], [302, 258], [262, 224]];
+    fill(hatch(chin, { ang: 8, gap: 5.5, w: 2.4, len: [.35, .8], from: [376, 230], seed: 85, curl: .06 }), C.ink);
+    fill(ribbon([[196, -40], [204, 40], [222, 110], [246, 162], [270, 200]], 12, { a: .2, b: .35 }), C.cream);
+    fill(ribbon([[300, 236], [326, 244], [350, 246]], 6, { a: .3, b: .4 }), C.cream);
+    // under the jaw: the deepest place
+    fill(poly(under), C.terra);
+    fill(smooth([[380, 270], [470, 254], [560, 226], [620, 232], [570, 262], [480, 286], [400, 292]], 5), C.mauve);
+    fill(hatch(under, { ang: 76, gap: 5, w: 2.6, len: [.55, 1], from: [500, 200], seed: 91, jit: .25 }), C.ink);
+    fill(hatch([[500, 222], [640, 152], [656, 214], [612, 258], [540, 276]], { ang: 160, gap: 5.5, w: 2.2, len: [.5, 1], from: [650, 180], seed: 93 }), C.ink);
+    fill(hatch([[302, 258], [380, 254], [370, 290], [336, 298], [318, 286]], { ang: 130, gap: 5, w: 1.8, len: [.5, 1], from: [310, 260], seed: 95 }), C.ink);
+
+    // contours, heaviest on the shadow side
+    fill(ribbon([[140, -110], [168, 0], [190, 88], [224, 162], [262, 224], [302, 258]], 8, { a: .05, b: .25 }), C.ink);
+    fill(ribbon([[290, 256], [350, 266], [450, 240], [560, 198], [646, 148], [668, 118]], 13, { a: .2, b: .12 }), C.ink);
+    fill(ribbon([[600, -110], [640, 60], [650, 130]], 8, { a: 0, b: .3 }), C.ink);
+    fill(ribbon([[338, 296], [420, 306], [470, 302]], 4, { a: .2, b: .5 }), C.ink);
+    fill(ribbon([[540, 290], [612, 260], [652, 220]], 5, { a: .4, b: .2 }), C.ink);
+    fill(ribbon([[336, 288], [322, 340], [312, 400], [296, 476]], 6, { a: .1, b: .3 }), C.ink);
+    fill(ribbon([[656, 206], [662, 330], [676, 440], [716, 515], [890, 562]], 12, { a: .1, b: 0, min: .4 }), C.ink);
+    fill(claws([[640, 152], [600, 176], [560, 196]], { n: 6, len: 22, w: 3.6, side: -1, tilt: .5, seed: 99 }), C.ink);
+    fill(claws([[264, 226], [282, 244], [300, 256]], { n: 4, len: 16, w: 3, side: 1, tilt: -.4, seed: 101 }), C.ink);
+
+    // panel frame
+    const fr = el('g', {}, svg);
+    path(fr, ribbon([[30, 18], [410, 9], [794, 0]], 9, { a: 0, b: 0, min: .5, wob: .3 }), '', { fill: C.ink });
+    path(fr, ribbon([[790, -4], [796, 500], [802, 972]], 12, { a: 0, b: 0, min: .6, wob: .3 }), '', { fill: C.ink });
+    path(fr, ribbon([[806, 966], [400, 984], [4, 1002]], 12, { a: 0, b: 0, min: .6, wob: .3, ph: 2 }), '', { fill: C.ink });
+    path(fr, ribbon([[6, 1004], [20, 500], [34, 14]], 8, { a: 0, b: 0, min: .5, wob: .3, ph: 4 }), '', { fill: C.ink });
+  }
+
+  /* ---------- plates ---------- */
+  function drawPlate(host) {
+    const w = host.offsetWidth, h = host.offsetHeight;
+    if (!w || !h) return;
+    let svg = host.querySelector(':scope > svg.plate');
+    if (svg && svg.dataset.sz === w + 'x' + h) return;
+    if (!svg) { svg = el('svg', { class: 'plate', 'aria-hidden': 'true', focusable: 'false' }); host.prepend(svg); }
+    svg.dataset.sz = w + 'x' + h;
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.innerHTML = '';
+    const big = h > 90, seed = hash(host.textContent.trim().slice(0, 20) + w);
+    const r = rng(seed);
+    const c = big ? 22 : Math.min(12, h * .26);
+    const base = [[c, 0], [w, 0], [w, h - c], [w - c, h], [0, h], [0, c]];
+    path(svg, poly(base), 'b');
+    const g = el('g', { class: 'flip' }, svg);
+    if (!big) {
+      const s = Math.min(w * .42, h * 1.25);
+      const sh = [[w - s, h], [w - c, h], [w, h - c], [w, h - s * .8]];
+      path(g, poly(sh), 's');
+      path(g, hatch(sh, { ang: 62, gap: 4.4, w: 1.6, len: [.5, 1], from: [w, h], seed, jit: .35, ins: 1 }), 'h');
+      path(g, ribbon([[c + 5, 5], [c + w * .2, 4.2], [w * .55, 4.6]], 4, { a: .1, b: .6 }), 'c');
+      path(g, ribbon([[4.5, c + 4], [4, h * .62]], 3, { a: .1, b: .7 }), 'c');
+      // contour: light side thin, shadow side thick, corners overshoot
+      path(g, ribbon([[0, c], [c, -.5], [w * .5, -.5], [w + 3, 0]], 2.6, { lin: 1, a: 0, b: .2, min: .45, wob: .2 }), 'l');
+      path(g, ribbon([[0, c], [-.5, h * .55], [0, h + 2]], 2.6, { lin: 1, a: 0, b: .1, min: .5, wob: .2 }), 'l');
+      path(g, ribbon([[w + 1, -3], [w + 1, h - c], [w - c + 1, h + 1]], 5.4, { lin: 1, a: .15, b: .05, min: .55, wob: .2 }), 'l');
+      path(g, ribbon([[w - c, h + 1], [w * .5, h + 1.2], [-3, h + .5]], 5.4, { lin: 1, a: .05, b: .2, min: .5, wob: .2 }), 'l');
+    } else {
+      // larger panels: a hatched thickness along right and bottom, one carved slash
+      const t = 12;
+      const side = [[w, 18], [w, h - c], [w - c, h], [w * .25, h], [w * .25 + t, h - t], [w - c - t * .4, h - t], [w - t, h - c - t * .4], [w - t, 18 + t]];
+      path(g, poly(side), 's');
+      path(g, hatch([[w - t, h * .35], [w, h * .3], [w, h - c], [w - t, h - c]], { ang: 100, gap: 4.6, w: 1.8, len: [.6, 1], from: [w, h / 2], seed, ins: .5 }), 'h');
+      path(g, ribbon([[c + 8, 8], [c + 60, 7], [Math.min(w * .45, 260), 8]], 5, { a: .1, b: .6 }), 'c');
+      path(g, ribbon([[8, c + 8], [7.5, Math.min(h * .4, 160)]], 4, { a: .1, b: .7 }), 'c');
+      path(g, ribbon([[0, c], [c, -1], [w * .5, -1.6], [w + 4, -.5]], 3, { lin: 1, a: 0, b: .15, min: .4, wob: .25 }), 'l');
+      path(g, ribbon([[0, c], [-1, h * .5], [0, h + 3]], 3, { lin: 1, a: 0, b: .1, min: .5, wob: .25 }), 'l');
+      path(g, ribbon([[w + 1, -4], [w + 1.5, h * .5], [w + 1, h - c], [w - c + 2, h + 1]], 6.5, { lin: 1, a: .1, b: .03, min: .55, wob: .25 }), 'l');
+      path(g, ribbon([[w - c, h + 1.5], [w * .5, h + 2], [-4, h + 1]], 6.5, { lin: 1, a: .03, b: .15, min: .5, wob: .25 }), 'l');
+    }
+  }
+  const plates = [...document.querySelectorAll('.pl')];
+  const ro = new ResizeObserver(es => es.forEach(e => drawPlate(e.target)));
+  plates.forEach(p => { drawPlate(p); ro.observe(p); });
+
+  /* ---------- small drawings ---------- */
+  document.querySelectorAll('[data-ribbon]').forEach(s => {
+    const vb = s.viewBox.baseVal, W = vb.width, H = vb.height;
+    path(s, ribbon([[2, H * .65], [W * .3, H * .35], [W * .7, H * .4], [W - 2, H * .55]], H * .55, { a: .08, b: .45, wob: .2 }), 'ink');
+    if (s.dataset.ribbon === 'rule') path(s, ribbon([[W * .02, H * .3], [W * .1, H * .15]], H * .25, { a: .2, b: .6 }), 'ink');
+  });
+  const demo = {
+    taper(s) {
+      path(s, ribbon([[14, 92], [80, 40], [160, 30], [246, 70]], 14, { a: .25, b: .35 }), 'ink');
+      path(s, ribbon([[20, 108], [120, 92], [240, 100]], 4, { a: .2, b: .3 }), 'ink');
+    },
+    hatch(s) {
+      const P = [[10, 110], [250, 110], [250, 10], [140, 10]];
+      path(s, poly(P), 'tr');
+      path(s, hatch(P, { ang: 80, gap: 6, w: 2.4, len: [.4, 1], from: [250, 110], seed: 4 }), 'ink');
+      path(s, hatch([[180, 110], [250, 110], [250, 40]], { ang: 160, gap: 5.5, w: 2, len: [.6, 1], from: [250, 110], seed: 5 }), 'ink');
+      path(s, ribbon([[140, 10], [10, 110]], 5, { a: .1, b: .1 }), 'ink');
+    },
+    carve(s) {
+      path(s, poly([[0, 0], [260, 0], [260, 120], [0, 120]]), 'sk');
+      path(s, poly([[150, 0], [260, 0], [260, 120], [110, 120]]), 'tr');
+      path(s, ribbon([[30, 92], [70, 46], [130, 18]], 20, { a: .15, b: .5 }), 'cr');
+      path(s, ribbon([[180, 96], [200, 80], [222, 74]], 9, { a: .3, b: .4 }), 'cr');
+      path(s, ribbon([[150, -2], [130, 60], [110, 122]], 6, { lin: 1, a: 0, b: 0, min: .4 }), 'ink');
+    },
+    claw(s) {
+      path(s, poly([[0, 0], [260, 0], [260, 120], [0, 120]]), 'sk');
+      path(s, ribbon([[30, 110], [90, 50], [170, 20], [250, 12]], 9, { a: .2, b: .2 }), 'ink');
+      path(s, claws([[40, 100], [90, 52], [170, 22], [240, 14]], { n: 13, len: 30, w: 3.6, side: 1, tilt: .25, seed: 8 }), 'ink');
+    }
+  };
+  document.querySelectorAll('[data-demo]').forEach(s => demo[s.dataset.demo](s));
+
+  document.querySelectorAll('[data-tone]').forEach(s => {
+    const t = +s.dataset.tone, W = 120, H = 150, B = [[14, 0], [120, 0], [120, 136], [106, 150], [0, 150], [0, 14]];
+    const col = ['#fff6e8', '#efab8f', '#c86a51', '#ab92ad', '#3a2a2c'][t];
+    path(s, poly(B), '', { fill: col });
+    if (t >= 2) path(s, hatch(B, { ang: 72, gap: t === 4 ? 4 : 6.5, w: 2.4, len: t === 2 ? [.35, .9] : [.7, 1], from: [120, 150], seed: 20 + t }), 'ink');
+    if (t >= 3) path(s, hatch(B, { ang: 160, gap: t === 4 ? 4.5 : 7, w: 2, len: [.4, 1], from: [120, 150], seed: 30 + t }), 'ink');
+    if (t >= 4) { path(s, hatch(B, { ang: 115, gap: 5, w: 2, len: [.5, 1], from: [0, 150], seed: 40 }), 'ink'); }
+    if (t === 0) path(s, ribbon([[22, 120], [50, 60], [96, 22]], 10, { a: .2, b: .5 }), '', { fill: '#efab8f' });
+    path(s, ribbon([[-2, 16], [14, -1], [122, -1]], 3, { lin: 1, a: 0, b: .2, min: .5 }), 'ink');
+    path(s, ribbon([[0, -2], [-.5, 152]], 3, { lin: 1, a: 0, b: .1, min: .5 }), 'ink');
+    path(s, ribbon([[121, -2], [121, 136], [106, 151], [-2, 151]], 6, { lin: 1, a: .1, b: .05, min: .5 }), 'ink');
+  });
+  document.querySelectorAll('[data-sw]').forEach(s => {
+    const P = [[10, 2], [62, 2], [62, 54], [54, 62], [2, 62], [2, 10]];
+    path(s, poly(P), '', { fill: s.dataset.sw });
+    const sh = [[62, 22], [62, 54], [54, 62], [22, 62]];
+    path(s, poly(sh), '', { fill: s.dataset.sd });
+    path(s, hatch(sh, { ang: 60, gap: 4, w: 1.6, len: [.5, 1], from: [62, 62], seed: hash(s.dataset.sw) }), 'ink');
+    path(s, ribbon([[13, 7], [30, 6.5], [44, 7]], 3.6, { a: .1, b: .6 }), 'cr');
+    path(s, ribbon([[0, 11], [10, 1.4], [64, 1.4]], 2.4, { lin: 1, a: 0, b: .2, min: .5 }), 'ink');
+    path(s, ribbon([[63, 0], [63, 55], [54, 63], [0, 63]], 4.6, { lin: 1, a: .1, b: .05, min: .5 }), 'ink');
+  });
+  document.querySelectorAll('[data-switch]').forEach(s => {
+    const T = [[10, 8], [84, 8], [84, 30], [76, 38], [0, 38], [0, 16]];
+    path(s, poly(T), 'trk');
+    path(s, hatch([[50, 38], [76, 38], [84, 30], [84, 18]], { ang: 60, gap: 4, w: 1.5, len: [.6, 1], from: [84, 38], seed: 2 }), 'hk');
+    path(s, ribbon([[0, 16], [10, 7.5], [84, 7.5]], 2.6, { lin: 1, a: 0, b: .1, min: .5 }), 'ink');
+    path(s, ribbon([[84.5, 6], [84.5, 30], [76, 38.5], [-1, 38.5]], 4.4, { lin: 1, a: .05, b: .05, min: .5 }), 'ink');
+    path(s, ribbon([[0, 14], [0, 39]], 2.4, { lin: 1, a: 0, b: 0, min: .6 }), 'ink');
+    const k = el('g', { class: 'knob' }, s);
+    const K = [[23, 0], [44, 22], [23, 44], [2, 22]];
+    path(k, poly(K), 'kb');
+    path(k, poly([[44, 22], [23, 44], [18, 36], [32, 22]]), 'ks');
+    path(k, hatch([[44, 22], [23, 44], [30, 22]], { ang: 45, gap: 3.6, w: 1.4, len: [.6, 1], from: [34, 34], seed: 3 }), 'ink');
+    path(k, ribbon([[23, -1], [2, 22], [23, 45]], 2.6, { lin: 1, a: .05, b: .05, min: .5 }), 'ink');
+    path(k, ribbon([[23, -1], [45, 22], [23, 45]], 4.6, { lin: 1, a: .05, b: .05, min: .5 }), 'ink');
+  });
+  document.querySelectorAll('[data-study]').forEach(s => {
+    const kind = s.dataset.study;
+    path(s, poly([[0, 0], [400, 0], [400, 170], [0, 170]]), '', { fill: '#a2a888' });
+    if (kind === 'jaw') {
+      const fc = [[0, 0], [400, 0], [400, 40], [300, 70], [180, 96], [60, 104], [0, 92]];
+      path(s, poly(fc), 'sk');
+      const un = [[0, 92], [60, 104], [180, 96], [300, 70], [400, 40], [400, 110], [300, 130], [160, 150], [0, 140]];
+      path(s, poly(un), 'tr');
+      path(s, smooth([[60, 124], [180, 116], [300, 96], [380, 80], [300, 112], [160, 134], [70, 136]], 5), 'mv');
+      path(s, hatch(un, { ang: 80, gap: 5.5, w: 2.4, len: [.5, 1], from: [200, 60], seed: 1 }), 'ink');
+      path(s, hatch([[220, 90], [400, 40], [400, 110], [300, 130]], { ang: 165, gap: 6, w: 2, len: [.5, 1], from: [400, 70], seed: 2 }), 'ink');
+      path(s, poly([[0, 140], [160, 150], [300, 130], [400, 110], [400, 170], [0, 170]]), 'sk');
+      path(s, ribbon([[0, 92], [60, 104], [180, 96], [300, 70], [404, 38]], 9, { lin: 1, a: .05, b: .05, min: .3 }), 'ink');
+      path(s, ribbon([[40, 40], [120, 34], [200, 22]], 9, { a: .2, b: .5 }), 'cr');
+      path(s, claws([[60, 104], [180, 96], [300, 70]], { n: 9, len: 18, w: 3, side: -1, tilt: .3, seed: 4 }), 'ink');
+      path(s, ribbon([[0, 142], [160, 152], [300, 132], [404, 110]], 4, { a: .1, b: .2 }), 'ink');
+    } else if (kind === 'clav') {
+      path(s, poly([[0, 0], [400, 0], [400, 170], [0, 170]]), 'sk');
+      const hol = [[0, 92], [120, 82], [260, 70], [400, 74], [400, 120], [260, 106], [120, 116], [0, 130]];
+      path(s, smooth(hol, 4), 'tr');
+      path(s, hatch(hol, { ang: 92, gap: 5.5, w: 2.2, len: [.5, 1], from: [200, 60], seed: 6 }), 'ink');
+      path(s, ribbon([[0, 66], [120, 58], [260, 46], [404, 52]], 18, { lin: 1, a: .1, b: .05, min: .2 }), 'cr');
+      path(s, ribbon([[0, 92], [120, 82], [260, 70], [404, 74]], 7, { lin: 1, a: .05, b: 0, min: .4 }), 'ink');
+      path(s, hatch([[240, 140], [400, 130], [400, 170], [260, 170]], { ang: 170, gap: 6, w: 2, len: [.3, .8], from: [400, 150], seed: 7 }), 'ink');
+      path(s, ribbon([[30, 30], [140, 24], [300, 18]], 3, { a: .3, b: .3 }), 'ink');
+    } else {
+      // three finger planes, foreshortened, with claw strokes at the knuckles
+      path(s, poly([[0, 0], [400, 0], [400, 170], [0, 170]]), '', { fill: '#a2a888' });
+      const fingers = [[[20, 170], [60, 40], [130, 20], [150, 60], [110, 170]], [[110, 170], [160, 50], [230, 34], [244, 76], [200, 170]], [[200, 170], [258, 70], [330, 60], [340, 104], [290, 170]]];
+      fingers.forEach((F, i) => {
+        path(s, poly(F), 'sk');
+        const sh = [F[2], F[3], F[4], [F[4][0] - 30, F[4][1]], [F[3][0] - 26, F[3][1] + 20]];
+        path(s, poly(sh), 'tr');
+        path(s, hatch(sh, { ang: 120, gap: 5, w: 2, len: [.5, 1], from: F[3], seed: 10 + i }), 'ink');
+        const nail = [F[1].map((v, j) => v + [10, 4][j]), [F[1][0] + 46, F[1][1] - 10], [F[1][0] + 52, F[1][1] + 14], [F[1][0] + 14, F[1][1] + 26]];
+        path(s, poly(nail), '', { fill: '#bcd6e2' });
+        path(s, ribbon([nail[0], nail[3], nail[2]], 3, { a: .1, b: .2 }), 'ink');
+        path(s, ribbon([F[0], F[1], F[2]], 5, { a: .05, b: .3 }), 'ink');
+        path(s, ribbon([F[2], F[3], F[4]], 7, { lin: 1, a: .1, b: .05, min: .3 }), 'ink');
+        path(s, ribbon([[F[1][0] + 4, F[1][1] + 40], [F[1][0] - 6, F[1][1] + 80]], 7, { a: .2, b: .5 }), 'cr');
+        path(s, claws([[F[1][0] + 10, F[1][1] + 60], [F[3][0] - 10, F[3][1] + 40]], { n: 5, len: 14, w: 2.6, side: 1, tilt: .2, seed: 20 + i }), 'ink');
+      });
+    }
+  });
+
+  // pressure curve under the slider
+  const pr = document.querySelector('[data-pressure]');
+  function drawPressure(v) {
+    pr.innerHTML = '';
+    const w = 4 + v / 100 * 26;
+    path(pr, ribbon([[8, 44], [90, 20], [200, 34], [300, 16], [392, 30]], w, { a: .2, b: .35 }), 'ink');
+    path(pr, ribbon([[40, 50], [120, 34], [180, 40]], Math.max(2, w * .25), { a: .2, b: .5 }), 'cr');
+  }
+
+  // progress meter
+  const mtSvg = document.querySelector('[data-meter]');
+  let mtRect;
+  (function drawMeter() {
+    const W = 400, H = 34, T = [[8, 4], [400, 4], [400, 26], [392, 30], [0, 30], [0, 12]];
+    path(mtSvg, poly(T), '', { fill: '#fff6e8' });
+    const cl = el('clipPath', { id: 'mtc', class: 'fillclip' }, mtSvg);
+    mtRect = el('rect', { x: 0, y: 0, width: 160, height: H }, cl);
+    const g = el('g', { 'clip-path': 'url(#mtc)' }, mtSvg);
+    path(g, poly(T), 'sk');
+    path(g, poly([[0, 20], [400, 14], [400, 26], [392, 30], [0, 30]]), 'tr');
+    path(g, hatch(T, { ang: 70, gap: 5, w: 2, len: [.3, .9], from: [200, 34], seed: 12 }), 'ink');
+    path(g, ribbon([[10, 9], [200, 8], [390, 9]], 3, { a: .05, b: .3 }), 'cr');
+    path(mtSvg, ribbon([[-2, 13], [8, 3.4], [402, 3.4]], 2.6, { lin: 1, a: 0, b: .1, min: .5 }), 'ink');
+    path(mtSvg, ribbon([[401, 2], [401, 26], [392, 31], [-2, 31]], 5, { lin: 1, a: .05, b: .05, min: .5 }), 'ink');
+  })();
+  const meter = document.querySelector('.meter'), mtV = document.getElementById('mt-v');
+  let mtVal = 40;
+  function setMeter(v) { mtVal = Math.max(0, Math.min(100, v)); mtRect.setAttribute('width', mtVal * 4); meter.setAttribute('aria-valuenow', mtVal); mtV.textContent = mtVal + '%'; }
+  document.getElementById('mt-up').addEventListener('click', () => { setMeter(mtVal + 15); if (mtVal === 100) toast('마감|모든 쪽에 펜선이 들어갔다.'); });
+  document.getElementById('mt-re').addEventListener('click', () => setMeter(0));
+
+  /* ---------- behaviour ---------- */
+  const rngIn = document.getElementById('rng'), rngO = document.getElementById('rng-o');
+  const onRange = () => { rngIn.parentElement.style.setProperty('--p', rngIn.value + '%'); rngO.textContent = rngIn.value; drawPressure(+rngIn.value); };
+  rngIn.addEventListener('input', onRange); onRange();
+
+  document.querySelectorAll('.switch').forEach(b => b.addEventListener('click', () => b.setAttribute('aria-checked', b.getAttribute('aria-checked') !== 'true')));
+  document.querySelectorAll('.chip, [data-latch]').forEach(b => b.addEventListener('click', () => b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true')));
+
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  function select(t, focus) {
+    tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; document.getElementById(x.getAttribute('aria-controls')).hidden = !on; });
+    if (focus) t.focus();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', e => {
+      const k = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+      if (k) { e.preventDefault(); select(tabs[(i + k + tabs.length) % tabs.length], true); }
+      if (e.key === 'Home') { e.preventDefault(); select(tabs[0], true); }
+      if (e.key === 'End') { e.preventDefault(); select(tabs[tabs.length - 1], true); }
+    });
+  });
+
+  // toasts
+  const tbox = document.getElementById('toasts');
+  function toast(msg) {
+    const [t, b] = msg.split('|');
+    const n = document.createElement('div');
+    n.className = 'toast pl';
+    n.innerHTML = '<div><b></b><span></span></div><button type="button" aria-label="알림 닫기"></button>';
+    n.querySelector('b').textContent = t; n.querySelector('span').textContent = b || '';
+    tbox.appendChild(n);
+    drawPlate(n); ro.observe(n);
+    while (tbox.children.length > 3) tbox.firstElementChild.remove();
+    let gone = false;
+    const kill = () => { if (gone) return; gone = true; ro.unobserve(n); if (RM.matches) { n.remove(); return; } n.classList.add('out'); setTimeout(() => n.remove(), 230); };
+    n.querySelector('button').addEventListener('click', kill);
+    setTimeout(kill, 5000);
+  }
+  document.querySelectorAll('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+
+  // dialog with focus lines
+  const dlg = document.getElementById('scene'), lines = document.getElementById('lines');
+  function drawLines() {
+    const W = innerWidth, H = innerHeight, cx = W / 2, cy = H / 2, R = Math.hypot(W, H) * .6;
+    lines.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const r = rng(Date.now() & 0xffff); let d = '';
+    const rx = Math.min(W * .42, 360), ry = Math.min(H * .38, 300);
+    for (let i = 0; i < 150; i++) {
+      const a = r() * Math.PI * 2, e = 1 + r() * .45;
+      const A = [cx + Math.cos(a) * R, cy + Math.sin(a) * R], B = [cx + Math.cos(a) * rx * e, cy + Math.sin(a) * ry * e];
+      d += stroke(A, B, 2 + r() * (r() < .2 ? 14 : 6), 0);
+    }
+    lines.innerHTML = ''; path(lines, d, '');
+  }
+  let opener = null;
+  document.querySelectorAll('[data-open-scene]').forEach(b => b.addEventListener('click', () => {
+    opener = b; drawLines(); dlg.showModal();
+    dlg.querySelectorAll('.pl').forEach(drawPlate);
+    document.getElementById('dlg-no').focus();
+  }));
+  document.getElementById('dlg-no').addEventListener('click', () => dlg.close());
+  document.getElementById('dlg-ok').addEventListener('click', () => { dlg.close(); toast('확정|연필을 지우고 펜선만 남겼다.'); });
+  document.getElementById('dlg-bg').addEventListener('click', e => { if (e.target.id === 'dlg-bg') dlg.close(); });
+  dlg.addEventListener('close', () => { if (opener) opener.focus(); });
+
+  drawArt(document.getElementById('art'));
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

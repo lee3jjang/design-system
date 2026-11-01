@@ -25,6 +25,7 @@
     { id: 'bottega', path: 'bottega/index.html', name: 'Bottega', ko: '르네상스 공방', c: ['#efe4cf', '#26408f', '#c0432b'] },
     { id: 'pleinair', path: 'pleinair/index.html', name: 'Plein Air', ko: '인상주의', c: ['#f4ecd8', '#6f8fd0', '#e7a24a'] },
     { id: 'absurd', path: 'absurd/index.html', name: 'Absurd', ko: '포스트모던 × 실존', c: ['#f2f0eb', '#111111', '#e5322d'] },
+    { id: 'tratteggio', path: 'tratteggio/index.html', name: 'Tratteggio', ko: '해칭과 펜선', c: ['#e4e3d1', '#efab8f', '#17120f'] },
     { id: 'inkstone', path: 'inkstone/index.html', name: 'Inkstone', ko: '크로스오버 · Sansa×Dal×Riso', c: ['#f3eee2', '#24418f', '#8e3b2a'], x: true },
     { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },
     { id: 'mix1', path: 'mix1/index.html', name: 'Lacuna', ko: '추상 크로스오버 · 바탕 없는 겹테 장치', c: ['#ffffff', '#111111', '#2457d6'], m: true },

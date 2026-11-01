@@ -96,7 +96,7 @@ a { color: var(--walnut-d); text-underline-offset: 4px; }
 .edge-r { right: 0; background: #a59e90 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='520'%3E%3Crect width='24' height='520' fill='%23aaa395'/%3E%3Crect x='24' width='24' height='520' fill='%23b4ad9f'/%3E%3Crect x='48' width='24' height='520' fill='%239e978a'/%3E%3Cg stroke='%23766f63' stroke-width='.8' fill='none' opacity='.45'%3E%3Cpath d='M7 0c1 120-2 260 1 520M15 0c-1 180 2 330-1 520M33 0c2 140-1 300 2 520M40 0c-1 90 1 380 0 520M57 0c1 200-2 300 1 520M65 0c-2 130 2 290-1 520'/%3E%3Cellipse cx='36' cy='300' rx='3' ry='9'/%3E%3C/g%3E%3Cg fill='%2357524a'%3E%3Crect x='23' width='1.6' height='520'/%3E%3Crect x='47' width='1.6' height='520'/%3E%3Crect x='71' width='1' height='520'/%3E%3Ccircle cx='12' cy='60' r='1.6'/%3E%3Ccircle cx='60' cy='60' r='1.6'/%3E%3Ccircle cx='36' cy='450' r='1.6'/%3E%3C/g%3E%3C/svg%3E") repeat; }
 .edge-r::before { left: 0; }
 
-.dusk { position: fixed; inset: 0; pointer-events: none; z-index: 30; opacity: 0; transition: opacity .9s; box-shadow: inset 0 0 140px 30px rgba(40, 18, 4, .42); }
+.dusk { position: fixed; inset: 0; pointer-events: none; z-index: 30; opacity: 0; transition: opacity .9s; box-shadow: inset 0 0 170px 40px rgba(40, 18, 4, .48); background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255, 170, 70, .1), transparent 70%); }
 body[data-light="evening"] .dusk { opacity: 1; }
 
 /* ================= ceiling ================= */
@@ -149,7 +149,7 @@ body[data-light="evening"] .bulb .glass { fill: rgba(255, 200, 120, .55); }
 .sub { margin-top: 18px; font: 700 clamp(22px, 2.4vw, 28px)/1.35 var(--f-body); color: var(--ink); }
 .lede { margin-top: 14px; max-width: 30em; color: var(--ink-2); font-size: 18px; }
 /* framed portraits, one long frame as on the café wall */
-.portraits { margin-top: 30px; display: inline-grid; grid-auto-flow: column; gap: 10px; padding: 12px; background: #f1ead8; border: 9px solid var(--beam-2); box-shadow: inset 0 0 0 1px rgba(0,0,0,.2), 0 10px 18px rgba(40, 20, 5, .22); max-width: 100%; transform: rotate(-.6deg); }
+.portraits { margin-top: 30px; display: inline-grid; grid-template-columns: repeat(4, auto); gap: 10px; padding: 12px; background: #f1ead8; border: 9px solid var(--beam-2); box-shadow: inset 0 0 0 1px rgba(0,0,0,.2), 0 10px 18px rgba(40, 20, 5, .22); max-width: 100%; transform: rotate(-.6deg); }
 .portraits svg { width: clamp(52px, 7vw, 76px); height: auto; }
 .portraits figcaption { grid-column: 1 / -1; font-size: 16px; color: var(--ink-3); }
 
@@ -169,6 +169,7 @@ body[data-light="evening"] .bulb .glass { fill: rgba(255, 200, 120, .55); }
 
 /* ================= section heads ================= */
 .sec { position: relative; z-index: 2; padding-block: 56px 28px; }
+#wall .head { margin-bottom: 48px; }
 .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 32px; margin-bottom: 26px; }
 .head h2 { font: 400 clamp(34px, 4vw, 48px)/1.1 var(--f-title); }
 .head h2 small { display: block; font: 600 16px/1.3 var(--f-plate); letter-spacing: .3em; color: var(--ink-3); margin-bottom: 8px; }
@@ -193,7 +194,7 @@ body[data-light="evening"] .bulb .glass { fill: rgba(255, 200, 120, .55); }
 .rail { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 34px 14px; padding: 4px 4px 0; }
 .rail li { position: relative; padding-bottom: 16px; }
 .rail li::after { content: ""; position: absolute; left: -11px; right: -11px; bottom: 0; height: 16px; background: linear-gradient(180deg, var(--beam-hi) 0 2px, var(--beam-2) 2px 10px, var(--beam) 10px); box-shadow: 0 8px 10px rgba(40, 20, 5, .25); }
-.rail li::before { content: ""; position: absolute; left: -11px; right: -11px; bottom: 16px; height: 7px; background: var(--beam-2); box-shadow: inset 0 2px 0 rgba(255, 220, 180, .12); z-index: 2; }
+.rail li::before { content: ""; position: absolute; left: -11px; right: -11px; bottom: 16px; height: 5px; background: var(--beam-2); box-shadow: inset 0 2px 0 rgba(255, 220, 180, .12); z-index: 2; }
 .sleeve { display: block; width: 100%; padding: 0; border: 0; background: none; position: relative; transform: rotate(var(--tilt, 0deg)); transform-origin: 50% 100%; transition: transform .45s cubic-bezier(.3, 1.4, .5, 1), opacity .3s, filter .3s; }
 .sleeve svg { width: 100%; height: auto; box-shadow: 1px 2px 0 rgba(0,0,0,.12), 3px 8px 14px rgba(40, 20, 5, .28); border-radius: 1px; }
 .sleeve .disc { position: absolute; top: 4%; left: 8%; width: 84%; aspect-ratio: 1; border-radius: 50%; background: repeating-radial-gradient(circle, #141110 0 2px, #1f1a17 2px 3px); z-index: -1; transition: transform .45s cubic-bezier(.3, 1.4, .5, 1); }
@@ -220,7 +221,7 @@ body[data-light="evening"] .vu, body[data-play="on"] .vu { background: #ffdf9a; 
 
 /* record player in a woven case, lid up */
 .player { position: relative; max-width: 470px; justify-self: center; width: 100%; }
-.lid { position: relative; width: 74%; margin-inline: auto; padding: 12px; background: var(--walnut); border-radius: 4px 4px 0 0;
+.lid { position: relative; width: 64%; margin-inline: auto; padding: 12px; background: var(--walnut); border-radius: 4px 4px 0 0;
   background-image: repeating-linear-gradient(90deg, transparent 0 6px, rgba(0,0,0,.07) 6px 7px, transparent 7px 17px);
   box-shadow: inset 2px 2px 0 rgba(255,220,180,.18), inset -2px 0 0 rgba(0,0,0,.25); }
 .lid .cover { aspect-ratio: 1; background: #1b1512; box-shadow: inset 0 0 0 1px rgba(0,0,0,.4); }
@@ -441,9 +442,9 @@ body[data-src="radio"] .dial, body[data-light="evening"] .dial { background: #ff
 .tray label { position: relative; display: grid; justify-items: center; align-content: end; gap: 4px; min-height: 104px; padding: 8px 4px; cursor: pointer; text-align: center; font: 500 16px/1.2 var(--f-ui); color: #2a1d14; }
 .tray label::before { content: ""; position: absolute; inset: 0;
   background:
-    repeating-linear-gradient(90deg, rgba(90, 60, 25, .4) 0 1px, transparent 1px 4px),
-    #d9c08d; }
-.tray label:nth-child(even)::before { background: repeating-linear-gradient(0deg, rgba(90, 60, 25, .4) 0 1px, transparent 1px 4px), #c4a46a; }
+    repeating-linear-gradient(90deg, rgba(90, 60, 25, .22) 0 1px, transparent 1px 4px),
+    repeating-conic-gradient(#dcc493 0 25%, #a98650 0 50%) 0 0 / 26px 26px; }
+.tray label + label { box-shadow: -2px 0 0 #3a2a1c; }
 .tray label > * { position: relative; }
 .tray input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .tray .cupt { width: 44px; height: 44px; border-radius: 50%; background: #f4efe4; box-shadow: 0 3px 0 rgba(0,0,0,.25), inset 0 0 0 4px #f4efe4, inset 0 0 0 30px var(--d); transform: scale(.4); opacity: 0; transition: transform .3s cubic-bezier(.3, 1.6, .5, 1), opacity .2s; }
@@ -453,8 +454,6 @@ body[data-src="radio"] .dial, body[data-light="evening"] .dial { background: #ff
 .tray label:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: -3px; z-index: 1; }
 
 .slip { position: relative; padding: 30px 26px 26px; background: var(--paper); transform: rotate(-.7deg);
-  background-image: repeating-linear-gradient(180deg, transparent 0 39px, rgba(60, 90, 140, .22) 39px 40px);
-  background-position: 0 14px;
   clip-path: polygon(0 3px, 4% 0, 9% 4px, 15% 1px, 22% 3px, 30% 0, 38% 4px, 46% 1px, 55% 3px, 63% 0, 72% 4px, 80% 1px, 88% 3px, 95% 0, 100% 3px, 100% 100%, 0 100%);
   box-shadow: 0 10px 18px rgba(40, 20, 5, .22); filter: drop-shadow(0 6px 10px rgba(40, 20, 5, .2)); }
 .slip h3 { font: 400 30px/1.2 var(--f-title); }
@@ -493,13 +492,13 @@ footer.foot a { display: inline-grid; place-items: center; min-height: 44px; fon
 
 /* ================= toast tickets & dialog ================= */
 .toasts { position: fixed; right: 16px; bottom: 16px; z-index: 40; display: grid; gap: 10px; justify-items: end; pointer-events: none; max-width: calc(100vw - 110px); }
-.ticket { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; align-items: center; padding: 12px 20px 12px 16px; background: #f3e3b6; color: var(--ink); box-shadow: 0 8px 14px rgba(30, 15, 5, .3);
+.ticket { position: relative; display: grid; width: min(340px, 100%); grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; align-items: center; padding: 12px 20px 12px 16px; background: #f3e3b6; color: var(--ink); box-shadow: 0 8px 14px rgba(30, 15, 5, .3);
   -webkit-mask: radial-gradient(circle at 0 50%, transparent 8px, #000 8.5px) left / 51% 100% no-repeat, radial-gradient(circle at 100% 50%, transparent 8px, #000 8.5px) right / 51% 100% no-repeat;
   mask: radial-gradient(circle at 0 50%, transparent 8px, #000 8.5px) left / 51% 100% no-repeat, radial-gradient(circle at 100% 50%, transparent 8px, #000 8.5px) right / 51% 100% no-repeat;
   animation: tin .45s cubic-bezier(.3, 1.4, .5, 1); }
 .ticket .no { font: 600 16px/1 var(--f-plate); letter-spacing: .12em; color: var(--felt-red); writing-mode: vertical-rl; border-right: 2px dashed rgba(42, 29, 20, .35); padding-right: 10px; }
 .ticket b { display: block; font: 700 16px/1.35 var(--f-ui); }
-.ticket span { display: block; font: 400 16px/1.35 var(--f-body); color: var(--ink-2); }
+.ticket .tb span { display: block; font: 400 16px/1.35 var(--f-body); color: var(--ink-2); }
 .ticket.out { animation: tout .35s ease-in forwards; }
 @keyframes tin { from { transform: translateY(20px) rotate(3deg); opacity: 0; } }
 @keyframes tout { to { transform: translateY(16px); opacity: 0; } }
@@ -539,6 +538,10 @@ dialog .close { margin-top: 18px; }
   .beam nav { display: none; }
   .pull { right: calc(var(--edge) + 8px); }
   .bulb.b3 { display: none; }
+  .bulb.b2 .cord { height: 30px !important; }
+  .bulb.b1 .cord { height: 20px !important; }
+  .reel .plate span:nth-child(2) { display: none; }
+  .lid { width: 74%; }
 }
 @media (max-width: 520px) {
   .rail { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px 12px; }
@@ -569,7 +572,7 @@ dialog .close { margin-top: 18px; }
   <defs>
     <filter id="chalky" x="-5%" y="-5%" width="110%" height="110%">
       <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="1" seed="7" result="n"/>
-      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.3 1.12" result="m"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.75 1.18" result="m"/>
       <feComposite in="SourceGraphic" in2="m" operator="in"/>
     </filter>
     <pattern id="hatchW" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><path d="M0 3h6" stroke="#bcd9e6" stroke-width="1.6" opacity=".8"/></pattern>
@@ -793,7 +796,7 @@ dialog .close { margin-top: 18px; }
       <div class="kitchen">
         <div class="board">
           <div class="slate moka">
-            <div class="drawing"><svg id="mokaSvg" viewBox="0 0 240 300" role="img" aria-label="분필로 그린 모카포트"></svg></div>
+            <div class="drawing"><svg id="mokaSvg" viewBox="0 0 240 310" role="img" aria-label="분필로 그린 모카포트"></svg></div>
             <div class="chalk-side">
               <h2 class="chalk">오늘은 <u>모카포트</u>로 내려요</h2>
               <p class="chalk">수증기가 밀어 올리는 커피. 진하고 길게 남고, 카페인은 조금 덜해요.</p>
@@ -960,7 +963,7 @@ dialog .close { margin-top: 18px; }
         g += `<circle cx="70" cy="28" r="13" fill="${A}"/>`; break;
       case 'cup': g += `<circle cx="54" cy="52" r="27" fill="#f2e7cf"/><circle cx="54" cy="52" r="21" fill="${A}"/><circle cx="54" cy="52" r="15" fill="#7a4a26" opacity=".6"/><path d="M80 48c8 0 8 9 0 9" fill="none" stroke="#f2e7cf" stroke-width="4"/>`;
         g += `<path d="M44 20c-4-5 4-8 0-13M54 18c-4-5 4-8 0-13M64 20c-4-5 4-8 0-13" fill="none" stroke="${W}" stroke-width="1.6" stroke-linecap="round"/>`; break;
-      case 'rafter': for (let i = 0; i < 9; i++) { const x = -20 + i * 17.5; g += `<path d="M50 104L${f1(x)} 26" stroke="${W}" stroke-width="${i % 2 ? 1.2 : 3}"/>`; } g += `<rect x="0" y="22" width="100" height="9" fill="${W}"/>`; break;
+      case 'rafter': for (let i = 0; i < 9; i++) { const x = -20 + i * 17.5; g += `<path d="M50 104L${f1(x)} 26" stroke="${W}" stroke-width="${i % 2 ? 1.2 : 3}"/>`; } g += `<rect x="0" y="22" width="100" height="9" fill="${W}"/><rect x="0" y="78" width="100" height="22" fill="${r.bg}" opacity=".85"/>`; break;
       case 'window': g += `<rect x="60" y="26" width="16" height="21" fill="${A}"/><path d="M68 26v21M60 36h16" stroke="${r.bg}" stroke-width="1.6"/><path d="M58 49h20" stroke="${A}" opacity=".35" stroke-width="2"/>`;
         for (let i = 0; i < 18; i++) g += `<circle cx="${f1(rr() * 100)}" cy="${f1(rr() * 30)}" r=".6" fill="${W}" opacity=".6"/>`; break;
       case 'yard': g += `<circle cx="34" cy="56" r="14" fill="${A}"/><rect y="56" width="100" height="44" fill="${r.bg}"/><path d="M0 56h100" stroke="${W}" stroke-width="1.6"/><path d="M8 20h84" stroke="${W}" stroke-width=".8"/>`;
@@ -971,9 +974,9 @@ dialog .close { margin-top: 18px; }
       case 'chair': g += `<rect x="40" y="18" width="5" height="62" fill="${W}"/><rect x="40" y="50" width="30" height="5" fill="${W}"/><rect x="65" y="50" width="5" height="30" fill="${W}"/><rect x="40" y="18" width="18" height="5" fill="${W}"/>`; break;
       case 'lace': for (let y = 14; y < 70; y += 18) for (let x = (y / 18 % 2) * 9 + 6; x < 100; x += 18) { g += `<circle cx="${x}" cy="${y}" r="6" fill="none" stroke="${A}" stroke-width="1.4"/><circle cx="${x}" cy="${y}" r="1.6" fill="${A}"/>`; for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; g += `<circle cx="${f1(x + Math.cos(a) * 8.4)}" cy="${f1(y + Math.sin(a) * 8.4)}" r="1" fill="${A}"/>`; } } break;
     }
-    const titleY = r.art === 'rain' || r.art === 'window' || r.art === 'chair' || r.art === 'yard' ? 92 : 90;
-    const tx = r.art === 'cup' ? `<text x="8" y="15" font-family="Song Myung, serif" font-size="13" fill="${W}">${r.t}</text><text x="8" y="94" font-family="Barlow Condensed, sans-serif" font-size="7.5" letter-spacing="1" fill="${W}">${r.a} · ${r.y}</text>`
-      : `<text x="8" y="${titleY - 8}" font-family="Song Myung, serif" font-size="${r.t.length > 4 ? 11 : 14}" fill="${r.art === 'keys' || r.art === 'rafter' ? A : W}">${r.t}</text><text x="8" y="${titleY + 2}" font-family="Barlow Condensed, sans-serif" font-size="7.5" letter-spacing="1" fill="${W}" opacity=".85">${r.a} · ${r.y}</text>`;
+    const titleY = 84;
+    const tx = (r.art === 'cup' || r.art === 'rafter') ? `<text x="8" y="15" font-family="Song Myung, serif" font-size="13" fill="${W}">${r.t}</text><text x="8" y="86" font-family="Barlow Condensed, sans-serif" font-size="7.5" letter-spacing="1" fill="${W}">${r.a} · ${r.y}</text>`
+      : `<text x="8" y="${titleY - 8}" font-family="Song Myung, serif" font-size="${r.t.length > 4 ? 11 : 14}" fill="${r.art === 'keys' ? A : W}">${r.t}</text><text x="8" y="${titleY + 2}" font-family="Barlow Condensed, sans-serif" font-size="7.5" letter-spacing="1" fill="${W}" opacity=".85">${r.a} · ${r.y}</text>`;
     const wear = `<circle cx="50" cy="50" r="45" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="3.5"/><path d="M0 3V0h3M97 0h3v3M100 97v3h-3M3 100H0v-3" stroke="#fff" stroke-opacity=".35" stroke-width="2" fill="none"/>`;
     const price = r.price ? `<g transform="rotate(-7 84 10)"><rect x="70" y="4" width="26" height="11" rx="1.4" fill="#efdf9f" opacity=".95"/><text x="83" y="12.4" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-size="7.5" fill="#6a4a1a">₩${r.price}</text></g>` : '';
     return `<svg viewBox="0 0 100 100" ${big ? '' : 'aria-hidden="true"'}><rect width="100" height="100" fill="${r.bg}"/>${g}${tx}${wear}${price}</svg>`;
@@ -1152,7 +1155,7 @@ dialog .close { margin-top: 18px; }
     let s = `<rect x="0" y="10" width="1100" height="90" fill="#7d3a32"/><rect x="0" y="10" width="1100" height="16" fill="#2f3550"/><rect x="0" y="84" width="1100" height="16" fill="#2f3550"/>`;
     for (let x = 6; x < 1100; x += 22) s += `<path d="M${x} 18l5-5 5 5-5 5z" fill="#d9c7a1" opacity=".8"/><path d="M${x} 92l5-5 5 5-5 5z" fill="#d9c7a1" opacity=".8"/>`;
     for (let x = 40; x < 1100; x += 120) s += `<path d="M${x} 55l26-18 26 18-26 18z" fill="#2f3550"/><path d="M${x + 12} 55l14-10 14 10-14 10z" fill="#c89b54"/><path d="M${x + 22} 55l4-3 4 3-4 3z" fill="#7d3a32"/>`;
-    s += `<ellipse cx="560" cy="58" rx="160" ry="30" fill="#e9d9c0" opacity=".2"/><ellipse cx="880" cy="40" rx="80" ry="16" fill="#e9d9c0" opacity=".14"/>`;
+    s += `<rect x="470" y="10" width="190" height="90" fill="#f0e2c8" opacity=".09"/><rect x="520" y="10" width="80" height="90" fill="#f0e2c8" opacity=".07"/>`;
     for (let x = 2; x < 1100; x += 6) s += `<path d="M${x} 10v-8M${x} 100v8" stroke="#e6dac3" stroke-width="1.6"/>`;
     $('#rug').innerHTML = s;
   })();
@@ -1238,8 +1241,8 @@ dialog .close { margin-top: 18px; }
   function toast(t, s) {
     const box = $('#toasts'); tn++;
     const el = document.createElement('div'); el.className = 'ticket';
-    el.innerHTML = `<span class="no" aria-hidden="true">No.${String(tn).padStart(3, '0')}</span><div><b></b><span></span></div>`;
-    el.querySelector('b').textContent = t; el.querySelector('div span').textContent = s;
+    el.innerHTML = `<span class="no" aria-hidden="true">No.${String(tn).padStart(3, '0')}</span><div class="tb"><b></b><span></span></div>`;
+    el.querySelector('.tb b').textContent = t; el.querySelector('.tb span').textContent = s;
     box.appendChild(el);
     while (box.children.length > 3) box.firstElementChild.remove();
     setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 360); }, 3600);
@@ -1253,7 +1256,7 @@ dialog .close { margin-top: 18px; }
   const TOP = [[70, 92], [150, 92], [138, 162], [82, 162]]; // top chamber (flares up)
   const BOT = [[84, 172], [136, 172], [154, 250], [66, 250]]; // bottom chamber (flares down)
   const outline = (P, seed) => wob(path(seg(P[0], P[1], 6), seg(P[1], P[2], 5), seg(P[2], P[3], 5), seg(P[3], P[0], 5)), seed, 1.4, true);
-  const ch = (d, w = 2.6, extra = '') => `<path d="${d}" fill="none" stroke="#f2efe6" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
+  const ch = (d, w = 3, extra = '') => `<path d="${d}" fill="none" stroke="#f2efe6" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
   const facets = (P, seed) => { let s = ''; for (const t of [.3, .5, .7]) { const a = [P[0][0] + (P[1][0] - P[0][0]) * t, P[0][1]], b = [P[3][0] + (P[2][0] - P[3][0]) * t, P[3][1]]; s += ch(wob(seg(a, b, 4), seed + t * 100, 1.3), 1.5, 'opacity=".8"'); } return s; };
   const toPoly = P => P.map(p => p.join(',')).join(' ');
   const steamD = 'M110 64c-14-12 10-22-2-36c-10-12-30-4-30 10c0 18 26 20 30 36c4-16 30-18 30-36c0-14-20-22-30-10';
@@ -1271,15 +1274,15 @@ dialog .close { margin-top: 18px; }
       ${ch(wob([[150, 96], [176, 98], [182, 112], [176, 140], [164, 156], [142, 152]], 29, 1.6), 2.6)}
       ${ch(wob([[156, 102], [172, 104], [174, 124], [166, 146], [146, 146]], 31, 1.4), 1.4, 'opacity=".7"')}
       ${ch('M96 214a6 6 0 1 0 0.1 0', 1.8)}
-      ${ch(wob([[30, 266], [80, 262], [140, 264], [210, 260]], 33, 2), 2)}
-      ${ch('M40 262c-6-10 0-18 8-14c4 4 0 12-8 14M52 262c0-12 10-14 12-8c2 6-6 10-12 8', 1.6, 'opacity=".85"')}
-      ${ch('M182 248c4-8 12-8 14-2c2 6-8 8-14 2M194 244c-4-8 2-12 8-8', 1.6, 'opacity=".85"')}
+      ${ch(wob([[60, 252], [70, 256], [150, 256], [160, 252]], 35, 1), 1.8)}${ch(wob([[78, 287], [142, 287]], 37, 1), 2.4)}${ch(wob([[30, 294], [80, 291], [140, 293], [210, 289]], 33, 2), 2)}
+      ${ch('M40 291c-6-10 0-18 8-14c4 4 0 12-8 14M52 291c0-12 10-14 12-8c2 6-6 10-12 8', 1.6, 'opacity=".85"')}
+      ${ch('M182 284c4-8 12-8 14-2c2 6-8 8-14 2M194 280c-4-8 2-12 8-8', 1.6, 'opacity=".85"')}
       ${ch('M22 150c-3-6 3-9 6-5c3-4 9-1 6 5l-6 6z', 1.6, 'opacity=".8"')}
       <path class="steam" id="steam" d="${steamD}" fill="none" stroke="#f2efe6" stroke-width="2.4" stroke-linecap="round"/>
       <g class="flame" id="flame" opacity="0">
-        <path d="M94 262c-6-8-2-16 2-22c2 8 8 10 4 22z" fill="none" stroke="#f1a65a" stroke-width="2"/>
-        <path d="M108 262c-6-10-2-20 3-28c2 10 9 14 5 28z" fill="none" stroke="#f1a65a" stroke-width="2.2"/>
-        <path d="M124 262c-5-8-2-15 2-21c2 7 7 10 3 21z" fill="none" stroke="#f1a65a" stroke-width="2"/>
+        <path d="M94 284c-6-8-2-16 2-22c2 8 8 10 4 22z" fill="none" stroke="#f1a65a" stroke-width="2"/>
+        <path d="M108 284c-6-10-2-20 3-28c2 10 9 14 5 28z" fill="none" stroke="#f1a65a" stroke-width="2.2"/>
+        <path d="M124 284c-5-8-2-15 2-21c2 7 7 10 3 21z" fill="none" stroke="#f1a65a" stroke-width="2"/>
       </g>
       <text class="gurgle" id="gurgle" x="160" y="70" font-family="Gaegu" font-size="20" font-weight="700" fill="#ffe1a1">보글보글</text>
     </g>`;

@@ -313,9 +313,8 @@ dialog[open] { animation: settle 1.2s var(--slow); }
         <path id="sp" d="M16 74 C 22 50, 70 36, 150 38 C 250 40, 330 50, 450 52 C 560 54, 660 52, 792 60 C 700 70, 600 78, 470 84 C 360 90, 260 92, 170 98 C 100 104, 40 104, 22 94 C 12 88, 12 80, 16 74 Z"/>
       </defs>
       <g class="ink-on">
-        <use href="#sp" fill="#3a3430" opacity=".12" filter="url(#bleed)"/>
-        <g mask="url(#solidM)"><use href="#sp" fill="#26211e" opacity=".92" filter="url(#dryDense)"/></g>
-        <use href="#sp" fill="#26211e" opacity=".88" filter="url(#dry)"/>
+        <g id="hairs" fill="none" stroke="#24201d" stroke-linecap="round"></g>
+        <use href="#hairs" opacity=".16" filter="url(#bleed)"/>
       </g>
     </svg>
     <div class="callig">
@@ -425,12 +424,8 @@ dialog[open] { animation: settle 1.2s var(--slow); }
       <g>
         <rect x="356" y="166" width="566" height="520" fill="#0d0705" opacity=".5" filter="url(#shS)" transform="translate(3 6)"/>
         <path d="M352 160 L 600 157 L 918 159 L 917 420 L 919 678 L 640 680 L 353 677 L 351 420 Z" fill="#f3efe7" filter="url(#crumple2)"/>
-        <g transform="translate(380 420) scale(.5)">
-          <g mask="url(#solidM)"><use href="#sp" fill="#26211e" opacity=".9" filter="url(#dryDense)"/></g>
-          <use href="#sp" fill="#26211e" opacity=".86" filter="url(#dry)"/>
-        </g>
-                <rect x="884" y="436" width="14" height="14" rx="2" fill="#a8352b" opacity=".8"/>
-      </g>
+        <use href="#hairs" transform="translate(380 420) scale(.5)"/>
+              </g>
 
       <!-- wooden saucer -->
       <g>
@@ -591,9 +586,9 @@ dialog[open] { animation: settle 1.2s var(--slow); }
         <p class="say">두 손으로 든다. 빛깔을 보고, 향을 맡고, 맛은 맨 나중에.</p>
         <div class="row">
           <button class="act" type="button" id="cupBtn" disabled>잔을 든다</button>
-          <button class="soft" type="button" id="again" hidden>다시 처음부터</button>
         </div>
         <p class="closing" id="closing" aria-live="polite"></p>
+        <div class="row"><button class="soft" type="button" id="again" hidden>다시 처음부터</button></div>
       </section>
     </div>
   </div>
@@ -673,6 +668,29 @@ dialog[open] { animation: settle 1.2s var(--slow); }
     const jx = -400 + rnd() * 1800;
     el('rect', { x: jx, y, width: 1.4, height: 113, fill: '#8a6844', opacity: .55 }, planks);
   }
+
+  /* ── the dry stroke: hairs of a half-dry brush, pressed at the start and splitting toward the end ── */
+  (() => {
+    const g = $('#hairs'); let r2 = 11; const R = () => (r2 = (r2 * 48271) % 2147483647) / 2147483647;
+    const cy = x => 70 - 14 * Math.sin(x / 800 * Math.PI * .9) + 3 * Math.sin(x / 120);
+    const wid = x => 72 * (1 - Math.pow(x / 800, 1.1) * .86);
+    const N = 120;
+    const line = (x0, x1, off) => { let d = ''; for (let x = x0, k = 0; x <= x1 + .1; x += 16, k++) d += (k ? ' L' : 'M') + x.toFixed(1) + ' ' + (cy(x) + off * wid(x)).toFixed(1); return d; };
+    for (let i = 0; i < N; i++) {
+      const t = i / (N - 1), edge = Math.abs(t - .5) * 2;
+      const len = 800 * Math.min(1, (.3 + .68 * Math.pow(1 - edge, .55) * (.5 + R() * .5)));
+      const x0 = 20 + R() * 14 + edge * 16, off = (t - .5) + (R() - .5) * .03;
+      const w = .7 + R() * 2.1 * (1 - edge * .4), op = (.4 + R() * .55).toFixed(2);
+      const starved = Math.sin(t * 29 + 1.3) * Math.sin(t * 9 + .4) > .28;
+      const mid = x0 + (len - x0) * (starved ? .08 + R() * .12 : .3 + R() * .35);
+      el('path', { d: line(x0, mid, off), 'stroke-width': w.toFixed(2), 'stroke-opacity': op }, g);
+      const L = len - mid; if (L < 20) continue;
+      const dash = []; let acc = 0;
+      while (acc < L) { const seg = 10 + R() * 90 * (1 - acc / L), gap = 3 + R() * 22 * (acc / L + .2); dash.push(seg.toFixed(0), gap.toFixed(0)); acc += seg + gap; }
+      el('path', { d: line(mid - 4, len, off), 'stroke-width': (w * (.35 + R() * .3)).toFixed(2), 'stroke-opacity': (op * .85).toFixed(2), 'stroke-dasharray': dash.join(' ') }, g);
+    }
+    el('path', { d: 'M24 72 C 24 50, 44 38, 70 38 C 84 50, 92 70, 86 104 C 50 106, 24 94, 24 72 Z', fill: '#24201d', stroke: 'none', opacity: .7, filter: 'url(#wob)' }, g);
+  })();
 
   /* ── cups ── */
   const CUPS = [[440, 236], [578, 222], [716, 236]];

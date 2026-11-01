@@ -25,6 +25,7 @@
     { id: 'bottega', path: 'bottega/index.html', name: 'Bottega', ko: '르네상스 공방', c: ['#efe4cf', '#26408f', '#c0432b'] },
     { id: 'pleinair', path: 'pleinair/index.html', name: 'Plein Air', ko: '인상주의', c: ['#f4ecd8', '#6f8fd0', '#e7a24a'] },
     { id: 'absurd', path: 'absurd/index.html', name: 'Absurd', ko: '포스트모던 × 실존', c: ['#f2f0eb', '#111111', '#e5322d'] },
+    { id: 'tratteggio', path: 'tratteggio/index.html', name: 'Tratteggio', ko: '해칭과 펜선', c: ['#e4e3d1', '#efab8f', '#17120f'] },
     { id: 'inkstone', path: 'inkstone/index.html', name: 'Inkstone', ko: '크로스오버 · Sansa×Dal×Riso', c: ['#f3eee2', '#24418f', '#8e3b2a'], x: true },
     { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },
     { id: 'mix1', path: 'mix1/index.html', name: 'Lacuna', ko: '추상 크로스오버 · 바탕 없는 겹테 장치', c: ['#ffffff', '#111111', '#2457d6'], m: true },
@@ -36,6 +37,7 @@
     { id: 'score', path: 'score/index.html', name: 'Tacet', ko: '도형 악보, 여섯 장', c: ['#efe8da', '#141414', '#c23a2b'], a: true },
     { id: 'glyph', path: 'glyph/index.html', name: 'Ignota', ko: '해독되지 않은 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },
     { id: 'chaesaek', path: 'chaesaek/index.html', name: 'Chaesaek', ko: '튤립 · 얇은 색 열두 겹', c: ['#efebe4', '#b3243a', '#3f7a3a'], a: true },
+    { id: 'aisthesis', path: 'aisthesis/index.html', name: 'Aisthesis', ko: '이해하지 않고 겪는 열 개의 방', c: ['#0d0c0b', '#dcd7d0', '#c8452c'], a: true },
     { id: 'poom', path: 'poom/index.html', name: '품', ko: '두 살 딸을 꼭 안았을 때', c: ['#fbefe4', '#f2b9a0', '#e88a74'], a: true },
   ];
 

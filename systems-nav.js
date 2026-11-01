@@ -43,6 +43,7 @@
     { id: 'glyph', path: 'glyph/index.html', name: 'Ignota', ko: '해독되지 않은 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },
     { id: 'chaesaek', path: 'chaesaek/index.html', name: 'Chaesaek', ko: '튤립 · 얇은 색 열두 겹', c: ['#efebe4', '#b3243a', '#3f7a3a'], a: true },
     { id: 'aisthesis', path: 'aisthesis/index.html', name: 'Aisthesis', ko: '이해하지 않고 겪는 열 개의 방', c: ['#0d0c0b', '#dcd7d0', '#c8452c'], a: true },
+    { id: 'darye', path: 'darye/index.html', name: 'Darye', ko: '다례 · 한 잔을 우리는 동안', c: ['#ece6dc', '#2a1a16', '#c2c98a'], a: true },
     { id: 'poom', path: 'poom/index.html', name: '품', ko: '두 살 딸을 꼭 안았을 때', c: ['#fbefe4', '#f2b9a0', '#e88a74'], a: true },
   ];
 

@@ -36,6 +36,7 @@
     { id: 'score', path: 'score/index.html', name: 'Tacet', ko: '도형 악보, 여섯 장', c: ['#efe8da', '#141414', '#c23a2b'], a: true },
     { id: 'glyph', path: 'glyph/index.html', name: 'Ignota', ko: '해독되지 않은 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },
     { id: 'chaesaek', path: 'chaesaek/index.html', name: 'Chaesaek', ko: '튤립 · 얇은 색 열두 겹', c: ['#efebe4', '#b3243a', '#3f7a3a'], a: true },
+    { id: 'aisthesis', path: 'aisthesis/index.html', name: 'Aisthesis', ko: '이해하지 않고 겪는 열 개의 방', c: ['#0d0c0b', '#dcd7d0', '#c8452c'], a: true },
     { id: 'poom', path: 'poom/index.html', name: '품', ko: '두 살 딸을 꼭 안았을 때', c: ['#fbefe4', '#f2b9a0', '#e88a74'], a: true },
   ];
 

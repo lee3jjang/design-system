@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aisthesis — 겪는 미학, 열 개의 방</title>
+<meta name="description" content="Aisthesis. 열 명의 미학자, 열 개의 방. 방마다 한 사람의 생각이 규칙이 된다. 읽지 말고 겪는 전시.">
+<meta name="theme-color" content="#0b0a09">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@200;300;400;600&family=IBM+Plex+Sans+KR:wght@400;500&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: #0b0a09; scroll-behavior: auto; }
+  body {
+    margin: 0; background: #0b0a09; color: #ece5d8; overflow-x: clip;
+    font: 400 17px/1.75 "Hahmlet", "Apple SD Gothic Neo", serif;
+    -webkit-font-smoothing: antialiased; word-break: keep-all;
+  }
+  .vh { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .skip { position: absolute; left: 16px; top: -80px; z-index: 100; background: #ece5d8; color: #0b0a09; padding: 12px 16px; font: 500 16px/1 "IBM Plex Sans KR", sans-serif; text-decoration: none; }
+  .skip:focus { top: 16px; }
+  a, button, input { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+
+  /* ───── threshold: a door left ajar ───── */
+  .door { position: relative; min-height: 100svh; display: grid; align-items: end; padding: 0 clamp(16px, 6vw, 96px) clamp(72px, 14vh, 160px); overflow: hidden; background: #0b0a09; }
+  .slit { position: absolute; top: 0; bottom: 0; left: 64%; width: calc(1px + var(--open, 0) * 46px); transform: translateX(-50%);
+    background: linear-gradient(to bottom, rgba(255, 226, 180, 0), rgba(255, 226, 180, .9) 28%, rgba(255, 214, 160, .95) 72%, rgba(255, 226, 180, .1));
+    box-shadow: 0 0 calc(8px + var(--open, 0) * 60px) calc(1px + var(--open, 0) * 10px) rgba(255, 200, 140, .28); }
+  .slit::after { content: ""; position: absolute; left: 50%; bottom: -2px; width: calc(40px + var(--open, 0) * 600px); height: 38vh; transform: translateX(-50%);
+    background: radial-gradient(50% 100% at 50% 100%, rgba(255, 210, 150, .16), transparent 70%); }
+  .door-t { position: relative; max-width: 640px; }
+  .greek { margin: 0 0 6px; font: 300 18px/1 "Hahmlet", serif; letter-spacing: .14em; color: #b3aa9a; }
+  .door h1 { margin: 0; font: 200 clamp(60px, 13vw, 176px)/.9 "Hahmlet", serif; letter-spacing: -.035em; color: #f1ead9; }
+  .door .sub { margin: 18px 0 0; font-size: clamp(18px, 2.2vw, 22px); color: #ece5d8; }
+  .door .how { margin: 8px 0 0; font: 400 16px/1.7 "IBM Plex Sans KR", sans-serif; color: #a69d8e; max-width: 26em; }
+
+  /* ───── rooms ───── */
+  .room { --bg: #0e0c0a; --fg: #ece5d8; --mut: #a69d8e; position: relative; background: var(--bg); color: var(--fg);
+    min-height: 100svh; padding: clamp(64px, 11vh, 128px) clamp(16px, 5vw, 72px) clamp(64px, 10vh, 112px);
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 270px); grid-template-rows: auto auto; gap: 22px clamp(28px, 4vw, 56px); align-items: end; overflow-x: clip; }
+  .stage { position: relative; grid-column: 1; height: clamp(380px, 72svh, 780px); min-width: 0; }
+  .stage > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; }
+  .ctl { grid-column: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; min-height: 44px; font: 400 16px/1.4 "IBM Plex Sans KR", sans-serif; color: var(--mut); }
+  .ctl label { display: flex; align-items: center; gap: 14px; flex: 1 1 220px; max-width: 460px; }
+  .ctl label span { white-space: nowrap; }
+  .plaque { grid-column: 2; grid-row: 1 / span 2; align-self: end; padding-bottom: 6px; }
+  .plaque .no { margin: 0 0 14px; font: 300 16px/1 "Hahmlet", serif; letter-spacing: .3em; color: var(--mut); }
+  .plaque h2 { margin: 0; font: 300 30px/1.15 "Hahmlet", serif; letter-spacing: -.01em; }
+  .plaque .yr { margin: 6px 0 18px; font: 400 16px/1.4 "IBM Plex Sans KR", sans-serif; color: var(--mut); letter-spacing: .04em; }
+  .plaque .line { margin: 0; font: 300 18px/1.75 "Hahmlet", serif; text-wrap: pretty; }
+  .plaque .cap { margin: 14px 0 0; font: 400 16px/1.6 "IBM Plex Sans KR", sans-serif; color: var(--mut); }
+
+  .btn { appearance: none; font: 500 16px/1 "IBM Plex Sans KR", sans-serif; color: var(--fg); background: transparent; border: 1px solid currentColor; border-radius: 999px;
+    min-height: 44px; min-width: 44px; padding: 0 20px; cursor: pointer; letter-spacing: .02em; transition: background .25s, color .25s; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  .btn:hover { background: color-mix(in srgb, var(--fg) 10%, transparent); }
+  .btn.down, .btn:active { background: var(--fg); color: var(--bg); }
+  .btn[disabled] { opacity: .6; cursor: default; }
+
+  .rng { -webkit-appearance: none; appearance: none; flex: 1 1 auto; min-width: 0; width: 100%; height: 44px; margin: 0; background: transparent; color: var(--fg); cursor: pointer; touch-action: pan-y; }
+  .rng::-webkit-slider-runnable-track { height: 1px; background: color-mix(in srgb, currentColor 55%, transparent); }
+  .rng::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -10px; border-radius: 50%; background: currentColor; border: 0; }
+  .rng::-moz-range-track { height: 1px; background: color-mix(in srgb, currentColor 55%, transparent); }
+  .rng::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: currentColor; border: 0; }
+
+  .room[data-light="true"] { --fg: #1d1b18; --mut: #554d45; }
+  .room, .room .btn, .room .plaque, .room .ctl { transition: color .6s; }
+  /* I plato */
+  #plato { --bg: #0e0c0a; }
+  .glare { position: absolute; inset: 0; pointer-events: none; background: #fff8ec; opacity: 0; }
+
+  /* II aristotle */
+  #aristo { --bg: #110c0b; --mut: #ab9d92; }
+
+  /* III kant: the useless button */
+  #kant { --bg: #e9e5dc; --fg: #1d1b18; --mut: #5d574e; }
+  #kant .stage { display: grid; place-items: center; }
+  .well { width: 232px; height: 232px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 50% 46%, #ddd8cd 0 56%, #e4e0d6 70%, #e9e5dc 72%);
+    box-shadow: inset 0 3px 10px rgba(70, 60, 45, .22), inset 0 -1px 0 rgba(255, 255, 255, .8), 0 1px 0 rgba(255, 255, 255, .9); }
+  .kbtn { position: relative; width: 168px; height: 168px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; color: #1d1b18; touch-action: manipulation;
+    background: radial-gradient(circle at 42% 32%, #fbf9f5 0, #efebe3 38%, #e2ddd2 78%, #d7d1c5 100%);
+    box-shadow: inset 0 1px 0 #fff, inset 0 -3px 6px rgba(90, 78, 60, .16), 0 14px 22px -10px rgba(70, 58, 40, .45), 0 4px 5px -1px rgba(70, 58, 40, .28), 0 0 0 1px rgba(90, 80, 64, .12);
+    transform: translateY(0) scale(1); transition: transform .42s cubic-bezier(.2, 1.9, .4, 1), box-shadow .42s cubic-bezier(.2, 1.4, .4, 1); }
+  .kbtn::before { content: ""; position: absolute; inset: 22px; border-radius: 50%; box-shadow: inset 0 1px 2px rgba(80, 70, 55, .2), 0 1px 0 rgba(255, 255, 255, .85); }
+  .kbtn::after { content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: #1d1b18; opacity: .78; }
+  .kbtn.down { transform: translateY(3px) scale(.982); transition: transform .06s ease-out, box-shadow .06s ease-out;
+    box-shadow: inset 0 1px 0 #fff, inset 0 -1px 3px rgba(90, 78, 60, .12), 0 4px 8px -6px rgba(70, 58, 40, .45), 0 1px 1px rgba(70, 58, 40, .25), 0 0 0 1px rgba(90, 80, 64, .14); }
+  .kbtn:focus-visible { outline: 2px solid #1d1b18; outline-offset: 10px; }
+
+  /* III′ kant: the sublime */
+  #kant2 { position: relative; height: 420svh; background: #0b0a09; }
+  .sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+  .sticky canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .subcap { position: absolute; right: clamp(16px, 5vw, 72px); bottom: clamp(28px, 7vh, 72px); max-width: 300px; text-align: right; margin: 0; color: var(--sc, #1d1b18); transition: color .4s; }
+  .subcap b { display: block; font: 300 24px/1.2 "Hahmlet", serif; }
+  .subcap span { display: block; margin-top: 8px; font: 400 16px/1.6 "IBM Plex Sans KR", sans-serif; opacity: .92; }
+
+  /* IV schopenhauer */
+  #scho { --bg: #0e131a; --mut: #9aa5b2; }
+
+  /* V nietzsche */
+  #nietz { --bg: #100e12; --mut: #a7a0aa; }
+  .poles { display: flex; align-items: center; gap: 14px; flex: 1 1 320px; max-width: 560px; }
+  .poles i { font-style: normal; white-space: nowrap; }
+
+  /* VI dewey */
+  #dewey { --bg: #ebe3d3; --fg: #241f1a; --mut: #5a5146; }
+  .dstat { position: absolute; left: 0; right: 0; bottom: 6%; margin: 0; text-align: center; font: 300 22px/1.3 "Hahmlet", serif; color: #241f1a; opacity: 0; transition: opacity 1.4s; pointer-events: none; }
+  .dstat.on { opacity: 1; }
+
+  /* VII benjamin */
+  #benj { --bg: #dcd8cf; --fg: #1c1b19; --mut: #4f4b44; }
+  #benj .stage { height: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); align-items: start; }
+  .orig { margin: 0; --aura: 1; }
+  .orig .frame { position: relative; aspect-ratio: 1; width: 100%; max-width: 480px; background: #e9e3d6;
+    box-shadow: 0 0 calc(70px * var(--aura)) calc(10px * var(--aura)) rgba(255, 244, 214, calc(.85 * var(--aura))), 0 18px 30px -18px rgba(40, 34, 24, .5); transition: box-shadow 1.6s; animation: breathe 7s ease-in-out infinite; }
+  @keyframes breathe { 50% { box-shadow: 0 0 calc(90px * var(--aura)) calc(16px * var(--aura)) rgba(255, 244, 214, calc(.95 * var(--aura))), 0 18px 30px -18px rgba(40, 34, 24, .5); } }
+  .orig canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .orig figcaption { margin-top: 18px; font: 400 16px/1.6 "IBM Plex Sans KR", sans-serif; color: var(--mut); }
+  .orig figcaption b { color: var(--fg); font-weight: 500; }
+  .copies { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; align-content: start; min-height: 120px; }
+  .copies img { width: 100%; aspect-ratio: 1; display: block; image-rendering: pixelated; animation: printin .35s ease-out both; }
+  .copies .empty { grid-column: 1 / -1; margin: 0; font: 400 16px/1.6 "IBM Plex Sans KR", sans-serif; color: var(--mut); border: 1px dashed #8f897f; padding: 18px; }
+  @keyframes printin { from { opacity: 0; transform: translateY(-6px); } }
+
+  /* VIII heidegger */
+  #heid { --bg: #0d0b08; --fg: #e9e0cb; --mut: #a39a87; }
+  .tool { --vis: 1; flex: 1 1 260px; max-width: 460px; display: flex; align-items: center; gap: 14px; }
+  .tool .rng { opacity: var(--vis); transition: opacity .9s; }
+  .tool .tname { font: 400 16px/1 "IBM Plex Sans KR", sans-serif; opacity: calc(var(--vis) * .9); transition: opacity .9s; white-space: nowrap; }
+  .tool.broken { --vis: 1; }
+  .tool.broken .rng { color: #ffe7b8; animation: jolt .5s; }
+  .tool.broken .rng::-webkit-slider-thumb { width: 34px; height: 34px; margin-top: -17px; border-radius: 3px; background: repeating-linear-gradient(115deg, #ffe7b8 0 5px, #8c6a3a 5px 7px); box-shadow: 0 0 0 2px #0d0b08, 0 0 0 3px #ffe7b8; }
+  .tool.broken .rng::-moz-range-thumb { width: 34px; height: 34px; border-radius: 3px; background: repeating-linear-gradient(115deg, #ffe7b8 0 5px, #8c6a3a 5px 7px); }
+  .tool.broken .tname { color: #ffe7b8; opacity: 1; }
+  @keyframes jolt { 20% { transform: translateX(-5px) rotate(-1deg); } 50% { transform: translateX(4px) rotate(.8deg); } 80% { transform: translateX(-2px); } }
+
+  /* IX merleau-ponty */
+  #merleau { --bg: #e8e0cc; --fg: #221f1a; --mut: #564e40; }
+
+  /* X danto */
+  #danto { --bg: #f4f3f0; --fg: #1d1d1d; --mut: #5c5c5c; }
+  #danto .stage { display: grid; align-items: end; }
+  .pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(16px, 6vw, 96px); padding-bottom: 8px; }
+  .obj { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 18px; transition: transform 1.3s cubic-bezier(.65, 0, .35, 1); position: relative; z-index: 1; }
+  .thing { position: relative; width: min(100%, 210px); aspect-ratio: 1; }
+  .thing::before { content: ""; position: absolute; inset: 0; background: linear-gradient(176deg, #fdfdfc, #f0efeb 70%, #e8e6e1); box-shadow: 0 0 0 1px rgba(0, 0, 0, .06); }
+  .thing::after { content: ""; position: absolute; left: -6%; right: -6%; bottom: -10px; height: 18px; background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, .14), transparent 70%); z-index: -1; }
+  .tag { min-height: 110px; width: min(100%, 230px); font: 400 16px/1.5 "IBM Plex Sans KR", sans-serif; color: var(--mut); }
+  .tag b { display: block; color: var(--fg); font: 400 18px/1.4 "Hahmlet", serif; }
+  .tag i { display: block; margin-top: 6px; font-style: normal; color: var(--fg); }
+  .tag .nil { letter-spacing: .3em; }
+  .obj .btn { padding: 0 16px; }
+  .ctl input[type=text] { flex: 1 1 auto; min-width: 0; min-height: 44px; font: 400 16px/1.2 "IBM Plex Sans KR", sans-serif; color: var(--fg); background: transparent; border: 0; border-bottom: 1px solid var(--mut); padding: 8px 2px; border-radius: 0; }
+  .ctl input[type=text]::placeholder { color: var(--mut); opacity: 1; }
+
+  /* coda */
+  #coda { --bg: #0b0a09; --mut: #a69d8e; }
+  .tot { margin: 0; font: 400 16px/1.6 "IBM Plex Sans KR", sans-serif; color: var(--mut); }
+
+  footer.col { background: #0b0a09; color: #a69d8e; padding: 14vh clamp(16px, 6vw, 96px) 16vh calc(clamp(16px, 6vw, 96px) + 0px); text-align: right; font: 400 16px/1.7 "IBM Plex Sans KR", sans-serif; }
+  footer.col p { margin: 0 0 6px; }
+  footer.col .nm { font: 300 34px/1.2 "Hahmlet", serif; color: #ece5d8; margin-bottom: 10px; }
+  footer.col a { color: #ece5d8; text-underline-offset: 6px; text-decoration-color: rgba(236, 229, 216, .4); display: inline-block; min-height: 44px; padding-top: 10px; }
+
+  @media (max-width: 820px) {
+    .room { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; align-items: start; }
+    .plaque { grid-column: 1; grid-row: auto; padding-top: 8px; }
+    .stage { height: clamp(340px, 64svh, 620px); }
+    #benj .stage { grid-template-columns: minmax(0, 1fr); }
+    .orig .frame { max-width: 420px; }
+    .plaque h2 { font-size: 26px; }
+  }
+  @media (max-width: 480px) {
+    .well { width: 200px; height: 200px; }
+    .kbtn { width: 148px; height: 148px; }
+    .subcap { left: 16px; right: 16px; max-width: none; bottom: 96px; }
+    .slit { left: 72%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .orig .frame { animation: none; }
+    .copies img { animation: none; }
+    .obj, .kbtn, .tool .rng, .tool .tname, .dstat { transition: none; }
+    .tool.broken .rng { animation: none; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#plato">첫 번째 방으로 건너뛰기</a>
+
+<header class="door" id="door">
+  <div class="slit" aria-hidden="true"></div>
+  <div class="door-t">
+    <p class="greek" lang="grc">αἴσθησις · 감각함</p>
+    <h1>Aisthesis</h1>
+    <p class="sub">이해하지 않고 겪는 열 개의 방</p>
+    <p class="how">방마다 한 사람의 생각이 규칙이 됩니다. 벽글은 짧고, 나머지는 손과 시간으로 겪습니다.</p>
+  </div>
+</header>
+
+<main>
+  <!-- I -->
+  <section class="room" id="plato" data-tr="#c58a52" aria-labelledby="h1p">
+    <div class="stage" id="platoStage">
+      <canvas data-main role="img" aria-label="어두운 동굴 벽. 보이지 않는 별 모양 입체의 그림자가 큰 벽에 비치고, 오른쪽 작은 액자 안에는 그 그림자를 다시 흐릿하게 베낀 그림자가 있다."></canvas>
+      <div class="glare" id="glare" aria-hidden="true"></div>
+    </div>
+    <div class="ctl">
+      <label><span>불의 자리</span><input class="rng" id="platoL" type="range" min="0" max="100" value="50" aria-label="불의 자리. 그림자의 모양이 바뀐다"></label>
+      <button class="btn" id="platoTurn" type="button">뒤돌아보기</button>
+      <span class="vh" id="platoSay" aria-live="polite"></span>
+    </div>
+    <aside class="plaque">
+      <p class="no">I</p>
+      <h2 id="h1p">플라톤</h2>
+      <p class="yr">기원전 427 – 347</p>
+      <p class="line">우리가 보는 것은 참된 것의 그림자이고, 그림은 그 그림자를 다시 베낀 것이다.</p>
+      <p class="cap">불을 옮겨 보라. 형상은 끝내 벽에 오지 않는다.</p>
+    </aside>
+  </section>
+
+  <!-- II -->
+  <section class="room" id="aristo" data-tr="#d0503a" aria-labelledby="h2a">
+    <div class="stage" id="aristoStage">
+      <canvas data-main role="img" aria-label="수십 가닥의 현이 머무를수록 한 줄로 조여들고 어두워진다. 끝까지 조여지면 한 번에 풀려 밝아진다."></canvas>
+    </div>
+    <div class="ctl">
+      <button class="btn" id="aristoHold" type="button" aria-describedby="aristoHint">견디기</button>
+      <span id="aristoHint">누르고 있는 동안 더 빨리 조여든다</span>
+      <span class="vh" id="aristoSay" aria-live="polite"></span>
+    </div>
+    <aside class="plaque">
+      <p class="no">II</p>
+      <h2 id="h2a">아리스토텔레스</h2>
+      <p class="yr">기원전 384 – 322</p>
+      <p class="line">연민과 두려움을 끝까지 겪고 나면, 그 감정은 씻겨 나간다.</p>
+      <p class="cap">머무를수록 조여든다. 그리고 한 번, 놓인다.</p>
+    </aside>
+  </section>
+
+  <!-- III -->
+  <section class="room" id="kant" data-tr="#e9e5dc" aria-labelledby="h3k">
+    <div class="stage">
+      <div class="well"><button class="kbtn" id="kbtn" type="button" aria-label="누르는 버튼. 누르면 아무 일도 일어나지 않는다"></button></div>
+    </div>
+    <div class="ctl"><span>세지 않는다. 남기지 않는다. 아무것도 일어나지 않는다.</span></div>
+    <aside class="plaque">
+      <p class="no">III</p>
+      <h2 id="h3k">칸트</h2>
+      <p class="yr">1724 – 1804</p>
+      <p class="line">아름다움은 쓸모를 묻지 않고 좋아하는 것, 목적 없이도 꼭 맞아 보이는 것이다.</p>
+      <p class="cap">눌러 보라. 그것으로 끝이다. 그리고 아래로.</p>
+    </aside>
+  </section>
+
+  <!-- III′ sublime -->
+  <section id="kant2" data-tr="#8f897f" aria-labelledby="h3s">
+    <div class="sticky">
+      <canvas data-main role="img" aria-label="점 하나가 화면을 넘어설 만큼 커지고, 거듭제곱으로 늘어나는 동심원 속으로 빠져든다. 끝에서 작은 네모 하나가 그 전체를 담는다."></canvas>
+      <p class="subcap" id="subcap"><b id="h3s">숭고</b><span id="subtxt">점 하나. 계속 내려가라.</span></p>
+    </div>
+  </section>
+
+  <!-- IV -->
+  <section class="room" id="scho" data-tr="#7fa1c0" aria-labelledby="h4s">
+    <div class="stage" id="schoStage">
+      <canvas data-main role="img" aria-label="수많은 입자가 들끓는다. 아무것도 하지 않으면 입자들이 수평선과 둥근 달의 고요한 그림으로 가라앉는다."></canvas>
+    </div>
+    <div class="ctl"><span id="schoHint">움직이지 말고, 누르지 말고, 내리지 말 것.</span><span class="vh" id="schoSay" aria-live="polite"></span></div>
+    <aside class="plaque">
+      <p class="no">IV</p>
+      <h2 id="h4s">쇼펜하우어</h2>
+      <p class="yr">1788 – 1860</p>
+      <p class="line">바라는 동안 우리는 바퀴에 묶여 있고, 바라봄 속에서만 잠시 풀려난다.</p>
+      <p class="cap">원하지 않을 때, 비로소 보인다.</p>
+    </aside>
+  </section>
+
+  <!-- V -->
+  <section class="room" id="nietz" data-tr="#c03a52" aria-labelledby="h5n">
+    <div class="stage" id="nietzStage">
+      <canvas data-main role="img" aria-label="둥근 형상들의 격자. 한쪽으로 끌면 투명한 질서 속에 얼어붙고, 다른 쪽으로 끌면 붉게 소용돌이치며 녹아 흩어진다."></canvas>
+    </div>
+    <div class="ctl">
+      <span class="poles"><i aria-hidden="true">아폴론</i><input class="rng" id="nietzV" type="range" min="0" max="100" value="50" aria-label="아폴론에서 디오니소스까지"><i aria-hidden="true">디오니소스</i></span>
+    </div>
+    <aside class="plaque">
+      <p class="no">V</p>
+      <h2 id="h5n">니체</h2>
+      <p class="yr">1844 – 1900</p>
+      <p class="line">비극은 질서의 꿈과 도취의 춤이 한 몸 안에서 다툴 때 태어난다.</p>
+      <p class="cap">끌어 보라. 어느 한쪽만으로는 살아 있지 않다.</p>
+    </aside>
+  </section>
+
+  <!-- VI -->
+  <section class="room" id="dewey" data-tr="#c4683e" aria-labelledby="h6d">
+    <div class="stage" id="deweyStage">
+      <canvas data-main role="img" aria-label="흩어진 호의 조각들. 누르고 있으면 모여 돌다가 끝에 이르러 하나의 원으로 닫힌다. 도중에 놓으면 다시 흩어진다."></canvas>
+      <p class="dstat" id="dstat" aria-hidden="true">하나의 경험</p>
+    </div>
+    <div class="ctl">
+      <button class="btn" id="deweyHold" type="button" aria-describedby="deweyHint">겪기</button>
+      <span id="deweyHint">끝까지 누르고 있어라. 도중에 놓으면 흩어진다</span>
+      <span class="vh" id="deweySay" aria-live="polite"></span>
+    </div>
+    <aside class="plaque">
+      <p class="no">VI</p>
+      <h2 id="h6d">듀이</h2>
+      <p class="yr">1859 – 1952</p>
+      <p class="line">경험은 흘러가다 끝에 이르러 매듭지어질 때, 비로소 하나의 경험이 된다.</p>
+      <p class="cap">시작, 전개, 그리고 완결.</p>
+    </aside>
+  </section>
+
+  <!-- VII -->
+  <section class="room" id="benj" data-tr="#d6cdb8" aria-labelledby="h7b">
+    <div class="stage">
+      <figure class="orig" id="orig">
+        <div class="frame"><canvas data-main role="img" aria-label="이번 방문에서 단 한 번 만들어진 원본. 옅은 물감 번짐 위에 몇 개의 선과 붉은 점 하나. 보고 있는 동안 조금씩 낡는다."></canvas></div>
+        <figcaption><b>원본</b> · <span id="stamp"></span><br>이 방문에서만, 지금 여기에.</figcaption>
+      </figure>
+      <div>
+        <div class="copies" id="copies" aria-hidden="true"><p class="empty">아직 복제가 없다.</p></div>
+      </div>
+    </div>
+    <div class="ctl">
+      <button class="btn" id="copyBtn" type="button">복제하기</button>
+      <span class="vh" id="benjSay" aria-live="polite"></span>
+    </div>
+    <aside class="plaque">
+      <p class="no">VII</p>
+      <h2 id="h7b">벤야민</h2>
+      <p class="yr">1892 – 1940</p>
+      <p class="line">복제는 사물을 가까이 데려오지만, 지금 여기에 단 한 번 있는 그 기운은 따라오지 않는다.</p>
+      <p class="cap">복제는 더 선명하다. 원본만 늙는다.</p>
+    </aside>
+  </section>
+
+  <!-- VIII -->
+  <section class="room" id="heid" data-tr="#e6dcc4" aria-labelledby="h8h">
+    <div class="stage" id="heidStage">
+      <canvas data-main role="img" aria-label="어두운 대지 위에 망치질로 기둥이 하나씩 서서 신전이 된다. 빛이 닿는 곳만 드러나고, 빛이 대지에 닿으면 대지는 오히려 더 어두워진다."></canvas>
+    </div>
+    <div class="ctl">
+      <span class="tool" id="tool"><span class="tname" aria-hidden="true">손잡이</span><input class="rng" id="heidTool" type="range" min="0" max="10" step="1" value="5" aria-label="망치 손잡이. 양 끝으로 휘두르면 기둥이 선다. Home과 End 키로도 휘두를 수 있다"></span>
+      <button class="btn" id="heidFix" type="button" hidden>고치기</button>
+      <label><span>빛</span><input class="rng" id="heidLight" type="range" min="0" max="100" value="50" aria-label="빛을 들이는 자리"></label>
+      <span class="vh" id="heidSay" aria-live="polite"></span>
+    </div>
+    <aside class="plaque">
+      <p class="no">VIII</p>
+      <h2 id="h8h">하이데거</h2>
+      <p class="yr">1889 – 1976</p>
+      <p class="line">연장은 잘 쓰일 때 사라지고, 부서질 때 비로소 눈에 띈다. 작품은 세계를 열고, 대지는 닫힌 채 그것을 떠받친다.</p>
+      <p class="cap">휘둘러 보라. 그리고 빛을 옮겨라. 하나를 드러내면 다른 하나가 숨는다.</p>
+    </aside>
+  </section>
+
+  <!-- IX -->
+  <section class="room" id="merleau" data-tr="#9fb06a" aria-labelledby="h9m">
+    <div class="stage" id="merleauStage">
+      <canvas data-main role="img" aria-label="탁자 위의 사발과 사과와 주전자. 여러 자리에서 본 모습들이 겹쳐 그려져, 탁자 모서리가 어긋나고 윤곽이 여러 겹이다."></canvas>
+    </div>
+    <div class="ctl">
+      <label><span>몸의 자리</span><input class="rng" id="merleauB" type="range" min="0" max="100" value="50" aria-label="몸의 자리. 본 자리들이 겹쳐 남는다"></label>
+    </div>
+    <aside class="plaque">
+      <p class="no">IX</p>
+      <h2 id="h9m">메를로퐁티</h2>
+      <p class="yr">1908 – 1961</p>
+      <p class="line">우리는 한 점에서 보지 않는다. 몸은 여러 자리에서 한꺼번에 세계를 만진다.</p>
+      <p class="cap">움직여라. 본 자리들이 지워지지 않고 겹친다.</p>
+    </aside>
+  </section>
+
+  <!-- X -->
+  <section class="room" id="danto" data-tr="#f4f3f0" aria-labelledby="h10d">
+    <div class="stage">
+      <div class="pair" id="pair">
+        <figure class="obj" id="objA">
+          <div class="thing" role="img" aria-label="흰 상자 하나"></div>
+          <figcaption class="tag" aria-live="polite"><span class="nil">—</span></figcaption>
+          <button class="btn" type="button" aria-pressed="false">이것은 작품이다</button>
+        </figure>
+        <figure class="obj" id="objB">
+          <div class="thing" role="img" aria-label="흰 상자 하나"></div>
+          <figcaption class="tag" aria-live="polite"><span class="nil">—</span></figcaption>
+          <button class="btn" type="button" aria-pressed="false">이것은 작품이다</button>
+        </figure>
+      </div>
+    </div>
+    <div class="ctl">
+      <label><span>이론</span><input type="text" id="theory" maxlength="48" placeholder="한 줄의 이론을 적어 보라" autocomplete="off"></label>
+      <button class="btn" id="swap" type="button">자리 바꾸기</button>
+    </div>
+    <aside class="plaque">
+      <p class="no">X</p>
+      <h2 id="h10d">단토</h2>
+      <p class="yr">1924 – 2013</p>
+      <p class="line">무엇을 예술로 만드는 것은 눈이 볼 수 없는 것, 이론의 분위기와 예술의 역사다.</p>
+      <p class="cap">둘은 똑같다. 하나에만 이론을 주어 보라.</p>
+    </aside>
+  </section>
+
+  <!-- coda -->
+  <section class="room" id="coda" data-tr="#ffd9a8" aria-labelledby="h11">
+    <div class="stage" id="codaStage">
+      <canvas data-main role="img" id="codaCv" aria-label="당신이 이 전시를 지나온 길. 방마다 한 칸씩, 머문 자리와 시간이 선으로 남아 있다."></canvas>
+    </div>
+    <div class="ctl">
+      <button class="btn" id="redraw" type="button">다시 그리기</button>
+      <p class="tot" id="tot" aria-live="polite"></p>
+    </div>
+    <aside class="plaque">
+      <p class="no">—</p>
+      <h2 id="h11">당신</h2>
+      <p class="yr" id="youYr">2026 –</p>
+      <p class="line">마지막 방의 작품은, 당신이 지나온 길이다.</p>
+      <p class="cap">한 번뿐인 선. 다시 와도 같은 그림은 없다.</p>
+    </aside>
+  </section>
+</main>
+
+<footer class="col">
+  <p class="nm">Aisthesis</p>
+  <p>겪는 미학, 열 개의 방. 벽글은 모두 풀어 쓴 말이며 원문 인용이 아니다.</p>
+  <p><a href="../">← 다른 시스템으로</a></p>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, r = document) => r.querySelector(s);
+  const TAU = Math.PI * 2;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const smooth = t => t * t * (3 - 2 * t);
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const mixc = (a, b, t, al) => `rgba(${Math.round(lerp(a[0], b[0], t))},${Math.round(lerp(a[1], b[1], t))},${Math.round(lerp(a[2], b[2], t))},${al == null ? 1 : al})`;
+  const rgbs = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+  function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const say = (id, txt) => { const el = document.getElementById(id); if (el) { el.textContent = ''; setTimeout(() => { el.textContent = txt; }, 30); } };
+  const rel = (e, el) => { const b = el.getBoundingClientRect(); return [clamp((e.clientX - b.left) / b.width, 0, 1), clamp((e.clientY - b.top) / b.height, 0, 1)]; };
+
+  function feather(c, w, h, rgb, f) {
+    const e = Math.min(w, h) * f;
+    [[0, 0, 0, e, 0, 0, w, e], [0, h, 0, h - e, 0, h - e, w, e], [0, 0, e, 0, 0, 0, e, h], [w, 0, w - e, 0, w - e, 0, e, h]].forEach(([x0, y0, x1, y1, rx, ry, rw, rh]) => {
+      const g = c.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, `rgba(${rgb},1)`); g.addColorStop(1, `rgba(${rgb},0)`); c.fillStyle = g; c.fillRect(rx, ry, rw, rh);
+    });
+  }
+  const tone = (el, bg, light) => { el.style.setProperty('--bg', bg); if (el.dataset.light !== String(light)) el.dataset.light = light; };
+
+  /* ───── the house ───── */
+  const R = [];
+  function Room(id, o) {
+    o.id = id; o.el = document.getElementById(id); o.cv = o.el.querySelector('canvas[data-main]');
+    if (o.cv) o.ctx = o.cv.getContext('2d');
+    o.vis = false; o.w = 0; o.h = 0; o.dirty = true; R.push(o); return o;
+  }
+  function fit(o) {
+    if (!o.cv) return;
+    const b = o.cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
+    const W = Math.max(1, Math.round(b.width * d)), H = Math.max(1, Math.round(b.height * d));
+    if (W === o.cv.width && H === o.cv.height && o.w) return;
+    o.cv.width = W; o.cv.height = H; o.ctx.setTransform(d, 0, 0, d, 0, 0); o.w = b.width; o.h = b.height; o.dpr = d;
+    o.resize && o.resize(); o.dirty = true;
+  }
+
+  /* ═════════ I · PLATO ═════════ */
+  const plato = Room('plato', {
+    lx: .5, lag: .5, ang: .6, glare: 0,
+    init() {
+      const A = [[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]], B = A.map(v => v.map(c => -c));
+      const f = t => [[t[0], t[1], t[2]], [t[0], t[1], t[3]], [t[0], t[2], t[3]], [t[1], t[2], t[3]]];
+      this.tris = [...f(A), ...f(B)];
+      this.off = document.createElement('canvas'); this.og = this.off.getContext('2d');
+      this.sm = document.createElement('canvas'); this.sm.width = 34; this.sm.height = 42; this.sg = this.sm.getContext('2d');
+      const st = $('#platoStage'), rng = $('#platoL');
+      st.addEventListener('pointermove', e => { this.lx = rel(e, st)[0]; rng.value = Math.round(this.lx * 100); this.dirty = true; });
+      rng.addEventListener('input', () => { this.lx = rng.value / 100; this.dirty = true; });
+      $('#platoTurn').addEventListener('click', () => { this.glare = 1; this.dirty = true; say('platoSay', '눈이 부셔 아무것도 보이지 않는다. 돌아서면 다시 그림자뿐이다.'); });
+    },
+    resize() { this.off.width = Math.max(1, Math.round(this.w)); this.off.height = Math.max(1, Math.round(this.h)); },
+    proj(lx, fl, out, cx, cy, s) {
+      const L = [(lx - .5) * 8, -2.3 + fl, 4.5], W = 1.6;
+      const ca = Math.cos(this.ang), sa = Math.sin(this.ang), cb = Math.cos(.62), sb = Math.sin(.62);
+      return this.tris.map(tri => tri.map(v => {
+        let x = v[0] * ca - v[2] * sa, z = v[0] * sa + v[2] * ca, y = v[1];
+        const y2 = y * cb - z * sb, z2 = y * sb + z * cb; y = y2; z = z2;
+        x *= .62; y *= .62; z *= .62;
+        const t = (L[2] + W) / (L[2] - z);
+        return [cx + (L[0] + t * (x - L[0])) * s, cy - (L[1] + t * (y - L[1])) * s];
+      }));
+    },
+    fill(g, P) { for (const t of P) { g.beginPath(); g.moveTo(t[0][0], t[0][1]); g.lineTo(t[1][0], t[1][1]); g.lineTo(t[2][0], t[2][1]); g.closePath(); g.fill(); } },
+    frame(dt, T) {
+      if (!reduce) { this.ang += dt * .11; this.lag += (this.lx - this.lag) * Math.min(1, dt * .9); }
+      else { this.lag = this.lx; if (!this.dirty && this.glare <= 0) return; }
+      if (this.glare > 0) { this.glare = Math.max(0, this.glare - dt * (reduce ? 3 : .45)); $('#glare').style.opacity = reduce ? 0 : smooth(Math.min(1, this.glare * 1.3)) * .96; }
+      this.dirty = false;
+      const c = this.ctx, w = this.w, h = this.h, narrow = w < 640;
+      const fl = reduce ? 0 : Math.sin(T * 7.3) * .035 + Math.sin(T * 12.9) * .022 + Math.sin(T * 2.1) * .03;
+      // wall, lit by a fire behind you
+      c.fillStyle = '#15110d'; c.fillRect(0, 0, w, h);
+      const fx = w * (narrow ? .5 : .42) + (this.lx - .5) * w * .5;
+      const gr = c.createRadialGradient(fx, h * 1.15, 0, fx, h * 1.15, h * 1.35);
+      gr.addColorStop(0, `rgba(214,150,86,${.5 + fl * 2})`); gr.addColorStop(.55, 'rgba(150,96,52,.22)'); gr.addColorStop(1, 'rgba(60,40,24,0)');
+      c.fillStyle = gr; c.fillRect(0, 0, w, h);
+      // first shadow
+      const s = Math.min(w, h) * (narrow ? .15 : .16), cx = w * (narrow ? .5 : .4), cy = h * (narrow ? .6 : .5) + .83 * s;
+      const og = this.og; og.clearRect(0, 0, this.off.width, this.off.height); og.fillStyle = '#000';
+      this.fill(og, this.proj(this.lx, fl, null, cx, cy, s));
+      c.globalAlpha = .16; c.drawImage(this.off, -3, -1); c.drawImage(this.off, 3, 2);
+      c.globalAlpha = .74; c.drawImage(this.off, 0, 0); c.globalAlpha = 1;
+      // the painting: a shadow of the shadow, late and soft
+      const pw = narrow ? w * .3 : w * .2, ph = pw * 1.24, px = narrow ? w * .66 : w * .74, py = narrow ? h * .05 : h * .1;
+      c.fillStyle = 'rgba(78,64,50,.5)'; c.fillRect(px, py, pw, ph);
+      const sg = this.sg; sg.clearRect(0, 0, 34, 42); sg.fillStyle = '#000';
+      this.fill(sg, this.proj(this.lag, fl * .4, null, 17, 23 + 34 * .17 * .83, 34 * .17));
+      c.save(); c.beginPath(); c.rect(px, py, pw, ph); c.clip();
+      c.imageSmoothingEnabled = true; c.globalAlpha = .5; c.drawImage(this.sm, px, py, pw, ph); c.globalAlpha = 1; c.restore();
+      c.strokeStyle = 'rgba(214,180,140,.35)'; c.lineWidth = 1; c.strokeRect(px + .5, py + .5, pw - 1, ph - 1);
+      // the painting's own shadow on the wall
+      c.fillStyle = 'rgba(0,0,0,.22)'; c.fillRect(px + pw, py + 6, 5, ph); c.fillRect(px + 6, py + ph, pw - 1, 5);
+      feather(c, w, h, '14,12,10', .16);
+    }
+  });
+
+  /* ═════════ II · ARISTOTLE ═════════ */
+  const aristo = Room('aristo', {
+    T: 0, phase: 'build', r: 0, hold: false, over: false, time: 0,
+    init() {
+      const st = $('#aristoStage'), b = $('#aristoHold');
+      st.addEventListener('pointerenter', () => this.over = true); st.addEventListener('pointerleave', () => this.over = false);
+      const on = () => { this.hold = true; b.classList.add('down'); }, off = () => { this.hold = false; b.classList.remove('down'); };
+      b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); on(); });
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(k => b.addEventListener(k, off));
+      b.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); on(); } });
+      b.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') off(); });
+      b.addEventListener('blur', off);
+      b.addEventListener('contextmenu', e => e.preventDefault());
+      if (reduce) { this.phase = 'release'; this.r = 1; }
+    },
+    frame(dt) {
+      if (this.phase === 'build') {
+        this.T += dt * ((reduce ? 0 : .032) + (this.over && !reduce ? .03 : 0) + (this.hold ? .2 : 0));
+        if (this.T >= 1) { this.T = 1; this.phase = 'release'; this.r = 0; say('aristoSay', '끝까지 조여진 현이 풀렸다. 밝아진다.'); }
+      } else {
+        if (!reduce) this.r += dt / 8; else if (this.hold) { this.phase = 'build'; this.T = .2; }
+        if (this.r >= 1 && !reduce) { this.phase = 'build'; this.T = 0; }
+      }
+      if (!reduce) this.time += dt;
+      const c = this.ctx, w = this.w, h = this.h, N = w < 640 ? 42 : 60, cy = h * .5;
+      const calm = [44, 36, 33], dark = [9, 5, 5], flash = [242, 236, 226];
+      let bg, spread, A, sp, lc, la;
+      if (this.phase === 'build') {
+        const k = ease(this.T);
+        bg = mixc(calm, dark, Math.pow(this.T, .8)); spread = lerp(h * .42, h * .018, k);
+        A = .6 + Math.pow(this.T, 2.2) * 7; sp = 1 + this.T * 14; lc = mixc([150, 132, 120], [214, 58, 40], Math.pow(this.T, 1.4)); la = lerp(.55, .95, this.T);
+      } else {
+        const r = reduce ? 1 : this.r, q = clamp(r * 3, 0, 1);
+        bg = mixc(flash, calm, smooth(clamp(r * 3.2, 0, 1)));
+        spread = lerp(h * .018, h * .42, 1 - Math.exp(-r * 40) * Math.cos(r * 30));
+        A = .6 + 6 * Math.exp(-r * 9); sp = 1; lc = mixc([120, 92, 80], [150, 132, 120], q); la = .7;
+      }
+      c.fillStyle = bg; c.fillRect(0, 0, w, h); tone(this.el, bg, this.phase === 'release' && (reduce ? false : this.r < .2));
+      c.strokeStyle = lc; c.globalAlpha = la; c.lineWidth = 1;
+      const step = Math.max(6, w / 120), t = this.time;
+      for (let i = 0; i < N; i++) {
+        const u = i / (N - 1) - .5, y0 = cy + u * 2 * spread;
+        c.beginPath();
+        for (let x = 0; x <= w + 1; x += step) {
+          const env = Math.sin(Math.PI * x / w);
+          const y = y0 + A * env * Math.sin(x * (.012 + this.T * .02) + t * sp * 1.7 + i * .9);
+          x === 0 ? c.moveTo(x, y) : c.lineTo(x, y);
+        }
+        c.stroke();
+      }
+      c.globalAlpha = 1;
+    }
+  });
+
+  /* ═════════ III · KANT (the beautiful) ═════════ */
+  (() => {
+    const b = $('#kbtn'); let AC = null;
+    const tick = (f0, f1, g, d) => {
+      try {
+        AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume();
+        const t = AC.currentTime, o = AC.createOscillator(), v = AC.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + d * .8);
+        v.gain.setValueAtTime(.0001, t); v.gain.exponentialRampToValueAtTime(g, t + .004); v.gain.exponentialRampToValueAtTime(.0001, t + d);
+        o.connect(v); v.connect(AC.destination); o.start(t); o.stop(t + d + .02);
+      } catch (e) { /* silence is fine */ }
+    };
+    const dn = () => { if (b.classList.contains('down')) return; b.classList.add('down'); tick(170, 62, .14, .12); };
+    const up = () => { if (!b.classList.contains('down')) return; b.classList.remove('down'); tick(520, 300, .035, .05); };
+    b.addEventListener('pointerdown', e => { b.setPointerCapture && b.setPointerCapture(e.pointerId); dn(); });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(k => b.addEventListener(k, up));
+    b.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) dn(); } });
+    b.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') up(); });
+    b.addEventListener('blur', () => b.classList.remove('down'));
+  })();
+
+  /* ═════════ III′ · KANT (the sublime) ═════════ */
+  const SUP = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+  const sublime = Room('kant2', {
+    p: -1, ph: -1,
+    frame() {
+      const b = this.el.getBoundingClientRect(), span = Math.max(1, b.height - innerHeight);
+      const p = clamp(-b.top / span, 0, 1);
+      if (Math.abs(p - this.p) < 1e-4 && !this.dirty) return;
+      this.p = p; this.dirty = false;
+      const c = this.ctx, w = this.w, h = this.h, cx = w / 2, cy = h / 2, diag = Math.hypot(w, h) / 2;
+      const pale = '#e9e5dc', ink = '#0b0a09';
+      const a = clamp(p / .4, 0, 1), bz = clamp((p - .4) / .4, 0, 1), cz = clamp((p - .82) / .14, 0, 1);
+      let phase = 0;
+      if (a < 1) {
+        c.fillStyle = pale; c.fillRect(0, 0, w, h);
+        const r = 1.6 * Math.pow(diag * 1.05 / 1.6, Math.pow(a, 1.6));
+        c.fillStyle = ink; c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.fill();
+      } else {
+        phase = 1;
+        c.fillStyle = ink; c.fillRect(0, 0, w, h);
+        const z = Math.pow(bz, 1.4) * 7, base = Math.min(w, h) * .42;
+        c.font = '400 16px "IBM Plex Sans KR", sans-serif'; c.textBaseline = 'middle';
+        for (let k = Math.floor(z) - 1; k <= Math.floor(z) + 3; k++) {
+          const rr = base * Math.pow(10, (k - z) * .5) * 3;
+          if (rr < 1.5 || rr > diag * 3) continue;
+          const al = clamp(rr / 30, 0, 1) * clamp((diag * 2.2 - rr) / diag, 0, 1) * (1 - cz * .75);
+          c.strokeStyle = `rgba(200,192,178,${.55 * al})`; c.lineWidth = 1;
+          c.beginPath(); c.arc(cx, cy, rr, 0, TAU); c.stroke();
+          if (rr > 34 && rr < diag) { c.fillStyle = `rgba(160,152,140,${al})`; c.fillText('10' + String(k * 3 + 3).split('').map(d => SUP[d]).join('') + ' m', cx + rr * .7071 + 8, cy - rr * .7071); }
+        }
+        // dust of scale
+        const r2 = mulberry(41);
+        c.fillStyle = `rgba(220,212,198,${.5 * (1 - cz * .6)})`;
+        for (let i = 0; i < 220; i++) {
+          const ang = r2() * TAU, d0 = r2(), dd = ((d0 + bz * 3.2) % 1);
+          const rr = Math.pow(dd, 2.2) * diag * 1.1; c.fillRect(cx + Math.cos(ang) * rr, cy + Math.sin(ang) * rr, 1.2, 1.2);
+        }
+        if (cz > 0) {
+          phase = 2;
+          const S = Math.min(w, h) * .24, x0 = cx - S / 2, y0 = cy - S / 2;
+          c.globalAlpha = cz;
+          c.fillStyle = pale; c.fillRect(x0, y0, S, S);
+          c.strokeStyle = ink; c.lineWidth = 1;
+          for (let j = 0; j < 14; j++) { const rr = S * .44 * Math.pow(.72, j); c.beginPath(); c.arc(cx, cy, rr, 0, TAU); c.stroke(); }
+          c.fillStyle = ink; c.beginPath(); c.arc(cx, cy, 1.4, 0, TAU); c.fill();
+          c.strokeStyle = pale; c.strokeRect(x0 - 10.5, y0 - 10.5, S + 21, S + 21);
+          c.globalAlpha = 1;
+        }
+      }
+      if (phase !== this.ph) {
+        this.ph = phase;
+        const cap = $('#subcap'), tx = $('#subtxt');
+        cap.style.setProperty('--sc', phase === 0 ? '#1d1b18' : '#e9e5dc');
+        tx.textContent = phase === 0 ? '점 하나. 계속 내려가라.' : phase === 1 ? '감각이 따라가지 못한다.' : '감각이 놓친 전체를, 생각은 한 번에 쥔다.';
+      }
+    }
+  });
+
+  /* ═════════ IV · SCHOPENHAUER ═════════ */
+  const scho = Room('scho', {
+    E: .9, calmT: 0, said: false,
+    init() {
+      const poke = a => () => { if (this.vis && !reduce) { this.E = Math.min(1, this.E + a); this.calmT = 0; } };
+      addEventListener('pointermove', poke(.025), { passive: true });
+      addEventListener('pointerdown', poke(.25), { passive: true });
+      addEventListener('wheel', poke(.06), { passive: true });
+      addEventListener('scroll', poke(.03), { passive: true });
+      addEventListener('keydown', poke(.2));
+      addEventListener('touchmove', poke(.05), { passive: true });
+    },
+    resize() {
+      const n = this.w < 640 ? 460 : 900, r = mulberry(17), w = this.w, h = this.h, P = [];
+      const hy = h * .64, mx = w * (w < 640 ? .62 : .66), my = h * .33, mr = Math.min(w, h) * .11;
+      for (let i = 0; i < n; i++) {
+        const k = r(); let hx, hyy;
+        if (k < .55) { hx = r() * w; hyy = hy + (r() - .5) * 1.6 + (r() < .1 ? (r() - .5) * 6 : 0); }
+        else if (k < .82) { const a = r() * TAU; hx = mx + Math.cos(a) * mr; hyy = my + Math.sin(a) * mr; }
+        else if (k < .94) { hx = mx + (r() - .5) * mr * (1.2 - r() * .6); hyy = hy + 8 + Math.pow(r(), 1.6) * (h - hy - 20); }
+        else { hx = r() * w; hyy = r() * hy * .9; }
+        const old = this.P && this.P[i];
+        P.push({ hx, hy: hyy, x: old ? old.x * w / this.pw : r() * w, y: old ? old.y * h / this.ph : r() * h, vx: 0, vy: 0, k });
+      }
+      this.P = P; this.pw = w; this.ph = h;
+    },
+    frame(dt, T) {
+      const c = this.ctx, w = this.w, h = this.h;
+      if (reduce) { if (!this.dirty) return; this.E = 0; for (const p of this.P) { p.x = p.hx; p.y = p.hy; } }
+      this.dirty = false;
+      this.E = Math.max(0, this.E * Math.exp(-dt * .55) - dt * .02);
+      const calm = 1 - smooth(clamp(this.E / .3, 0, 1));
+      if (calm > .985) { this.calmT += dt; if (!this.said && this.calmT > 1) { this.said = true; say('schoSay', '고요해졌다. 수평선과 달이 보인다.'); } }
+      else if (this.E > .3) this.said = false;
+      const bg = mixc([30, 17, 20], [14, 22, 32], calm, reduce ? 1 : lerp(.32, .2, calm));
+      c.fillStyle = bg; c.fillRect(0, 0, w, h); tone(this.el, mixc([30, 17, 20], [14, 22, 32], calm), false);
+      const E = this.E, k = 2.6 * calm + .15, damp = Math.exp(-dt * (1.4 + calm * 3.5));
+      const col = mixc([196, 92, 76], [220, 230, 238], calm, .85);
+      c.fillStyle = col;
+      for (const p of this.P) {
+        const ang = Math.sin(p.x * .006 + T * .9) * 2.4 + Math.cos(p.y * .008 - T * .6) * 2.4 + p.k * 6;
+        p.vx += (Math.cos(ang) * 260 * E + (p.hx - p.x) * k) * dt;
+        p.vy += (Math.sin(ang) * 260 * E + (p.hy - p.y) * k) * dt;
+        p.vx *= damp; p.vy *= damp; p.x += p.vx * dt; p.y += p.vy * dt;
+        if (p.x < -20) p.x = w + 10; else if (p.x > w + 20) p.x = -10;
+        if (p.y < -20) p.y = h + 10; else if (p.y > h + 20) p.y = -10;
+        c.fillRect(p.x, p.y, p.k < .55 ? 1.8 : 1.4, p.k < .55 ? 1.1 : 1.4);
+      }
+      const fb = [30, 17, 20].map((q, i) => Math.round(lerp(q, [14, 22, 32][i], calm))).join(','); feather(c, w, h, fb, .1);
+    }
+  });
+
+  /* ═════════ V · NIETZSCHE ═════════ */
+  const nietz = Room('nietz', {
+    v: .5, time: 0,
+    init() {
+      const st = $('#nietzStage'), rg = $('#nietzV'); let drag = false;
+      const set = e => { this.v = rel(e, st)[0]; rg.value = Math.round(this.v * 100); this.dirty = true; upd(); };
+      const upd = () => rg.setAttribute('aria-valuetext', this.v < .15 ? '아폴론. 맑고 얼어붙은 질서' : this.v > .85 ? '디오니소스. 녹아 흩어지는 도취' : this.v < .42 ? '아폴론 쪽으로 기운 둘의 다툼' : this.v > .58 ? '디오니소스 쪽으로 기운 둘의 다툼' : '둘이 팽팽하게 다투는 자리');
+      st.addEventListener('pointerdown', e => { drag = true; set(e); });
+      st.addEventListener('pointermove', e => { if (drag || e.pointerType === 'mouse' && e.buttons) set(e); });
+      addEventListener('pointerup', () => drag = false); st.addEventListener('pointercancel', () => drag = false);
+      rg.addEventListener('input', () => { this.v = rg.value / 100; this.dirty = true; upd(); }); upd();
+    },
+    resize() { this.clear = true; },
+    frame(dt) {
+      if (reduce && !this.dirty) return; this.dirty = false;
+      const c = this.ctx, w = this.w, h = this.h, v = this.v;
+      const vital = 1 - Math.pow(Math.abs(2 * v - 1), 2.2), life = .3 + .7 * vital;
+      if (!reduce) this.time += dt * (v * 3.2);
+      const t = this.time;
+      const bgA = [214, 220, 226], bgM = [30, 27, 46], bgD = [16, 6, 10], bgc = v < .5 ? [bgA, bgM, smooth(v * 2)] : [bgM, bgD, smooth(v * 2 - 1)], bg = mixc(...bgc); tone(this.el, bg, v < .22);
+      const trail = reduce || this.clear ? 1 : lerp(1, .07, Math.pow(v, 1.3));
+      this.clear = false;
+      c.globalAlpha = trail; c.fillStyle = bg; c.fillRect(0, 0, w, h); c.globalAlpha = 1;
+      const cols = w < 640 ? 6 : 10, g = w / (cols + 1), rows = Math.max(3, Math.floor(h / g) - 1), oy = (h - (rows - 1) * g) / 2;
+      // the lattice: apollo's hairlines
+      const ap = Math.pow(1 - v, 1.2);
+      if (ap > .02) {
+        c.strokeStyle = mixc([40, 52, 72], [190, 196, 214], smooth(clamp((v - .12) / .3, 0, 1)), .3 * ap); c.lineWidth = 1; c.beginPath();
+        for (let i = 0; i < cols; i++) { const x = g * (i + 1); c.moveTo(x, oy - g * .5); c.lineTo(x, oy + (rows - .5) * g); }
+        for (let j = 0; j < rows; j++) { const y = oy + j * g; c.moveTo(g * .5, y); c.lineTo(w - g * .5, y); }
+        c.stroke();
+      }
+      const cx = w / 2, cy = h / 2;
+      for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+        const bx = g * (i + 1), by = oy + j * g, ph = i * .7 + j * 1.3, d = Math.hypot(bx - cx, by - cy);
+        const beat = Math.pow(.5 + .5 * Math.sin(t * 3.4 - d * .012 + ph * v * 2), 3);
+        const sw = Math.pow(v, 1.7) * g * 2.1 * Math.sin(t * .9 + ph), ang = t * .6 + d * .01 + ph;
+        const x = bx + Math.cos(ang) * sw, y = by + Math.sin(ang * 1.3) * sw;
+        const r = g * .26 * (1 + v * 1.1 * beat) * (1 + Math.pow(v, 3) * 1.5);
+        const fa = v * .62 * (.55 + .45 * beat) * life;
+        if (fa > .01) { c.fillStyle = mixc([214, 160, 70], [160, 20, 46], smooth(v), fa); c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+        const sa = (1 - Math.pow(v, 1.6)) * .9 * (v < .5 ? lerp(.35, 1, vital) : 1);
+        if (sa > .02) { c.strokeStyle = mixc([28, 36, 54], [236, 230, 214], smooth(clamp((v - .12) / .3, 0, 1)), sa); c.lineWidth = 1.2; c.beginPath(); c.arc(x, y, g * .26, 0, TAU); c.stroke(); }
+      }
+      // at the extreme of order, the colour dies: grey veil
+      if (v < .12) { c.fillStyle = `rgba(214,220,226,${(.12 - v) / .12 * .45})`; c.fillRect(0, 0, w, h); }
+    }
+  });
+
+  /* ═════════ VI · DEWEY ═════════ */
+  const dewey = Room('dewey', {
+    P: 0, hold: false, done: false, dT: 0, F: [],
+    make() {
+      const r = mulberry((Date.now() & 0xffffff) ^ 0x5bd1); this.F = [];
+      for (let i = 0; i < 22; i++) this.F.push({ x: .08 + r() * .84, y: .08 + r() * .84, rad: .03 + r() * .1, a0: r() * TAU, len: .25 + r() * 1.3, delay: r() * .4, ph: r() * TAU, wd: 1.2 + r() * 3.4 });
+    },
+    init() {
+      this.make();
+      const b = $('#deweyHold');
+      const on = () => {
+        if (this.done) { this.done = false; this.P = 0; this.make(); $('#dstat').classList.remove('on'); b.textContent = '겪기'; $('#deweyHint').textContent = '끝까지 누르고 있어라. 도중에 놓으면 흩어진다'; say('deweySay', '다시 흩어졌다.'); this.dirty = true; return; }
+        this.hold = true; b.classList.add('down');
+      };
+      const off = () => { this.hold = false; b.classList.remove('down'); };
+      b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); on(); });
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(k => b.addEventListener(k, off));
+      b.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) on(); } });
+      b.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') off(); });
+      b.addEventListener('blur', off); b.addEventListener('contextmenu', e => e.preventDefault());
+      if (reduce) this.finish(true);
+    },
+    finish(quiet) { this.done = true; this.P = 1; this.dT = 0; this.hold = false; $('#deweyHold').classList.remove('down'); $('#deweyHold').textContent = '다시'; $('#dstat').classList.add('on'); $('#deweyHint').textContent = '닫혔다. 다시 누르면 흩어진다'; if (!quiet) say('deweySay', '하나의 경험으로 닫혔다.'); },
+    frame(dt, T) {
+      if (!this.done) {
+        if (this.hold) this.P = Math.min(1, this.P + dt / (reduce ? 3 : 7)); else this.P = Math.max(0, this.P - dt / 3.5);
+        if (this.P >= 1) this.finish();
+      } else this.dT += dt;
+      if (reduce && !this.hold && !this.dirty && this.done) return; this.dirty = false;
+      const c = this.ctx, w = this.w, h = this.h, P = this.P, N = this.F.length;
+      c.fillStyle = '#ebe3d3'; c.fillRect(0, 0, w, h);
+      const cx = w / 2, cy = h * .47, R0 = Math.min(w, h) * .3, R = R0 * (this.done && !reduce ? 1 + Math.sin(this.dT * 1.1) * .012 : 1);
+      const cons = smooth(clamp((P - .82) / .18, 0, 1)), m = Math.min(w, h);
+      if (cons > 0) {
+        c.fillStyle = `rgba(180,83,42,${.1 * cons})`; c.beginPath(); c.arc(cx, cy, R, 0, TAU); c.fill();
+      }
+      const spin = reduce ? 0 : T * .12;
+      c.lineCap = 'round';
+      for (let i = 0; i < N; i++) {
+        const f = this.F[i], k = ease(clamp((P - f.delay * .55) / .6, 0, 1));
+        const wob = reduce ? 0 : (1 - k) * 6;
+        const fx = f.x * w + Math.sin(T * .4 + f.ph) * wob, fy = f.y * h + Math.cos(T * .33 + f.ph) * wob;
+        const ta = i / N * TAU + spin * k, tl = TAU / N * lerp(.55, 1.002, cons);
+        const ccx = lerp(fx, cx, k), ccy = lerp(fy, cy, k), rr = lerp(f.rad * m, R, k), a0 = lerp(f.a0, ta, k), L = lerp(f.len, tl, k);
+        c.strokeStyle = cons > .99 ? '#7d3a1d' : `rgba(36,31,26,${lerp(.75, .95, k)})`; c.lineWidth = lerp(1.4, f.wd, k) + cons * .8;
+        c.beginPath(); c.arc(ccx, ccy, rr, a0, a0 + L); c.stroke();
+      }
+      // a quiet measure of where the arc is
+      if (!this.done && P > 0) {
+        c.strokeStyle = 'rgba(36,31,26,.35)'; c.lineWidth = 1;
+        c.beginPath(); c.moveTo(w * .2, h * .92); c.lineTo(w * .2 + w * .6 * P, h * .92); c.stroke();
+      }
+    }
+  });
+
+  /* ═════════ VII · BENJAMIN ═════════ */
+  const benj = Room('benj', {
+    n: 0, age: 0, acc: 0,
+    init() {
+      this.seed = Date.now();
+      const d = new Date(this.seed);
+      $('#stamp').textContent = d.toLocaleString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      const S = 640, B = this.B = document.createElement('canvas'); B.width = B.height = S; const g = B.getContext('2d'), r = mulberry(this.seed & 0x7fffffff);
+      g.fillStyle = '#e9e3d6'; g.fillRect(0, 0, S, S);
+      for (let i = 0; i < 6; i++) { const x = r() * S, y = r() * S, rd = 150 + r() * 260, gr = g.createRadialGradient(x, y, 0, x, y, rd); gr.addColorStop(0, 'rgba(190,168,130,.2)'); gr.addColorStop(1, 'rgba(190,168,130,0)'); g.fillStyle = gr; g.fillRect(0, 0, S, S); }
+      const pals = [['#27324a', '#9a4a2a'], ['#1f2a24', '#b0863c'], ['#3a2632', '#2f4f5a'], ['#1b1a18', '#8e2f2a'], ['#2b3b3a', '#a0603a']], pal = pals[Math.floor(r() * pals.length)];
+      g.lineCap = 'round';
+      for (let i = 0; i < 28; i++) {
+        const col = pal[r() < .66 ? 0 : 1], x0 = r() * S, y0 = r() * S, a = r() * TAU, L = 120 + r() * 380;
+        const x1 = x0 + Math.cos(a) * L, y1 = y0 + Math.sin(a) * L, qx = (x0 + x1) / 2 + (r() - .5) * 220, qy = (y0 + y1) / 2 + (r() - .5) * 220, lw = 16 + r() * 76;
+        g.strokeStyle = col;
+        for (let k = 0; k < 14; k++) { g.globalAlpha = .02; g.lineWidth = lw * (1.25 - k * .07); g.beginPath(); g.moveTo(x0 + (r() - .5) * 30, y0 + (r() - .5) * 30); g.quadraticCurveTo(qx + (r() - .5) * 40, qy + (r() - .5) * 40, x1 + (r() - .5) * 30, y1 + (r() - .5) * 30); g.stroke(); }
+      }
+      g.strokeStyle = pal[0];
+      for (let i = 0; i < 5; i++) {
+        g.globalAlpha = .55 + r() * .3; g.lineWidth = .8 + r() * 2.2;
+        const x0 = r() * S, y0 = r() * S; g.beginPath(); g.moveTo(x0, y0);
+        g.bezierCurveTo(r() * S, r() * S, r() * S, r() * S, r() * S, r() * S); g.stroke();
+      }
+      g.globalAlpha = 1; g.fillStyle = '#c4381f'; g.beginPath(); g.arc(S * (.2 + r() * .6), S * (.2 + r() * .6), 5 + r() * 7, 0, TAU); g.fill();
+      // the reproduction: a sharper, flatter thing
+      const C = document.createElement('canvas'); C.width = C.height = 160; const cg = C.getContext('2d'); cg.drawImage(B, 0, 0, 160, 160);
+      const im = cg.getImageData(0, 0, 160, 160), D = im.data;
+      const LV = [0, .36, .72, 1], INK = [26, 28, 36], PAP = [248, 246, 241];
+      for (let i = 0; i < D.length; i += 4) { const l = (D[i] * .3 + D[i + 1] * .59 + D[i + 2] * .11 - 150) * 2.6 + 150, q = LV[clamp(Math.round(l / 255 * 3), 0, 3)]; for (let k = 0; k < 3; k++) D[i + k] = Math.round(lerp(INK[k], PAP[k], q)); }
+      cg.putImageData(im, 0, 0); this.copyURL = C.toDataURL();
+      // the age layer
+      this.A = document.createElement('canvas'); this.A.width = this.A.height = S; this.ag = this.A.getContext('2d');
+      const btn = $('#copyBtn'), box = $('#copies');
+      btn.addEventListener('click', () => {
+        if (this.n >= 64) return;
+        const add = Math.max(1, this.n); if (!this.n) box.innerHTML = '';
+        for (let i = 0; i < add; i++) { const im2 = new Image(); im2.src = this.copyURL; im2.alt = ''; im2.style.animationDelay = (i * 12) + 'ms'; box.appendChild(im2); }
+        this.n += add;
+        $('#orig').style.setProperty('--aura', (1 / (1 + this.n * .22)).toFixed(3));
+        if (this.n >= 64) { btn.disabled = true; btn.textContent = '더는 차이가 없다'; }
+        say('benjSay', `복제 ${this.n}장. 모두 같고, 원본보다 선명하다. 원본의 기운이 옅어진다.`);
+      });
+    },
+    resize() { this.dirty = true; },
+    frame(dt) {
+      if (!reduce) {
+        this.age += dt; this.acc += dt;
+        if (this.acc > .7) {
+          this.acc = 0; const g = this.ag, S = 640, x = Math.random() * S, y = Math.random() * S, k = Math.random();
+          if (k < .5) { g.fillStyle = `rgba(92,66,40,${.18 + Math.random() * .25})`; g.fillRect(x, y, 1 + Math.random() * 2.2, 1 + Math.random() * 2.2); }
+          else if (k < .8) { g.strokeStyle = 'rgba(70,56,40,.22)'; g.lineWidth = .7; g.beginPath(); g.moveTo(x, y); let px = x, py = y; for (let i = 0; i < 4; i++) { px += (Math.random() - .5) * 18; py += (Math.random() - .5) * 18; g.lineTo(px, py); } g.stroke(); }
+          else { const gr = g.createRadialGradient(x, y, 0, x, y, 10 + Math.random() * 22); gr.addColorStop(0, 'rgba(168,120,60,.09)'); gr.addColorStop(1, 'rgba(168,120,60,0)'); g.fillStyle = gr; g.fillRect(x - 40, y - 40, 80, 80); }
+          this.dirty = true;
+        }
+      }
+      if (!this.dirty) return; this.dirty = false;
+      const c = this.ctx, w = this.w, h = this.h;
+      c.drawImage(this.B, 0, 0, w, h); c.drawImage(this.A, 0, 0, w, h);
+      c.fillStyle = `rgba(176,136,70,${Math.min(.16, this.age * .0012)})`; c.fillRect(0, 0, w, h);
+    }
+  });
+
+  /* ═════════ VIII · HEIDEGGER ═════════ */
+  const heid = Room('heid', {
+    built: 0, u: 0, count: 0, breakAt: 5 + Math.floor(Math.random() * 3), broken: false, side: null, flash: 0, lx: .5, ly: .42, LX: .5, LY: .42,
+    init() {
+      const tool = $('#tool'), rg = $('#heidTool'), fix = $('#heidFix'), lr = $('#heidLight'), st = $('#heidStage');
+      rg.addEventListener('input', () => {
+        if (this.broken) { rg.value = 5; tool.classList.remove('broken'); void tool.offsetWidth; tool.classList.add('broken'); return; }
+        const v = +rg.value;
+        if (v <= 2 && this.side !== 'lo') { if (this.side === 'hi') this.stroke(); this.side = 'lo'; }
+        else if (v >= 8 && this.side !== 'hi') { if (this.side === 'lo') this.stroke(); this.side = 'hi'; }
+      });
+      fix.addEventListener('click', () => {
+        this.broken = false; this.u = 0; this.count = 0; this.breakAt = 6 + Math.floor(Math.random() * 4); this.side = null;
+        tool.classList.remove('broken'); fix.hidden = true; rg.focus(); say('heidSay', '고쳤다. 다시 손에 익으면 보이지 않게 된다.');
+      });
+      st.addEventListener('pointermove', e => { const p = rel(e, st); this.lx = p[0]; this.ly = p[1]; lr.value = Math.round(p[0] * 100); });
+      lr.addEventListener('input', () => { this.lx = lr.value / 100; this.ly = .42; });
+      if (reduce) this.built = 14;
+    },
+    stroke() {
+      if (this.built < 14) this.built++;
+      this.flash = 1; this.u = Math.min(1, this.u + .24); this.count++;
+      if (this.built === 14 && !this.saidDone) { this.saidDone = true; say('heidSay', '신전이 섰다. 세계가 열린다.'); }
+      if (this.count >= this.breakAt) {
+        this.broken = true; $('#tool').classList.add('broken'); $('#heidFix').hidden = false;
+        say('heidSay', '손잡이가 부러졌다. 이제야 손잡이가 보인다.');
+      }
+    },
+    frame(dt) {
+      if (!this.broken) this.u = Math.max(0, this.u - dt * .05);
+      $('#tool').style.setProperty('--vis', this.broken ? 1 : (1 - .86 * smooth(this.u)).toFixed(3));
+      this.flash = Math.max(0, this.flash - dt * 3);
+      const k = reduce ? 1 : Math.min(1, dt * 5); this.LX += (this.lx - this.LX) * k; this.LY += (this.ly - this.LY) * k;
+      const c = this.ctx, w = this.w, h = this.h, gy = h * .74;
+      c.fillStyle = '#0d0b08'; c.fillRect(0, 0, w, gy);
+      c.fillStyle = '#080605'; c.fillRect(0, gy, w, h - gy);
+      c.strokeStyle = 'rgba(126,104,80,.22)'; c.lineWidth = 1;
+      for (let i = 1; i < 8; i++) { const y = gy + i * (h - gy) / 8; c.beginPath(); for (let x = 0; x <= w; x += 16) { const yy = y + Math.sin(x * .013 + i * 1.7) * 2.2 + Math.sin(x * .041 + i) * 1; x ? c.lineTo(x, yy) : c.moveTo(x, yy); } c.stroke(); }
+      const temple = (fill, flute) => {
+        const TW = Math.min(w * .74, 560), x0 = (w - TW) / 2, n = 6, cw = TW / (n * 2.1), CH = Math.min(h * .4, 290);
+        c.fillStyle = fill;
+        for (let s = 0; s < 3; s++) c.fillRect(x0 - 14 + s * 7, gy - (s + 1) * 6, TW + 28 - s * 14, 6);
+        const base = gy - 18, gap = (TW - n * cw) / (n - 1);
+        for (let i = 0; i < n; i++) {
+          const f = clamp(this.built - i * 2, 0, 2) / 2; if (!f) continue;
+          const x = x0 + i * (cw + gap), hh = CH * f;
+          c.fillStyle = fill; c.fillRect(x, base - hh, cw, hh);
+          c.fillStyle = flute; for (let q = 1; q < 4; q++) c.fillRect(x + cw * q / 4, base - hh, 1, hh);
+        }
+        if (this.built >= 13) { c.fillStyle = fill; c.fillRect(x0 - 8, base - CH - 16, TW + 16, 16); c.fillStyle = flute; c.fillRect(x0 - 8, base - CH - 6, TW + 16, 1); }
+        if (this.built >= 14) { c.fillStyle = fill; c.beginPath(); c.moveTo(x0 - 12, base - CH - 18); c.lineTo(x0 + TW / 2, base - CH - 18 - TW * .16); c.lineTo(x0 + TW + 12, base - CH - 18); c.closePath(); c.fill(); }
+        return { x0, TW, base, CH };
+      };
+      const T0 = temple('#3a342b', '#2a251f');
+      const lx = this.LX * w, ly = this.LY * h, Rc = Math.min(w, h) * .26;
+      c.save(); c.beginPath(); c.arc(lx, ly, Rc, 0, TAU); c.clip();
+      const gl = c.createRadialGradient(lx, ly, 0, lx, ly, Rc); gl.addColorStop(0, 'rgba(236,222,190,.2)'); gl.addColorStop(1, 'rgba(236,222,190,0)');
+      c.fillStyle = gl; c.fillRect(0, 0, w, gy);
+      temple('#e6dcc4', '#9b917c');
+      // the earth refuses the light: it goes deeper, not brighter
+      const ge = c.createRadialGradient(lx, ly, 0, lx, ly, Rc); ge.addColorStop(0, '#000'); ge.addColorStop(.85, 'rgba(0,0,0,.95)'); ge.addColorStop(1, 'rgba(0,0,0,.6)');
+      c.fillStyle = ge; c.fillRect(0, gy, w, h - gy);
+      c.restore();
+      // what the light reveals here, it hides elsewhere: outside the clearing the temple sinks
+      c.save(); c.beginPath(); c.rect(0, 0, w, gy); c.arc(lx, ly, Rc, 0, TAU, true); c.clip('evenodd');
+      c.fillStyle = 'rgba(10,8,6,.55)'; c.fillRect(0, 0, w, gy); c.restore();
+      c.fillStyle = 'rgba(160,140,110,.35)'; c.fillRect(0, gy, w, 1);
+      if (this.flash > 0) {
+        const i = Math.min(5, Math.floor((this.built - 1) / 2)), n = 6, cw = T0.TW / (n * 2.1), gap = (T0.TW - n * cw) / (n - 1);
+        const x = T0.x0 + i * (cw + gap) + cw / 2, y = this.built > 12 ? T0.base - T0.CH - 10 : T0.base - T0.CH * clamp(this.built - i * 2, 0, 2) / 2;
+        c.fillStyle = `rgba(255,236,200,${this.flash * .8})`; c.beginPath(); c.arc(x, y, 2 + (1 - this.flash) * 14, 0, TAU); c.fill();
+      }
+      feather(c, w, h, '13,11,8', .07);
+    }
+  });
+
+  /* ═════════ IX · MERLEAU-PONTY ═════════ */
+  function hull(P) {
+    const p = P.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]), cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    for (const q of p) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+    for (let i = p.length - 1; i >= 0; i--) { const q = p[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+    up.pop(); lo.pop(); return lo.concat(up);
+  }
+  const merleau = Room('merleau', {
+    b: .5, last: .5, views: [{ b: .22, a: .26 }, { b: .8, a: .26 }],
+    init() {
+      const st = $('#merleauStage'), rg = $('#merleauB');
+      const set = v => { this.b = v; if (Math.abs(v - this.last) > .1) { this.views.push({ b: v, a: .34 }); if (this.views.length > 6) this.views.shift(); this.last = v; } this.dirty = true; };
+      st.addEventListener('pointermove', e => { const v = rel(e, st)[0]; rg.value = Math.round(v * 100); set(v); });
+      rg.addEventListener('input', () => set(rg.value / 100));
+    },
+    P(x, y, z, b) {
+      const phi = (b - .5) * 1.25, e = .44 + (b - .5) * .3, cp = Math.cos(phi), sp = Math.sin(phi);
+      const X = x * cp - z * sp, Z = x * sp + z * cp, d = 1 + Z * .12;
+      return [this.cx + X * this.s / d, this.cy - (y * Math.cos(e) + Z * Math.sin(e)) * this.s / d, Z];
+    },
+    poly(pts) { const c = this.ctx; c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.closePath(); },
+    ring(x, y, z, r, b, n = 28) { const o = []; for (let i = 0; i < n; i++) { const a = i / n * TAU; o.push(this.P(x + Math.cos(a) * r, y, z + Math.sin(a) * r, b)); } return o; },
+    view(b, a) {
+      const c = this.ctx, ink = 'rgba(40,34,26,.9)';
+      c.globalAlpha = a; c.lineWidth = 1.4; c.lineJoin = 'round';
+      // table
+      const top = [[-1.8, 0, -1], [1.8, 0, -1], [1.8, 0, 1.1], [-1.8, 0, 1.1]].map(q => this.P(...q, b));
+      const front = [[-1.8, 0, -1], [1.8, 0, -1], [1.8, -.2, -1], [-1.8, -.2, -1]].map(q => this.P(...q, b));
+      c.fillStyle = '#d9b97f'; this.poly(top); c.fill(); c.strokeStyle = ink; c.stroke();
+      c.fillStyle = '#a07c4c'; this.poly(front); c.fill();
+      // cloth fold
+      c.fillStyle = '#e9e6dc'; this.poly([[-1.5, .005, -1], [-.2, .005, -1], [.1, .005, .5], [-1.3, .005, .8]].map(q => this.P(...q, b))); c.fill(); c.strokeStyle = 'rgba(70,90,120,.5)'; c.stroke();
+      const things = [];
+      things.push({ z: this.P(-.55, .2, .2, b)[2], draw: () => { // bowl
+        const rim = this.ring(-.55, .42, .2, .62, b), foot = this.ring(-.55, 0, .2, .3, b, 16);
+        c.fillStyle = '#efeadf'; this.poly(hull(rim.concat(foot))); c.fill(); c.strokeStyle = ink; c.stroke();
+        c.fillStyle = '#d3cab6'; this.poly(rim); c.fill(); c.strokeStyle = 'rgba(46,70,112,.7)'; c.stroke();
+      } });
+      [[-.7, .52, .28, .2, '#b8452e'], [-.38, .54, .14, .19, '#c98a3a'], [-.55, .6, .42, .18, '#8d9a3c'], [.45, .18, -.4, .18, '#a9362a'], [.82, .17, -.12, .17, '#c9873a'], [.22, .17, .22, .17, '#7f8f3a']].forEach(([x, y, z, r, col]) => {
+        const p = this.P(x, y, z, b);
+        things.push({ z: p[2] - (y > .3 ? .5 : 0), draw: () => {
+          const rr = r * this.s / (1 + p[2] * .12);
+          c.fillStyle = col; c.beginPath(); c.arc(p[0], p[1], rr, 0, TAU); c.fill();
+          c.fillStyle = 'rgba(70,40,30,.22)'; c.beginPath(); c.arc(p[0] + rr * .25, p[1] + rr * .2, rr * .78, -.3, 2.4); c.fill();
+          c.strokeStyle = ink; c.beginPath(); c.arc(p[0], p[1], rr, 0, TAU); c.stroke();
+        } });
+      });
+      things.push({ z: this.P(1.15, 0, .6, b)[2], draw: () => { // jug
+        const bt = this.ring(1.15, 0, .6, .3, b, 20), tp = this.ring(1.15, 1.05, .6, .24, b, 20);
+        c.fillStyle = '#6f8f9a'; this.poly(hull(bt.concat(tp))); c.fill(); c.strokeStyle = ink; c.stroke();
+        c.fillStyle = '#4f6d78'; this.poly(tp); c.fill();
+      } });
+      things.sort((p, q) => q.z - p.z).forEach(t => t.draw());
+      c.globalAlpha = 1;
+    },
+    frame(dt) {
+      if (!reduce) for (const v of this.views) v.a = Math.max(.1, v.a - dt * .008);
+      else if (!this.dirty) return;
+      this.dirty = false;
+      const c = this.ctx, w = this.w, h = this.h;
+      this.s = Math.min(w * .2, h * .3); this.cx = w / 2; this.cy = h * .56;
+      c.globalCompositeOperation = 'source-over'; c.fillStyle = '#e8e0cc'; c.fillRect(0, 0, w, h);
+      c.globalCompositeOperation = 'multiply';
+      for (const v of this.views) this.view(v.b, v.a);
+      this.view(this.b, .42);
+      c.globalCompositeOperation = 'source-over';
+    }
+  });
+
+  /* ═════════ X · DANTO ═════════ */
+  (() => {
+    const A = $('#objA'), B = $('#objB'), th = $('#theory');
+    const pool = ['같음에 대한 연구', '눈이 아니라 이론으로 보는 상자', '구별할 수 없는 것의 차이', '일상의 사물을 변용하기'];
+    let pi = Math.floor(Math.random() * pool.length), swapped = false;
+    [A, B].forEach((o, idx) => {
+      const btn = o.querySelector('button'), tag = o.querySelector('.tag');
+      btn.addEventListener('click', () => {
+        const on = btn.getAttribute('aria-pressed') !== 'true';
+        btn.setAttribute('aria-pressed', on); btn.textContent = on ? '이론을 거두기' : '이것은 작품이다';
+        if (on) {
+          const t = (th.value || '').trim() || pool[pi++ % pool.length];
+          tag.textContent = '';
+          const b = document.createElement('b'); b.textContent = '〈무제 (같음)〉, ' + new Date().getFullYear();
+          const m = document.createElement('span'); m.textContent = '합판에 흰 칠, 40×40×40cm';
+          const i = document.createElement('i'); i.textContent = t;
+          tag.append(b, m, i);
+        } else { tag.innerHTML = '<span class="nil">—</span>'; }
+      });
+    });
+    const place = () => {
+      const dx = B.offsetLeft - A.offsetLeft;
+      A.style.transform = swapped ? `translateX(${dx}px)` : ''; B.style.transform = swapped ? `translateX(${-dx}px)` : '';
+    };
+    $('#swap').addEventListener('click', () => { swapped = !swapped; place(); });
+    addEventListener('resize', () => { A.style.transition = B.style.transition = 'none'; place(); requestAnimationFrame(() => { A.style.transition = B.style.transition = ''; }); });
+  })();
+
+  /* ═════════ CODA · YOU ═════════ */
+  const ROOMS = [...document.querySelectorAll('main > section')];
+  const NR = ROOMS.length, COL = ROOMS.map(s => s.dataset.tr || '#ece5d8');
+  const NAMES = ['플라톤', '아리스토텔레스', '칸트', '칸트의 숭고', '쇼펜하우어', '니체', '듀이', '벤야민', '하이데거', '메를로퐁티', '단토', '당신'];
+  const NUM = ['I', 'II', 'III', 'III′', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', '·'];
+  const trace = { pts: [], dwell: new Array(NR).fill(0), px: .5, py: .5, acc: 0, cur: -1 };
+  addEventListener('pointermove', e => { trace.px = e.clientX / innerWidth; trace.py = e.clientY / innerHeight; }, { passive: true });
+  function track(dt) {
+    if (document.hidden) return;
+    const mid = innerHeight / 2; let cur = -1, prog = .5;
+    for (let i = 0; i < NR; i++) { const b = ROOMS[i].getBoundingClientRect(); if (b.top <= mid && b.bottom > mid) { cur = i; prog = clamp((mid - b.top) / b.height, 0, 1); break; } }
+    trace.cur = cur; if (cur < 0) return;
+    trace.dwell[cur] += dt; trace.acc += dt;
+    if (trace.acc > .16) {
+      trace.acc = 0; const P = trace.pts, x = trace.px, y = trace.py * .55 + prog * .45, l = P[P.length - 1];
+      if (!l || l[0] !== cur || Math.abs(l[1] - x) + Math.abs(l[2] - y) > .004 || Math.random() < .08) P.push([cur, x, y]);
+      if (P.length > 7000) trace.pts = P.filter((_, i) => i % 2 === 0);
+    }
+  }
+  const coda = Room('coda', {
+    k: 0, started: false, tk: 0,
+    init() {
+      $('#youYr').textContent = new Date().getFullYear() + ' –';
+      $('#redraw').addEventListener('click', () => { this.k = 0; this.dirty = true; });
+    },
+    frame(dt) {
+      const P = trace.pts, n = P.length;
+      if (!this.started) { this.started = true; this.k = reduce ? 1 : 0; }
+      if (this.k < 1) this.k = Math.min(1, this.k + dt / 5);
+      this.tk += dt;
+      if (this.tk > 1) { this.tk = 0; const tot = trace.dwell.reduce((a, b) => a + b, 0); let mi = 0; trace.dwell.forEach((d, i) => { if (i < NR - 1 && d > trace.dwell[mi]) mi = i; });
+        $('#tot').textContent = `머문 시간 ${Math.floor(tot / 60)}분 ${Math.floor(tot % 60)}초 · 가장 오래 머문 방: ${NAMES[mi] || ''}`; }
+      if (reduce && !this.dirty && this.tk !== 0) return; this.dirty = false;
+      const c = this.ctx, w = this.w, h = this.h, cw = w / NR, top = 34, bot = h - 40, H = bot - top;
+      c.fillStyle = '#0b0a09'; c.fillRect(0, 0, w, h);
+      c.font = '400 16px "Hahmlet", serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      for (let i = 0; i < NR; i++) {
+        const x = i * cw; if (i) { c.fillStyle = 'rgba(236,229,216,.07)'; c.fillRect(Math.round(x), top, 1, H); }
+        if (w >= 560 || i % 2 === 0 || i === NR - 1) { c.fillStyle = '#a69d8e'; c.fillText(NUM[i], x + cw / 2, 20); }
+        const d = Math.sqrt(trace.dwell[i]) * 6; c.fillStyle = COL[i]; c.globalAlpha = .9; c.fillRect(x + cw / 2 - 1, h - 10 - Math.min(26, d), 2, Math.min(26, d)); c.globalAlpha = 1;
+      }
+      const m = Math.floor(n * ease(this.k)); if (m < 2) return;
+      c.lineWidth = 1; c.lineJoin = 'round';
+      let prev = null;
+      for (let j = 0; j < m; j++) {
+        const [r, x, y] = P[j], X = r * cw + cw * (.08 + x * .84), Y = top + y * H;
+        if (prev) {
+          if (prev[0] === r) { c.strokeStyle = COL[r]; c.globalAlpha = .62; } else { c.strokeStyle = '#ece5d8'; c.globalAlpha = .14; }
+          c.beginPath(); c.moveTo(prev[1], prev[2]); c.lineTo(X, Y); c.stroke();
+        }
+        prev = [r, X, Y];
+      }
+      c.globalAlpha = 1;
+      if (prev) { c.fillStyle = '#ffd9a8'; c.beginPath(); c.arc(prev[1], prev[2], 3, 0, TAU); c.fill(); }
+    }
+  });
+
+  /* ───── run ───── */
+  R.forEach(o => o.init && o.init());
+  const io = new IntersectionObserver(es => es.forEach(e => { const o = R.find(r => r.el === e.target); if (o) { o.vis = e.isIntersecting; if (o.vis) { fit(o); o.dirty = true; } } }), { rootMargin: '120px 0px' });
+  R.forEach(o => { fit(o); io.observe(o.el); });
+  let rt = 0; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => R.forEach(fit), 120); });
+  const door = $('#door');
+  const doorOpen = () => door.style.setProperty('--open', clamp(scrollY / innerHeight, 0, 1).toFixed(3));
+  addEventListener('scroll', doorOpen, { passive: true }); doorOpen();
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    for (const o of R) if (o.vis && o.w) o.frame(dt, now / 1000);
+    track(dt);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

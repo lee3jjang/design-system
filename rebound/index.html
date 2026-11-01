@@ -98,9 +98,9 @@ code, .mono { font-family: var(--f-mono); font-size: .92em; }
 .pass { --eh: repeating-linear-gradient(90deg, var(--l) 0 8px, #0000 8px 13px); --ev: repeating-linear-gradient(180deg, var(--l) 0 8px, #0000 8px 13px); --eb: var(--eh); }
 .dribble { --eb: linear-gradient(#0000, #0000); }
 .dribble::after { content: ""; position: absolute; left: var(--c); right: var(--c); bottom: -2px; height: 8px; background: var(--zz-ink) 0 0 / 10px 8px repeat-x; pointer-events: none; }
-.screen { position: relative; height: 14px; margin: var(--s-arc) 0; border: 0;
-  background: linear-gradient(var(--ink), var(--ink)) 0 50% / 100% 2px no-repeat, linear-gradient(var(--ink), var(--ink)) 100% 50% / 2px 14px no-repeat; }
-.screen::after { content: "⊥ 스크린"; position: absolute; right: 12px; top: -22px; font: 13px var(--f-mono); color: var(--com); }
+.screen { position: relative; height: 14px; margin: var(--s-half) 0 0; border: 0;
+  background: linear-gradient(var(--ink), var(--ink)) 0 50% / 100% 2px no-repeat, linear-gradient(var(--ink), var(--ink)) 100% 50% / 2px 14px no-repeat, linear-gradient(var(--ink), var(--ink)) 0 50% / 2px 14px no-repeat; }
+.screen::after { content: "⊥ 스크린 · 여기서 막힘"; position: absolute; right: 12px; top: -26px; font: 13px var(--f-mono); color: var(--com); }
 
 /* interaction: touching strips colour (수학 흑백화) */
 .mono-on, .act:hover, .act:active, .act[aria-pressed="true"], .act[aria-checked="true"], .act[aria-selected="true"], .act[aria-current="step"] {
@@ -117,7 +117,7 @@ code, .mono { font-family: var(--f-mono); font-size: .92em; }
 .zlift:hover, .zlift:focus-within { --zl: 22px; }
 
 /* --- buttons --- */
-.btn { --c: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 var(--s-key); font-weight: 600; color: var(--kw); white-space: nowrap; user-select: none; }
+.btn { --c: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 var(--s-key); font-weight: 600; color: var(--kw); white-space: nowrap; user-select: none; text-decoration: none; }
 .btn:active { transform: translateY(-2px); }
 .btn--main { --f: var(--kw); --l: var(--kw); color: var(--paper); }
 .btn--risk { --l: var(--err); color: var(--err); }
@@ -137,6 +137,9 @@ code, .mono { font-family: var(--f-mono); font-size: .92em; }
 .ground { height: 18px; background: repeating-linear-gradient(-45deg, var(--ink) 0 1.6px, #0000 1.6px 9px); border-bottom: 3px solid var(--ink); }
 .strip { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px var(--s-key); padding-block: var(--s-ft); font: 14px/1.5 var(--f-mono); color: var(--com); }
 .strip b { color: var(--num); font-weight: 400; }
+.titlerow { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--s-arc); }
+.play { flex: none; width: 230px; height: auto; margin-bottom: -6px; }
+@media (max-width: 1100px) { .play { display: none; } }
 .title { margin: var(--s-line) 0 0; font: 400 clamp(46px, 12.4vw, 164px)/.9 var(--f-var); letter-spacing: .12em; color: var(--ent); margin-right: -.12em; }
 .title span { display: inline-block; }
 .title .hang { animation: hang 1.4s var(--bounce) both; }
@@ -163,14 +166,14 @@ code, .mono { font-family: var(--f-mono); font-size: .92em; }
 .stat span { font-size: 15px; color: var(--ent); }
 .stat b { font: 400 40px/1.05 var(--f-var); letter-spacing: .06em; color: var(--num); font-variant-numeric: tabular-nums; }
 .clock { margin-top: var(--s-cc); padding-top: var(--s-ft); border-top: 2px solid var(--ink); font: 15px/1.5 var(--f-mono); }
-.clock b { display: block; font: 400 30px/1.2 var(--f-var); letter-spacing: .08em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.clock b { display: block; font: 400 27px/1.3 var(--f-mono); letter-spacing: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
 .policy { --c: 12px; padding: var(--s-cc) var(--s-key); }
 .policy h3, .term h3 { margin: 0 0 6px; font: 400 18px/1.3 var(--f-ko); letter-spacing: .08em; color: var(--ent); }
 .policy dl { display: grid; grid-template-columns: auto 1fr; gap: 2px var(--s-cc); margin: 0; font-size: 16px; }
 .policy dt { color: var(--ent); }
 .policy dd { margin: 0; text-align: right; }
-.term { --c: 12px; padding: var(--s-cc) var(--s-key); }
-.log { height: 230px; overflow-y: auto; margin: 0; padding: 0; font: 14px/1.55 var(--f-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.term { --c: 12px; padding: var(--s-cc) var(--s-key); grid-column: 1 / -1; }
+.log { height: 210px; overflow-y: auto; margin: 0; padding: 0; font: 14px/1.55 var(--f-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 .log div { min-height: 1.55em; }
 .ok { color: var(--str); } .bad { color: var(--err); }
 
@@ -195,7 +198,7 @@ input[type="range"]:focus-visible { outline-offset: 2px; }
 .fld[data-bad] { --l: var(--err); }
 .fld[data-bad]::after { background-image: var(--zz-err); background-size: 6px 4px; height: 4px; bottom: 0; }
 .help { margin: 6px 0 0; font-size: 16px; }
-.help.lintmsg { font: 14px/1.5 var(--f-mono); color: var(--err); }
+.help.lintmsg { font: 15px/1.5 var(--f-mono); color: var(--err); }
 .prefix { font: 15px var(--f-mono); color: var(--com); margin-right: 8px; }
 
 .swt { display: inline-flex; align-items: center; gap: var(--s-cc); min-height: 48px; color: var(--ent); }
@@ -242,7 +245,7 @@ input[type="range"]:focus-visible { outline-offset: 2px; }
 .given { font-size: 16px; }
 .given h3 { margin: 0 0 4px; font: 400 20px/1.3 var(--f-ko); letter-spacing: .08em; color: var(--ent); }
 .given dl { margin: 6px 0 0; display: grid; gap: 2px; }
-.given dt { font: 13px var(--f-mono); color: var(--ink); letter-spacing: .04em; }
+.given dt { font: 14px var(--f-mono); color: var(--ink); letter-spacing: .04em; }
 .given dd { margin: 0 0 6px; color: var(--com); font-style: italic; }
 .eqno { font: 15px var(--f-mono); color: var(--com); text-align: right; padding-top: 4px; }
 .stage { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s-cc) var(--s-key); min-width: 0; }
@@ -256,7 +259,7 @@ input[type="range"]:focus-visible { outline-offset: 2px; }
 .xt th, .xt td { text-align: left; vertical-align: top; padding: 12px 14px 12px 0; border-top: 1px solid #cfccc3; }
 .xt thead th { font: 400 16px var(--f-ko); letter-spacing: .08em; color: var(--ent); border-top: 0; }
 .xt tbody th { font-weight: 600; color: var(--ent); white-space: nowrap; }
-.xt td:nth-child(2), .xt td:nth-child(3) { white-space: nowrap; }
+.xt td:nth-child(3), .xt td:nth-child(4) { white-space: nowrap; }
 .xt .src { font-family: var(--f-mono); color: var(--str); }
 .xt .op { font-family: var(--f-mono); color: var(--kw); }
 .xt .d { font: 14px var(--f-mono); color: var(--num); }
@@ -273,7 +276,7 @@ input[type="range"]:focus-visible { outline-offset: 2px; }
 .sw code { font-size: 13px; color: var(--ink); }
 .typeline { display: grid; gap: var(--s-cc); width: 100%; }
 .typeline > div { display: grid; grid-template-columns: 120px 1fr; gap: var(--s-key); align-items: baseline; border-bottom: 1px solid #d8d5cc; padding-bottom: 8px; }
-.typeline span { font: 13px var(--f-mono); color: var(--com); }
+.typeline > div > span:first-child { font: 14px var(--f-mono); color: var(--com); }
 
 /* cards */
 .card { --c: 14px; padding: var(--s-key); display: grid; gap: var(--s-ft); align-content: start; }
@@ -343,7 +346,7 @@ dialog.dlg::backdrop { background: rgba(29, 31, 36, .55); }
 .toast b { color: var(--ent); }
 .toast .btn { min-height: 44px; }
 
-.foot { margin-top: var(--s-full); padding: var(--s-arc) 0 120px; border-top: 3px solid var(--ink); display: grid; gap: 8px; font-size: 16px; }
+.foot { margin-top: var(--s-full); padding-block: var(--s-arc) 120px; border-top: 3px solid var(--ink); display: grid; gap: 8px; font-size: 16px; }
 .foot b { font: 400 26px var(--f-var); letter-spacing: .12em; color: var(--ent); }
 
 @media (max-width: 960px) {
@@ -376,7 +379,21 @@ dialog.dlg::backdrop { background: rgba(29, 31, 36, .55); }
   <div class="ground" aria-hidden="true"></div>
   <div class="wrap">
     <div class="strip"><span>seed <b id="seedOut">20261101</b> · mulberry32 · 축 <b>10</b>/16</span><span>군대 <b>0</b>표 · 보험 <b>0</b>표 · 중력 <b>+9.81</b> m/s² ↑</span></div>
+    <div class="titlerow">
     <h1 class="title" id="title" aria-label="Rebound">REBOUND</h1>
+    <svg class="play" viewBox="0 0 230 200" role="img" aria-label="작전판: 실선은 컷, 점선은 패스, 지그재그는 드리블, T자는 스크린">
+      <g fill="none" stroke="#1d1f24" stroke-width="2">
+        <path d="M30 170 l8 -10 l8 10 l8 -10 l8 10 l8 -10 l8 10 l8 -10 l8 10" />
+        <path d="M104 160 L104 150" /><path d="M98 150 h12" />
+        <path d="M60 60 L180 60" stroke-dasharray="8 5" />
+        <path d="M160 160 Q200 120 190 40" />
+        <path d="M120 110 L150 110 M135 102 V118" />
+      </g>
+      <path d="M180 60 l-9 -5 v10z M190 40 l-6 8 l9 1z" fill="#1d1f24"/>
+      <g font-family="JetBrains Mono, monospace" font-size="20" fill="#1b4f9c"><text x="18" y="182">O</text><text x="48" y="66">O</text><text x="152" y="182">O</text><text x="126" y="98" fill="#b3261e">X</text></g>
+      <g font-family="JetBrains Mono, monospace" font-size="12" fill="#5c6370"><text x="40" y="196">드리블</text><text x="96" y="52">패스</text><text x="196" y="110">컷</text><text x="160" y="126">스크린</text></g>
+    </svg>
+    </div>
     <p class="sub">위로 떨어지는 공의 증명서</p>
     <p class="lead">이 코트에서는 중력이 천장을 향합니다. 공을 <span class="v">끌어서 놓으면</span> 위로 떨어지고, 림을 <span class="v">통과하면</span> 증명이 끝나며, 빗나가면 <span class="nn">보험금</span>이 <span class="v">청구됩니다</span>. 농구, 물리, 군대, 수학, 보험, 코딩을 시드 <span class="n">20261101</span>로 기계적으로 추첨해 억지로 붙였습니다. 군대와 보험은 한 표도 받지 못해서 생김새는 없고 <span class="c nb">내용으로만</span> 남았습니다.</p>
 
@@ -421,11 +438,11 @@ dialog.dlg::backdrop { background: rgba(29, 31, 36, .55); }
           </dl>
           <p class="help c" style="margin-top:8px">각도와 속력이 최적에서 멀수록 보험료가 오릅니다.</p>
         </section>
-        <section class="term cc" aria-labelledby="termT">
+      </div>
+      <section class="term cc" aria-labelledby="termT">
           <h3 id="termT">점호 = 단위 테스트</h3>
           <div class="log" id="log" role="log" aria-live="polite" tabindex="0" aria-label="테스트 출력"></div>
         </section>
-      </div>
     </div>
   </div>
 </header>
@@ -714,7 +731,7 @@ dialog.dlg::backdrop { background: rgba(29, 31, 36, .55); }
     </div>
     <div class="eqno">(7.1)</div>
   </div>
-  <hr class="screen">
+  <div class="screen" role="separator"></div>
 </section>
 </main>
 
@@ -833,6 +850,7 @@ log('<span class="v">$</span> npm test <span class="s">--watch</span> <span clas
 /* ---------- physics ---------- */
 const G = 9.81, BR = 0.12, P0 = { x: 0.9, y: 2.0 }, RIM = { x: 7.6, y: 3.05, r: 0.23 }, BOARD = { x: 7.98, y0: 2.9, y1: 3.95 };
 const VIEW = { x0: -0.4, x1: 9.6, y0: -0.35, y1: 5.25 };
+const VIEW_WIDE = { x0: -0.4, x1: 9.6 }, VIEW_NARROW = { x0: 0.25, x1: 8.45 };
 const D = RIM.x - P0.x, DY = RIM.y - P0.y;
 const cv = $('#cv'), ctx = cv.getContext('2d'), stg = $('#stagec');
 let W = 900, H = 504, K = 90, dpr = 1;
@@ -842,11 +860,11 @@ function premium() { const diff = Math.min(1, Math.abs(st.th - 50) / 40 + Math.a
 const toS = (x, y) => [(x - VIEW.x0) * K, (y - VIEW.y0) * K];
 function resize() {
   const w = stg.clientWidth; dpr = Math.min(2, window.devicePixelRatio || 1);
-  W = w; H = Math.round(w * (VIEW.y1 - VIEW.y0) / (VIEW.x1 - VIEW.x0)); if (w < 560) H = Math.round(H * 1.0);
+  Object.assign(VIEW, w < 600 ? VIEW_NARROW : VIEW_WIDE);
+  W = w; H = Math.round(w * (VIEW.y1 - VIEW.y0) / (VIEW.x1 - VIEW.x0));
   K = W / (VIEW.x1 - VIEW.x0);
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw();
 }
-const css = getComputedStyle(document.documentElement);
 const C = { ink: '#1d1f24', com: '#9da2ab', grid: '#e1ddd2', num: '#9a4a00', kw: '#8a1fa0', ent: '#1b4f9c', ball: '#d0601a', paper: '#f6f4ee' };
 function arrow(x1, y1, x2, y2, col, lw = 2) {
   ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
@@ -877,9 +895,9 @@ function draw() {
   // axis labels
   const fs = Math.max(11, Math.min(14, K * .14));
   ctx.font = `${fs}px "JetBrains Mono", monospace`; ctx.fillStyle = '#5c6370'; ctx.textBaseline = 'top';
-  for (let x = 0; x <= 9; x += (K < 50 ? 3 : 1)) { const [sx] = toS(x, 0); ctx.fillText(x + '', sx + 3, fy + 4); }
+  for (let x = Math.ceil(VIEW.x0); x <= Math.floor(VIEW.x1); x += (K < 40 ? 2 : 1)) { const [sx] = toS(x, 0); ctx.fillText(x + '', sx + 3, fy + 4); }
   ctx.textBaseline = 'middle';
-  for (let y = 1; y <= 5; y++) { const [, sy] = toS(0, y); ctx.fillText(y + ' m', 4, sy - 8); }
+  if (K > 60) for (let y = 1; y <= 5; y++) { const [, sy] = toS(0, y); ctx.fillText(y + ' m', 4, sy - 8); }
   // gravity vector, pointing up
   const gx = W - Math.max(46, K * .7), gy = fy + K * 1.7;
   arrow(gx, gy, gx, gy - K * 1.1, C.ink, 2);

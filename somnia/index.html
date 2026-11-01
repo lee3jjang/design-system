@@ -136,7 +136,7 @@ p { margin: 0 0 var(--s4); }
   --fill: var(--sn1); --r: 12px;
   appearance: none; border: 0; background: none; color: var(--sn-ink); cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 50px; padding: 0 var(--s6); font: 500 16px/1.2 var(--ko); letter-spacing: .03em;
+  min-height: 50px; padding: 0 var(--s6); font: 500 16px/1.2 var(--ko); letter-spacing: .03em; text-decoration: none;
   transition: transform .15s;
 }
 .btn:hover { --fill: var(--sn0); }
@@ -237,13 +237,14 @@ p { margin: 0 0 var(--s4); }
 .xt caption { text-align: left; font: 400 14px/1.4 var(--mono); color: var(--mute); padding-bottom: 10px; }
 .xt th, .xt td { text-align: left; vertical-align: top; padding: 12px 10px 12px 0; }
 .xt thead th { font: 500 14px/1.3 var(--mono); color: var(--mute); padding-bottom: 12px; }
-.xt tbody tr { background: linear-gradient(var(--up), var(--up)) 0 0 / 100% 1px no-repeat; }
-.xt td:first-child { font-weight: 700; white-space: nowrap; }
+.xt tbody tr { background: linear-gradient(var(--up), var(--up)) 0 0 / 100% 1px no-repeat, linear-gradient(var(--down), var(--down)) 0 3px / 100% 1px no-repeat; }
+.xt td:nth-child(2) { font-weight: 700; white-space: nowrap; }
 .xt .src { display: inline-block; font: 500 14px/1.3 var(--mono); white-space: nowrap; }
 .op { display: inline-block; font: 500 14px/1.3 var(--mono); padding: 3px 8px; background: var(--ink); color: var(--bg); white-space: nowrap; }
 .xt .idx { color: var(--mute); font: 400 14px/1.6 var(--mono); width: 2.2em; }
 @media (max-width: 760px) {
   .xt thead { display: none; }
+  .xt caption { display: block; }
   .xt, .xt tbody, .xt tr, .xt td { display: block; }
   .xt tr { padding: 14px 0 10px; }
   .xt td { padding: 2px 0; }
@@ -264,7 +265,7 @@ p { margin: 0 0 var(--s4); }
 .spacebars i { display: block; height: 14px; background: var(--ink); }
 .spacebars span:last-child { color: var(--mute); text-align: right; }
 .shapes { display: flex; flex-wrap: wrap; gap: var(--s5); }
-.shapes .sc { width: 140px; height: 96px; display: grid; place-items: end start; padding: 12px 16px; font: 400 14px/1.3 var(--mono); }
+.shapes .sc { width: 140px; height: 96px; display: grid; place-items: end start; padding: 12px calc(var(--r) + 6px); font: 400 14px/1.3 var(--mono); }
 .tone { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s4); }
 .wave { width: 220px; height: 54px; }
 .wave path { fill: none; stroke: var(--mute); stroke-width: 1.5; }
@@ -301,7 +302,7 @@ p { margin: 0 0 var(--s4); }
   repeating-linear-gradient(0deg, var(--sn4) 0 2px, var(--sn2) 2px 5px) 50% 70% / 60% 46% no-repeat,
   radial-gradient(ellipse at 50% 22%, var(--sn4) 0 30%, transparent 32%), var(--sn2); box-shadow: inset 0 0 0 1.5px var(--sn5), inset 1px 2px 3px var(--sn4); }
 .rd small { color: var(--mute); font: 400 14px/1 var(--mono); }
-.field { display: grid; gap: 6px; min-width: 0; }
+.field { display: grid; gap: 6px; min-width: 0; align-content: start; }
 .field > label, .field > .lab { font: 500 15px/1.4 var(--ko); }
 .field .hint { font-size: 14px; color: var(--mute); }
 .field .err { font-size: 15px; color: var(--up); font-weight: 700; }
@@ -339,7 +340,7 @@ p { margin: 0 0 var(--s4); }
 
 /* ───── chips, badges, cards ───── */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { --fill: var(--sn1); --r: 22px; --cr: var(--sn3); --db: transparent; appearance: none; border: 0; background: none; cursor: pointer; min-height: 44px; padding: 0 18px 0 14px; display: inline-flex; align-items: center; gap: 8px; font: 500 15px/1 var(--ko); color: var(--sn-ink); }
+.chip { --fill: var(--sn1); --r: 10px; --cr: var(--sn3); --db: transparent; appearance: none; border: 0; background: none; cursor: pointer; min-height: 44px; padding: 0 18px 0 14px; display: inline-flex; align-items: center; gap: 8px; font: 500 15px/1 var(--ko); color: var(--sn-ink); }
 .chip i { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--sn4); flex: none; }
 .chip[aria-pressed="true"] { --fill: var(--sn5); --cr: var(--up); --db: var(--down); color: #fff; }
 .chip[aria-pressed="true"] i { background: #fff; box-shadow: none; }
@@ -350,10 +351,12 @@ p { margin: 0 0 var(--s4); }
 .badge--dis { --fill: var(--panel); color: var(--ink); }
 .badge--dis s { color: var(--mute); }
 .badge--up { color: var(--up); --fill: var(--panel); } .badge--down { color: var(--down); --fill: var(--panel); }
-.cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: var(--s6) var(--s5); width: 100%; }
+.cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); gap: var(--s6) var(--s4); width: 100%; }
 .card { --r: 20px; padding: var(--s5) var(--s5) var(--s6); display: grid; gap: 8px; align-content: start; }
-.card__port { --r: 50%; height: 150px; display: grid; place-items: center; background: radial-gradient(circle at 50% 50%, #08102a 0 60%, transparent 61%); }
-.card__port svg { width: 120px; height: 120px; }
+.card__port { height: 160px; display: grid; place-items: center; }
+.card__port span { width: 144px; height: 144px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 50% 120%, #2a5fa8 0 32%, #0a1130 33%); box-shadow: 0 0 0 7px var(--bg2), 0 0 0 9px var(--up), 0 0 0 12px var(--panel), 0 0 0 13px var(--down); }
+.card__port svg { width: 108px; height: 108px; }
+.card:hover .card__port svg { animation: bob 3.5s ease-in-out infinite; }
 .card h3 { font-size: 20px; }
 .card h3 small { font: 400 14px/1 var(--mono); color: var(--mute); margin-left: 6px; }
 .card p { margin: 0; font-size: 16px; color: var(--ink2); }
@@ -380,13 +383,13 @@ p { margin: 0 0 var(--s4); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font: 400 14px/1.4 var(--mono); color: var(--ink2); margin-top: 10px; }
 .legend i { display: inline-block; width: 12px; height: 12px; vertical-align: -1px; margin-right: 6px; }
 .slips { list-style: none; margin: 0; padding: 0; columns: 2 260px; column-gap: var(--s7); }
-.slips li { break-inside: avoid; display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; background: linear-gradient(var(--down), var(--down)) 0 100% / 100% 1px no-repeat; font: 400 16px/1.4 var(--mono); }
+.slips li { break-inside: avoid; display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; background: linear-gradient(var(--up), var(--up)) 0 100% / 100% 1px no-repeat, linear-gradient(var(--down), var(--down)) 0 calc(100% - 3px) / 100% 1px no-repeat; font: 400 16px/1.4 var(--mono); }
 .slips li span:last-child { white-space: nowrap; }
 .slips s { color: var(--mute); }
 
 /* ───── table + pager ───── */
 .tbl-wrap { width: 100%; overflow-x: auto; }
-.tbl { width: 100%; border-collapse: collapse; font-size: 16px; min-width: 560px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 16px; min-width: 520px; }
 .tbl caption { text-align: left; font: 400 14px/1.4 var(--mono); color: var(--mute); padding-bottom: 8px; }
 .tbl th { text-align: left; font: 500 14px/1.2 var(--mono); color: var(--mute); padding: 0; }
 .tbl thead tr { background: linear-gradient(var(--up), var(--up)) 0 100% / 100% 2px no-repeat, linear-gradient(var(--down), var(--down)) 0 calc(100% - 4px) / 100% 1px no-repeat; }
@@ -394,7 +397,7 @@ p { margin: 0 0 var(--s4); }
 .tbl th button:hover { color: var(--ink); }
 .tbl th .ar { font-size: 12px; opacity: .5; }
 .tbl th[aria-sort] .ar { opacity: 1; color: var(--ink); }
-.tbl td { padding: 12px 10px 12px 0; vertical-align: middle; background: linear-gradient(var(--down), var(--down)) 0 100% / 100% 1px no-repeat; }
+.tbl td { padding: 12px 10px 12px 0; vertical-align: middle; background: linear-gradient(var(--up), var(--up)) 0 100% / 100% 1px no-repeat, linear-gradient(var(--down), var(--down)) 0 calc(100% - 3px) / 100% 1px no-repeat; }
 .tbl td.r, .tbl th.r { text-align: right; }
 .tbl th.r button { justify-content: flex-end; width: 100%; }
 .tbl td.n { font-family: var(--mono); }
@@ -415,8 +418,8 @@ p { margin: 0 0 var(--s4); }
 @media (max-width: 640px) { .steps { grid-template-columns: minmax(0, 1fr); } }
 .meters { display: grid; gap: var(--s5); width: 100%; }
 .meter__top { display: flex; justify-content: space-between; gap: 10px; font: 400 15px/1.4 var(--mono); margin-bottom: 6px; }
-.meter__bar { --r: 9px; --fill: var(--sn2); height: 30px; padding: 7px 9px; display: flex; gap: 3px; }
-.meter__bar i { flex: 1; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 25%, var(--sn1) 55%, var(--sn3)); box-shadow: 0 1px 0 var(--sn4); transition: opacity .8s; aspect-ratio: 1; max-width: 16px; }
+.meter__bar { --r: 9px; --fill: var(--sn2); height: 34px; padding: 8px 14px; display: flex; gap: 3px; justify-content: space-between; align-items: center; }
+.meter__bar i { border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 25%, var(--sn1) 55%, var(--sn3)); box-shadow: 0 1px 0 var(--sn4); transition: opacity .8s; flex: none; width: 18px; height: 18px; }
 .meter__bar i.off { opacity: .15; }
 .snowman { display: flex; align-items: flex-end; gap: var(--s5); flex-wrap: wrap; }
 .snowman svg { width: 110px; height: 150px; }
@@ -463,7 +466,7 @@ dialog[open] .vault__door .wheel { transform: rotate(-270deg); }
 @keyframes tout { to { transform: translateY(12px); opacity: 0; } }
 
 /* ───── principles ───── */
-.rules { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--s5); width: 100%; }
+.rules { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); gap: var(--s5); width: 100%; }
 .rules li { --r: 14px; padding: var(--s5) var(--s5) var(--s6); }
 .rules b { display: block; font: 600 17px/1.4 var(--mono); margin-bottom: 6px; }
 .rules span { color: var(--ink2); font-size: 16px; }
@@ -593,7 +596,7 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
       </g>
       <g fill="var(--ink)" fill-opacity=".45" font-family="IBM Plex Mono, monospace" font-size="11">
         <text x="22" y="103">O₂ 21.0</text><text x="22" y="145">CO₂ 0.4</text>
-        <text x="214" y="56">MODULE 03 · 예금부 · ISIN KR-DRM-0003-5</text>
+        <text x="214" y="426">MODULE 03 · 예금부 · ISIN KR-DRM-0003-5</text>
       </g>
       <!-- velcro patches -->
       <g fill="var(--ink)" fill-opacity=".14"><rect x="238" y="380" width="26" height="12"/><rect x="560" y="70" width="12" height="26"/><rect x="96" y="372" width="26" height="12"/></g>
@@ -723,7 +726,7 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
       <div><code>32 / 섹션</code><span style="font:600 32px/1.2 var(--mono)">복리는 느리다</span></div>
       <div><code>17 / 본문</code><span>자간 +0.02em, 행간 1.85. 모든 숫자는 같은 폭이라 세로로 줄이 맞습니다.</span></div>
       <div><code>14 / 시각</code><span class="t">03:12:44 · 회색은 시간의 색</span></div>
-      <div><code>숫자 굴림</code><span class="num" style="font-size:28px"><span class="odo" id="odoDemo" aria-hidden="true"></span><span class="sr" id="odoDemoSr"></span></span> <button class="btn btn--sm sc" type="button" id="odoBtn">숫자 바꾸기</button></div>
+      <div><code>숫자 굴림</code><span class="num" style="font-size:28px"><span class="odo" id="odoDemo" aria-hidden="true"></span><span class="sr" id="odoDemoSr"></span> <button class="btn btn--sm sc" type="button" id="odoBtn" style="margin-left:12px;vertical-align:middle">숫자 바꾸기</button></span></div>
     </div>
     <div class="lrow__note"><p>시세판의 숫자를 느리게. 1.6초 동안 굴러 바뀝니다.</p></div>
   </div>
@@ -770,25 +773,25 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
     <div class="stage">
       <div class="cast">
         <article class="card sc gh" data-shadow="욕심">
-          <div class="card__port sc sc--plain"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-mung"/></svg></div>
+          <div class="card__port"><span><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-mung"/></svg></span></div>
           <h3>뭉치<small>눈덩이</small></h3>
           <p>모을수록 커지는 눈덩이. 굴러가면 뭐든 붙여 옵니다.</p>
           <span class="badge badge--grow sc">예금주</span>
         </article>
         <article class="card sc gh" data-shadow="잔소리">
-          <div class="card__port sc sc--plain"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-umji"/></svg></div>
+          <div class="card__port"><span><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-umji"/></svg></span></div>
           <h3>엄지<small>벙어리장갑</small></h3>
           <p>창구 담당. 엄지 하나로 도장을 찍습니다. 손가락이 없어 셈은 느립니다.</p>
           <span class="badge badge--due sc">창구</span>
         </article>
         <article class="card sc gh" data-shadow="싸움">
-          <div class="card__port sc sc--plain"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-twin"/></svg></div>
+          <div class="card__port"><span><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-twin"/></svg></span></div>
           <h3>솜이·몽이<small>귀마개</small></h3>
           <p>쌍둥이 회계사. 솜이는 차변, 몽이는 대변만 듣습니다.</p>
           <span class="badge badge--dis sc"><s>대변</s> 차변</span>
         </article>
         <article class="card sc gh" data-shadow="숨막힘">
-          <div class="card__port sc sc--plain"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-bo"/></svg></div>
+          <div class="card__port"><span><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-bo"/></svg></span></div>
           <h3>보온이<small>보온병</small></h3>
           <p>생명 유지 담당. 따뜻한 산소를 조금씩 나눠 줍니다.</p>
           <span class="badge badge--rep sc">억압됨</span>
@@ -1397,7 +1400,7 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
     const o = px, c = Math.max(60, o + (cr() - 0.47) * 9), h = Math.max(o, c) + cr() * 4, l = Math.min(o, c) - cr() * 4; px = c; return { o, c, h, l };
   });
   function drawChart(n) {
-    const d = candles.slice(-n), W = 600, H = 250, L = 8, R = 46, T = 12, B = 26;
+    const d = candles.slice(-n), W = Math.round(Math.min(640, Math.max(320, $('#chart').clientWidth || 600))), H = W < 480 ? 230 : 250, L = 8, R = 46, T = 12, B = 26;
     const hi = Math.max(...d.map(x => x.h)), lo = Math.min(...d.map(x => x.l));
     const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
     const step = (W - L - R) / n, bw = Math.max(3, step * 0.56);
@@ -1420,8 +1423,10 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
     $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="chT chD"><title id="chT">아이 기분 지수 촛대 차트, 최근 ${n}장면</title><desc id="chD">최고 ${hi.toFixed(1)}, 최저 ${lo.toFixed(1)}, 마지막 ${last.c.toFixed(1)}. 오른 장면 ${ups}개, 내린 장면 ${n - ups}개.</desc>${g}${cs}${ma}${ax}${xl}</svg>`;
     $('#chartQ').innerHTML = `<b class="num">${last.c.toFixed(1)}</b>현재 · <span style="color:var(${diff >= 0 ? '--up' : '--down'})">${diff >= 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}</span>`;
   }
-  segment($('#rangeSeg'), v => drawChart(+v));
-  drawChart(24);
+  let curN = 24;
+  segment($('#rangeSeg'), v => { curN = +v; drawChart(curN); });
+  drawChart(curN);
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => drawChart(curN), 150); });
 
   /* ── steps ── */
   const steps = $$('#steps li'); let st = 2;

@@ -355,7 +355,7 @@ svg { display: block; }
       + `<path class="wb" data-k="2" d="${smooth(jitter(o.out, ctx.j * 2.1, true, r), true)}" fill="url(#ga${id})"/>`
       + (ctx.study ? `<path class="wb2" data-k="3" d="${smooth(jitter(o.out, ctx.j * 1.8, true, r), true)}" fill="url(#gc${id})"/>` : '')
       + `<g class="wc" data-k="4" clip-path="url(#c${id})"><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 24}" opacity=".07"/><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 11}" opacity=".09"/><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 4}" opacity=".14"/>`
-      + (o.hi ? `<path d="${brush(jitter(o.hi, ctx.j, false, r), o.hiW, r)}" fill="${c.hi}" opacity=".2"/>` : '') + '</g>'
+      + (o.hi ? `<path d="${brush(jitter(o.hi, ctx.j, false, r), o.hiW, r)}" fill="${c.hi}" opacity=".13"/>` : '') + '</g>'
       + `<path class="wb2" data-k="5" d="${smooth(jitter(o.out, ctx.j * 1.6, true, r), true)}" fill="url(#gb${id})"/>`
       + `<g class="wg" data-k="6"><path d="${ex}" fill="url(#pgDark)" opacity=".5"/>${c.spark ? `<path d="${ex}" fill="url(#pgSpark)" opacity=".55"/>` : ''}</g>`
       + (o.young ? `<path class="wy" d="${smooth(jitter(o.out, ctx.j * 1.2, true, r), true)}" fill="url(#gy${id})"/>` : '')
@@ -364,7 +364,9 @@ svg { display: block; }
     (o.lines || []).forEach((ln, j) => {
       const mid = 'm' + id + '_' + j, cl = jitter(ln.pts, ctx.j * .8, false, r, [[1.2, 1], [2.7, .5], [9, .2]]), w = ln.w || ctx.lw;
       const dl = (ctx.lineBase ?? o.d) + (ctx.lineStep || .14) * (ctx.li = (ctx.li || 0) + 1) * (ctx.lineBase != null ? 1 : .15);
-      ctx.defs += `<mask id="${mid}" maskUnits="userSpaceOnUse" x="-100" y="-100" width="2400" height="2400"><path class="mk" style="--d:${dl.toFixed(2)}s" d="${smooth(cl, false)}" pathLength="1" stroke-width="${fx(w * 5)}"/></mask>`;
+      const xs = cl.map(q => q[0]), ys = cl.map(q => q[1]), pad = w * 4;
+      const bx = Math.min(...xs) - pad, by = Math.min(...ys) - pad;
+      ctx.defs += `<mask id="${mid}" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="${fx(bx)}" y="${fx(by)}" width="${fx(Math.max(...xs) - bx + pad)}" height="${fx(Math.max(...ys) - by + pad)}"><path class="mk" style="--d:${dl.toFixed(2)}s" d="${smooth(cl, false)}" pathLength="1" stroke-width="${fx(w * 5)}"/></mask>`;
       s += `<path class="ln" d="${brush(cl, w, r)}" fill="${c.line}" opacity="${ln.op || 1}" mask="url(#${mid})"/>`;
     });
     return `<g class="o${o.cls ? ' ' + o.cls : ''}" style="--d:${(o.d || 0).toFixed(2)}s">${s}</g>`;
@@ -382,7 +384,7 @@ svg { display: block; }
     const body = ['pc', 'pl', 'pr', 'pf'].map((k, i) => {
       const P = PET[k], pre = { r: k === 'pl' ? -open : k === 'pr' ? open : 0, sx: opt.sx || 1 };
       const g = shape(ctx, {
-        r, c, d: d + i * .1, out: sample(P.d, T, pre).slice(0, -1), g: P.ax.map(p => xf(p, T, pre)), young: opt.young,
+        r, c, d: d + i * .1, baseOp: k === 'pf' ? 1 : .93, out: sample(P.d, T, pre).slice(0, -1), g: P.ax.map(p => xf(p, T, pre)), young: opt.young,
         lines: P.ln.map(l => ({ pts: sample(l, T, pre) })).concat((P.vn || []).map(l => ({ pts: sample(l, T, pre), w: ctx.lw * .6, op: .5 }))),
         hi: P.hi ? sample(P.hi, T, pre) : null, hiW: 34 * T.s,
       });
@@ -405,7 +407,7 @@ svg { display: block; }
       hi: sample(`M${-w * .25} ${-L * .2}Q${b * .2 - w * .2} ${-L * .55} ${b * .85} ${-L * .9}`, T), hiW: w * .35,
     });
   }
-  function stem(ctx, p0, cp, p1, d, w0 = 11, w1 = 7) {
+  function stem(ctx, p0, cp, p1, d, w0 = 13, w1 = 8.5) {
     const r = seeded(Math.round(p1[0] * 5 + p1[1])), c = sample(`M${P2(p0)}Q${P2(cp)} ${P2(p1)}`, null, null, 8), N = normals(c, false), n = c.length;
     const L = [], R = [];
     c.forEach((p, i) => { const h = (w0 + (w1 - w0) * i / (n - 1)) / 2; L.push([p[0] + N[i][0] * h, p[1] + N[i][1] * h]); R.push([p[0] - N[i][0] * h, p[1] - N[i][1] * h]); });
@@ -444,6 +446,11 @@ svg { display: block; }
       c => tulip(c, { x: 330, y: 292, r: -8, s: 1.15 }, 'lav', 0, { open: 1 }),
       c => tulip(c, { x: 645, y: 470, r: 12, s: 1.5 }, 'pink', 0),
       c => tulip(c, { x: 235, y: 470, r: -16, s: 1.45 }, 'red', 0),
+      c => leaf(c, 470, 1180, 8, 700, 52, 90, 0),
+      c => stem(c, [446, 1180], [330, 900], [288, 640], 0, 13, 8.5),
+      c => stem(c, [466, 1180], [560, 900], [592, 662], 0, 13, 8.5),
+      c => tulip(c, { x: 288, y: 642, r: -9, s: 1.3 }, 'pink', 0, { open: 3 }),
+      c => tulip(c, { x: 592, y: 664, r: 9, s: 1.35 }, 'red2', 0, { open: 4 }),
       c => leaf(c, 405, 1180, -64, 440, 40, 60, 0),
       c => leaf(c, 500, 1180, 62, 450, 40, -60, 0, true),
       c => leaf(c, 470, 1180, 16, 500, 44, 60, 0),

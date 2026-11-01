@@ -68,7 +68,7 @@ a { color: var(--wall); text-underline-offset: 4px; text-decoration-thickness: 1
 
 /* ---------- the slab ---------- */
 .vitrine { position: relative; max-width: 1040px; margin: 0 auto; padding: 0 0 8px; }
-.slab { --x: 70%; --y: 20%; --gs: 30px; position: relative; padding: 70px 56px 92px; touch-action: pan-y; }
+.slab { --x: 70%; --y: 20%; --gs: 35px; position: relative; padding: 76px 56px 104px; touch-action: pan-y; }
 .stone { position: absolute; inset: 0; filter: drop-shadow(0 34px 38px rgba(0,0,0,.65)) drop-shadow(0 4px 6px rgba(0,0,0,.5)); pointer-events: none; }
 .face { position: absolute; inset: 0;
   clip-path: polygon(1.5% 5%, 9% 1.2%, 24% 2.4%, 37% .4%, 55% 2%, 72% .2%, 88% 1.8%, 98.6% 4%, 100% 19%, 98.8% 41%, 100% 66%, 98.4% 92%, 92% 99%, 71% 98.2%, 50% 100%, 31% 98.6%, 21% 95%, 15.5% 82%, 12% 71%, 7.5% 64%, 3.5% 60%, 0 47%, 1.4% 30%, 0 15%);
@@ -80,11 +80,12 @@ a { color: var(--wall); text-underline-offset: 4px; text-decoration-thickness: 1
     linear-gradient(170deg, #cdbfa3, var(--stone) 45%, #b5a689);
 }
 /* a hairline crack running into the break */
+.crack.narrow { display: none; }
 .crack { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .crack path { fill: none; stroke: rgba(46,36,26,.55); stroke-width: 1.1; }
 .crack path + path { stroke: rgba(255,245,222,.35); transform: translate(1px, 1px); }
 
-.lines { position: relative; display: flex; flex-direction: row-reverse; justify-content: center; align-items: flex-start; gap: 6px; }
+.lines { position: relative; display: flex; flex-direction: row-reverse; justify-content: center; align-items: flex-start; gap: 10px; }
 .line { display: flex; flex-direction: row-reverse; align-items: flex-start; position: relative; }
 /* faint ruled registers between columns, as if laid out with a cord */
 .line + .line::after { content: ""; position: absolute; right: -4px; top: -26px; bottom: -30px; width: 1px; background: linear-gradient(transparent, rgba(46,36,26,.22) 8%, rgba(46,36,26,.22) 92%, transparent); }
@@ -92,7 +93,7 @@ a { color: var(--wall); text-underline-offset: 4px; text-decoration-thickness: 1
 .read { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 8px 12px; margin: 0; border: 0; background: none; cursor: crosshair; border-radius: 999px; -webkit-tap-highlight-color: transparent; }
 .read:focus-visible { outline: 2px solid var(--ochre); outline-offset: 3px; box-shadow: 0 0 0 7px rgba(140,45,23,.14); }
 .num { margin-bottom: 8px; }
-.num .gy { --gs: 18px; }
+.num .gy { --gs: 20px; color: rgb(var(--groove) / .55) !important; }
 
 .read .gy, .read .sep {
   --l: 0; --dx: 0; --dy: 0; --k: calc(.5 + var(--l) * 1.4);
@@ -143,9 +144,9 @@ a { color: var(--wall); text-underline-offset: 4px; text-decoration-thickness: 1
 .groove label { font-size: 16.5px; color: var(--wall-2); }
 .groove input { width: 100%; border: 0; border-bottom: 1.5px solid #6c6253; background: transparent; padding: 8px 0 10px; font: 400 22px/1.4 var(--serif); color: var(--wall); border-radius: 0; }
 .groove input:focus-visible { outline: none; border-bottom-color: var(--ochre-hi); box-shadow: 0 2px 0 var(--ochre-hi); }
-.tablet { --gs: 44px; position: relative; min-height: 210px; padding: 44px 40px 48px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 14px 6px;
+.tablet { --gs: 44px; position: relative; max-width: 600px; min-height: 250px; padding: 44px 40px 48px; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 14px 6px;
   color: rgb(70 40 26 / .9); isolation: isolate; }
-.tablet::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 46% 54% 42% 58% / 14% 18% 12% 16%;
+.tablet::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 22px 34px 26px 40px / 30px 24px 38px 26px; transform: rotate(-.6deg);
   background:
     radial-gradient(circle at 30% 20%, rgba(255,230,205,.35), transparent 55%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .18 0 0 0 0 .1 0 0 0 .3 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
@@ -173,6 +174,7 @@ footer { max-width: 980px; margin: 140px auto 0; padding: 28px 0 56px; border-to
   .num { margin: 0 8px 0 0; }
   .note { writing-mode: horizontal-tb; padding: 0 10px 0 12px; max-height: none; min-height: 0; font-size: 16.5px; clip-path: inset(0 100% 0 0); }
   .line:not(.is-read) .note { height: 0; overflow: hidden; }
+  .crack.wide { display: none; } .crack.narrow { display: block; }
   .face { clip-path: polygon(1.5% 1%, 30% 0, 62% .8%, 98% 0, 100% 30%, 98.5% 62%, 100% 88%, 96% 97%, 70% 99%, 40% 97.6%, 22% 100%, 12% 94%, 3% 90%, 0 72%, 1.6% 38%); }
   .key, .clay { grid-template-columns: 1fr; margin-top: 90px; gap: 24px; }
   .signs { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); }
@@ -199,7 +201,8 @@ footer { max-width: 980px; margin: 140px auto 0; padding: 28px 0 56px; border-to
     <figure class="vitrine" style="margin:0 auto">
       <div class="slab" id="slab">
         <div class="stone" aria-hidden="true"><div class="face"></div>
-          <svg class="crack" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M15.5 82 L18 74 L17 66 L21 58 L19.5 51 L23 44" vector-effect="non-scaling-stroke"/><path d="M15.5 82 L18 74 L17 66 L21 58 L19.5 51 L23 44" vector-effect="non-scaling-stroke"/></svg>
+          <svg class="crack wide" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M15.5 82 L18 74 L17 66 L21 58 L19.5 51 L23 44" vector-effect="non-scaling-stroke"/><path d="M15.5 82 L18 74 L17 66 L21 58 L19.5 51 L23 44" vector-effect="non-scaling-stroke"/></svg>
+          <svg class="crack narrow" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M12 94 L16 91 L15 88 L22 85.5 L21 83" vector-effect="non-scaling-stroke"/><path d="M12 94 L16 91 L15 88 L22 85.5 L21 83" vector-effect="non-scaling-stroke"/></svg>
         </div>
         <div class="lines" id="lines" role="group" aria-label="석판, 아홉 줄. 오른쪽에서 왼쪽으로, 위에서 아래로 읽는다."></div>
       </div>

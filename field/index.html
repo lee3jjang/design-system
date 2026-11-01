@@ -70,7 +70,7 @@
   .work:focus-visible, .work:has(input:focus-visible) { outline: 2px solid var(--seamc); outline-offset: 14px; }
   .r { position: absolute; display: block; border-radius: 4px; background: var(--c);
     background-image: radial-gradient(120% 90% at 32% 38%, color-mix(in oklab, var(--c), white 7%), transparent 62%), radial-gradient(90% 80% at 75% 80%, color-mix(in oklab, var(--c), black 9%), transparent 70%);
-    box-shadow: 0 0 34px 12px color-mix(in srgb, var(--c) 82%, transparent); filter: url(#rough) blur(1.6px);
+    box-shadow: 0 0 34px 12px color-mix(in srgb, var(--c) 82%, transparent); filter: url(#rough) blur(3.2px);
     animation: breathe var(--bd, 7s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
   @keyframes breathe { 0%, 100% { scale: 1; } 46% { scale: 1.014; } }
 
@@ -94,7 +94,7 @@
   /* No.2 — morning, pencil lines */
   #r2 { --pg: #2b0f12; --g: #ece5d8; --t: #2d2723; --m: #4f463f; --cv: #e7decd; --seamc: #2d2723; }
   .w2 { display: flex; flex-direction: column; padding: 4.5% 4.5%; gap: 0; box-shadow: 0 0 40px 2px rgba(231, 222, 205, .6); }
-  .w2 span { flex: 1 1 0; min-height: 1px; background: var(--c); border-bottom: 1px solid rgba(70, 58, 50, .26); filter: url(#rough-fine) blur(.3px); }
+  .w2 span { flex: 1 1 0; min-height: 1px; background: var(--c); border-bottom: 1px solid rgba(70, 58, 50, .26); filter: blur(.4px); }
   .w2 span:nth-child(3n+1) { --c: #e9c9bd; } .w2 span:nth-child(3n+2) { --c: #c9d4d8; } .w2 span:nth-child(3n) { --c: #eedfb3; }
 
   /* No.3 — the boundary */
@@ -125,7 +125,7 @@
   #r6 { --pg: #18261f; --g: #e8e1d4; --t: #2d2723; --m: #4f463f; --cv: #efe8da; --seamc: #2d2723; height: 190vh; }
   .w6 { display: flex; flex-direction: column; justify-content: center; gap: 7px; padding: 8% 9%; box-shadow: 0 0 30px 2px rgba(239, 232, 218, .6);
     background-image: repeating-linear-gradient(to bottom, transparent 0 23px, rgba(80, 66, 56, .10) 23px 24px), repeating-linear-gradient(to right, transparent 0 23px, rgba(80, 66, 56, .07) 23px 24px); background-color: var(--cv); background-origin: content-box; background-clip: content-box; }
-  .w6 i { display: block; height: var(--h); background: var(--c); border-radius: 2px; filter: url(#rough-fine) blur(.7px); box-shadow: 0 0 10px 1px color-mix(in srgb, var(--c) 55%, transparent);
+  .w6 i { display: block; height: var(--h); background: var(--c); border-radius: 2px; filter: blur(.8px); box-shadow: 0 0 10px 1px color-mix(in srgb, var(--c) 55%, transparent);
     animation: lay 2.4s cubic-bezier(.2, .7, .2, 1) both; transition: opacity 2.6s, translate 2.6s, filter 2.6s; }
   .w6.go i { opacity: 0; translate: 0 -30px; filter: blur(8px); }
   @keyframes lay { from { opacity: 0; scale: .96 1; } }
@@ -158,8 +158,7 @@
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <filter id="rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".012 .035" numOctaves="3" seed="7"/><feDisplacementMap in="SourceGraphic" scale="16" xChannelSelector="R" yChannelSelector="G"/></filter>
-  <filter id="rough-fine" x="-5%" y="-40%" width="110%" height="180%"><feTurbulence type="fractalNoise" baseFrequency=".004 .2" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="rough" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".005 .016" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="9" xChannelSelector="R" yChannelSelector="G"/></filter>
 </svg>
 <div class="lamp" aria-hidden="true"></div>
 <div class="seam" aria-hidden="true"></div>

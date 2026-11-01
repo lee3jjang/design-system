@@ -18,7 +18,6 @@
     { id: 'clay', path: 'clay/index.html', name: 'Clay', ko: '클레이 애니메이션', c: ['#efe2c8', '#e2553f', '#f2c14e'] },
     { id: 'carte', path: 'carte/index.html', name: 'Carte', ko: '메뉴판', c: ['#e9d7b0', '#1b1b1b', '#1f8a55'] },
     { id: 'sticker', path: 'sticker/index.html', name: 'Sticker', ko: '스티커 얼굴 꾸미기', c: ['#ffffff', '#f2c230', '#e2453a'] },
-    { id: 'chaesaek', path: 'chaesaek/index.html', name: 'Chaesaek', ko: '채색화 · 선과 바림', c: ['#efebe4', '#b3243a', '#3f7a3a'] },
     { id: 'ratio', path: 'ratio/index.html', name: 'Ratio', ko: '서양화 색 비율', c: ['#4995cc', '#4e5436', '#c2a153'] },
     { id: 'zoo', path: 'zoo/index.html', name: 'Zoo Orbit', ko: '동물 우주비행단', c: ['#101632', '#f2f0ea', '#ff7a2f'] },
     { id: 'sanctum', path: 'sanctum/index.html', name: 'Sanctum', ko: '천국과 지옥', c: ['#0f0c0b', '#c9a24a', '#d0401f'] },
@@ -33,9 +32,10 @@
     { id: 'mix3', path: 'mix3/index.html', name: 'Plumb', ko: '추상 크로스오버 · 고르면 반듯해지는 귀리밭', c: ['#e4d3aa', '#902f3b', '#0a40c3'], m: true },
     { id: 'mix4', path: 'mix4/index.html', name: 'Verso', ko: '추상 크로스오버 · 뒷면에서 본 새벽', c: ['#040915', '#d3b561', '#59d0c0'], m: true },
     { id: 'mix5', path: 'mix5/index.html', name: 'Natrium', ko: '추상 크로스오버 · 꺼진 나트륨등', c: ['#ff8a1f', '#0d0e0f', '#00e5ff'], m: true },
-    { id: 'field', path: 'field/index.html', name: 'Field', ko: '극추상 · 색면', c: ['#3b2a5e', '#c2553a', '#e8c9a0'], a: true },
+    { id: 'field', path: 'field/index.html', name: 'Halitus', ko: '숨 쉬는 색면', c: ['#3b2a5e', '#c2553a', '#e8c9a0'], a: true },
     { id: 'score', path: 'score/index.html', name: 'Tacet', ko: '도형 악보, 여섯 장', c: ['#efe8da', '#141414', '#c23a2b'], a: true },
-    { id: 'glyph', path: 'glyph/index.html', name: 'Glyph', ko: '극추상 · 발명된 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },
+    { id: 'glyph', path: 'glyph/index.html', name: 'Ignota', ko: '해독되지 않은 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },
+    { id: 'chaesaek', path: 'chaesaek/index.html', name: 'Chaesaek', ko: '튤립 · 얇은 색 열두 겹', c: ['#efebe4', '#b3243a', '#3f7a3a'], a: true },
     { id: 'poom', path: 'poom/index.html', name: '품', ko: '두 살 딸을 꼭 안았을 때', c: ['#fbefe4', '#f2b9a0', '#e88a74'], a: true },
   ];
 

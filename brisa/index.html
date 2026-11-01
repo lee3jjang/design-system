@@ -61,6 +61,7 @@ a { color: var(--atl); text-underline-offset: 4px; text-decoration-thickness: 1.
 :focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; border-radius: 10px; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .wrap { max-width: 1120px; margin-inline: auto; padding-inline: 16px; }
+.sec > .wrap { position: relative; z-index: 1; }
 svg { display: block; }
 
 /* ───────────── HERO: the hill at golden hour ───────────── */
@@ -87,7 +88,7 @@ svg { display: block; }
 .hero.steam .mist { opacity: 1 !important; }
 .hero.steam .rays { opacity: 1; }
 
-.leaf { position: absolute; will-change: transform; }
+.leaf { position: absolute; inset: auto; will-change: transform; }
 .leaf svg { width: 100%; height: 100%; overflow: visible; }
 .leaf.mon { right: clamp(-90px, -5vw, -30px); top: -30px; width: clamp(220px, 30vw, 430px); aspect-ratio: 1; transform-origin: 92% 4%; }
 .leaf.ban { bottom: 34px; height: clamp(300px, 58%, 560px); aspect-ratio: 120 / 520; transform-origin: 50% 100%; }
@@ -95,7 +96,7 @@ svg { display: block; }
 .leaf.ban.b2 { left: clamp(30px, 5vw, 80px); height: clamp(240px, 46%, 450px); }
 .leaf.ban.b3 { left: clamp(-60px, -3vw, -20px); height: clamp(200px, 36%, 360px); }
 .leaf.bro { right: clamp(10px, 4vw, 70px); bottom: 26px; width: clamp(160px, 19vw, 260px); aspect-ratio: 1; transform-origin: 50% 96%; }
-.bird { position: absolute; right: clamp(150px, 22vw, 330px); bottom: clamp(170px, 26%, 270px); width: 64px; height: 44px; will-change: transform; }
+.bird { position: absolute; inset: auto; right: clamp(150px, 22vw, 330px); bottom: clamp(170px, 26%, 270px); width: 64px; height: 44px; will-change: transform; }
 .bird .wing { transform-box: fill-box; transform-origin: 20% 90%; animation: flut .06s linear infinite alternate; }
 @keyframes flut { to { transform: scaleY(.25) rotate(-12deg); opacity: .5; } }
 .calcada { inset: auto 0 0 0; height: 38px; background: var(--waves) 0 0/96px 32px repeat-x; background-position-y: 3px; border-top: 4px solid var(--ink); }
@@ -120,7 +121,7 @@ svg { display: block; }
 .drum-play .lbl svg { width: 20px; height: 20px; margin: 0 auto; }
 .drum-play[aria-pressed="true"] { background: radial-gradient(circle at 50% 45%, #fff6dc 0 52%, #f0d993 66%, #e3c46f 70%, var(--mata) 71% 86%, #0f3624 87%); box-shadow: 0 5px 0 #0f3624, 0 10px 18px -6px rgba(0,0,0,.35); }
 .bateria-txt b { display: block; font: 700 19px/1.2 var(--f-ko-h); }
-.bateria-txt small { display: block; font-size: 16px; color: var(--ink-2); line-height: 1.45; }
+.bateria-txt small { display: block; max-width: 15em; font-size: 16px; color: var(--ink-2); line-height: 1.45; }
 .beats { display: flex; gap: 8px; margin-top: 8px; }
 .beats span { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 700 14px/1 var(--f-ui); border: 2px solid var(--ink); background: var(--cal); transition: background .08s, transform .08s; }
 .beats span.big { width: 36px; height: 36px; }
@@ -170,7 +171,7 @@ input[type=range]:focus-visible { outline-offset: 2px; }
 .btn[disabled]::before { display: none; }
 
 /* ───────────── page sections ───────────── */
-.sec { position: relative; padding-block: clamp(72px, 10vw, 128px) 0; }
+.sec { position: relative; overflow-x: clip; padding-block: clamp(72px, 10vw, 128px) 0; }
 .sec-head { display: grid; grid-template-columns: auto 1fr; gap: 6px 20px; align-items: end; margin-bottom: clamp(28px, 4vw, 48px); }
 .sec-head .num { grid-row: span 2; font: italic 500 clamp(56px, 8vw, 96px)/.8 var(--f-disp); color: var(--manga); -webkit-text-stroke: 1.5px var(--ink); }
 .sec-head .pt { font: 600 15px/1.2 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
@@ -185,8 +186,8 @@ input[type=range]:focus-visible { outline-offset: 2px; }
 /* peeking leaves along section edges */
 .peek { position: absolute; pointer-events: none; z-index: 0; will-change: transform; }
 .peek svg { width: 100%; height: 100%; overflow: visible; }
-.peek.r { right: -40px; width: clamp(110px, 16vw, 220px); aspect-ratio: 1; transform-origin: 100% 30%; }
-.peek.l { left: -36px; width: clamp(70px, 9vw, 130px); aspect-ratio: 120 / 520; transform-origin: 20% 100%; }
+.peek.r { right: -70px; width: clamp(110px, 16vw, 220px); aspect-ratio: 1; transform-origin: 100% 30%; }
+.peek.l { left: -64px; width: clamp(70px, 9vw, 130px); aspect-ratio: 120 / 520; transform-origin: 20% 100%; }
 
 /* concept */
 .concept { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(28px, 6vw, 80px); align-items: start; position: relative; z-index: 1; }
@@ -250,13 +251,13 @@ input[type=range]:focus-visible { outline-offset: 2px; }
 .chip:active { transform: scale(.95); }
 
 /* groove grid (visual) */
-.grid16 { display: grid; grid-template-columns: 84px repeat(16, minmax(0, 1fr)); gap: 4px; align-items: center; }
+.grid16 { display: grid; grid-template-columns: 84px repeat(16, minmax(0, 1fr)); gap: 5px; align-items: center; max-width: 760px; }
 .grid16 .nm { font: 700 15px/1.2 var(--f-ui); }
 .grid16 .c { aspect-ratio: 1; border-radius: 50%; border: 1.5px solid rgba(31,26,39,.35); background: transparent; transition: transform .1s, box-shadow .1s; }
 .grid16 .c.bar { margin-left: 6px; }
 .grid16 .c.x { background: var(--ic); border-color: var(--ink); }
 .grid16 .c.x.h { box-shadow: 0 0 0 2px var(--cal), 0 0 0 4px var(--ic); }
-.grid16 .c.now { transform: scale(1.3); }
+.grid16 .c.now { transform: scale(1.18); border-color: var(--ink); }
 .grid16 .c.muted { opacity: .25; }
 .grid16 .ruler { font: 600 13px/1 var(--f-ui); color: var(--ink-2); text-align: center; }
 .grid-wrap { overflow-x: auto; padding: 8px 4px; }
@@ -409,7 +410,7 @@ dialog[open] { animation: dlg .5s var(--spring); }
 /* dapple: soft leaf-shadow drifting across the top-right of the viewport */
 .dapwrap { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 30; }
 .dapple { position: absolute; top: -80px; right: -120px; width: 620px; height: 520px; opacity: 0; transition: opacity 1.2s; will-change: transform; }
-.dapple.on { opacity: .09; }
+.dapple.on { opacity: .07; }
 .dapple svg { width: 100%; height: 100%; filter: blur(9px); }
 
 @media (max-width: 980px) {
@@ -422,6 +423,7 @@ dialog[open] { animation: dlg .5s var(--spring); }
 }
 @media (max-width: 640px) {
   body { font-size: 17px; }
+  .brandline { letter-spacing: .08em; font-size: 13px; }
   .hero { height: 600px; }
   .deck { margin: -36px 12px 0; padding: 9px; background-size: 27px 27px; }
   .deck-in { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
@@ -438,9 +440,17 @@ dialog[open] { animation: dlg .5s var(--spring); }
   .steps { grid-template-columns: 1fr 1fr; row-gap: 22px; }
   .steps li:nth-child(2)::after { display: none; }
   .grid16 { grid-template-columns: 64px repeat(16, minmax(0, 1fr)); gap: 2px; }
-  .grid16 .nm { font-size: 13px; }
+  .grid16 .nm { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: clip; }
+  .pad-wrap { flex-direction: column; align-items: flex-start; }
   .grid16 .c.bar { margin-left: 3px; }
   .foot-in { padding-left: 16px; padding-bottom: 100px; }
+  .leaf.mon { width: 150px; right: -50px; top: -66px; }
+  .leaf.ban.b1 { height: 250px; }
+  .leaf.ban.b2 { height: 200px; left: 26px; }
+  .leaf.ban.b3 { height: 160px; }
+  .bird { right: 120px; bottom: 150px; }
+  .peek.l { display: none; }
+  table { min-width: 540px; }
   .seg button { padding-inline: 10px; }
   .dapple { width: 380px; height: 340px; }
 }
@@ -503,14 +513,14 @@ dialog[open] { animation: dlg .5s var(--spring); }
       </div>
     </div>
     <div class="rng">
-      <label for="tempo">Andamento · 빠르기 <output id="tempoOut" for="tempo">100 bpm</output></label>
+      <label for="tempo">빠르기 <output id="tempoOut" for="tempo">100 bpm</output></label>
       <input type="range" id="tempo" min="80" max="124" step="1" value="100">
-      <span class="hint">2/4박, 무거운 건 둘째 박</span>
+      <span class="hint">Andamento · 2/4박, 무거운 둘째 박</span>
     </div>
     <div class="rng">
-      <label for="wind">Vento · 바람 <output id="windOut" for="wind">산들바람</output></label>
+      <label for="wind">바람 <output id="windOut" for="wind">산들바람</output></label>
       <input type="range" id="wind" class="wind" min="0" max="100" step="1" value="42">
-      <span class="hint">잎, 안개, 비의 기울기</span>
+      <span class="hint">Vento · 잎, 안개, 비의 기울기</span>
     </div>
     <div class="rainbox">
       <button class="btn azul" id="rainBtn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 9a5 5 0 0 1 9.6-2A3.5 3.5 0 1 1 15 14H6a3 3 0 0 1-2-5z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 16l-1 3M11 16l-1 3M15 16l-1 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Chuva · 소나기</button>
@@ -850,15 +860,15 @@ $('#lyrSea').innerHTML = `<defs><linearGradient id="gSea" x1="0" y1="0" x2="0" y
 <path d="M880 860C940 800 1080 770 1230 768C1330 766 1400 760 1440 752" fill="none" stroke="#fff8ea" stroke-width="5" stroke-dasharray="40 14 70 10" opacity=".85"/>`;
 
 // near hill: forest, pastel houses, front trees
-const hill = ridge([[-20, 430], [110, 372], [290, 338], [470, 366], [640, 430], [780, 520], [880, 600], [960, 660], [1000, 700]], 20, 13);
-const front = ridge([[-20, 712], [200, 700], [420, 724], [640, 748], [820, 790], [920, 860]], 24, 20);
+const hill = ridge([[-20, 520], [110, 478], [290, 452], [470, 470], [640, 515], [780, 566], [880, 616], [960, 668], [1000, 704]], 20, 13);
+const front = ridge([[-20, 742], [200, 734], [420, 752], [640, 770], [820, 800], [920, 860]], 24, 20);
 const pastel = ['#f3c9c4', '#f6e3a1', '#a9d6c6', '#f2b36a', '#cfdcf3', '#fff4e2', '#e9b3c8', '#d9e6a8'];
 const shutter = ['#1f5a3a', '#2557a7', '#173b6c', '#2f7a4c', '#c4372b'];
 let houses = '', trees = '';
 for (let r = 0; r < 4; r++) {
   let x = 240 + r * 30 + rng() * 30;
   while (x < 860 - r * 30) {
-    const w = 24 + rng() * 20 + r * 5, h = 20 + rng() * 14 + r * 4, base = hill.f(x + w / 2) + 34 + r * 48 + rng() * 10;
+    const w = 24 + rng() * 20 + r * 5, h = 20 + rng() * 14 + r * 4, base = hill.f(x + w / 2) + 30 + r * 40 + rng() * 8;
     if (base > front.f(x) - 6) break;
     if (rng() < .22) { // tree clump instead of a house
       for (let k = 0; k < 3; k++) trees += `<circle cx="${(x + rng() * w).toFixed(1)}" cy="${(base - 8 - rng() * 14).toFixed(1)}" r="${(8 + rng() * 9).toFixed(1)}" fill="${rng() < .5 ? '#2c5e3e' : '#3b7247'}"/>`;
@@ -1363,6 +1373,6 @@ document.addEventListener('keydown', e => {
 });
 })();
 </script>
-<script src="../systems-nav.js?v=20261101d" defer></script>
+<script src="../systems-nav.js?v=20261101e" defer></script>
 </body>
 </html>

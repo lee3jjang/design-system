@@ -1,0 +1,1580 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오프컷 · 피라미드를 짓고 남은 돌로</title>
+<meta name="description" content="Offcut 오프컷: 피라미드를 지은 작업반이 남은 돌·나무·밧줄·안료 조각으로 만든 생활 물건과, 그 공방의 디자인 시스템. 큐빗 격자, 세켇 경사, 붉은 황토 표시.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Nanum+Brush+Script&display=swap">
+<style>
+/* Offcut — the workshop of the pyramid gangs, after the shift.
+   Rules: honest material colours, one flat tone per material (+ one darker tone for its bed), never a gradient.
+   Every corner is cut at the seked (run 5½ palms per 7 palms rise = 51.84°). Spacing is counted in digits, palms and cubits.
+   Marks are red ochre, written fast, like a crew name on the back of a block. Egyptian blue only where the hand is. */
+:root {
+  color-scheme: light;
+  --gypsum: #f7f4ec;
+  --tura: #f3eee3;
+  --tura-2: #e9e1d0;
+  --floor: #ece4d3;
+  --core: #cdb88f;
+  --core-2: #bea77c;
+  --core-d: #8f7853;
+  --sand: #e2cda4;
+  --sand-wet: #b4966a;
+  --granite: #c98e7f;
+  --granite-2: #d9a597;
+  --granite-d: #8e5a4f;
+  --basalt: #2b2826;
+  --basalt-2: #3d3834;
+  --ochre: #a2381f;
+  --ochre-hi: #c2532f;
+  --yellow: #d4a03c;
+  --blue: #2357a3;
+  --blue-hi: #3f78c4;
+  --mud: #8b6a4c;
+  --mud-2: #a5815f;
+  --mud-d: #6a4e37;
+  --cedar: #9a5f36;
+  --cedar-2: #b27445;
+  --cedar-d: #5e3418;
+  --copper: #b06a3b;
+  --linen: #ebe2cd;
+  --linen-d: #d8ccb1;
+  --clay: #b5714a;
+  --clay-hi: #d49a72;
+  --clay-d: #7a3f22;
+  --rope: #a07a46;
+  --rope-d: #7b5a30;
+  --ink: #26221f;
+  --ink-2: #574c40;
+  /* the cubit: 1 digit = 6px, 1 palm = 4 digits, 1 royal cubit = 7 palms (52.4 cm) */
+  --dg: 6px;
+  --pm: 24px;
+  --cb: 168px;
+  /* seked: horizontal run in palms for a rise of one cubit (7 palms) */
+  --sk: 5.5;
+  --cy: 12px;
+  --f-body: "IBM Plex Sans KR", system-ui, sans-serif;
+  --f-disp: "Black Han Sans", "IBM Plex Sans KR", sans-serif;
+  --f-lat: "Bricolage Grotesque", "IBM Plex Sans KR", sans-serif;
+  --f-brush: "Nanum Brush Script", "IBM Plex Sans KR", cursive;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --ease-drop: cubic-bezier(.3, 1.5, .55, 1);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--floor); color: var(--ink); font: 400 17px/1.7 var(--f-body); overflow-x: clip; }
+img, svg { display: block; max-width: 100%; }
+a { color: var(--ochre); text-underline-offset: 3px; text-decoration-thickness: 2px; }
+a:hover { color: var(--ink); }
+h1, h2, h3, h4 { margin: 0; font-weight: 400; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 2px; }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; margin: -1px; padding: 0; border: 0; }
+.skip { position: absolute; left: 16px; top: -80px; z-index: 50; background: var(--basalt); color: var(--tura); padding: 10px 16px; min-height: 44px; display: inline-flex; align-items: center; }
+.skip:focus { top: 52px; }
+.wrap { width: min(calc(var(--cb) * 7), 100% - 32px); margin-inline: auto; }
+.mono { font-family: var(--f-mono); font-weight: 500; }
+.brush { font-family: var(--f-brush); color: var(--ochre); }
+
+/* the seked cut: shared by every stone surface (drawn on a pseudo so focus rings are never clipped) */
+.cut::before, .cutb::after {
+  --cx: calc(var(--cy) * var(--sk) / 7);
+  clip-path: polygon(var(--cx) 0, calc(100% - var(--cx)) 0, 100% var(--cy), 100% 100%, 0 100%, 0 var(--cy));
+  transition: clip-path .5s var(--ease-drop);
+}
+
+/* ================= top edge: a basalt cubit rod ================= */
+.rod-top { height: 44px; background: var(--basalt); color: var(--tura); position: relative; overflow: hidden; }
+.rod-top svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rod-top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--ochre); }
+
+/* ================= header ================= */
+.mast { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px var(--pm); padding: 18px 0 10px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); min-height: 44px; }
+.brand svg { width: 44px; height: 44px; }
+.brand b { font: 800 26px/1 var(--f-lat); letter-spacing: -.01em; }
+.brand small { display: block; font-size: 14px; color: var(--ink-2); line-height: 1.3; }
+.mast nav ul { display: flex; flex-wrap: wrap; gap: 4px 6px; list-style: none; margin: 0; padding: 0; }
+.mast nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; color: var(--ink); text-decoration: none; font-weight: 500; position: relative; }
+.mast nav a::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 8px; height: 3px; background: var(--ochre); transform: scaleX(0); transform-origin: left; transition: transform .25s; border-radius: 2px; }
+.mast nav a:hover::after { transform: scaleX(1); }
+.bag-btn { --cy: 9px; }
+
+/* ================= blocks (buttons) ================= */
+.blk {
+  --face: var(--tura); --bed: var(--core-d); --txt: var(--ink); --th: 7px; --cy: 11px;
+  position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 56px; min-width: 44px; padding: 10px 22px calc(10px + var(--th)); border: 0; background: transparent; color: var(--txt);
+  font: 700 17px/1.2 var(--f-body); text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none;
+}
+.blk::before, .blk::after { content: ""; position: absolute; left: 0; right: 0; z-index: -1; --cx: calc(var(--cy) * var(--sk) / 7); clip-path: polygon(var(--cx) 0, calc(100% - var(--cx)) 0, 100% var(--cy), 100% 100%, 0 100%, 0 var(--cy)); }
+.blk::after { z-index: -2; }
+.blk::before { top: 0; bottom: var(--th); background-color: var(--face); background-image: var(--marks, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='16'%3E%3Cg stroke='%23000' stroke-opacity='.16' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M2 14 7 3M7 14 12 3M12 14 17 3M17 14 21 5'/%3E%3C/g%3E%3C/svg%3E")); background-repeat: no-repeat; background-position: right 8px bottom 6px; box-shadow: inset 0 2px 0 rgba(255,255,255,.45); transition: transform .12s ease-out, clip-path .5s var(--ease-drop); }
+.blk::after { top: var(--th); bottom: 0; background: var(--bed); transition: clip-path .5s var(--ease-drop); }
+.blk > * { position: relative; transition: transform .12s ease-out; pointer-events: none; }
+.blk > svg { width: 22px; height: 22px; flex: none; }
+.blk:hover::before { transform: translateY(1px); }
+.blk:hover > * { transform: translateY(1px); }
+.blk:active::before, .blk.is-down::before { transform: translateY(calc(var(--th) - 1px)); }
+.blk:active > *, .blk.is-down > * { transform: translateY(calc(var(--th) - 1px)); }
+.blk--granite { --face: var(--granite); --bed: var(--granite-d); --marks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='16'%3E%3Cg fill='%23261f1c' fill-opacity='.5'%3E%3Ccircle cx='3' cy='4' r='1.3'/%3E%3Ccircle cx='11' cy='11' r='1'/%3E%3Ccircle cx='19' cy='5' r='1.4'/%3E%3Ccircle cx='23' cy='13' r='.9'/%3E%3C/g%3E%3Cg fill='%23fff' fill-opacity='.6'%3E%3Ccircle cx='7' cy='8' r='1'/%3E%3Ccircle cx='16' cy='13' r='1.1'/%3E%3C/g%3E%3C/svg%3E"); }
+.blk--basalt { --face: var(--basalt-2); --bed: #141210; --txt: var(--tura); --marks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='16'%3E%3Cg stroke='%23fff' stroke-opacity='.18' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M2 14 7 3M7 14 12 3M12 14 17 3'/%3E%3C/g%3E%3C/svg%3E"); }
+.blk--ochre { --face: var(--ochre); --bed: #64200f; --txt: var(--gypsum); --marks: none; }
+.blk--sm { min-height: 48px; padding: 6px 14px calc(6px + var(--th)); font-size: 16px; --th: 6px; --cy: 9px; }
+.blk[disabled] { cursor: not-allowed; --face: var(--tura-2); --bed: var(--core-2); --txt: #6b6054; }
+.blk[disabled]::before { transform: translateY(calc(var(--th) - 1px)); background-image: none; }
+.blk[disabled] > * { transform: translateY(calc(var(--th) - 1px)); }
+.chip-fly { position: fixed; z-index: 60; width: 8px; height: 7px; pointer-events: none; background: var(--c, var(--tura)); clip-path: polygon(0 30%, 70% 0, 100% 80%, 30% 100%); animation: fly .55s cubic-bezier(.2,.6,.4,1) forwards; }
+@keyframes fly { to { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; } }
+
+/* ================= hero ================= */
+.hero { padding: 28px 0 0; }
+.hero-head { display: grid; grid-template-columns: 1fr; gap: 18px var(--cb); align-items: end; }
+@media (min-width: 900px) { .hero-head { grid-template-columns: 1.25fr 1fr; } }
+.kicker { font: 600 14px/1.4 var(--f-mono); letter-spacing: .06em; color: var(--ink-2); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.kicker::before { content: ""; width: 36px; height: 3px; background: var(--ochre); }
+h1 { margin-top: 10px; position: relative; }
+.h1-en { display: block; font: 800 clamp(76px, 15vw, 168px)/.86 var(--f-lat); letter-spacing: -.035em; color: var(--ink); }
+.h1-ko { display: block; margin-top: 14px; font: 400 clamp(28px, 5.2vw, 52px)/1.15 var(--f-disp); color: var(--ink); }
+.h1-note { position: absolute; right: 0; top: -6px; font: 400 clamp(22px, 3vw, 30px)/1 var(--f-brush); color: var(--ochre); transform: rotate(-6deg); }
+.lede { font-size: 18px; color: var(--ink); max-width: 34em; }
+.lede + .lede { margin-top: 10px; color: var(--ink-2); font-size: 17px; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px 16px; margin-top: 22px; }
+
+.scene-wrap { margin-top: 30px; position: relative; }
+.scene-frame { position: relative; background: var(--basalt); padding: 10px; }
+.scene-frame::before { content: ""; position: absolute; left: -1px; right: -1px; top: -14px; height: 14px; background: var(--basalt); --cy: 14px; --cx: calc(var(--cy) * var(--sk) / 7); clip-path: polygon(var(--cx) 0, calc(100% - var(--cx)) 0, 100% 100%, 0 100%); transition: clip-path .5s var(--ease-drop); }
+#scene { width: 100%; height: auto; background: var(--sand); }
+.scene-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 14px 0 0; }
+.scene-bar p { color: var(--ink-2); font-size: 16px; }
+.scene-bar p b { color: var(--ink); }
+
+/* scene paint, driven by the shift */
+.scene { --sky1: #f0dcc0; --sky2: #eac39a; --sky3: #e3ad7f; --sun: #d8743e; --sunx: 965px; --suny: 290px; --lamp: 1; --front: #efe6d5; --side: #c9b596; --coreF: #cbb48a; --coreF2: #c2aa7f; --coreS: #a68e68; --coreS2: #9c845f; --ground: #e2cba0; --ground2: #d8bd8f; --far: #e0c294; }
+.scene[data-time="dawn"] { --sky1: #e1e1d8; --sky2: #ebdcc5; --sky3: #e6cdaa; --sun: #efc78c; --sunx: 170px; --suny: 330px; --lamp: .75; --front: #e7e0d2; --side: #d6c9b2; --far: #dccba9; }
+.scene[data-time="noon"] { --sky1: #e4eae7; --sky2: #efede3; --sky3: #ece2cb; --sun: #fbf4df; --sunx: 640px; --suny: 64px; --lamp: 0; --front: #f6f1e7; --side: #d8cbb2; --coreF: #d3bf97; --coreF2: #cab48a; --coreS: #b29a73; --coreS2: #a99169; --ground: #e8d4ac; --ground2: #dfc699; --far: #e6d0a6; }
+#scene .s1 { fill: var(--sky1); } #scene .s2 { fill: var(--sky2); } #scene .s3 { fill: var(--sky3); }
+#scene .sun circle { fill: var(--sun); }
+#scene .sun { transform: translate(var(--sunx), var(--suny)); transition: transform 1.4s var(--ease-drop); }
+#scene .far { fill: var(--far); }
+#scene .gr1 { fill: var(--ground); } #scene .gr2 { fill: var(--ground2); }
+#scene .pf { fill: var(--front); } #scene .ps { fill: var(--side); }
+#scene .cf { fill: var(--coreF); } #scene .cf2 { fill: var(--coreF2); } #scene .cs { fill: var(--coreS); } #scene .cs2 { fill: var(--coreS2); }
+#scene .lamp { fill: #e8a33c; opacity: var(--lamp); transition: opacity 1s; }
+#scene .s1, #scene .s2, #scene .s3, #scene .far, #scene .pf, #scene .ps, #scene .gr1, #scene .gr2, #scene .sun circle { transition: fill 1.2s; }
+#scene text { font-family: var(--f-brush); }
+.walker { animation: haul 30s linear infinite; }
+@keyframes haul { 0% { transform: translate(var(--x0), var(--y0)); opacity: 0; } 5% { opacity: 1; } 93% { opacity: 1; } 100% { transform: translate(var(--x1), var(--y1)); opacity: 0; } }
+.smoke { animation: smoke 7s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes smoke { 0%, 100% { transform: translateX(0) scaleY(1); opacity: .55; } 50% { transform: translateX(6px) scaleY(1.08); opacity: .3; } }
+.flame { animation: flick 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes flick { 0%, 100% { transform: scale(1, 1) rotate(0); } 35% { transform: scale(.92, 1.08) rotate(-3deg); } 70% { transform: scale(1.05, .95) rotate(2deg); } }
+.swing { animation: swing 2.4s ease-in-out infinite; transform-origin: 100px 28px; }
+@keyframes swing { 0%, 100% { transform: rotate(9deg); } 50% { transform: rotate(-9deg); } }
+
+/* ================= section frame ================= */
+section.sec { padding: calc(var(--pm) * 3) 0 calc(var(--pm) * 2); }
+.course { height: 44px; overflow: hidden; }
+.course svg { width: 100%; height: 44px; }
+.sec-head { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; align-items: start; margin-bottom: calc(var(--pm) * 1.5); position: relative; }
+.sec-head .mm { width: 52px; height: 52px; color: var(--ochre); grid-row: span 2; margin-top: 4px; }
+.sec-head .num { font: 600 14px/1 var(--f-mono); color: var(--ochre); letter-spacing: .08em; display: block; margin-bottom: 8px; }
+.sec-head h2 { font: 400 clamp(32px, 5vw, 46px)/1.1 var(--f-disp); }
+.sec-head p { color: var(--ink-2); max-width: 40em; }
+.level { grid-column: 1 / -1; position: relative; height: 22px; margin-top: 10px; }
+.level::before { content: ""; position: absolute; left: 0; right: 0; top: 10px; height: 2px; background: var(--ochre); }
+.level::after { content: "▼ 수평"; position: absolute; right: 0; top: -12px; font: 400 22px/1 var(--f-brush); color: var(--ochre); }
+.level i { position: absolute; top: 4px; width: 2px; height: 14px; background: var(--ochre); }
+
+/* ================= facts: four ostraca ================= */
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: var(--pm); }
+.ostr { position: relative; isolation: isolate; padding: 26px 24px 26px; }
+.ostr::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--tura); clip-path: var(--flake, polygon(3% 6%, 38% 0, 72% 3%, 98% 0, 100% 44%, 97% 96%, 60% 100%, 24% 97%, 0 100%, 2% 52%)); }
+.ostr:nth-child(2) { --flake: polygon(0 3%, 46% 0, 100% 5%, 97% 50%, 100% 98%, 52% 95%, 4% 100%, 0 40%); }
+.ostr:nth-child(3) { --flake: polygon(5% 0, 100% 2%, 98% 35%, 100% 100%, 70% 97%, 0 100%, 3% 60%, 0 18%); }
+.ostr:nth-child(4) { --flake: polygon(0 0, 60% 4%, 96% 0, 100% 64%, 94% 100%, 30% 96%, 2% 100%, 4% 46%); }
+.ostr h3 { font: 400 30px/1.1 var(--f-brush); color: var(--ochre); margin-bottom: 8px; }
+.ostr p { font-size: 16px; color: var(--ink); }
+.ostr .tick { position: absolute; right: 18px; top: 18px; width: 40px; height: 26px; color: var(--ink); opacity: .7; }
+
+/* ================= catalogue ================= */
+.toolbar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 24px; margin-bottom: calc(var(--pm) * 1.25); }
+.toolbar .lab { display: block; font-weight: 700; margin-bottom: 8px; font-size: 16px; }
+.sherds { display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.sherd { position: relative; isolation: isolate; min-height: 46px; min-width: 44px; padding: 8px 18px 8px 16px; border: 0; background: transparent; color: var(--ink); font: 500 16px/1.2 var(--f-body); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.sherd::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--clay-hi); clip-path: var(--sh, polygon(4% 10%, 30% 0, 74% 6%, 100% 0, 96% 60%, 100% 100%, 50% 92%, 6% 100%, 0 52%)); transition: transform .2s var(--ease-drop), background-color .2s; }
+.sherd:nth-child(3n+2) { --sh: polygon(0 4%, 56% 0, 96% 8%, 100% 70%, 90% 100%, 20% 94%, 2% 100%, 4% 40%); }
+.sherd:nth-child(3n) { --sh: polygon(6% 0, 100% 6%, 94% 44%, 100% 96%, 46% 100%, 0 92%, 4% 50%, 0 14%); }
+.sherd .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--clay-d); flex: none; }
+.sherd[aria-pressed="true"] { color: var(--gypsum); }
+.sherd[aria-pressed="true"]::before { background: var(--clay-d); transform: rotate(-2deg) translateY(2px); }
+.sherd[aria-pressed="true"] .dot { background: var(--yellow); border-color: var(--yellow); }
+.sherd:active::before { transform: rotate(3deg) scale(.96); }
+
+.stone-select { position: relative; display: inline-block; }
+.stone-select select { appearance: none; -webkit-appearance: none; min-height: 52px; padding: 10px 52px 10px 16px; border: 2px solid var(--ink); border-radius: 0; background: var(--tura); color: var(--ink); font: 500 17px/1.2 var(--f-body); cursor: pointer; box-shadow: 0 5px 0 var(--core-d); }
+.stone-select::after { content: ""; position: absolute; right: 16px; top: 50%; margin-top: -9px; width: 18px; height: 12px; background: var(--ochre); clip-path: polygon(0 0, 100% 0, 50% 100%); pointer-events: none; }
+
+.goods { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 268px), 1fr)); gap: calc(var(--pm) * 1.25) var(--pm); }
+.card { position: relative; isolation: isolate; display: flex; flex-direction: column; padding: 18px 20px 20px; --cy: 20px; }
+.card::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--tura); }
+.card::after { content: ""; position: absolute; left: 0; right: 0; bottom: -7px; height: 7px; background: var(--core-2); z-index: -2; }
+.card-pic { position: relative; background: var(--linen); margin: -2px -4px 14px; aspect-ratio: 200 / 140; }
+.card-pic svg { width: 100%; height: 100%; }
+.card-no { position: absolute; left: 10px; top: 8px; font: 600 13px/1 var(--f-mono); color: var(--ink-2); }
+.card h3 { font: 400 26px/1.2 var(--f-disp); }
+.card-mat { font-size: 15px; color: var(--ink-2); margin-top: 4px; }
+.card-desc { margin-top: 10px; font-size: 16px; flex: 1; }
+.card-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 12px; padding-top: 12px; border-top: 2px dashed var(--core-2); }
+.card-meta div { display: flex; gap: 8px; align-items: center; }
+.card-meta dt { font-size: 14px; color: var(--ink-2); }
+.card-meta dd { margin: 0; font: 600 16px/1 var(--f-mono); display: inline-flex; align-items: center; gap: 4px; }
+.card-meta dd svg { width: 16px; height: 18px; }
+.card-foot .blk { margin-left: auto; }
+.card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.empty { padding: 30px; text-align: center; color: var(--ink-2); font-size: 18px; grid-column: 1 / -1; }
+.empty b { display: block; font: 400 32px/1.2 var(--f-brush); color: var(--ochre); }
+
+/* crew mark badges */
+.crew { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 3px 12px 3px 6px; background: var(--gypsum); border: 2px solid var(--ochre); color: var(--ochre); font: 700 14px/1.2 var(--f-body); white-space: nowrap; }
+.crew svg { width: 22px; height: 22px; }
+.crew--fill { background: var(--ochre); color: var(--gypsum); }
+.crew--ink { border-color: var(--ink); color: var(--ink); }
+.crew--blue { border-color: var(--blue); color: var(--blue); }
+.crew .n { font-family: var(--f-mono); font-weight: 600; margin-left: 2px; }
+
+/* ================= materials ================= */
+.mats { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: var(--pm) 16px; }
+.mat svg { width: 100%; height: auto; aspect-ratio: 168 / 112; }
+.mat h3 { font: 700 17px/1.3 var(--f-body); margin-top: 8px; }
+.mat code { font: 500 14px/1.4 var(--f-mono); color: var(--ink-2); display: block; }
+.mat p { font-size: 15px; color: var(--ink-2); margin-top: 4px; line-height: 1.55; }
+
+/* ================= rules ================= */
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: var(--pm); counter-reset: r; }
+.rule { background: var(--tura); padding: 22px 22px 24px; position: relative; border-top: 6px solid var(--ink); }
+.rule::before { counter-increment: r; content: counter(r, decimal-leading-zero); position: absolute; right: 18px; top: 10px; font: 400 40px/1 var(--f-brush); color: var(--ochre); }
+.rule h3 { font: 400 25px/1.25 var(--f-disp); padding-right: 46px; }
+.rule p { margin-top: 8px; font-size: 16px; }
+.rule svg { margin-top: 14px; width: 100%; height: auto; }
+.rule code { font: 500 14px/1.4 var(--f-mono); background: var(--tura-2); padding: 1px 5px; }
+
+/* ================= workbench ================= */
+.bench { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 352px), 1fr)); gap: calc(var(--pm) * 1.25) var(--pm); align-items: start; }
+.slab { position: relative; isolation: isolate; padding: 30px 22px 24px; --cy: 16px; min-width: 0; }
+.slab::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--tura); }
+.slab.wide { grid-column: 1 / -1; }
+.slab-t { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.slab-t h3 { font: 400 23px/1.2 var(--f-disp); }
+.slab-t span { font: 500 13px/1 var(--f-mono); color: var(--ink-2); letter-spacing: .04em; }
+.slab .hint { font-size: 15px; color: var(--ink-2); margin-top: 12px; }
+.row { display: flex; flex-wrap: wrap; gap: 14px 16px; align-items: center; }
+
+/* switch: a sledge on sand */
+.sw { display: flex; align-items: center; gap: 16px; min-height: 64px; }
+.sw + .sw { margin-top: 10px; }
+.sledge { position: relative; width: 140px; height: 60px; flex: none; border: 0; padding: 0; cursor: pointer; background: var(--sand); box-shadow: inset 0 -5px 0 #cdb486; overflow: hidden; }
+.sledge .wet { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--sand-wet); transition: width .55s ease-out; }
+.sledge .wet::after { content: ""; position: absolute; inset: 14px 10px auto; height: 2px; background: rgba(255,255,255,.35); box-shadow: 18px 10px 0 rgba(255,255,255,.28), 44px 4px 0 rgba(255,255,255,.3), 70px 14px 0 rgba(255,255,255,.22); width: 16px; }
+.sledge svg.sl { position: absolute; left: 4px; bottom: 6px; width: 64px; height: 46px; transition: transform .6s cubic-bezier(.5, 0, .3, 1.2); }
+.sledge[aria-checked="true"] .wet { width: 100%; }
+.sledge[aria-checked="true"] svg.sl { transform: translateX(68px); }
+.sledge:active svg.sl { transform: translateX(6px) rotate(-3deg); }
+.sledge[aria-checked="true"]:active svg.sl { transform: translateX(62px) rotate(3deg); }
+.sw-txt b { display: block; font-size: 17px; }
+.sw-txt span { font-size: 15px; color: var(--ink-2); }
+
+/* checkbox: tally stroke */
+.tallies { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px 12px; border: 0; padding: 0; margin: 0; }
+.tallies legend, .seked legend { font-weight: 700; margin-bottom: 10px; padding: 0; }
+.tally { display: flex; align-items: center; gap: 12px; min-height: 48px; cursor: pointer; }
+.tbox { width: 40px; height: 40px; flex: none; background: var(--gypsum); border: 2px solid var(--ink); position: relative; }
+.tbox svg { position: absolute; inset: -4px; width: 46px; height: 46px; overflow: visible; }
+.tbox path { fill: none; stroke: var(--ochre); stroke-width: 5.5; stroke-linecap: round; stroke-dasharray: 60; stroke-dashoffset: 60; transition: stroke-dashoffset .35s ease-out; }
+.tally input:checked + .tbox path { stroke-dashoffset: 0; }
+.tally input:focus-visible + .tbox { outline: 3px solid var(--blue); outline-offset: 3px; }
+.tally:hover .tbox { background: var(--tura-2); }
+.tally-sum { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding-top: 12px; border-top: 2px dashed var(--core-2); }
+.tally-sum svg { height: 40px; width: 60px; flex: none; color: var(--ochre); }
+
+/* radio: seked slope picker */
+.seked { border: 0; padding: 0; margin: 0; }
+.sk-opts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.sk { cursor: pointer; display: block; }
+.sk-face { display: grid; justify-items: center; gap: 2px; padding: 10px 4px 8px; background: var(--gypsum); border: 2px solid var(--core-2); min-height: 44px; transition: transform .2s var(--ease-drop); }
+.sk-face svg { width: 100%; max-width: 64px; height: 44px; }
+.sk-face svg polygon { fill: var(--core); stroke: var(--ink); stroke-width: 1.5; }
+.sk-face b { font: 600 17px/1.2 var(--f-mono); }
+.sk-face small { font-size: 13px; color: var(--ink-2); }
+.sk input:checked + .sk-face { border-color: var(--blue); background: var(--tura); transform: translateY(-3px); box-shadow: 0 4px 0 var(--blue); }
+.sk input:checked + .sk-face svg polygon { fill: var(--tura); }
+.sk input:focus-visible + .sk-face { outline: 3px solid var(--blue); outline-offset: 3px; }
+.sk-out { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: center; margin-top: 16px; }
+.sk-out svg { width: 120px; height: 96px; }
+.sk-out p { font-size: 16px; }
+.sk-out strong { font: 600 18px/1.3 var(--f-mono); display: block; }
+
+/* segmented: lintel slots */
+.seg { display: inline-flex; background: var(--basalt); padding: 5px; gap: 5px; max-width: 100%; }
+.seg button { min-height: 48px; min-width: 44px; padding: 6px 16px 10px; border: 0; background: var(--core); color: var(--ink); font: 700 16px/1.2 var(--f-body); cursor: pointer; box-shadow: inset 0 -5px 0 var(--core-d); transition: transform .12s, box-shadow .12s, background-color .2s; flex: 1 1 auto; }
+.seg button:hover { background: var(--tura-2); }
+.seg button[aria-checked="true"] { background: var(--tura); box-shadow: inset 0 -1px 0 var(--core-d), inset 0 3px 0 rgba(0,0,0,.12); transform: translateY(3px); }
+.seg button:focus-visible { outline-color: var(--blue-hi); outline-offset: 2px; position: relative; z-index: 1; }
+
+/* tabs: ostraca */
+.tabs [role="tablist"] { display: flex; flex-wrap: wrap; gap: 6px; align-items: end; }
+.tab { position: relative; isolation: isolate; min-height: 50px; padding: 10px 20px 12px; border: 0; background: transparent; color: var(--ink-2); font: 700 16px/1.2 var(--f-body); cursor: pointer; transition: transform .2s var(--ease-drop); }
+.tab::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--tura-2); clip-path: var(--fl, polygon(6% 12%, 52% 0, 96% 8%, 100% 100%, 0 100%)); }
+.tab:nth-child(2) { --fl: polygon(0 6%, 38% 0, 90% 12%, 100% 100%, 4% 100%); }
+.tab:nth-child(3) { --fl: polygon(10% 0, 62% 8%, 100% 4%, 96% 100%, 0 100%); }
+.tab[aria-selected="true"] { color: var(--ink); transform: translateY(-4px) rotate(-1deg); }
+.tab[aria-selected="true"]::before { background: var(--gypsum); }
+.tab[aria-selected="true"]::after { content: ""; position: absolute; left: 18px; right: 22px; bottom: 6px; height: 4px; background: var(--ochre); border-radius: 3px 1px 4px 1px; }
+.tabpanel { background: var(--gypsum); padding: 18px 20px 20px; min-height: 196px; }
+.tabpanel ul { margin: 0; padding: 0; list-style: none; }
+.tabpanel li { display: flex; justify-content: space-between; gap: 14px; padding: 6px 0; border-bottom: 1px dashed var(--core-2); font-size: 16px; }
+.tabpanel li .mono { color: var(--ochre); }
+.tabpanel .src { font-size: 14px; color: var(--ink-2); margin-top: 10px; }
+
+/* range: cubit rod */
+.cubit { --tw: 30px; }
+.cubit-wrap { position: relative; height: 84px; margin-top: 10px; }
+.cubit-vis { position: absolute; left: calc(var(--tw) / 2); right: calc(var(--tw) / 2); top: 22px; height: 34px; }
+.cubit-vis svg { width: 100%; height: 100%; overflow: visible; }
+.cubit-line { position: absolute; left: calc(var(--tw) / 2); top: 64px; height: 4px; background: var(--ochre); width: 0; border-radius: 2px; }
+.cubit-line::after { content: ""; position: absolute; right: -2px; top: -5px; width: 2px; height: 14px; background: var(--ochre); }
+.cubit input[type="range"] { -webkit-appearance: none; appearance: none; position: absolute; inset: 0; width: 100%; height: 84px; margin: 0; background: transparent; cursor: pointer; }
+.cubit input[type="range"]::-webkit-slider-runnable-track { height: 84px; background: transparent; }
+.cubit input[type="range"]::-moz-range-track { height: 84px; background: transparent; }
+.cubit input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: var(--tw); height: 84px; border: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 84'%3E%3Cpath d='M15 4v60' stroke='%23574c40' stroke-width='1.5'/%3E%3Cpath d='M5 2h20l-10 18z' fill='%23b06a3b' stroke='%2326221f' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M15 58c-7 6-8 13-4 18 2 3 6 3 8 0 4-5 3-12-4-18z' fill='%23b06a3b' stroke='%2326221f' stroke-width='1.5'/%3E%3C/svg%3E") center / 30px 84px no-repeat; }
+.cubit input[type="range"]::-moz-range-thumb { width: var(--tw); height: 84px; border: 0; border-radius: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 84'%3E%3Cpath d='M15 4v60' stroke='%23574c40' stroke-width='1.5'/%3E%3Cpath d='M5 2h20l-10 18z' fill='%23b06a3b' stroke='%2326221f' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M15 58c-7 6-8 13-4 18 2 3 6 3 8 0 4-5 3-12-4-18z' fill='%23b06a3b' stroke='%2326221f' stroke-width='1.5'/%3E%3C/svg%3E") center / 30px 84px no-repeat; }
+.cubit input[type="range"]:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.cubit output { display: block; margin-top: 8px; }
+.cubit output b { font: 600 22px/1.3 var(--f-mono); }
+.cubit output span { display: block; font-size: 15px; color: var(--ink-2); }
+
+/* inputs: writing on an ostracon */
+.field { display: block; position: relative; isolation: isolate; padding: 12px 16px 14px; margin-bottom: 14px; }
+.field::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--gypsum); clip-path: polygon(0 4%, 30% 0, 70% 5%, 100% 0, 99% 60%, 100% 100%, 64% 96%, 22% 100%, 0 97%); }
+.field label { display: block; font-weight: 700; font-size: 16px; }
+.field input, .field textarea { display: block; width: 100%; margin-top: 4px; min-height: 48px; padding: 8px 2px 6px; border: 0; border-bottom: 3px solid var(--ink); border-radius: 0; background: transparent; color: var(--ink); font: 400 18px/1.5 var(--f-body); }
+.field textarea { min-height: 96px; resize: vertical; background-image: repeating-linear-gradient(transparent 0 31px, var(--core-2) 31px 32px); background-attachment: local; line-height: 32px; border-bottom-style: solid; }
+.field input::placeholder, .field textarea::placeholder { color: #7a6d5f; }
+.field input:focus-visible, .field textarea:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; border-bottom-color: var(--blue); }
+.field [aria-invalid="true"] { border-bottom-color: var(--ochre); }
+.field .err { display: none; color: var(--ochre); font-size: 15px; font-weight: 700; margin-top: 6px; }
+.field .err.on { display: block; }
+.field .help { font-size: 14px; color: var(--ink-2); margin-top: 6px; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 0 16px; }
+.field .stone-select { display: block; margin-top: 6px; }
+.field .stone-select select { width: 100%; }
+
+/* progress: courses */
+.build { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.build svg { width: 100%; height: auto; background: var(--sand); }
+.build-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 16px; font-size: 16px; }
+.build-meta b { font: 600 20px/1.2 var(--f-mono); }
+#buildSvg .row-done { fill: var(--core); stroke: var(--core-d); stroke-width: 1; }
+#buildSvg .row-cased { fill: var(--tura); stroke: var(--core-2); stroke-width: 1; }
+#buildSvg .row-todo { fill: none; stroke: var(--ochre); stroke-width: 1; stroke-dasharray: 4 4; opacity: .7; }
+#buildSvg .row-new { animation: drop .5s var(--ease-drop); transform-box: fill-box; }
+@keyframes drop { from { transform: translateY(-16px); opacity: 0; } }
+
+/* steps */
+.steps-svg { width: 100%; height: auto; background: var(--sand); }
+.steps-svg .mover { transition: transform .9s cubic-bezier(.45, 0, .25, 1); }
+.steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; counter-reset: s; }
+.steps li { position: relative; padding: 10px 6px 8px; text-align: center; font-size: 15px; font-weight: 700; color: var(--ink-2); border-top: 5px solid var(--core-2); }
+.steps li::before { counter-increment: s; content: counter(s); display: block; font: 600 14px/1 var(--f-mono); margin-bottom: 4px; }
+.steps li.done { border-top-color: var(--ink); color: var(--ink); }
+.steps li[aria-current="step"] { border-top-color: var(--ochre); color: var(--ochre); }
+.steps li[aria-current="step"]::after { content: ""; position: absolute; left: 50%; top: -14px; margin-left: -7px; border: 7px solid transparent; border-top-color: var(--ochre); border-bottom: 0; }
+.step-desc { margin-top: 10px; min-height: 3.4em; font-size: 16px; }
+
+/* accordion */
+.acc h3 { margin: 0; }
+.acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 14px; min-height: 56px; padding: 12px 4px; border: 0; border-bottom: 2px solid var(--core-2); background: transparent; color: var(--ink); text-align: left; font: 700 17px/1.4 var(--f-body); cursor: pointer; }
+.acc-btn svg { width: 26px; height: 26px; flex: none; color: var(--ochre); transition: transform .3s var(--ease-drop); }
+.acc-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+.acc-btn:hover { color: var(--ochre); }
+.acc-panel { padding: 12px 4px 16px; font-size: 16px; }
+.acc-panel[hidden] { display: none; }
+
+/* ledger table */
+.ledger-wrap { overflow-x: auto; background: var(--gypsum); -webkit-overflow-scrolling: touch; }
+table.ledger { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 16px; }
+.ledger caption { text-align: left; padding: 14px 16px 6px; font-size: 15px; color: var(--ink-2); caption-side: top; }
+.ledger th, .ledger td { padding: 8px 12px; text-align: right; border-bottom: 1px dashed var(--core-2); }
+.ledger th:first-child, .ledger td:first-child { text-align: left; }
+.ledger thead th { border-bottom: 3px solid var(--ink); padding: 4px 4px; }
+.ledger th button { min-height: 48px; width: 100%; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 4px 8px; border: 0; background: transparent; color: var(--ink); font: 700 16px/1.2 var(--f-body); cursor: pointer; }
+.ledger th:first-child button { justify-content: flex-start; }
+.ledger th button svg { width: 14px; height: 16px; color: var(--core-d); flex: none; }
+.ledger th[aria-sort] button svg { color: var(--ochre); }
+.ledger th[aria-sort="descending"] button svg { transform: rotate(180deg); }
+.ledger td.n { font: 500 16px/1.3 var(--f-mono); }
+.ledger td .crew { border-width: 0; background: none; padding-left: 0; color: var(--ink); font-size: 16px; }
+.ledger td .crew svg { color: var(--ochre); }
+.ledger tbody tr:hover { background: var(--tura); }
+.bar { display: inline-block; height: 8px; background: var(--ochre); vertical-align: middle; margin-right: 8px; }
+
+/* dialog */
+dialog.slabdlg { width: min(520px, calc(100vw - 32px)); max-height: calc(100vh - 40px); padding: 0; border: 0; background: transparent; color: var(--ink); overflow: visible; }
+dialog.slabdlg::backdrop { background: rgba(30, 24, 18, .66); }
+dialog.slabdlg[open] .dlg-in { animation: settle .45s var(--ease-drop); }
+@keyframes settle { from { transform: translateY(-40px) rotate(-1.5deg); opacity: 0; } }
+.dlg-in { position: relative; isolation: isolate; padding: 34px 26px 26px; max-height: calc(100vh - 40px); overflow: auto; --cy: 22px; }
+.dlg-in::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--tura); }
+.dlg-in h2 { font: 400 30px/1.2 var(--f-disp); }
+.dlg-in .brush { font-size: 26px; display: block; margin-top: 2px; }
+.dlg-list { margin: 16px 0; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+.dlg-list li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--core-2); font-size: 16px; }
+.dlg-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 18px; }
+
+/* toasts: little flakes, bottom right (bottom-left stays free) */
+.toasts { position: fixed; right: 16px; bottom: 16px; z-index: 40; display: grid; gap: 10px; justify-items: end; width: min(380px, calc(100vw - 102px)); pointer-events: none; }
+.toast { position: relative; isolation: isolate; padding: 12px 16px 14px 46px; color: var(--ink); font-size: 16px; line-height: 1.45; pointer-events: auto; animation: toastIn .45s var(--ease-drop); width: 100%; }
+.toast::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--gypsum); clip-path: polygon(0 8%, 40% 0, 100% 5%, 98% 100%, 30% 96%, 2% 100%); box-shadow: none; }
+.toast::after { content: ""; position: absolute; inset: 4px -4px -6px 4px; z-index: -2; background: var(--basalt); opacity: .9; clip-path: polygon(0 8%, 40% 0, 100% 5%, 98% 100%, 30% 96%, 2% 100%); }
+.toast svg { position: absolute; left: 12px; top: 12px; width: 24px; height: 24px; color: var(--ochre); }
+.toast.out { animation: toastOut .3s ease-in forwards; }
+@keyframes toastIn { from { transform: translateY(24px) rotate(3deg); opacity: 0; } }
+@keyframes toastOut { to { transform: translateY(16px); opacity: 0; } }
+
+/* footer: a wall with graffiti */
+.wall { margin-top: calc(var(--pm) * 2); position: relative; }
+.wall svg { width: 100%; height: auto; display: block; }
+footer.foot { background: var(--basalt); color: var(--tura); padding: 30px 0 110px; }
+footer .wrap { display: grid; gap: 14px; }
+footer b { font: 800 34px/1 var(--f-lat); }
+footer p { color: #d9d0bf; font-size: 16px; }
+footer a { color: var(--tura); display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; width: fit-content; }
+footer a:hover { color: var(--granite-2); }
+footer :focus-visible { outline-color: var(--blue-hi); }
+
+@media (max-width: 640px) {
+  body { font-size: 17px; }
+  .sk-opts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sk-out { grid-template-columns: 90px 1fr; }
+  .sk-out svg { width: 90px; height: 72px; }
+  .steps li { font-size: 14px; padding-inline: 2px; }
+  .h1-note { position: static; display: inline-block; margin-top: 10px; }
+  .slab { padding: 28px 16px 22px; }
+  .seg { display: flex; }
+  .seg button { padding-inline: 8px; }
+  .mast nav a { padding: 0 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  .walker, .smoke, .flame, .swing { animation: none !important; }
+  .walker { opacity: 1; transform: translate(var(--xm), var(--ym)); }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<!-- sprite: products, crew marks, small icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- crew marks: painted fast in red ochre -->
+    <symbol id="mk-bread" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 26 L16 5 L25 26"/><path d="M6 26.5 Q16 30 26 26"/><path d="M12 18 h8"/></g></symbol>
+    <symbol id="mk-plumb" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M7 5 H25"/><path d="M16 5 V18"/><path d="M16 18 c-5 4 -5 9 0 10 c5 -1 5 -6 0 -10z"/></g></symbol>
+    <symbol id="mk-wet" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M4 9 q3 -4 6 0 t6 0 t6 0 t6 0"/><path d="M4 17 q3 -4 6 0 t6 0 t6 0 t6 0"/><path d="M4 25 q3 -4 6 0 t6 0 t6 0 t6 0"/></g></symbol>
+    <symbol id="mk-gossip" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22 L10 9 L16 22 L22 9 L28 22"/><circle cx="16" cy="28" r=".8"/></g></symbol>
+    <symbol id="mk-beer" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5 H22"/><path d="M12 5 c-7 7 -7 15 4 23 c11 -8 11 -16 4 -23"/><path d="M11 13 h10"/></g></symbol>
+    <!-- mason's mark (set square + plumb) -->
+    <symbol id="mason" viewBox="0 0 52 52"><g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 46 V8 L44 46 Z"/><path d="M6 30 h12"/><path d="M30 6 v14"/><path d="M30 20 c-4 3 -4 7 0 8 c4 -1 4 -5 0 -8z"/></g></symbol>
+    <symbol id="ic-loaf" viewBox="0 0 16 18"><path d="M2 16 L8 2 L14 16 Q8 18 2 16Z" fill="#c99a5e" stroke="#26221f" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-jar" viewBox="0 0 16 18"><path d="M4 2 H12 M5 2 C1 7 2 12 8 17 C14 12 15 7 11 2" fill="#b5714a" stroke="#26221f" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-chev" viewBox="0 0 26 26"><path d="M5 9 L13 18 L21 9" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-sort" viewBox="0 0 14 16"><path d="M7 2 L13 13 H1 Z" fill="currentColor"/></symbol>
+
+    <!-- products: 200 x 140, flat material colours, tool marks as thin lines -->
+    <symbol id="pr-notepad" viewBox="0 0 200 140">
+      <ellipse cx="100" cy="127" rx="80" ry="7" fill="#5a3f22" opacity=".16"/>
+      <polygon points="36,38 152,26 174,58 168,110 50,118 28,86" fill="#ddd2bd" stroke="#8f7f63" stroke-width="1.5" stroke-linejoin="round"/>
+      <polygon points="30,46 142,36 170,68 162,116 42,122 24,90" fill="#ebe3d3" stroke="#8f7f63" stroke-width="1.5" stroke-linejoin="round"/>
+      <polygon points="38,44 148,34 172,64 164,114 46,121 26,92" fill="#f7f2e8" stroke="#4a3b2c" stroke-width="1.6" stroke-linejoin="round"/>
+      <g fill="none" stroke="#26221f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M56 60 q5 -7 10 0 q4 6 9 -1"/><path d="M84 56 l8 -4 l2 9"/><path d="M102 58 c6 -6 10 6 16 -1"/><path d="M126 54 v9"/>
+        <path d="M56 78 c4 -4 8 4 14 -2"/><path d="M78 76 l12 0"/><path d="M96 80 q4 -9 9 -1 t9 -2"/>
+      </g>
+      <g stroke="#a2381f" stroke-width="3.2" stroke-linecap="round"><path d="M114 92 v17"/><path d="M122 92 v17"/><path d="M130 92 v17"/><path d="M138 92 v17"/><path d="M108 106 l36 -12"/></g>
+      <circle cx="42" cy="66" r="3.4" fill="#4a3b2c"/><circle cx="44" cy="98" r="3.4" fill="#4a3b2c"/>
+      <path d="M42 66 C22 70 22 96 44 98" fill="none" stroke="#a07a46" stroke-width="5" stroke-linecap="round"/>
+      <path d="M30 74 l4 3 M27 82 l4 2 M28 90 l4 1" stroke="#7b5a30" stroke-width="1.4"/>
+      <path d="M150 112 l10 -2 M148 108 l12 -3 M152 116 l7 -2" stroke="#000" stroke-opacity=".2" stroke-width="1.2"/>
+    </symbol>
+    <symbol id="pr-cubit" viewBox="0 0 200 140">
+      <ellipse cx="100" cy="98" rx="94" ry="6" fill="#5a3f22" opacity=".16"/>
+      <polygon points="12,62 186,62 194,70 194,90 6,90 6,70" fill="#9a5f36" stroke="#4a2c14" stroke-width="1.6" stroke-linejoin="round"/>
+      <polygon points="12,62 186,62 194,70 6,70" fill="#b27445"/>
+      <polygon points="178,62 186,62 194,70 194,90 176,90 176,70" fill="#4a2c14" opacity=".55"/>
+      <g stroke="#3a2210" stroke-width="1.6"><path d="M32.9 70v20M59.7 70v20M86.6 70v20M113.4 70v20M140.3 70v20M167.1 70v20"/></g>
+      <g stroke="#3a2210" stroke-width="1" opacity=".75"><path d="M12.7 64v5M19.4 64v5M26.1 64v5M39.6 64v5M46.3 64v5M53 64v5M66.4 64v5M73.1 64v5M79.9 64v5M93.3 64v5M100 64v5M106.7 64v5M120.1 64v5M126.9 64v5M133.6 64v5M147 64v5M153.7 64v5M160.4 64v5M173.9 64v5"/></g>
+      <g fill="#f3eee3" font-family="IBM Plex Mono, monospace" font-size="9" font-weight="600"><text x="17" y="84">1</text><text x="44" y="84">2</text><text x="70" y="84">3</text><text x="97" y="84">4</text><text x="124" y="84">5</text><text x="151" y="84">6</text></g>
+      <path d="M150 62 q6 -24 16 -30" fill="none" stroke="#6b5640" stroke-width="1.4"/>
+      <polygon points="156,16 184,20 182,38 154,34" fill="#f7f2e8" stroke="#4a3b2c" stroke-width="1.4"/>
+      <path d="M160 26 h18 M160 31 l10 0" stroke="#a2381f" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="pr-plumb" viewBox="0 0 200 140">
+      <ellipse cx="96" cy="128" rx="58" ry="6" fill="#5a3f22" opacity=".16"/>
+      <polygon points="44,118 86,118 90,128 40,128" fill="#cdb88f" stroke="#4a3b2c" stroke-width="1.5" stroke-linejoin="round"/>
+      <rect x="58" y="18" width="9" height="102" fill="#9a5f36" stroke="#4a2c14" stroke-width="1.5"/>
+      <polygon points="58,16 132,22 132,31 58,27" fill="#b27445" stroke="#4a2c14" stroke-width="1.5" stroke-linejoin="round"/>
+      <g class="swing">
+        <path d="M100 28 V84" stroke="#4a3b2c" stroke-width="1.6"/>
+        <path d="M100 82 c-15 10 -19 27 -10 37 c4 6 16 6 20 0 c9 -10 5 -27 -10 -37z" fill="#f3eee3" stroke="#26221f" stroke-width="1.7"/>
+        <path d="M89 98 h22" stroke="#a2381f" stroke-width="3" stroke-linecap="round"/>
+        <path d="M96 106 l-4 8 M101 108 l-3 7" stroke="#000" stroke-opacity=".2" stroke-width="1.1"/>
+      </g>
+      <path d="M140 116 a26 26 0 0 0 -60 0" fill="none" stroke="#a2381f" stroke-width="1.6" stroke-dasharray="3 5"/>
+    </symbol>
+    <symbol id="pr-doorstop" viewBox="0 0 200 140">
+      <ellipse cx="104" cy="122" rx="84" ry="7" fill="#5a3f22" opacity=".16"/>
+      <polygon points="24,118 174,118 174,70 58,52" fill="#c98e7f" stroke="#4a2a22" stroke-width="1.6" stroke-linejoin="round"/>
+      <polygon points="58,52 174,70 186,60 74,42" fill="#d9a597" stroke="#4a2a22" stroke-width="1.6" stroke-linejoin="round"/>
+      <polygon points="174,70 186,60 186,108 174,118" fill="#8e5a4f" stroke="#4a2a22" stroke-width="1.6" stroke-linejoin="round"/>
+      <g fill="#2b2826"><circle cx="64" cy="92" r="2"/><circle cx="92" cy="80" r="1.6"/><circle cx="120" cy="100" r="2.2"/><circle cx="146" cy="86" r="1.5"/><circle cx="160" cy="108" r="1.8"/><circle cx="44" cy="108" r="1.4"/><circle cx="104" cy="58" r="1.4"/><circle cx="150" cy="64" r="1.6"/></g>
+      <g fill="#f7f2e8"><circle cx="78" cy="104" r="1.6"/><circle cx="134" cy="76" r="1.4"/><circle cx="110" cy="88" r="1.2"/><circle cx="168" cy="96" r="1.3"/></g>
+      <g fill="none" stroke="#4a2a22" stroke-width="1.3" opacity=".6"><path d="M84 96 a4 3 0 0 1 8 0"/><path d="M98 108 a4 3 0 0 1 8 0"/><path d="M130 106 a4 3 0 0 1 8 0"/><path d="M112 72 a4 3 0 0 1 8 0"/></g>
+      <path d="M36 112 l26 -40" stroke="#a2381f" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="6 5"/>
+    </symbol>
+    <symbol id="pr-pyramidion" viewBox="0 0 200 140">
+      <ellipse cx="104" cy="122" rx="76" ry="7" fill="#5a3f22" opacity=".16"/>
+      <polygon points="36,120 120,120 98,22" fill="#f6f1e7" stroke="#26221f" stroke-width="1.7" stroke-linejoin="round"/>
+      <polygon points="120,120 170,112 98,22" fill="#d3c7b0" stroke="#26221f" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M50 94 H124" stroke="#a2381f" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="7 5"/>
+      <path d="M104 88 l6 6 l6 -6 z" fill="#a2381f"/>
+      <g stroke="#000" stroke-opacity=".18" stroke-width="1.2"><path d="M128 100 l10 -14 M136 102 l10 -14 M144 104 l9 -12"/></g>
+    </symbol>
+    <symbol id="pr-lamp" viewBox="0 0 200 140">
+      <ellipse cx="100" cy="128" rx="54" ry="6" fill="#5a3f22" opacity=".16"/>
+      <ellipse cx="100" cy="120" rx="38" ry="8" fill="none" stroke="#a07a46" stroke-width="6"/>
+      <path d="M76 56 c-14 22 -14 48 8 64 l16 6 l16 -6 c22 -16 22 -42 8 -64 z" fill="#b5714a" stroke="#4a2614" stroke-width="1.7" stroke-linejoin="round"/>
+      <path d="M72 84 h56" stroke="#2b2826" stroke-width="3"/>
+      <polyline points="76,56 84,49 90,57 98,47 106,55 114,48 124,56" fill="#7a3f22" stroke="#4a2614" stroke-width="1.6" stroke-linejoin="round"/>
+      <ellipse cx="100" cy="56" rx="22" ry="5" fill="#4a2614"/>
+      <path d="M100 54 v-8" stroke="#ebe2cd" stroke-width="2"/>
+      <g class="flame"><path d="M100 46 c-9 -10 -3 -22 0 -32 c4 10 11 20 0 32z" fill="#e39a3a"/><path d="M100 44 c-4 -5 -1 -12 0 -17 c2 5 5 11 0 17z" fill="#f6d58a"/></g>
+      <path d="M86 100 l-3 8 M110 104 l4 7" stroke="#000" stroke-opacity=".2" stroke-width="1.2"/>
+    </symbol>
+    <symbol id="pr-seat" viewBox="0 0 200 140">
+      <ellipse cx="100" cy="126" rx="80" ry="8" fill="#5a3f22" opacity=".18"/>
+      <g stroke="#5a3e1c" stroke-width="1.5">
+        <path d="M30 104 a70 18 0 0 0 140 0 v-10 a70 18 0 0 1 -140 0z" fill="#8f6a3b"/>
+        <path d="M30 94 a70 18 0 0 0 140 0 v-10 a70 18 0 0 1 -140 0z" fill="#a07a46"/>
+        <path d="M30 84 a70 18 0 0 0 140 0 v-10 a70 18 0 0 1 -140 0z" fill="#8f6a3b"/>
+        <path d="M30 74 a70 18 0 0 0 140 0 v-10 a70 18 0 0 1 -140 0z" fill="#a07a46"/>
+        <ellipse cx="100" cy="64" rx="70" ry="18" fill="#b28a52"/>
+      </g>
+      <path d="M100 64 m-6 0 a6 3 0 1 1 12 0 a14 6 0 1 1 -26 0 a24 10 0 1 1 46 0 a34 13 0 1 1 -66 0 a46 16 0 1 1 90 0 a56 17 0 1 1 -110 0" fill="none" stroke="#5a3e1c" stroke-width="1.6"/>
+      <g stroke="#5a3e1c" stroke-width="1.2" stroke-dasharray="2 6" fill="none"><path d="M30 99 a70 18 0 0 0 140 0"/><path d="M30 89 a70 18 0 0 0 140 0"/><path d="M30 79 a70 18 0 0 0 140 0"/></g>
+      <path d="M164 70 q18 4 22 18" fill="none" stroke="#a07a46" stroke-width="5" stroke-linecap="round"/>
+      <path d="M184 86 l4 6 M186 84 l6 3" stroke="#a07a46" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="pr-buttons" viewBox="0 0 200 140">
+      <ellipse cx="100" cy="124" rx="76" ry="6" fill="#5a3f22" opacity=".14"/>
+      <g stroke="#14294f" stroke-width="1.6">
+        <circle cx="52" cy="54" r="18" fill="#2357a3"/><circle cx="100" cy="50" r="18" fill="#2357a3"/><circle cx="148" cy="56" r="18" fill="#2357a3"/>
+        <circle cx="56" cy="98" r="18" fill="#2357a3"/><circle cx="104" cy="96" r="18" fill="#2357a3"/>
+        <path d="M152 82 a18 18 0 1 1 -12 31 l6 -6 l-3 -6 l8 -4 l-2 -8 z" fill="#2357a3"/>
+      </g>
+      <g fill="none" stroke="#3f78c4" stroke-width="2.4"><circle cx="52" cy="54" r="12"/><circle cx="100" cy="50" r="12"/><circle cx="148" cy="56" r="12"/><circle cx="56" cy="98" r="12"/><circle cx="104" cy="96" r="12"/><circle cx="152" cy="100" r="12"/></g>
+      <g fill="#ebe2cd"><circle cx="47" cy="54" r="2.6"/><circle cx="57" cy="54" r="2.6"/><circle cx="95" cy="50" r="2.6"/><circle cx="105" cy="50" r="2.6"/><circle cx="143" cy="56" r="2.6"/><circle cx="153" cy="56" r="2.6"/><circle cx="51" cy="98" r="2.6"/><circle cx="61" cy="98" r="2.6"/><circle cx="99" cy="96" r="2.6"/><circle cx="109" cy="96" r="2.6"/><circle cx="147" cy="100" r="2.6"/><circle cx="157" cy="100" r="2.6"/></g>
+    </symbol>
+    <symbol id="pr-sherds" viewBox="0 0 200 140">
+      <ellipse cx="100" cy="124" rx="82" ry="6" fill="#5a3f22" opacity=".14"/>
+      <g stroke="#4a2614" stroke-width="1.5" stroke-linejoin="round">
+        <polygon points="24,48 56,38 66,62 40,74 22,66" fill="#c98a5c"/>
+        <polygon points="78,30 112,34 108,62 82,64" fill="#b5714a"/>
+        <polygon points="128,40 168,36 176,66 146,74" fill="#9a5534"/>
+        <polygon points="30,92 62,84 72,110 38,116" fill="#b5714a"/>
+        <polygon points="86,82 120,78 126,104 100,118 84,106" fill="#d49a72"/>
+        <polygon points="138,88 172,90 168,118 140,114" fill="#c98a5c"/>
+      </g>
+      <g fill="#a2381f"><circle cx="44" cy="56" r="4"/><circle cx="52" cy="100" r="4"/><circle cx="62" cy="100" r="4"/><circle cx="104" cy="98" r="4"/><circle cx="96" cy="94" r="4"/><circle cx="112" cy="94" r="4"/></g>
+      <g fill="#26221f"><circle cx="95" cy="48" r="4"/><circle cx="150" cy="56" r="4"/><circle cx="160" cy="54" r="4"/><circle cx="155" cy="102" r="4"/></g>
+      <path d="M80 34 q14 -6 30 2" fill="none" stroke="#ebe2cd" stroke-width="2" opacity=".7"/>
+    </symbol>
+    <symbol id="pr-sledge" viewBox="0 0 200 140">
+      <ellipse cx="100" cy="118" rx="86" ry="6" fill="#5a3f22" opacity=".16"/>
+      <path d="M16 104 H158 q22 0 30 -22" fill="none" stroke="#5e3418" stroke-width="9" stroke-linecap="round"/>
+      <path d="M16 104 H158 q22 0 30 -22" fill="none" stroke="#9a5f36" stroke-width="5" stroke-linecap="round"/>
+      <rect x="40" y="94" width="8" height="10" fill="#5e3418"/><rect x="96" y="94" width="8" height="10" fill="#5e3418"/><rect x="140" y="94" width="8" height="10" fill="#5e3418"/>
+      <polygon points="24,86 170,86 170,95 24,95" fill="#b27445" stroke="#4a2c14" stroke-width="1.5"/>
+      <g stroke="#4a2c14" stroke-width="1.5" stroke-linejoin="round">
+        <polygon points="34,86 46,52 58,86" fill="#c99a5e"/><polygon points="66,86 78,48 90,86" fill="#d8ac70"/><polygon points="98,86 110,52 122,86" fill="#c99a5e"/><polygon points="130,86 142,50 154,86" fill="#d8ac70"/>
+      </g>
+      <g stroke="#7a5428" stroke-width="1.2" opacity=".7"><path d="M42 74 h8 M74 70 h8 M106 74 h8 M138 72 h8"/></g>
+      <path d="M188 82 q8 -2 10 -10" fill="none" stroke="#a07a46" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="rod-top" aria-hidden="true"><svg id="rodTop" preserveAspectRatio="xMinYMid slice"></svg></div>
+
+<header class="wrap mast">
+  <a class="brand" href="#top" id="top" aria-label="오프컷 처음으로">
+    <svg viewBox="0 0 44 44" aria-hidden="true"><polygon points="4,40 22,6 40,40" fill="#f3eee3" stroke="#26221f" stroke-width="2.4" stroke-linejoin="round"/><polygon points="22,6 40,40 30,40" fill="#cdb88f" stroke="#26221f" stroke-width="2.4" stroke-linejoin="round"/><path d="M9 30 H34" stroke="#a2381f" stroke-width="2.6" stroke-dasharray="4 3"/></svg>
+    <span><b>Offcut</b><small>오프컷 · 남은 돌 공방</small></span>
+  </a>
+  <nav aria-label="쪽 안내">
+    <ul>
+      <li><a href="#goods">물건</a></li>
+      <li><a href="#matter">재료</a></li>
+      <li><a href="#rules">규칙</a></li>
+      <li><a href="#tools">연장</a></li>
+      <li><a href="#ledger">장부</a></li>
+    </ul>
+  </nav>
+  <button class="blk blk--basalt blk--sm bag-btn" id="bagBtn" type="button" aria-haspopup="dialog"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 9 h16 l-2 12 H6 Z M8 9 c0 -6 8 -6 8 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg><span>보따리 <span class="mono" id="bagCount">0</span></span></button>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="h1">
+    <div class="wrap hero-head">
+      <div>
+        <p class="kicker">기자 고원 남쪽 · 일꾼 마을 공방 · 교대 끝난 저녁</p>
+        <h1 id="h1"><span class="h1-en">Offcut</span><span class="h1-ko">피라미드를 짓고 남은 돌로</span><span class="h1-note" aria-hidden="true">← 빵 먼저 조가 씀</span></h1>
+      </div>
+      <div>
+        <p class="lede">세상에서 제일 큰 물건을 지은 사람들은 노예가 아니라 품삯을 받는 작업반이었습니다. 빵과 맥주로 셈을 받고, 돌 뒤에 자기 조 이름을 붉은 황토로 적어 두었지요.</p>
+        <p class="lede">교대가 끝나면 그들이 남은 조각을 주워 집에 가져갔다면? 외장 돌 부스러기, 화강암 끝동, 끊긴 밧줄, 깨진 맥주 항아리로 만든 생활 물건과 그 공방의 화면 규칙입니다.</p>
+        <div class="cta">
+          <a class="blk" href="#goods"><span>천 위의 물건 보기</span></a>
+          <a class="blk blk--granite" href="#rules"><span>큐빗과 세켇 규칙</span></a>
+        </div>
+      </div>
+    </div>
+
+    <figure class="wrap scene-wrap" style="margin-bottom:0">
+      <div class="scene-frame">
+        <svg id="scene" class="scene" data-time="dusk" viewBox="0 0 1200 720" role="img" aria-labelledby="sceneT sceneD">
+          <title id="sceneT">교대 끝난 기자 고원</title>
+          <desc id="sceneD">멀리 외장이 반쯤 덮인 피라미드와 진흙벽돌 경사로, 오른쪽에 일꾼 마을과 남은 돌 더미, 앞쪽 큰 돌덩이에 붉은 황토로 쓴 조 이름, 아마포 천 위에 남은 재료로 만든 물건 열 가지가 놓여 있다.</desc>
+          <defs>
+            <clipPath id="rampClip"><polygon id="rampClipPoly" points="0,0"/></clipPath>
+          </defs>
+          <rect class="s1" x="0" y="0" width="1200" height="300"/>
+          <rect class="s2" x="0" y="300" width="1200" height="80"/>
+          <rect class="s3" x="0" y="380" width="1200" height="60"/>
+          <g class="sun"><circle cx="0" cy="0" r="40"/></g>
+          <path class="far" d="M0 432 C120 418 220 424 330 420 S560 414 700 422 S960 412 1200 424 V460 H0Z"/>
+          <!-- old finished pyramid far away -->
+          <polygon points="1010,428 1062,372 1104,428" fill="#e9e0cc" opacity=".9"/>
+          <polygon points="1062,372 1104,428 1084,430" fill="#d5c6a8" opacity=".9"/>
+          <g id="gPyr"></g>
+          <g id="gRamp"></g>
+          <g id="gWalkers"></g>
+          <rect class="gr1" x="0" y="446" width="1200" height="274"/>
+          <path class="gr2" d="M0 470 C200 462 420 476 640 466 S1000 474 1200 462 V720 H0Z"/>
+          <!-- wall of the crow -->
+          <polygon points="840,452 1200,446 1200,458 840,464" fill="#c8b185"/>
+          <polygon points="840,448 1200,442 1200,446 840,452" fill="#dcc8a0"/>
+          <g id="gVillage"></g>
+          <g id="gHeap"></g>
+          <!-- foreground: the big leftover casing block with crew graffiti -->
+          <g id="gBlock">
+            <polygon points="10,548 52,520 318,520 284,548" fill="#f7f2e8" stroke="#4a3b2c" stroke-width="2" stroke-linejoin="round"/>
+            <polygon points="10,548 284,548 284,720 10,720" fill="#ece4d4" stroke="#4a3b2c" stroke-width="2" stroke-linejoin="round"/>
+            <polygon points="284,548 318,520 318,700 284,720" fill="#cdc0a6" stroke="#4a3b2c" stroke-width="2" stroke-linejoin="round"/>
+            <g stroke="#000" stroke-opacity=".14" stroke-width="1.6" stroke-linecap="round">
+              <path d="M22 704 l14 -30 M34 706 l14 -30 M46 708 l14 -30 M58 708 l13 -27"/>
+              <path d="M236 700 l12 -26 M248 702 l12 -26 M260 702 l12 -26"/>
+              <path d="M292 610 l18 -14 M292 626 l18 -14 M292 642 l18 -14"/>
+              <path d="M80 532 l18 -8 M110 532 l18 -8 M140 532 l18 -8"/>
+            </g>
+            <text x="34" y="604" font-size="46" fill="#a2381f" transform="rotate(-3 34 604)">빵 먼저 조</text>
+            <path d="M24 632 H272" stroke="#a2381f" stroke-width="3" stroke-linecap="round"/>
+            <path d="M200 632 l9 -12 l9 12 z" fill="none" stroke="#a2381f" stroke-width="2.6" stroke-linejoin="round"/>
+            <text x="226" y="626" font-size="22" fill="#a2381f">수평</text>
+            <g stroke="#a2381f" stroke-width="5" stroke-linecap="round"><path d="M40 652 v34 M54 652 v34 M68 652 v34 M82 652 v34"/><path d="M32 680 l58 -24"/><path d="M108 652 v34 M122 652 v34"/></g>
+            <use href="#mk-bread" x="214" y="652" width="44" height="44" color="#a2381f"/>
+          </g>
+          <!-- a-frame level leaning on the block -->
+          <g stroke="#5e3418" stroke-width="5" stroke-linecap="round" fill="none">
+            <path d="M330 690 L362 588 L394 690"/><path d="M342 652 H382"/>
+          </g>
+          <path d="M362 590 V646" stroke="#26221f" stroke-width="1.4"/><circle cx="362" cy="648" r="4" fill="#26221f"/>
+          <!-- linen cloth -->
+          <polygon points="402,576 1186,560 1200,720 386,720" fill="#ebe2cd" stroke="#bfae8c" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M408 590 L1188 574" stroke="#cfc0a1" stroke-width="3" stroke-dasharray="10 7"/>
+          <g stroke="#d8ccb1" stroke-width="1.4"><path d="M400 620 L1192 604"/><path d="M396 662 L1196 646"/><path d="M392 700 L1198 686"/></g>
+          <g id="gGoods">
+            <use href="#pr-notepad" x="414" y="530" width="140" height="98"/>
+            <use href="#pr-cubit" x="548" y="520" width="190" height="133"/>
+            <use href="#pr-pyramidion" x="730" y="508" width="140" height="98"/>
+            <use href="#pr-lamp" x="858" y="500" width="140" height="98"/>
+            <use href="#pr-seat" x="990" y="520" width="170" height="119"/>
+            <use href="#pr-sherds" x="430" y="610" width="140" height="98"/>
+            <use href="#pr-buttons" x="566" y="612" width="120" height="84"/>
+            <use href="#pr-plumb" x="676" y="590" width="140" height="98"/>
+            <use href="#pr-doorstop" x="816" y="606" width="150" height="105"/>
+            <use href="#pr-sledge" x="972" y="616" width="170" height="119"/>
+          </g>
+        </svg>
+      </div>
+      <figcaption class="scene-bar">
+        <p><b>교대 시간</b>을 바꾸면 고원의 빛이 바뀝니다. 비탈 경사는 아래 <a href="#tools">세켇 고르기</a>로.</p>
+        <div class="seg" role="radiogroup" aria-label="교대 시간" data-seg="time">
+          <button type="button" role="radio" aria-checked="false" data-v="dawn" tabindex="-1">새벽 교대</button>
+          <button type="button" role="radio" aria-checked="false" data-v="noon" tabindex="-1">한낮</button>
+          <button type="button" role="radio" aria-checked="true" data-v="dusk" tabindex="0">해질녘</button>
+        </div>
+      </figcaption>
+    </figure>
+  </section>
+
+  <div class="course wrap" aria-hidden="true" data-seed="11" style="margin-top:40px"></div>
+
+  <section class="sec" aria-labelledby="h-facts">
+    <div class="wrap">
+      <div class="sec-head">
+        <svg class="mm" aria-hidden="true"><use href="#mason"/></svg>
+        <div><span class="num">01 · 알려진 것</span><h2 id="h-facts">먼저, 실제로 있었던 것</h2></div>
+        <p>상상은 여기서부터 시작합니다. 발굴로 알려진 사실 네 가지.</p>
+        <div class="level" aria-hidden="true"><i style="left:12%"></i><i style="left:48%"></i></div>
+      </div>
+      <div class="facts">
+        <article class="ostr"><svg class="tick" viewBox="0 0 40 26" aria-hidden="true"><path d="M4 2v22M11 2v22M18 2v22M25 2v22M1 20 L30 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><h3>노예가 아니었다</h3><p>고원 남쪽에서 일꾼 마을 터가 나왔습니다. 숙소, 빵 굽는 집, 맥주 빚는 곳, 그리고 피라미드 곁에 묻힌 일꾼의 무덤까지.</p></article>
+        <article class="ostr"><svg class="tick" viewBox="0 0 40 26" aria-hidden="true"><path d="M4 2v22M11 2v22M18 2v22" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><h3>품삯은 빵과 맥주</h3><p>날마다 빵 덩이와 맥주 항아리, 양파와 마늘을 받았습니다. 셈은 석회석 조각에 먹으로 적었습니다.</p></article>
+        <article class="ostr"><svg class="tick" viewBox="0 0 40 26" aria-hidden="true"><path d="M4 2v22M11 2v22" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><h3>조마다 이름이 있었다</h3><p>작업반은 장난스러운 이름을 붙였고, 돌덩이 안쪽에 붉은 황토로 그 이름과 수평선을 적어 두었습니다.</p></article>
+        <article class="ostr"><svg class="tick" viewBox="0 0 40 26" aria-hidden="true"><path d="M4 2v22" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><h3>자, 추, 젖은 모래</h3><p>왕의 큐빗(52.4 cm) 자, 다림추와 A자 수평기, 구리 끌과 돌레라이트 망치. 썰매 앞 모래에 물을 뿌리면 끌기가 훨씬 쉬워집니다.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <div class="course wrap" aria-hidden="true" data-seed="23"></div>
+
+  <section class="sec" id="goods" aria-labelledby="h-goods">
+    <div class="wrap">
+      <div class="sec-head">
+        <svg class="mm" aria-hidden="true"><use href="#mason"/></svg>
+        <div><span class="num">02 · 물건</span><h2 id="h-goods">천 위의 물건들</h2></div>
+        <p>값은 빵과 맥주로 받습니다. 사금파리를 눌러 재료별로 골라 보세요. 아무것도 안 누르면 다 보입니다.</p>
+        <div class="level" aria-hidden="true"><i style="left:30%"></i><i style="left:70%"></i></div>
+      </div>
+      <div class="toolbar">
+        <div>
+          <span class="lab" id="matLab">재료로 고르기</span>
+          <div class="sherds" role="group" aria-labelledby="matLab" id="matChips">
+            <button class="sherd" type="button" aria-pressed="false" data-mat="lime"><span class="dot" aria-hidden="true"></span>석회석</button>
+            <button class="sherd" type="button" aria-pressed="false" data-mat="granite"><span class="dot" aria-hidden="true"></span>화강암</button>
+            <button class="sherd" type="button" aria-pressed="false" data-mat="clay"><span class="dot" aria-hidden="true"></span>토기 조각</button>
+            <button class="sherd" type="button" aria-pressed="false" data-mat="wood"><span class="dot" aria-hidden="true"></span>나무</button>
+            <button class="sherd" type="button" aria-pressed="false" data-mat="rope"><span class="dot" aria-hidden="true"></span>밧줄</button>
+            <button class="sherd" type="button" aria-pressed="false" data-mat="pigment"><span class="dot" aria-hidden="true"></span>안료·구리</button>
+          </div>
+        </div>
+        <div>
+          <label class="lab" for="sortSel">늘어놓는 순서</label>
+          <span class="stone-select"><select id="sortSel">
+            <option value="no">천 위에 놓인 순서</option>
+            <option value="cheap">값 싼 것부터</option>
+            <option value="dear">값 비싼 것부터</option>
+            <option value="heavy">무거운 것부터</option>
+            <option value="name">이름 가나다순</option>
+          </select></span>
+        </div>
+      </div>
+      <p class="vh" role="status" id="goodsStatus"></p>
+      <div class="goods" id="goodsGrid"></div>
+    </div>
+  </section>
+
+  <div class="course wrap" aria-hidden="true" data-seed="37"></div>
+
+  <section class="sec" id="matter" aria-labelledby="h-mat">
+    <div class="wrap">
+      <div class="sec-head">
+        <svg class="mm" aria-hidden="true"><use href="#mason"/></svg>
+        <div><span class="num">03 · 재료</span><h2 id="h-mat">남은 재료가 곧 색입니다</h2></div>
+        <p>칠하지 않습니다. 재료마다 한 가지 색, 그 아래 받침이 되는 어두운 색 하나. 모양은 떨어져 나온 조각 그대로.</p>
+        <div class="level" aria-hidden="true"><i style="left:22%"></i><i style="left:61%"></i></div>
+      </div>
+      <div class="mats" id="mats"></div>
+    </div>
+  </section>
+
+  <div class="course wrap" aria-hidden="true" data-seed="41"></div>
+
+  <section class="sec" id="rules" aria-labelledby="h-rules">
+    <div class="wrap">
+      <div class="sec-head">
+        <svg class="mm" aria-hidden="true"><use href="#mason"/></svg>
+        <div><span class="num">04 · 규칙</span><h2 id="h-rules">공방의 여섯 규칙</h2></div>
+        <p>반장이 큐빗 자를 대고 정한 것들. 화면도 돌처럼 잽니다.</p>
+        <div class="level" aria-hidden="true"><i style="left:40%"></i></div>
+      </div>
+      <div class="rules">
+        <article class="rule"><h3>큐빗 격자로 잰다</h3><p>1 손가락 <code>6px</code>, 1 손바닥 = 4 손가락 <code>24px</code>, 1 큐빗 = 7 손바닥 <code>168px</code>. 본문 폭은 7 큐빗, 제목 높이는 1 큐빗.</p>
+          <svg viewBox="0 0 336 54" aria-hidden="true"><rect x="0" y="12" width="336" height="26" fill="#9a5f36"/><g id="ruleRod"></g><text x="0" y="52" font-family="IBM Plex Mono" font-size="11" fill="#574c40">0</text><text x="150" y="52" font-family="IBM Plex Mono" font-size="11" fill="#574c40">1 큐빗</text><text x="296" y="52" font-family="IBM Plex Mono" font-size="11" fill="#574c40">2 큐빗</text></svg></article>
+        <article class="rule"><h3>모서리는 세켇으로 깎는다</h3><p>높이 7 손바닥에 옆으로 5½ 손바닥. 큰 피라미드의 경사(51.84°)를 그대로 모든 단추와 판의 어깨에 씁니다. 토큰 <code>--sk: 5.5</code>.</p>
+          <svg viewBox="0 0 336 90" aria-hidden="true"><polygon points="10,84 186,84 98,4" fill="#f3eee3" stroke="#26221f" stroke-width="1.6"/><path d="M98 4 V84" stroke="#a2381f" stroke-width="1.6" stroke-dasharray="4 4"/><path d="M98 84 H186" stroke="#a2381f" stroke-width="3"/><text x="104" y="48" font-family="IBM Plex Mono" font-size="12" fill="#a2381f">7</text><text x="130" y="78" font-family="IBM Plex Mono" font-size="12" fill="#a2381f">5½</text><g transform="translate(210 28)"><polygon points="0,10 7.9,0 112,0 120,10 120,46 0,46" fill="#cdb88f"/><polygon points="0,10 7.9,0 112,0 120,10 120,40 0,40" fill="#f3eee3" stroke="#26221f" stroke-width="1.4"/></g></svg></article>
+        <article class="rule"><h3>재료색은 평평하게</h3><p>그라데이션도, 가짜 결도 없습니다. 돌 하나에 면 하나, 받침 하나. 질감이 필요하면 끌 자국을 셋에서 다섯 줄, 모서리에만.</p>
+          <svg viewBox="0 0 336 60" aria-hidden="true"><rect x="0" y="6" width="100" height="46" fill="#f3eee3" stroke="#26221f" stroke-width="1.4"/><rect x="0" y="52" width="100" height="6" fill="#8f7853"/><g stroke="#000" stroke-opacity=".2" stroke-width="1.4"><path d="M76 48 l8 -16 M83 48 l8 -16 M90 48 l7 -14"/></g><rect x="118" y="6" width="100" height="46" fill="#c98e7f" stroke="#26221f" stroke-width="1.4"/><rect x="118" y="52" width="100" height="6" fill="#8e5a4f"/><rect x="236" y="6" width="100" height="46" fill="#3d3834" stroke="#26221f" stroke-width="1.4"/><rect x="236" y="52" width="100" height="6" fill="#141210"/></svg></article>
+        <article class="rule"><h3>표시는 붉은 황토로, 빨리</h3><p>조 이름, 수평선, 셈 막대. 꾸밈용 상형문자 문장은 쓰지 않습니다. 글은 한국어로, 표시는 일꾼 손으로.</p>
+          <svg viewBox="0 0 336 56" aria-hidden="true"><g stroke="#a2381f" stroke-width="4.5" stroke-linecap="round"><path d="M8 8v40M22 8v40M36 8v40M50 8v40M0 42 L58 14"/></g><path d="M80 30 H330" stroke="#a2381f" stroke-width="2.4"/><path d="M200 30 l8 -11 l8 11z" fill="none" stroke="#a2381f" stroke-width="2.2"/><text x="226" y="22" font-family="Nanum Brush Script" font-size="22" fill="#a2381f">여기 수평</text><use href="#mk-wet" x="86" y="34" width="22" height="22" color="#a2381f"/><use href="#mk-gossip" x="114" y="34" width="22" height="22" color="#a2381f"/></svg></article>
+        <article class="rule"><h3>파랑은 손이 닿은 곳</h3><p>이집트 블루는 비싼 안료라 아껴 씁니다. 포커스 테두리와 고른 상태에만. 화면 전체의 5%를 넘지 않게.</p>
+          <svg viewBox="0 0 336 56" aria-hidden="true"><rect x="0" y="8" width="336" height="40" fill="#e9e1d0"/><rect x="0" y="8" width="16" height="40" fill="#2357a3"/><rect x="40" y="14" width="96" height="28" fill="#f3eee3" stroke="#2357a3" stroke-width="3"/><text x="150" y="33" font-family="IBM Plex Mono" font-size="12" fill="#574c40">≤ 5% · focus · selected</text></svg></article>
+        <article class="rule"><h3>눌리면 내려앉는다</h3><p>모든 단추는 받침 위에 놓인 돌입니다. 누르면 받침 두께(7px, 손가락 하나 남짓)만큼 내려앉고, 돌 부스러기가 튑니다.</p>
+          <svg viewBox="0 0 336 60" aria-hidden="true"><polygon points="0,10 7.9,0 112,0 120,10 120,52 0,52" fill="#8f7853"/><polygon points="0,10 7.9,0 112,0 120,10 120,44 0,44" fill="#f3eee3" stroke="#26221f" stroke-width="1.4"/><path d="M140 30 h40" stroke="#26221f" stroke-width="2"/><path d="M176 24 l8 6 l-8 6" fill="none" stroke="#26221f" stroke-width="2"/><g transform="translate(200 0)"><polygon points="0,16 7.9,6 112,6 120,16 120,52 0,52" fill="#8f7853"/><polygon points="0,16 7.9,6 112,6 120,16 120,50 0,50" fill="#f3eee3" stroke="#26221f" stroke-width="1.4"/><polygon points="126,4 132,0 134,7" fill="#e9e1d0"/><polygon points="-8,8 -2,4 -3,11" fill="#e9e1d0"/></g></svg></article>
+      </div>
+    </div>
+  </section>
+
+  <div class="course wrap" aria-hidden="true" data-seed="53"></div>
+
+  <section class="sec" id="tools" aria-labelledby="h-tools">
+    <div class="wrap">
+      <div class="sec-head">
+        <svg class="mm" aria-hidden="true"><use href="#mason"/></svg>
+        <div><span class="num">05 · 연장</span><h2 id="h-tools">연장통 — 만지는 것들</h2></div>
+        <p>단추, 스위치, 표시, 탭, 자. 모두 키보드로 다룰 수 있습니다. 소리는 꺼져 있어요.</p>
+        <div class="level" aria-hidden="true"><i style="left:16%"></i><i style="left:55%"></i></div>
+      </div>
+
+      <div class="bench">
+        <!-- buttons -->
+        <div class="slab cut">
+          <div class="slab-t"><h3>다듬은 돌 단추</h3><span>button</span></div>
+          <div class="row" id="btnRow">
+            <button class="blk" type="button" data-say="투라 석회석. 외장용 흰 돌."><span>투라 돌</span></button>
+            <button class="blk blk--granite" type="button" data-say="아스완 화강암. 무겁고 단단하다."><span>화강암</span></button>
+            <button class="blk blk--basalt" type="button" data-say="현무암. 신전 바닥감."><span>현무암</span></button>
+            <button class="blk blk--ochre" type="button" data-say="붉은 황토로 칠한 돌. 가장 중요한 한 개에만."><span>표시한 돌</span></button>
+            <button class="blk" type="button" disabled><span>이미 앉힌 돌</span></button>
+          </div>
+          <div style="margin-top:18px">
+            <p class="hint" id="segMatL" style="margin:0 0 8px">견본 돌 재질 (← → 로 옮기기)</p>
+            <div class="seg" role="radiogroup" aria-labelledby="segMatL" data-seg="mat">
+              <button type="button" role="radio" aria-checked="true" data-v="tura" tabindex="0">투라</button>
+              <button type="button" role="radio" aria-checked="false" data-v="granite" tabindex="-1">화강암</button>
+              <button type="button" role="radio" aria-checked="false" data-v="basalt" tabindex="-1">현무암</button>
+            </div>
+            <div style="margin-top:16px"><button class="blk" type="button" id="sampleBlk"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 20 L12 4 L21 20 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg><span>견본 한 덩이 두드리기</span></button></div>
+          </div>
+        </div>
+
+        <!-- switches -->
+        <div class="slab cut">
+          <div class="slab-t"><h3>젖은 모래 썰매</h3><span>switch</span></div>
+          <div class="sw">
+            <button class="sledge" type="button" role="switch" aria-checked="false" id="swWet" aria-labelledby="swWetL" aria-describedby="swWetS">
+              <span class="wet" aria-hidden="true"></span>
+              <svg class="sl" viewBox="0 0 64 46" aria-hidden="true"><polygon points="12,6 18,1 50,1 56,6 56,30 12,30" fill="#f3eee3" stroke="#26221f" stroke-width="1.6" stroke-linejoin="round"/><path d="M22 14 l6 10 l6 -10" fill="none" stroke="#a2381f" stroke-width="2.4" stroke-linecap="round"/><path d="M6 36 H52 q8 0 10 -8" fill="none" stroke="#5e3418" stroke-width="5" stroke-linecap="round"/><rect x="14" y="30" width="4" height="6" fill="#5e3418"/><rect x="46" y="30" width="4" height="6" fill="#5e3418"/></svg>
+            </button>
+            <div class="sw-txt"><b id="swWetL">모래 적시기</b><span id="swWetS">마른 모래 · 끌기 무거움</span></div>
+          </div>
+          <div class="sw">
+            <button class="sledge" type="button" role="switch" aria-checked="false" id="swSound" aria-labelledby="swSoundL" aria-describedby="swSoundS">
+              <span class="wet" aria-hidden="true"></span>
+              <svg class="sl" viewBox="0 0 64 46" aria-hidden="true"><polygon points="12,6 18,1 50,1 56,6 56,30 12,30" fill="#c98e7f" stroke="#26221f" stroke-width="1.6" stroke-linejoin="round"/><path d="M24 22 l14 -14 M30 24 l4 -4" stroke="#26221f" stroke-width="2.4" stroke-linecap="round"/><path d="M6 36 H52 q8 0 10 -8" fill="none" stroke="#5e3418" stroke-width="5" stroke-linecap="round"/><rect x="14" y="30" width="4" height="6" fill="#5e3418"/><rect x="46" y="30" width="4" height="6" fill="#5e3418"/></svg>
+            </button>
+            <div class="sw-txt"><b id="swSoundL">끌 소리</b><span id="swSoundS">꺼짐 · 조용한 공방</span></div>
+          </div>
+          <p class="hint">진짜 기록에도 있습니다. 썰매 앞 모래에 물을 붓는 사람이 그려진 벽화.</p>
+        </div>
+
+        <!-- checkboxes -->
+        <div class="slab cut">
+          <div class="slab-t"><h3>오늘 받은 배급</h3><span>checkbox</span></div>
+          <fieldset class="tallies" id="tallies">
+            <legend>받은 것에 한 획씩</legend>
+            <label class="tally"><input class="vh" type="checkbox" checked><span class="tbox"><svg viewBox="0 0 46 46" aria-hidden="true"><path d="M14 40 C18 28 24 16 33 5"/></svg></span><span>빵 열 덩이</span></label>
+            <label class="tally"><input class="vh" type="checkbox"><span class="tbox"><svg viewBox="0 0 46 46" aria-hidden="true"><path d="M14 40 C18 28 24 16 33 5"/></svg></span><span>맥주 두 항아리</span></label>
+            <label class="tally"><input class="vh" type="checkbox" checked><span class="tbox"><svg viewBox="0 0 46 46" aria-hidden="true"><path d="M14 40 C18 28 24 16 33 5"/></svg></span><span>양파 한 묶음</span></label>
+            <label class="tally"><input class="vh" type="checkbox"><span class="tbox"><svg viewBox="0 0 46 46" aria-hidden="true"><path d="M14 40 C18 28 24 16 33 5"/></svg></span><span>마늘 세 쪽</span></label>
+            <label class="tally"><input class="vh" type="checkbox"><span class="tbox"><svg viewBox="0 0 46 46" aria-hidden="true"><path d="M14 40 C18 28 24 16 33 5"/></svg></span><span>남은 돌 바구니</span></label>
+          </fieldset>
+          <div class="tally-sum"><svg id="tallySvg" viewBox="0 0 80 40" aria-hidden="true"></svg><span id="tallyTxt" aria-live="polite">다섯 중 둘</span></div>
+        </div>
+
+        <!-- seked radios -->
+        <div class="slab cut">
+          <div class="slab-t"><h3>세켇 고르기</h3><span>radio</span></div>
+          <fieldset class="seked">
+            <legend>비탈 경사 (높이 7 손바닥당 옆으로)</legend>
+            <div class="sk-opts" id="skOpts"></div>
+          </fieldset>
+          <div class="sk-out"><svg id="skBig" viewBox="0 0 120 96" aria-hidden="true"></svg><p id="skTxt" aria-live="polite"></p></div>
+          <p class="hint">고르면 이 쪽의 모든 돌 모서리와 멀리 있는 피라미드 경사가 함께 바뀝니다.</p>
+        </div>
+
+        <!-- tabs -->
+        <div class="slab cut tabs">
+          <div class="slab-t"><h3>오스트라콘 일지</h3><span>tabs</span></div>
+          <div role="tablist" aria-label="석회석 조각 일지">
+            <button class="tab" role="tab" type="button" id="tab-a" aria-selected="true" aria-controls="tp-a">오늘 일지</button>
+            <button class="tab" role="tab" type="button" id="tab-b" aria-selected="false" aria-controls="tp-b" tabindex="-1">결근 사유</button>
+            <button class="tab" role="tab" type="button" id="tab-c" aria-selected="false" aria-controls="tp-c" tabindex="-1">반장 한마디</button>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="tp-a" aria-labelledby="tab-a" tabindex="0">
+            <ul><li>채석장에서 떼어낸 돌<span class="mono">14 덩이</span></li><li>경사로로 올린 돌<span class="mono">11 덩이</span></li><li>깨져서 남은 조각<span class="mono">3 바구니</span></li><li>젖은 모래에 부은 물<span class="mono">40 항아리</span></li></ul>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="tp-b" aria-labelledby="tab-b" tabindex="0" hidden>
+            <ul><li>전갈에게 물림<span class="mono">1명</span></li><li>집에서 맥주 빚는 날<span class="mono">2명</span></li><li>형 장례 준비<span class="mono">1명</span></li><li>눈이 아픔<span class="mono">1명</span></li></ul>
+            <p class="src">후대 일꾼 마을의 석회석 조각 기록에 실제로 나오는 결근 사유들.</p>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="tp-c" aria-labelledby="tab-c" tabindex="0" hidden>
+            <p style="font:400 30px/1.3 var(--f-brush);color:var(--ochre)">“꼭대기 올리기 전까진 꼭대기 문진 팔지 마라.”</p>
+            <p class="src">— 곧은 추 조 반장, 석회석 조각 뒷면에.</p>
+          </div>
+        </div>
+
+        <!-- range -->
+        <div class="slab cut cubit">
+          <div class="slab-t"><h3>한 큐빗 자</h3><span>range</span></div>
+          <label for="rng" style="font-weight:700">길이 재기 (손가락 단위)</label>
+          <div class="cubit-wrap">
+            <div class="cubit-vis" aria-hidden="true"><svg id="cubitSvg" viewBox="0 0 280 34" preserveAspectRatio="none"></svg></div>
+            <div class="cubit-line" id="cubitLine" aria-hidden="true"></div>
+            <input type="range" id="rng" min="0" max="28" step="1" value="11">
+          </div>
+          <output for="rng" id="rngOut"></output>
+          <p class="hint">한 큐빗 = 7 손바닥 = 28 손가락 = 52.4 cm.</p>
+        </div>
+
+        <!-- form inputs -->
+        <div class="slab cut wide">
+          <div class="slab-t"><h3>주문 쪽지</h3><span>input · select · textarea</span></div>
+          <form id="noteForm" novalidate>
+            <div class="form-row">
+              <div class="field"><label for="fName">이름</label><input id="fName" name="name" autocomplete="name" placeholder="예: 네페르" aria-describedby="fNameErr" required><p class="err" id="fNameErr">이름을 적어야 반장이 누군지 압니다.</p></div>
+              <div class="field"><label for="fCrew">소속 조</label><span class="stone-select"><select id="fCrew" name="crew"><option value="bread">빵 먼저 조</option><option value="plumb">곧은 추 조</option><option value="wet">모래 적시는 조</option><option value="gossip">왕의 수다 친구들</option><option value="beer">맥주 한 잔 더 조</option></select></span></div>
+              <div class="field"><label for="fPay">내는 것 (빵 덩이)</label><input id="fPay" name="pay" inputmode="numeric" placeholder="예: 3" aria-describedby="fPayHelp fPayErr"><p class="help" id="fPayHelp">숫자만. 맥주로 내려면 메모에.</p><p class="err" id="fPayErr">빵은 1에서 99 덩이 사이로.</p></div>
+            </div>
+            <div class="field"><label for="fMemo">메모</label><textarea id="fMemo" name="memo" rows="3" placeholder="예: 문진은 꼭대기 올리고 나서 찾으러 갈게요"></textarea></div>
+            <div class="row"><button class="blk blk--ochre" type="submit"><span>반장에게 넘기기</span></button><button class="blk" type="reset"><span>긁어서 지우기</span></button></div>
+          </form>
+        </div>
+
+        <!-- badges -->
+        <div class="slab cut">
+          <div class="slab-t"><h3>조 표시</h3><span>badge</span></div>
+          <div class="row" style="gap:10px">
+            <span class="crew"><svg aria-hidden="true"><use href="#mk-bread"/></svg>빵 먼저 조</span>
+            <span class="crew crew--fill"><svg aria-hidden="true"><use href="#mk-plumb"/></svg>곧은 추 조</span>
+            <span class="crew"><svg aria-hidden="true"><use href="#mk-wet"/></svg>모래 적시는 조</span>
+            <span class="crew crew--ink"><svg aria-hidden="true"><use href="#mk-gossip"/></svg>왕의 수다 친구들</span>
+            <span class="crew"><svg aria-hidden="true"><use href="#mk-beer"/></svg>맥주 한 잔 더 조</span>
+            <span class="crew crew--blue"><svg aria-hidden="true"><use href="#mk-plumb"/></svg>반장<span class="n">×1</span></span>
+            <span class="crew crew--ink">결근<span class="n">5</span></span>
+          </div>
+          <p class="hint">조 이름은 실제 방식(돌 안쪽에 황토로 쓴 이름)을 빌려 지어낸 것입니다.</p>
+        </div>
+
+        <!-- progress -->
+        <div class="slab cut">
+          <div class="slab-t"><h3>몇 단 올렸나</h3><span>progressbar</span></div>
+          <div class="build">
+            <div role="progressbar" id="buildBar" aria-labelledby="buildL" aria-valuemin="0" aria-valuemax="210" aria-valuenow="120"><svg id="buildSvg" viewBox="0 0 300 170" aria-hidden="true"></svg></div>
+            <div class="build-meta"><span id="buildL">쌓은 단</span><b id="buildNum">120 / 210단</b><span>쌓인 오프컷 <b id="buildChips" class="mono">12</b> 바구니</span></div>
+            <div class="row"><button class="blk blk--sm" type="button" id="buildUp"><span>열 단 더 올리기</span></button><button class="blk blk--sm blk--basalt" type="button" id="buildReset"><span>처음부터</span></button></div>
+          </div>
+        </div>
+
+        <!-- steps -->
+        <div class="slab cut wide">
+          <div class="slab-t"><h3>돌 한 덩이의 하루</h3><span>steps</span></div>
+          <svg class="steps-svg" id="stepsSvg" viewBox="0 0 640 130" aria-hidden="true">
+            <rect x="0" y="0" width="640" height="130" fill="#e2cda4"/>
+            <polygon points="0,104 120,104 120,90 100,90 100,76 80,76 80,62 0,62" fill="#cdb88f"/>
+            <polygon points="0,62 80,62 80,76 100,76 100,90 120,90 120,104 0,104 0,130 140,130 140,104" fill="none"/>
+            <g fill="#b4966a"><rect x="170" y="108" width="34" height="5"/><rect x="226" y="108" width="40" height="5"/><rect x="290" y="108" width="30" height="5"/></g>
+            <polygon points="330,110 500,42 520,42 520,130 330,130" fill="#8b6a4c"/>
+            <polygon points="330,110 500,42 508,42 340,110" fill="#a5815f"/>
+            <polygon points="520,42 640,42 640,130 520,130" fill="#cdb88f"/>
+            <g fill="#f3eee3" stroke="#8f7853"><rect x="536" y="26" width="30" height="16"/><rect x="596" y="26" width="30" height="16"/></g>
+            <path d="M520 41 H640" stroke="#a2381f" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="8" y="56" font-family="Nanum Brush Script" font-size="20" fill="#a2381f">채석장</text>
+            <text x="560" y="20" font-family="Nanum Brush Script" font-size="20" fill="#a2381f">여기</text>
+            <g class="mover" id="mover"><polygon points="-16,-14 -12,-18 12,-18 16,-14 16,0 -16,0" fill="#f3eee3" stroke="#26221f" stroke-width="1.6"/><path d="M-6 -12 l5 8 l5 -8" fill="none" stroke="#a2381f" stroke-width="2" stroke-linecap="round"/><path d="M-20 4 H18 q6 0 8 -6" fill="none" stroke="#5e3418" stroke-width="4" stroke-linecap="round" class="runner"/></g>
+          </svg>
+          <ol class="steps" id="steps">
+            <li>채석장</li><li>썰매</li><li>경사로</li><li>앉히기</li>
+          </ol>
+          <p class="step-desc" id="stepDesc" aria-live="polite"></p>
+          <div class="row"><button class="blk blk--sm" type="button" id="stepPrev"><span>← 이전</span></button><button class="blk blk--sm blk--granite" type="button" id="stepNext"><span>다음 →</span></button></div>
+        </div>
+
+        <!-- accordion -->
+        <div class="slab cut">
+          <div class="slab-t"><h3>자주 묻는 것</h3><span>accordion</span></div>
+          <div class="acc" id="acc">
+            <h3><button class="acc-btn" type="button" aria-expanded="true" aria-controls="ac1" id="ab1">정말 노예가 아니었나요?<svg aria-hidden="true"><use href="#ic-chev"/></svg></button></h3>
+            <div class="acc-panel" id="ac1" role="region" aria-labelledby="ab1">일꾼 마을 터에서 숙소와 빵집, 그리고 피라미드 곁에 따로 마련된 일꾼 무덤이 나왔습니다. 뼈에는 부러진 곳을 치료한 흔적도 있어요. 품삯을 받고 교대로 일한 작업반이었다고 보는 것이 지금의 정설입니다.</div>
+            <h3><button class="acc-btn" type="button" aria-expanded="false" aria-controls="ac2" id="ab2">세켇이 뭔가요?<svg aria-hidden="true"><use href="#ic-chev"/></svg></button></h3>
+            <div class="acc-panel" id="ac2" role="region" aria-labelledby="ab2" hidden>비탈의 기울기를 재던 방식입니다. 높이 1 큐빗(7 손바닥)을 오르는 동안 옆으로 몇 손바닥 들어가는지. 큰 피라미드는 5½ 손바닥, 약 51.8°.</div>
+            <h3><button class="acc-btn" type="button" aria-expanded="false" aria-controls="ac3" id="ab3">남은 돌을 가져가도 됐나요?<svg aria-hidden="true"><use href="#ic-chev"/></svg></button></h3>
+            <div class="acc-panel" id="ac3" role="region" aria-labelledby="ab3" hidden>모릅니다. 이 쪽에서 상상한 부분이에요. 석회석 부스러기를 메모장으로 쓴 건 사실이니, 반장 허락은 받았다고 해 둡시다.</div>
+          </div>
+        </div>
+
+        <!-- dialog + toast -->
+        <div class="slab cut">
+          <div class="slab-t"><h3>반장 석판과 쪽지</h3><span>dialog · toast</span></div>
+          <p style="font-size:16px">석판(대화상자)은 하던 일을 멈추고 확인할 때, 쪽지(알림)는 5초 뒤 저절로 사라집니다.</p>
+          <div class="row" style="margin-top:16px"><button class="blk blk--basalt" type="button" id="openDlg"><span>석판 펼치기</span></button><button class="blk" type="button" id="toastBtn"><span>쪽지 하나 날리기</span></button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="course wrap" aria-hidden="true" data-seed="67"></div>
+
+  <section class="sec" id="ledger" aria-labelledby="h-ledger">
+    <div class="wrap">
+      <div class="sec-head">
+        <svg class="mm" aria-hidden="true"><use href="#mason"/></svg>
+        <div><span class="num">06 · 장부</span><h2 id="h-ledger">배급 장부</h2></div>
+        <p>한 반(스무 명) 하루치. 머리 칸을 누르면 순서가 바뀝니다.</p>
+        <div class="level" aria-hidden="true"><i style="left:66%"></i></div>
+      </div>
+      <div class="ledger-wrap" tabindex="0" role="region" aria-label="배급 장부 표, 옆으로 밀어 볼 수 있음">
+        <table class="ledger" id="ledgerT">
+          <caption>제4왕조쯤, 고원 남쪽 일꾼 마을 · 지어낸 숫자</caption>
+          <thead><tr>
+            <th scope="col" data-k="crew"><button type="button">조<svg aria-hidden="true"><use href="#ic-sort"/></svg></button></th>
+            <th scope="col" data-k="bread" aria-sort="descending"><button type="button">빵 (덩이)<svg aria-hidden="true"><use href="#ic-sort"/></svg></button></th>
+            <th scope="col" data-k="beer"><button type="button">맥주 (항아리)<svg aria-hidden="true"><use href="#ic-sort"/></svg></button></th>
+            <th scope="col" data-k="onion"><button type="button">양파 (묶음)<svg aria-hidden="true"><use href="#ic-sort"/></svg></button></th>
+            <th scope="col" data-k="blocks"><button type="button">올린 돌<svg aria-hidden="true"><use href="#ic-sort"/></svg></button></th>
+          </tr></thead>
+          <tbody id="ledgerB"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="wall" aria-hidden="true"><svg id="wall" viewBox="0 0 1600 150" preserveAspectRatio="xMidYMid slice"></svg></div>
+<footer class="foot">
+  <div class="wrap">
+    <b>Offcut</b>
+    <p>오프컷 · 피라미드를 짓고 남은 돌로. Bricolage Grotesque · Black Han Sans · IBM Plex Sans KR · IBM Plex Mono · Nanum Brush Script.</p>
+    <p>일꾼 마을, 빵과 맥주, 조 이름 낙서, 큐빗과 세켇은 실제로 알려진 것. 물건과 조 이름과 장부 숫자는 지어낸 것입니다.</p>
+    <a href="../">← 다른 디자인 시스템 둘러보기</a>
+  </div>
+</footer>
+
+<dialog class="slabdlg" id="dlg" aria-labelledby="dlgT">
+  <form method="dialog" class="dlg-in cut">
+    <h2 id="dlgT">반장 석판</h2>
+    <span class="brush" id="dlgSub">이대로 넘길까요?</span>
+    <ul class="dlg-list" id="dlgList"></ul>
+    <p id="dlgNote" style="font-size:16px"></p>
+    <div class="dlg-actions">
+      <button class="blk" value="cancel" type="submit"><span>그만두기</span></button>
+      <button class="blk blk--ochre" value="ok" type="submit" id="dlgOk"><span>넘기기</span></button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const NS = 'http://www.w3.org/2000/svg';
+  const RM = matchMedia('(prefers-reduced-motion: reduce)');
+  const mk = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const lerp = (P, Q, t) => [P[0] + (Q[0] - P[0]) * t, P[1] + (Q[1] - P[1]) * t];
+
+  /* ---------- sound (off by default): a copper chisel on limestone ---------- */
+  let soundOn = false, actx = null;
+  function tap(pitch = 1) {
+    if (!soundOn) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const t = actx.currentTime, len = Math.floor(actx.sampleRate * .06);
+      const buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+      const src = actx.createBufferSource(); src.buffer = buf;
+      const bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600 * pitch; bp.Q.value = 3;
+      const g = actx.createGain(); g.gain.setValueAtTime(.5, t); g.gain.exponentialRampToValueAtTime(.001, t + .08);
+      src.connect(bp).connect(g).connect(actx.destination); src.start(t);
+      const o = actx.createOscillator(), og = actx.createGain(); o.frequency.value = 1900 * pitch; o.type = 'triangle';
+      og.gain.setValueAtTime(.12, t); og.gain.exponentialRampToValueAtTime(.001, t + .14);
+      o.connect(og).connect(actx.destination); o.start(t); o.stop(t + .15);
+    } catch (e) { /* audio is optional */ }
+  }
+
+  /* ---------- toasts ---------- */
+  const toastBox = $('#toasts');
+  function toast(msg) {
+    const t = document.createElement('div'); t.className = 'toast';
+    t.innerHTML = '<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#mk-bread"/></svg>';
+    t.appendChild(document.createTextNode(msg));
+    toastBox.appendChild(t);
+    while (toastBox.children.length > 3) toastBox.firstChild.remove();
+    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), RM.matches ? 0 : 300); }, 5000);
+  }
+
+  /* ---------- stone chips fly when a block is struck ---------- */
+  const chipCol = { '': '#e9e1d0', granite: '#c98e7f', basalt: '#3d3834', ochre: '#c2532f' };
+  document.addEventListener('pointerdown', e => {
+    const b = e.target.closest('.blk'); if (!b || b.disabled) return;
+    tap(b.classList.contains('blk--basalt') ? .7 : b.classList.contains('blk--granite') ? .85 : 1);
+    if (RM.matches) return;
+    const kind = (b.className.match(/blk--(granite|basalt|ochre)/) || [, ''])[1];
+    const r = b.getBoundingClientRect();
+    for (let i = 0; i < 5; i++) {
+      const c = document.createElement('span'); c.className = 'chip-fly';
+      const side = i % 2 ? 1 : -1;
+      c.style.left = (side > 0 ? r.right - 6 : r.left) + 'px'; c.style.top = (r.top + 6 + Math.random() * 10) + 'px';
+      c.style.setProperty('--dx', (side * (14 + Math.random() * 30)) + 'px');
+      c.style.setProperty('--dy', (-10 - Math.random() * 26) + 'px');
+      c.style.setProperty('--r', (Math.random() * 360) + 'deg');
+      c.style.setProperty('--c', chipCol[kind]);
+      document.body.appendChild(c); setTimeout(() => c.remove(), 600);
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.key === ' ' || e.key === 'Enter') && e.target.classList && e.target.classList.contains('blk')) {
+      e.target.classList.add('is-down'); tap();
+    }
+  });
+  document.addEventListener('keyup', e => { if (e.target.classList) e.target.classList.remove('is-down'); });
+  $$('#btnRow .blk').forEach(b => b.addEventListener('click', () => toast(b.dataset.say)));
+
+  /* ---------- top cubit rod (basalt, digits / palms / cubits at 6px per digit) ---------- */
+  function drawRod() {
+    const svg = $('#rodTop'); const W = Math.max(window.innerWidth, 400); svg.setAttribute('viewBox', `0 0 ${W} 44`); svg.innerHTML = '';
+    const g = mk('g', {}, svg);
+    for (let x = 0, i = 0; x <= W; x += 6, i++) {
+      const palm = i % 4 === 0, cubit = i % 28 === 0;
+      mk('line', { x1: x + .5, x2: x + .5, y1: 0, y2: cubit ? 40 : palm ? 18 : 8, stroke: cubit ? '#c2532f' : '#e9e1d0', 'stroke-width': cubit ? 2 : 1, opacity: cubit ? 1 : palm ? .85 : .5 }, g);
+      if (palm && !cubit && i % 28 !== 4) { const t = mk('text', { x: x + 4, y: 32, fill: '#e9e1d0', 'font-size': 10, 'font-family': 'IBM Plex Mono, monospace', opacity: .75 }, g); t.textContent = (i % 28) / 4; }
+      if (cubit && i > 0) { const t = mk('text', { x: x + 5, y: 34, fill: '#c2532f', 'font-size': 13, 'font-family': 'IBM Plex Mono, monospace', 'font-weight': 600 }, g); t.textContent = (i / 28) + ' 큐빗'; }
+      if (i === 0) { const t = mk('text', { x: 5, y: 34, fill: '#c2532f', 'font-size': 13, 'font-family': 'IBM Plex Mono, monospace', 'font-weight': 600 }, g); t.textContent = '0'; }
+    }
+  }
+
+  /* ---------- course bands between sections ---------- */
+  const STONE = ['#f3eee3', '#ebe3d3', '#e2d8c3', '#cdb88f', '#d8c7a2', '#f3eee3', '#e9e1d0'];
+  function courseBand(host, seed, rows = 2, rowH = 22, W = 1600, marks = true) {
+    const R = rng(seed); const svg = mk('svg', { viewBox: `0 0 ${W} ${rows * rowH}`, preserveAspectRatio: 'xMinYMid slice' });
+    mk('rect', { x: 0, y: 0, width: W, height: rows * rowH, fill: '#a8916a' }, svg);
+    for (let r = 0; r < rows; r++) {
+      let x = -R() * 60; const y = r * rowH;
+      while (x < W) {
+        const w = 56 + R() * 110; const fill = STONE[Math.floor(R() * STONE.length)];
+        mk('rect', { x: x + 1.5, y: y + 1.5, width: Math.max(4, w - 3), height: rowH - 3, fill }, svg);
+        if (R() < .35) { const g = mk('g', { stroke: '#000', 'stroke-opacity': .15, 'stroke-width': 1.2, 'stroke-linecap': 'round' }, svg); const cx = x + w - 20 - R() * 10; for (let k = 0; k < 3 + (R() * 2 | 0); k++) mk('line', { x1: cx + k * 4, y1: y + rowH - 5, x2: cx + k * 4 + 5, y2: y + 6 }, g); }
+        if (marks && R() < .09) {
+          const pick = R();
+          if (pick < .4) { const g = mk('g', { stroke: '#a2381f', 'stroke-width': 2.4, 'stroke-linecap': 'round' }, svg); for (let k = 0; k < 4; k++) mk('line', { x1: x + 12 + k * 6, y1: y + 5, x2: x + 12 + k * 6, y2: y + rowH - 5 }, g); mk('line', { x1: x + 8, y1: y + rowH - 6, x2: x + 36, y2: y + 6 }, g); }
+          else if (pick < .7) { mk('line', { x1: x + 8, y1: y + rowH / 2, x2: x + w - 10, y2: y + rowH / 2, stroke: '#a2381f', 'stroke-width': 2 }, svg); mk('path', { d: `M${x + w / 2 - 5} ${y + rowH / 2} l5 -7 l5 7z`, fill: 'none', stroke: '#a2381f', 'stroke-width': 1.8 }, svg); }
+          else { const keys = ['mk-bread', 'mk-plumb', 'mk-wet', 'mk-gossip', 'mk-beer']; mk('use', { href: '#' + keys[Math.floor(R() * 5)], x: x + 10, y: y + 2, width: rowH - 4, height: rowH - 4, color: '#a2381f' }, svg); }
+        }
+        x += w;
+      }
+    }
+    host.appendChild(svg); return svg;
+  }
+  $$('.course').forEach(c => courseBand(c, +c.dataset.seed));
+
+  /* footer wall with crew graffiti */
+  (function wall() {
+    const svg = $('#wall'); const R = rng(91); const rowH = 30, W = 1600;
+    mk('rect', { x: 0, y: 0, width: W, height: 150, fill: '#a8916a' }, svg);
+    for (let r = 0; r < 5; r++) { let x = -R() * 80; const y = r * rowH; while (x < W) { const w = 80 + R() * 130; mk('rect', { x: x + 2, y: y + 2, width: w - 4, height: rowH - 4, fill: STONE[Math.floor(R() * STONE.length)] }, svg); if (R() < .3) { const g = mk('g', { stroke: '#000', 'stroke-opacity': .14, 'stroke-width': 1.3 }, svg); for (let k = 0; k < 4; k++) mk('line', { x1: x + w - 26 + k * 5, y1: y + rowH - 6, x2: x + w - 20 + k * 5, y2: y + 7 }, g); } x += w; } }
+    const write = (x, y, s, size, rot) => { const t = mk('text', { x, y, 'font-size': size, fill: '#a2381f', 'font-family': 'Nanum Brush Script', transform: `rotate(${rot} ${x} ${y})` }, svg); t.textContent = s; };
+    write(80, 64, '빵 먼저 조 다녀감', 40, -3); write(560, 112, '여기까지 수평 — 곧은 추 조', 34, 1); write(1090, 58, '맥주 한 잔 더!', 40, -5); write(1300, 128, '남은 돌은 공방으로', 30, 2);
+    mk('line', { x1: 420, y1: 90, x2: 1040, y2: 90, stroke: '#a2381f', 'stroke-width': 3 }, svg);
+    const g = mk('g', { stroke: '#a2381f', 'stroke-width': 4.5, 'stroke-linecap': 'round' }, svg);
+    for (let k = 0; k < 4; k++) mk('line', { x1: 880 + k * 12, y1: 20, x2: 880 + k * 12, y2: 66 }, g); mk('line', { x1: 870, y1: 60, x2: 926, y2: 26 }, g);
+    mk('use', { href: '#mk-wet', x: 470, y: 18, width: 50, height: 50, color: '#a2381f' }, svg);
+    mk('use', { href: '#mk-gossip', x: 1480, y: 20, width: 50, height: 50, color: '#a2381f' }, svg);
+  })();
+
+  /* ---------- hero: the plateau ---------- */
+  const scene = $('#scene');
+  function buildPyramid(sk) {
+    const gP = $('#gPyr'), gR = $('#gRamp'), gW = $('#gWalkers'); gP.innerHTML = ''; gR.innerHTML = ''; gW.innerHTML = '';
+    const hb = 300, cx = 560, by = 446, h = hb * 7 / sk;
+    const L = [cx - hb, by - 2], C = [cx + hb * .58, by + 6], Rr = [cx + hb * 1.02, by - 10], A = [cx + 46, by - h];
+    const tc = .27, tt = .63, n = 18;
+    // casing (finished, white Tura)
+    mk('polygon', { class: 'pf', points: pts([L, C, lerp(C, A, tc), lerp(L, A, tc)]) }, gP);
+    mk('polygon', { class: 'ps', points: pts([C, Rr, lerp(Rr, A, tc), lerp(C, A, tc)]) }, gP);
+    const R = rng(7);
+    const jg = mk('g', { stroke: '#8f7853', 'stroke-opacity': .35, 'stroke-width': 1 }, gP);
+    for (let k = 1; k < 5; k++) {
+      const t = tc * k / 5, t2 = tc * (k + 1) / 5;
+      mk('line', { x1: lerp(L, A, t)[0], y1: lerp(L, A, t)[1], x2: lerp(C, A, t)[0], y2: lerp(C, A, t)[1] }, jg);
+      mk('line', { x1: lerp(C, A, t)[0], y1: lerp(C, A, t)[1], x2: lerp(Rr, A, t)[0], y2: lerp(Rr, A, t)[1] }, jg);
+      for (let j = 0; j < 6; j++) { const f = .08 + j * .15 + R() * .05; const p0 = lerp(lerp(L, A, t), lerp(C, A, t), f); const p1 = lerp(lerp(L, A, t2), lerp(C, A, t2), f); mk('line', { x1: p0[0], y1: p0[1], x2: p1[0], y2: p1[1] }, jg); }
+    }
+    // stepped core courses (coarse local limestone, not yet cased)
+    for (let i = 0; i < n; i++) {
+      const t0 = tc + (tt - tc) * i / n, t1 = tc + (tt - tc) * (i + 1) / n;
+      const lf1 = lerp(L, A, t1), lf0 = lerp(L, A, t0), rt1 = lerp(Rr, A, t1), rt0 = lerp(Rr, A, t0);
+      mk('polygon', { class: i % 2 ? 'cf' : 'cf2', points: pts([[lf1[0], lf0[1]], lerp(C, A, t0), lerp(C, A, t1), lf1]) }, gP);
+      mk('polygon', { class: i % 2 ? 'cs' : 'cs2', points: pts([lerp(C, A, t0), [rt1[0], rt0[1]], rt1, lerp(C, A, t1)]) }, gP);
+    }
+    // ghost of what is still to come: casing line and the missing pyramidion
+    const tl = lerp(L, A, tt), tcn = lerp(C, A, tt), tr = lerp(Rr, A, tt);
+    mk('path', { d: `M${tl} L${A} L${tcn} M${A} L${tr} M${lerp(L, A, tc)} L${tl} M${lerp(Rr, A, tc)} L${tr}`, fill: 'none', stroke: '#a2381f', 'stroke-width': 2, 'stroke-dasharray': '7 6', opacity: .85 }, gP);
+    const lab = mk('text', { x: A[0] + 18, y: A[1] + 22, 'font-size': 28, fill: '#a2381f' }, gP); lab.textContent = '← 꼭대기: 아직';
+    // tiny people and an A-frame on the working level
+    const wg = mk('g', { fill: '#3d3834' }, gP);
+    [[.15, 0], [.32, 0], [.55, 0], [.78, 0]].forEach(([f]) => { const p = lerp(tl, tcn, f); mk('rect', { x: p[0] - 1.2, y: p[1] - 8, width: 2.4, height: 8 }, wg); mk('circle', { cx: p[0], cy: p[1] - 10, r: 1.9 }, wg); });
+    const af = lerp(tcn, tr, .4); mk('path', { d: `M${af[0] - 7} ${af[1]} L${af[0]} ${af[1] - 14} L${af[0] + 7} ${af[1]} M${af[0] - 4} ${af[1] - 5} H${af[0] + 4}`, stroke: '#5e3418', 'stroke-width': 1.6, fill: 'none' }, wg);
+    // mudbrick ramp up the left face
+    const T = lerp(L, A, tt - .01), G = [L[0] - 230, by + 6];
+    const body = [G, T, [T[0] + 26, T[1] + 6], [L[0] + 70, by + 6]];
+    $('#rampClipPoly').setAttribute('points', pts(body));
+    mk('polygon', { points: pts(body), fill: '#8b6a4c' }, gR);
+    const bg = mk('g', { 'clip-path': 'url(#rampClip)', stroke: '#6a4e37', 'stroke-width': 1.2, opacity: .6 }, gR);
+    for (let y = T[1] + 6; y < by + 6; y += 8) mk('line', { x1: G[0], y1: y, x2: L[0] + 120, y2: y }, bg);
+    mk('polygon', { points: pts([G, T, [T[0] + 8, T[1] + 4], [G[0] + 18, G[1]]]), fill: '#a5815f' }, gR);
+    // haulers: a block on a sledge, a water carrier, three on the rope
+    const ang = Math.atan2(T[1] - G[1], T[0] - G[0]) * 180 / Math.PI;
+    for (let k = 0; k < 4; k++) {
+      const w = mk('g', { class: 'walker' }, gW);
+      const p0 = [G[0] + 10, G[1] - 2], p1 = [T[0] - 2, T[1] - 2], pm = lerp(p0, p1, .25 + k * .17);
+      w.style.cssText = `--x0:${p0[0]}px;--y0:${p0[1]}px;--x1:${p1[0]}px;--y1:${p1[1]}px;--xm:${pm[0]}px;--ym:${pm[1]}px;animation-delay:${-k * 7.5}s`;
+      const inner = mk('g', { transform: `rotate(${ang})` }, w);
+      mk('rect', { x: -12, y: -9, width: 12, height: 8, fill: '#f3eee3', stroke: '#6a4e37', 'stroke-width': .8 }, inner);
+      mk('line', { x1: -14, y1: -1, x2: 2, y2: -1, stroke: '#5e3418', 'stroke-width': 1.6 }, inner);
+      mk('line', { x1: 0, y1: -3, x2: 22, y2: -3, stroke: '#7b5a30', 'stroke-width': .8 }, inner);
+      [8, 14, 20].forEach(x => { mk('rect', { x: x - .9, y: -10, width: 1.8, height: 7, fill: '#3d3834' }, inner); mk('circle', { cx: x, cy: -11.5, r: 1.5, fill: '#3d3834' }, inner); });
+      mk('rect', { x: -20, y: -10, width: 1.8, height: 7, fill: '#3d3834' }, inner); mk('circle', { cx: -19.1, cy: -11.5, r: 1.5, fill: '#3d3834' }, inner); mk('path', { d: 'M-18 -8 l4 -2 l1 3 z', fill: '#b5714a' }, inner);
+    }
+  }
+  function buildVillage() {
+    const g = $('#gVillage'); const R = rng(19);
+    for (let r = 0; r < 3; r++) {
+      let x = 868 + r * 14; const y = 470 + r * 22;
+      while (x < 1190) {
+        const w = 22 + R() * 22, hh = 12 + R() * 5;
+        mk('rect', { x, y: y - hh, width: w, height: hh, fill: r % 2 ? '#8b6a4c' : '#9a7656' }, g);
+        mk('rect', { x: x - 2, y: y - hh - 3, width: w + 4, height: 3.5, fill: '#b08b66' }, g);
+        if (R() < .7) mk('rect', { x: x + w * .4, y: y - 7, width: 4, height: 7, fill: '#3d2e22' }, g);
+        if (R() < .35) mk('rect', { class: 'lamp', x: x + w * .4 + .5, y: y - 6, width: 3, height: 5 }, g);
+        x += w + 4 + R() * 8;
+      }
+    }
+    [[1024, 446], [1112, 468], [940, 470]].forEach(([x, y], i) => {
+      mk('path', { class: 'smoke', d: `M${x} ${y} c-6 -10 6 -16 0 -26 c-6 -10 6 -16 0 -28`, fill: 'none', stroke: '#9b8d7c', 'stroke-width': 2.4, 'stroke-linecap': 'round', style: `animation-delay:${-i * 2.2}s` }, g);
+    });
+  }
+  function buildHeap() {
+    const g = $('#gHeap'); const R = rng(29); const cols = ['#f3eee3', '#ece4d4', '#cdb88f', '#d8c7a2', '#c98e7f', '#3d3834', '#b5714a', '#f3eee3', '#e2d8c3'];
+    const items = [];
+    for (let i = 0; i < 70; i++) {
+      const u = R() * 2 - 1, cx = 670 + u * 120 * (0.6 + R() * .4); const top = 548 - (1 - u * u) * 64; const y = top + R() * (562 - top);
+      items.push([cx, y, 6 + R() * 13]);
+    }
+    items.sort((a, b) => a[1] - b[1]).forEach(([x, y, s]) => {
+      const nv = 4 + (R() * 3 | 0), p = [];
+      for (let k = 0; k < nv; k++) { const a = k / nv * Math.PI * 2 + R() * .5; p.push([x + Math.cos(a) * s * (0.7 + R() * .5), y + Math.sin(a) * s * .6 * (0.7 + R() * .5)]); }
+      const fill = cols[Math.floor(R() * cols.length)];
+      mk('polygon', { points: pts(p), fill, stroke: '#5a4a38', 'stroke-width': .9, 'stroke-linejoin': 'round' }, g);
+      if (s > 14 && R() < .5) mk('path', { d: `M${x - 3} ${y + 3} l4 -6 M${x + 1} ${y + 4} l4 -6`, stroke: '#000', 'stroke-opacity': .2, 'stroke-width': 1 }, g);
+    });
+    // sign
+    mk('line', { x1: 812, y1: 560, x2: 812, y2: 494, stroke: '#5e3418', 'stroke-width': 4 }, g);
+    mk('polygon', { points: '760,476 872,470 876,500 764,506', fill: '#f7f2e8', stroke: '#4a3b2c', 'stroke-width': 1.6 }, g);
+    const t = mk('text', { x: 772, y: 497, 'font-size': 25, fill: '#a2381f', transform: 'rotate(-3 772 497)' }, g); t.textContent = '가져가도 됨';
+    // two workers carrying baskets home
+    [[560, 562], [592, 566]].forEach(([x, y], i) => {
+      const w = mk('g', { fill: '#3d3834' }, g);
+      mk('rect', { x: x - 2, y: y - 22, width: 4, height: 16 }, w); mk('circle', { cx: x, cy: y - 26, r: 3.4 }, w);
+      mk('path', { d: `M${x - 2} ${y - 6} l-4 9 M${x + 2} ${y - 6} l4 9`, stroke: '#3d3834', 'stroke-width': 2.4 }, w);
+      mk('path', { d: `M${x - 9} ${y - 36} h18 l-3 7 h-12 z`, fill: i ? '#c98e7f' : '#e2d8c3', stroke: '#5a4a38', 'stroke-width': .9 }, w);
+      mk('path', { d: `M${x - 2} ${y - 20} l-6 -10 M${x + 2} ${y - 20} l6 -10`, stroke: '#3d3834', 'stroke-width': 1.8 }, w);
+    });
+  }
+  buildVillage(); buildHeap(); buildPyramid(5.5);
+
+  /* ---------- segmented controls (radiogroup, arrows) ---------- */
+  function segInit(group, onChange) {
+    const btns = $$('[role="radio"]', group);
+    const pick = (b, focus) => { btns.forEach(x => { const on = x === b; x.setAttribute('aria-checked', on); x.tabIndex = on ? 0 : -1; }); if (focus) b.focus(); onChange(b.dataset.v); tap(.9); };
+    btns.forEach((b, i) => {
+      b.addEventListener('click', () => pick(b, false));
+      b.addEventListener('keydown', e => {
+        let j = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % btns.length;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + btns.length) % btns.length;
+        else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = btns.length - 1;
+        if (j !== null) { e.preventDefault(); pick(btns[j], true); }
+      });
+    });
+  }
+  const timeName = { dawn: '새벽 교대', noon: '한낮', dusk: '해질녘' };
+  let firstTime = true;
+  segInit($('[data-seg="time"]'), v => { scene.dataset.time = v; if (!firstTime) toast(timeName[v] + ' — ' + (v === 'dusk' ? '교대 끝. 남은 돌 줍는 시간.' : v === 'noon' ? '그늘이 없다. 맥주 한 모금.' : '모래가 아직 차갑다.')); });
+  firstTime = false;
+  const sample = $('#sampleBlk');
+  segInit($('[data-seg="mat"]'), v => { sample.classList.remove('blk--granite', 'blk--basalt'); if (v !== 'tura') sample.classList.add('blk--' + v); });
+  sample.addEventListener('click', () => toast('똑. 견본 돌을 두드렸습니다.'));
+
+  /* ---------- products ---------- */
+  const CREW = { bread: ['빵 먼저 조', 'mk-bread'], plumb: ['곧은 추 조', 'mk-plumb'], wet: ['모래 적시는 조', 'mk-wet'], gossip: ['왕의 수다 친구들', 'mk-gossip'], beer: ['맥주 한 잔 더 조', 'mk-beer'] };
+  const GOODS = [
+    { id: 'notepad', name: '부스러기 수첩', mat: ['lime', 'rope'], from: '투라 석회석 부스러기 12장 · 야자 밧줄', desc: '외장 돌 다듬다 떨어진 흰 조각. 먹이 잘 먹고, 다 쓰면 긁어내고 또 씁니다.', bread: 2, beer: 0, w: 9, crew: 'bread' },
+    { id: 'cubit', name: '한 큐빗 자', mat: ['wood'], from: '백향목 자투리 · 52.4 cm', desc: '7 손바닥, 28 손가락. 반장 자를 대고 그대로 옮겨 그었습니다. 끝이 탄 건 화로 옆에 둬서.', bread: 3, beer: 1, w: 6, crew: 'plumb' },
+    { id: 'plumb', name: '다림추 타이머', mat: ['lime', 'rope', 'wood'], from: '석회석 추 · 야자 끈 · 백향목 받침', desc: '한 번 밀면 맥주 반 잔 마실 동안 흔들립니다. 멈추면 다시 일하러.', bread: 0, beer: 1, w: 3, crew: 'plumb' },
+    { id: 'doorstop', name: '분홍 화강암 문버팀', mat: ['granite'], from: '아스완 화강암 끝동', desc: '석관 깎고 남은 귀퉁이. 돌레라이트로 두드린 자국 그대로. 곡식도 빻아집니다.', bread: 4, beer: 0, w: 40, crew: 'gossip' },
+    { id: 'pyramidion', name: '꼭대기 문진', mat: ['lime'], from: '투라 석회석 · 세켇 5½', desc: '진짜 꼭대기는 아직 안 올렸습니다. 연습으로 깎아 본 것 중 제일 잘된 것.', bread: 5, beer: 0, w: 14, crew: 'wet' },
+    { id: 'lamp', name: '맥주병 등잔', mat: ['clay', 'rope'], from: '깨진 맥주 항아리 · 아마포 심지', desc: '목이 깨진 항아리를 갈아 입구를 냈습니다. 기름 한 숟갈이면 저녁 한 끼 동안.', bread: 0, beer: 2, w: 5, crew: 'beer' },
+    { id: 'seat', name: '똬리 걸상', mat: ['rope'], from: '썰매 끌던 야자 밧줄 끝동', desc: '닳아서 끊긴 밧줄을 감아 꿰맸습니다. 앉으면 아직 젖은 모래 냄새.', bread: 6, beer: 0, w: 22, crew: 'wet' },
+    { id: 'buttons', name: '파랑 단추 여섯 알', mat: ['pigment'], from: '이집트 블루 · 구리 부스러기', desc: '안료 굽다 남은 덩이를 둥글게 갈았습니다. 하나는 이가 나갔는데, 그건 덤.', bread: 0, beer: 1, w: 1, crew: 'gossip' },
+    { id: 'sherds', name: '사금파리 셈칩', mat: ['clay'], from: '빵틀 · 맥주병 조각 20개', desc: '배급 셀 때, 내기할 때. 붉은 점은 빵, 검은 점은 맥주.', bread: 1, beer: 0, w: 4, crew: 'beer' },
+    { id: 'sledge', name: '썰매 쟁반', mat: ['wood'], from: '백향목 자투리 · 구리 못', desc: '큰 썰매를 줄인 것. 빵 네 덩이가 딱 올라갑니다. 젖은 모래 없이도 잘 미끄러져요.', bread: 3, beer: 0, w: 10, crew: 'bread' }
+  ];
+  const value = g => g.bread + g.beer * 2.5;
+  const priceHTML = g => {
+    let s = ''; for (let i = 0; i < g.bread; i++) s += '<svg aria-hidden="true"><use href="#ic-loaf"/></svg>'; for (let i = 0; i < g.beer; i++) s += '<svg aria-hidden="true"><use href="#ic-jar"/></svg>';
+    const txt = [g.bread ? `빵 ${g.bread}덩이` : '', g.beer ? `맥주 ${g.beer}항아리` : ''].filter(Boolean).join(', ');
+    return s + `<span class="vh">${txt}</span>`;
+  };
+  const grid = $('#goodsGrid');
+  grid.innerHTML = GOODS.map((g, i) => `
+    <article class="card cut" id="p-${g.id}" data-i="${i}">
+      <div class="card-pic"><svg viewBox="0 0 200 140" aria-hidden="true"><use href="#pr-${g.id}"/></svg><span class="card-no">№ ${String(i + 1).padStart(2, '0')}</span></div>
+      <h3>${g.name}</h3>
+      <p class="card-mat">${g.from}</p>
+      <p class="card-desc">${g.desc}</p>
+      <dl class="card-meta"><div><dt>값</dt><dd>${priceHTML(g)}</dd></div><div><dt>무게</dt><dd>${g.w} 데벤</dd></div></dl>
+      <div class="card-foot"><span class="crew"><svg aria-hidden="true"><use href="#${CREW[g.crew][1]}"/></svg>${CREW[g.crew][0]}</span><button class="blk blk--sm blk--basalt" type="button" data-add="${i}" aria-label="${g.name} 보따리에 담기"><span>보따리에</span></button></div>
+    </article>`).join('') + '<p class="empty" id="goodsEmpty" hidden><b>그 재료로 만든 건 아직 없어요</b>다른 사금파리를 눌러 보세요.</p>';
+  const cards = $$('.card', grid);
+  function renderGoods() {
+    const on = $$('#matChips .sherd[aria-pressed="true"]').map(b => b.dataset.mat);
+    const sort = $('#sortSel').value;
+    const order = GOODS.map((g, i) => i).sort((a, b) => {
+      const A = GOODS[a], B = GOODS[b];
+      if (sort === 'cheap') return value(A) - value(B); if (sort === 'dear') return value(B) - value(A);
+      if (sort === 'heavy') return B.w - A.w; if (sort === 'name') return A.name.localeCompare(B.name, 'ko'); return a - b;
+    });
+    let shown = 0;
+    order.forEach(i => { const g = GOODS[i], c = cards[i]; const vis = !on.length || g.mat.some(m => on.includes(m)); c.hidden = !vis; if (vis) shown++; grid.insertBefore(c, $('#goodsEmpty')); });
+    $('#goodsEmpty').hidden = shown > 0;
+    $('#goodsStatus').textContent = `물건 ${shown}개 보임`;
+  }
+  $$('#matChips .sherd').forEach(b => b.addEventListener('click', () => { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); tap(1.2); renderGoods(); }));
+  $('#sortSel').addEventListener('change', renderGoods);
+  renderGoods();
+
+  /* bag */
+  const bag = [];
+  function updBag() { $('#bagCount').textContent = bag.length; }
+  grid.addEventListener('click', e => { const b = e.target.closest('[data-add]'); if (!b) return; const g = GOODS[+b.dataset.add]; bag.push(g); updBag(); toast(`${g.name} — 보따리에 담았습니다.`); });
+
+  /* ---------- materials ---------- */
+  const MATS = [
+    ['투라 석회석', '--tura', '#f3eee3', '#cfc3ad', '외장용 고운 흰 돌. 강 건너 투라에서.'],
+    ['고원 석회석', '--core', '#cdb88f', '#8f7853', '속채움용. 거칠고 누렇다. 조개 화석이 박혀 있다.'],
+    ['아스완 화강암', '--granite', '#c98e7f', '#8e5a4f', '남쪽 아스완에서 배로. 방 천장과 석관.'],
+    ['현무암', '--basalt', '#2b2826', '#141210', '신전 바닥. 검고 무겁다. 글자색.'],
+    ['붉은 황토', '--ochre', '#a2381f', '#64200f', '조 이름, 수평선, 셈 막대. 표시는 이것만.'],
+    ['노란 황토', '--yellow', '#d4a03c', '#8a6420', '두 번째 표시색. 면적은 작게.'],
+    ['이집트 블루', '--blue', '#2357a3', '#14294f', '구리·모래·석회를 구운 안료. 손 닿은 곳만.'],
+    ['석고 반죽', '--gypsum', '#f7f4ec', '#d6c8aa', '돌 사이 줄눈. 가장 밝은 바탕.'],
+    ['진흙벽돌', '--mud', '#8b6a4c', '#6a4e37', '경사로와 마을 집.'],
+    ['백향목', '--cedar', '#9a5f36', '#5e3418', '배로 실어 온 귀한 나무. 자투리도 아낀다.'],
+    ['토기 조각', '--clay', '#b5714a', '#7a3f22', '빵틀과 맥주 항아리가 깨진 것.'],
+    ['아마포', '--linen', '#ebe2cd', '#bfae8c', '물건을 펼쳐 놓는 천.']
+  ];
+  $('#mats').innerHTML = MATS.map((m, i) => {
+    const R = rng(100 + i * 13); const p = []; const nv = 6 + (R() * 3 | 0);
+    for (let k = 0; k < nv; k++) { const a = k / nv * Math.PI * 2 - Math.PI / 2 + (R() - .5) * .4; p.push([84 + Math.cos(a) * (64 + R() * 14), 54 + Math.sin(a) * (40 + R() * 8)]); }
+    const bed = p.map(q => [q[0] + 4, q[1] + 6]);
+    let marks = '';
+    if (i === 2) marks = '<g fill="#2b2826"><circle cx="60" cy="48" r="2"/><circle cx="96" cy="66" r="1.6"/><circle cx="112" cy="40" r="2.2"/><circle cx="76" cy="74" r="1.4"/></g><g fill="#f7f2e8"><circle cx="86" cy="50" r="1.5"/><circle cx="104" cy="58" r="1.3"/></g>';
+    else if (i < 4 || i === 7) marks = `<g stroke="${i === 3 ? '#fff' : '#000'}" stroke-opacity=".2" stroke-width="1.4" stroke-linecap="round"><path d="M104 80 l10 -20 M112 82 l10 -20 M120 82 l9 -18"/></g>`;
+    else if (i === 4) marks = '<g stroke="#f3eee3" stroke-width="3" stroke-linecap="round"><path d="M64 38v34M74 38v34M84 38v34M94 38v34M58 66 L100 42"/></g>';
+    else if (i === 9) marks = '<g stroke="#5e3418" stroke-width="1.2" fill="none"><path d="M30 46 C70 40 110 52 140 44"/><path d="M28 60 C70 56 110 66 142 58"/></g>';
+    else if (i === 8) marks = '<g stroke="#6a4e37" stroke-width="1.2"><path d="M30 44 H140 M28 64 H142 M70 44 V64 M110 64 V84 M50 64 V84"/></g>';
+    return `<div class="mat"><svg viewBox="0 0 168 112" aria-hidden="true"><polygon points="${pts(bed)}" fill="${m[3]}"/><polygon points="${pts(p)}" fill="${m[2]}" stroke="#26221f" stroke-width="1.4" stroke-linejoin="round"/>${marks}</svg><h3>${m[0]}</h3><code>${m[1]} ${m[2]}</code><p>${m[4]}</p></div>`;
+  }).join('');
+
+  /* rule rod */
+  (function () { const g = $('#ruleRod'); for (let i = 0; i <= 56; i++) { const x = i * 6; const palm = i % 4 === 0, cub = i % 28 === 0; mk('line', { x1: x, x2: x, y1: 12, y2: cub ? 38 : palm ? 28 : 18, stroke: cub ? '#a2381f' : '#f3eee3', 'stroke-width': cub ? 2.4 : 1 }, g); } })();
+
+  /* ---------- switches ---------- */
+  function swInit(btn, onChange) { btn.addEventListener('click', () => { const on = btn.getAttribute('aria-checked') !== 'true'; btn.setAttribute('aria-checked', on); onChange(on); }); }
+  swInit($('#swWet'), on => { $('#swWetS').textContent = on ? '젖은 모래 · 힘이 절반' : '마른 모래 · 끌기 무거움'; toast(on ? '모래에 물을 부었습니다. 썰매가 미끄러집니다.' : '모래가 말랐습니다.'); });
+  swInit($('#swSound'), on => { soundOn = on; $('#swSoundS').textContent = on ? '켜짐 · 끌로 두드리는 소리' : '꺼짐 · 조용한 공방'; if (on) tap(1); });
+
+  /* ---------- tally checkboxes ---------- */
+  const boxes = $$('#tallies input');
+  function tallyDraw() {
+    const n = boxes.filter(b => b.checked).length; const svg = $('#tallySvg'); svg.innerHTML = '';
+    const g = mk('g', { stroke: 'currentColor', 'stroke-width': 4.5, 'stroke-linecap': 'round' }, svg);
+    for (let i = 0; i < Math.min(n, 4); i++) mk('line', { x1: 8 + i * 12, y1: 4, x2: 8 + i * 12, y2: 36 }, g);
+    if (n === 5) mk('line', { x1: 2, y1: 32, x2: 52, y2: 8 }, g);
+    if (n === 0) mk('line', { x1: 4, y1: 20, x2: 30, y2: 20, 'stroke-dasharray': '3 6', opacity: .5 }, g);
+    const words = ['하나도 없음', '하나', '둘', '셋', '넷', '다섯 다'];
+    $('#tallyTxt').textContent = n === 5 ? '다섯 다 받음 — 한 묶음' : `다섯 중 ${words[n]}`;
+  }
+  boxes.forEach(b => b.addEventListener('change', () => { tallyDraw(); if (b.checked) tap(1.1); }));
+  tallyDraw();
+
+  /* ---------- seked radios ---------- */
+  const SK = [[5.25, '두 번째 피라미드'], [5.5, '큰 피라미드'], [7, '반듯한 반반'], [7.5, '붉은 피라미드쯤']];
+  const deg = s => Math.atan(7 / s) * 180 / Math.PI;
+  const frac = s => ({ 5.25: '5¼', 5.5: '5½', 7: '7', 7.5: '7½' })[s];
+  $('#skOpts').innerHTML = SK.map(([s, n]) => { const run = 20 * s / 7; return `<label class="sk"><input class="vh" type="radio" name="sk" value="${s}" ${s === 5.5 ? 'checked' : ''}><span class="sk-face"><svg viewBox="0 0 64 44" aria-hidden="true"><polygon points="${32 - run},40 ${32 + run},40 32,${40 - 20 * 1.6}"/></svg><b>${frac(s)}</b><small>${deg(s).toFixed(1)}°</small><span class="vh">손바닥, ${n}</span></span></label>`; }).join('');
+  function skApply(s, announce) {
+    document.documentElement.style.setProperty('--sk', s);
+    const svg = $('#skBig'); svg.innerHTML = ''; const H = 84, run = H * s / 7;
+    mk('polygon', { points: `${60 - run},90 ${60 + run},90 60,6`, fill: '#f3eee3', stroke: '#26221f', 'stroke-width': 1.6, 'stroke-linejoin': 'round' }, svg);
+    mk('polygon', { points: `60,90 ${60 + run},90 60,6`, fill: '#cdb88f', stroke: '#26221f', 'stroke-width': 1.6, 'stroke-linejoin': 'round' }, svg);
+    mk('path', { d: `M60 6 V90 H${60 + run}`, fill: 'none', stroke: '#a2381f', 'stroke-width': 2.4, 'stroke-dasharray': '4 3' }, svg);
+    const name = SK.find(x => x[0] === s)[1];
+    $('#skTxt').innerHTML = `<strong>${frac(s)} 손바닥 · ${deg(s).toFixed(2)}°</strong>${name}. 7 손바닥 오를 때 옆으로 ${frac(s)} 손바닥.`;
+    buildPyramid(s);
+    if (announce) toast(`세켇 ${frac(s)} — 모든 모서리를 다시 깎았습니다.`);
+  }
+  $$('#skOpts input').forEach(r => r.addEventListener('change', () => { skApply(+r.value, true); tap(.8); }));
+  skApply(5.5, false);
+
+  /* ---------- tabs ---------- */
+  const tabs = $$('[role="tab"]');
+  function selTab(t, focus) { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); if (focus) t.focus(); tap(1.3); }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => selTab(t, false));
+    t.addEventListener('keydown', e => { let j = null; if (e.key === 'ArrowRight') j = (i + 1) % tabs.length; else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length; else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = tabs.length - 1; if (j !== null) { e.preventDefault(); selTab(tabs[j], true); } });
+  });
+
+  /* ---------- cubit range ---------- */
+  (function () {
+    const svg = $('#cubitSvg'); const W = 280, dw = W / 28;
+    for (let p = 0; p < 7; p++) mk('rect', { x: p * 4 * dw, y: 0, width: 4 * dw, height: 34, fill: p % 2 ? '#9a5f36' : '#b27445' }, svg);
+    for (let i = 0; i <= 28; i++) { const x = i * dw; const palm = i % 4 === 0; mk('line', { x1: x, x2: x, y1: 0, y2: palm ? 34 : 10, stroke: '#3a2210', 'stroke-width': palm ? 1.6 : 1, 'vector-effect': 'non-scaling-stroke' }, svg); }
+  })();
+  const rr = $('#rng');
+  function rngUpd() {
+    const v = +rr.value, p = Math.floor(v / 4), d = v % 4, cm = (v * 52.4 / 28).toFixed(1);
+    const words = (p ? p + ' 손바닥' : '') + (p && d ? ' ' : '') + (d ? d + ' 손가락' : '') || '0';
+    rr.setAttribute('aria-valuetext', `${words}, ${cm} 센티미터`);
+    $('#rngOut').innerHTML = `<b>${words}</b><span>= ${v} 손가락 · ${cm} cm · ${(v / 28).toFixed(2)} 큐빗</span>`;
+    const wrapW = rr.getBoundingClientRect().width - 30;
+    $('#cubitLine').style.width = (wrapW * v / 28) + 'px';
+  }
+  rr.addEventListener('input', () => { rngUpd(); if (+rr.value % 4 === 0) tap(1.4); });
+  rngUpd();
+
+  /* ---------- form + dialog ---------- */
+  const dlg = $('#dlg'); let dlgMode = 'demo';
+  function openDlg(mode, title, sub, rows, note) {
+    dlgMode = mode; $('#dlgT').textContent = title; $('#dlgSub').textContent = sub;
+    $('#dlgList').innerHTML = rows.map(r => `<li><span>${r[0]}</span><span class="mono">${r[1]}</span></li>`).join('');
+    $('#dlgNote').textContent = note || '';
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+  dlg.addEventListener('close', () => {
+    if (dlg.returnValue !== 'ok') return;
+    if (dlgMode === 'form') { toast('쪽지를 반장에게 넘겼습니다. 답은 내일 교대 때.'); $('#noteForm').reset(); }
+    else if (dlgMode === 'bag') { toast(`보따리 ${bag.length}개를 챙겼습니다. 집으로!`); bag.length = 0; updBag(); }
+    else toast('석판을 확인했습니다.');
+  });
+  const esc = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  $('#noteForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('#fName'), pay = $('#fPay'); let ok = true;
+    const nOk = name.value.trim().length > 0; name.setAttribute('aria-invalid', !nOk); $('#fNameErr').classList.toggle('on', !nOk);
+    const pv = pay.value.trim(); const pOk = pv === '' || (/^\d{1,2}$/.test(pv) && +pv >= 1);
+    pay.setAttribute('aria-invalid', !pOk); $('#fPayErr').classList.toggle('on', !pOk);
+    ok = nOk && pOk;
+    if (!ok) { (nOk ? pay : name).focus(); toast('쪽지에 빠진 게 있습니다.'); return; }
+    const crew = $('#fCrew'); const memo = $('#fMemo').value.trim();
+    openDlg('form', '쪽지 확인', '이대로 넘길까요?', [['이름', esc(name.value.trim())], ['조', esc(crew.options[crew.selectedIndex].text)], ['내는 것', pv ? '빵 ' + pv + '덩이' : '나중에']], memo ? '메모: ' + memo : '');
+  });
+  $('#noteForm').addEventListener('reset', () => { ['fName', 'fPay'].forEach(id => $('#' + id).removeAttribute('aria-invalid')); $$('.err').forEach(x => x.classList.remove('on')); });
+  $('#openDlg').addEventListener('click', () => openDlg('demo', '반장 석판', '오늘 몫 확인', [['올린 돌', '11 덩이'], ['남은 조각', '3 바구니'], ['맥주', '2 항아리']], 'Esc 를 누르거나 그만두기를 누르면 닫힙니다.'));
+  $('#bagBtn').addEventListener('click', () => {
+    if (!bag.length) { openDlg('empty', '보따리', '아직 비었습니다', [], '천 위의 물건에서 “보따리에”를 눌러 담으세요.'); return; }
+    const b = bag.reduce((s, g) => s + g.bread, 0), j = bag.reduce((s, g) => s + g.beer, 0);
+    openDlg('bag', '보따리', '이만큼 챙길까요?', bag.map(g => [g.name, (g.bread ? '빵 ' + g.bread : '') + (g.bread && g.beer ? ' · ' : '') + (g.beer ? '맥주 ' + g.beer : '')]).concat([['합계', `빵 ${b} · 맥주 ${j}`]]));
+  });
+  $('#toastBtn').addEventListener('click', () => { const m = ['곧은 추 조: 오늘 수평 한 번에 맞춤.', '빵집에서 새 빵 나왔습니다.', '경사로 셋째 굽이 진흙 보수 중.', '맥주 한 잔 더 조가 또 늦었습니다.']; toast(m[Math.floor(Math.random() * m.length)]); });
+
+  /* ---------- progress: courses ---------- */
+  let courses = 120;
+  function buildDraw(fresh) {
+    const svg = $('#buildSvg'); svg.innerHTML = '';
+    mk('rect', { x: 0, y: 150, width: 300, height: 20, fill: '#cdb486' }, svg);
+    const sk = +getComputedStyle(document.documentElement).getPropertyValue('--sk') || 5.5;
+    const rows = 21, base = 130, H = Math.min(140, base * 7 / sk), rh = H / rows, cx = 150, by = 150;
+    const done = Math.round(courses / 10);
+    for (let i = 0; i < rows; i++) {
+      const y0 = by - i * rh, y1 = y0 - rh, w0 = base * (1 - i / rows), w1 = base * (1 - (i + 1) / rows);
+      const cls = i < done ? (i < 6 ? 'row-cased' : 'row-done') : 'row-todo';
+      const p = mk('polygon', { class: cls + (fresh && i === done - 1 ? ' row-new' : ''), points: pts([[cx - w0, y0], [cx + w0, y0], [cx + w1, y1], [cx - w1, y1]]) }, svg);
+    }
+    if (done > 0 && done < rows) { const ty = by - done * rh, tx = cx - base * (1 - done / rows); mk('polygon', { points: pts([[8, by], [tx, ty], [tx + 6, ty], [tx + 30, by]]), fill: '#8b6a4c' }, svg); }
+    const n = Math.round(courses * .1);
+    for (let i = 0; i < Math.min(n, 21); i++) mk('rect', { x: 250 + (i % 7) * 6, y: 144 - Math.floor(i / 7) * 5, width: 5, height: 4, fill: ['#f3eee3', '#cdb88f', '#c98e7f'][i % 3], stroke: '#8f7853', 'stroke-width': .5 }, svg);
+    const bar = $('#buildBar'); bar.setAttribute('aria-valuenow', courses); bar.setAttribute('aria-valuetext', `210단 중 ${courses}단`);
+    $('#buildNum').textContent = `${courses} / 210단`; $('#buildChips').textContent = n;
+  }
+  $('#buildUp').addEventListener('click', () => { if (courses >= 210) { toast('다 올렸습니다. 이제 꼭대기만 남았어요.'); return; } courses = Math.min(210, courses + 10); buildDraw(true); if (courses === 210) toast('210단 완성! 남은 돌이 산더미입니다.'); });
+  $('#buildReset').addEventListener('click', () => { courses = 0; buildDraw(false); toast('처음부터. 채석장으로.'); });
+  buildDraw(false);
+  $$('#skOpts input').forEach(r => r.addEventListener('change', () => buildDraw(false)));
+
+  /* ---------- steps ---------- */
+  const STEPS = [
+    ['채석장', '구리 끌로 홈을 파고 나무 쐐기를 박아 떼어 냅니다. 고원 석회석은 바로 옆에서, 흰 외장 돌은 강 건너 투라에서.', 'translate(70px, 62px)'],
+    ['썰매', '썰매에 싣고 밧줄로 끕니다. 앞사람이 모래에 물을 부으면 마찰이 절반으로.', 'translate(240px, 104px)'],
+    ['경사로', '진흙벽돌과 돌 부스러기로 쌓은 경사로를 오릅니다. 부스러기는 여기서도 쓰입니다.', 'translate(420px, 74px) rotate(-22deg)'],
+    ['앉히기', '석고 반죽을 얇게 깔고 다림추와 A자 수평기로 맞춰 앉힙니다. 다듬고 남은 조각이 공방으로 갑니다.', 'translate(581px, 42px)']
+  ];
+  let step = 0; const lis = $$('#steps li');
+  function stepUpd(sayIt) {
+    lis.forEach((li, i) => { li.classList.toggle('done', i < step); if (i === step) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
+    $('#mover').style.transform = STEPS[step][2];
+    $('#stepDesc').textContent = `${step + 1}/4 · ${STEPS[step][0]} — ${STEPS[step][1]}`;
+    $('#stepPrev').disabled = step === 0; $('#stepNext').querySelector('span').textContent = step === 3 ? '다시 채석장 →' : '다음 →';
+  }
+  $('#stepPrev').addEventListener('click', () => { if (step > 0) { step--; stepUpd(); } });
+  $('#stepNext').addEventListener('click', () => { step = step === 3 ? 0 : step + 1; stepUpd(); if (step === 3) toast('제자리에 앉혔습니다. 남은 조각 한 바구니.'); });
+  stepUpd();
+
+  /* ---------- accordion ---------- */
+  $$('.acc-btn').forEach(b => b.addEventListener('click', () => { const on = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', on); $('#' + b.getAttribute('aria-controls')).hidden = !on; tap(1.2); }));
+
+  /* ---------- ledger ---------- */
+  const LEDGER = [
+    { crew: 'bread', bread: 200, beer: 40, onion: 30, blocks: 58 },
+    { crew: 'plumb', bread: 180, beer: 36, onion: 22, blocks: 64 },
+    { crew: 'wet', bread: 190, beer: 44, onion: 25, blocks: 71 },
+    { crew: 'gossip', bread: 210, beer: 52, onion: 34, blocks: 39 },
+    { crew: 'beer', bread: 175, beer: 60, onion: 20, blocks: 47 }
+  ];
+  let sortK = 'bread', sortDir = -1;
+  function ledgerDraw() {
+    const rows = LEDGER.slice().sort((a, b) => sortK === 'crew' ? sortDir * CREW[a.crew][0].localeCompare(CREW[b.crew][0], 'ko') : sortDir * (a[sortK] - b[sortK]));
+    const max = { bread: 210, beer: 60, onion: 34, blocks: 71 };
+    $('#ledgerB').innerHTML = rows.map(r => `<tr><th scope="row"><span class="crew"><svg aria-hidden="true"><use href="#${CREW[r.crew][1]}"/></svg>${CREW[r.crew][0]}</span></th>${['bread', 'beer', 'onion', 'blocks'].map(k => `<td class="n">${k === sortK ? `<span class="bar" style="width:${Math.round(40 * r[k] / max[k])}px" aria-hidden="true"></span>` : ''}${r[k]}</td>`).join('')}</tr>`).join('');
+    $$('#ledgerT thead th').forEach(th => { if (th.dataset.k === sortK) th.setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending'); else th.removeAttribute('aria-sort'); });
+  }
+  $$('#ledgerT thead th').forEach(th => th.querySelector('button').addEventListener('click', () => { const k = th.dataset.k; if (sortK === k) sortDir = -sortDir; else { sortK = k; sortDir = k === 'crew' ? 1 : -1; } ledgerDraw(); tap(1.1); }));
+  ledgerDraw();
+
+  /* ---------- resize ---------- */
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { drawRod(); rngUpd(); }, 120); });
+  drawRod();
+})();
+</script>
+<script src="../systems-nav.js?v=20261101e" defer></script>
+</body>
+</html>

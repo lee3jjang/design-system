@@ -182,8 +182,9 @@ a.slat:hover, button.slat:hover, .slat.is-live:hover { transform: rotate(-.9deg)
 .brand { display: inline-flex; align-items: baseline; gap: 8px; flex: none; text-decoration: none; color: var(--ink); }
 .brand b { font: 700 25px/1 var(--f-slab); letter-spacing: .01em; }
 .brand span { font: 400 15px/1 var(--f-ko); color: var(--ink-2); }
-.top__nav { flex: 1; min-width: 0; display: flex; gap: 2px; justify-content: flex-end; overflow-x: auto; scrollbar-width: none; }
+.top__nav { flex: 1; min-width: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
 .top__nav::-webkit-scrollbar { display: none; }
+.top__nav a:first-child { margin-left: auto; }
 .top__nav a { flex: none; display: grid; place-items: center; min-height: 44px; padding: 0 10px; color: var(--ink); text-decoration: none; font-size: 16px; border-radius: 3px;
   background: linear-gradient(100deg, transparent 3px, var(--hl-lemon) 7px calc(100% - 7px), transparent calc(100% - 3px)) no-repeat 0 66%/0% 52%; transition: background-size .4s var(--ease); }
 .top__nav a:hover, .top__nav a[aria-current="true"] { background-size: 100% 52%; }
@@ -696,6 +697,7 @@ legend { padding: 0; margin-bottom: 10px; }
   .cline input { font-size: 20px; }
   .hero__noir h1 { margin-top: 30px; }
 }
+@media (max-width: 600px) { .side .side__foot { padding-bottom: 84px; } }
 /* ================= Overlays ================= */
 dialog { padding: 0; border: 0; background: transparent; color: var(--ink); width: 100%; max-width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; overflow-x: hidden; }
 dialog::backdrop { background: rgba(31,26,18,.62); backdrop-filter: blur(2px); }

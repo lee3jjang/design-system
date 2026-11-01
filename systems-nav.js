@@ -1,4 +1,4 @@
-/* Design-system switcher: a small tab on the left edge that opens a sidebar listing every system.
+/* Design-system switcher: a hamburger button (bottom-left) that opens a sidebar listing every system.
    Self-contained (Shadow DOM) so it never inherits or leaks styles from the page it sits on.
    Include on any page with: <script src="../systems-nav.js" defer></script> (or "systems-nav.js" at the root). */
 (() => {
@@ -34,12 +34,13 @@
 <style>
   :host { all: initial; }
   * { box-sizing: border-box; }
-  .tab { position: fixed; left: 0; top: 50%; z-index: 2147483000; transform: translateY(-50%); display: grid; place-items: center; gap: 6px; width: 34px; padding: 12px 0; border: 0; border-radius: 0 10px 10px 0; cursor: pointer;
-    background: #17161a; color: #f4f1ea; font: 600 12px/1 system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; letter-spacing: .08em; box-shadow: 0 6px 18px rgba(0,0,0,.35); writing-mode: vertical-rl; }
-  .tab:hover { background: #2a2830; }
-  .tab:focus-visible { outline: 3px solid #ffb84d; outline-offset: 2px; }
-  .tab i { writing-mode: horizontal-tb; display: grid; grid-template-columns: repeat(2, 6px); gap: 3px; }
-  .tab i b { width: 6px; height: 6px; border-radius: 2px; background: currentColor; opacity: .8; }
+  /* hamburger: a round button floating at the bottom-left, clear of every page's own header */
+  .tab { position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); z-index: 2147483000; display: grid; place-items: center; width: 54px; height: 54px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+    background: #17161a; color: #f4f1ea; box-shadow: 0 0 0 2px rgba(244,241,234,.9), 0 8px 22px rgba(0,0,0,.4); transition: transform .15s; }
+  .tab:hover { background: #2a2830; transform: scale(1.06); }
+  .tab:focus-visible { outline: 3px solid #ffb84d; outline-offset: 4px; }
+  .tab i { display: grid; gap: 5px; width: 22px; }
+  .tab i b { display: block; height: 2.5px; border-radius: 2px; background: currentColor; }
   .scrim { position: fixed; inset: 0; z-index: 2147483001; background: rgba(10,10,12,.45); opacity: 0; pointer-events: none; transition: opacity .2s; }
   .panel { position: fixed; left: 0; top: 0; bottom: 0; z-index: 2147483002; width: min(320px, 88vw); display: grid; grid-template-rows: auto 1fr auto; background: #17161a; color: #f4f1ea;
     font: 400 15px/1.4 system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; transform: translateX(-102%); transition: transform .25s cubic-bezier(.2,.8,.2,1); box-shadow: 10px 0 30px rgba(0,0,0,.4); visibility: hidden; }
@@ -66,7 +67,7 @@
   kbd { font: inherit; padding: 1px 5px; border-radius: 4px; background: #26242c; color: #d8d4de; }
   @media (prefers-reduced-motion: reduce) { .panel, .scrim { transition: none; } }
 </style>
-<button class="tab" type="button" aria-label="디자인 시스템 목록 열기" aria-expanded="false" aria-controls="dsn-panel"><i aria-hidden="true"><b></b><b></b><b></b><b></b></i>SYSTEMS</button>
+<button class="tab" type="button" aria-label="디자인 시스템 목록 열기" aria-expanded="false" aria-controls="dsn-panel"><i aria-hidden="true"><b></b><b></b><b></b></i></button>
 <div class="scrim" part="scrim"></div>
 <aside class="panel" id="dsn-panel" role="dialog" aria-modal="true" aria-label="디자인 시스템 목록">
   <div class="head"><div><b>디자인 시스템</b><small>${SYSTEMS.length}개 · 다른 시스템으로 이동</small></div><button class="x" type="button" aria-label="닫기">✕</button></div>

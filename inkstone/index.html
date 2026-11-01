@@ -1,0 +1,1107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inkstone 묵판 디자인 시스템</title>
+<meta name="description" content="Sansa · Dal · Riso에서 요소마다 무작위로 출처를 뽑아 원본 그대로 떼어 와 한 장에 억지로 붙인 크로스오버 디자인 시스템">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@500;700;900&family=Hahmlet:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+/* Inkstone (묵판): a forced crossover.
+   Every element was assigned a parent system at random (Sansa, Dal or Riso) and lifted from that parent's file as-is.
+   The only glue: source prefixes on variables (--r-* Riso, --d-* Dal; Sansa owns the unprefixed palette),
+   a few class renames so the parents don't overwrite each other, Sansa easing for every motion, Dal's cobalt ring for every focus. */
+:root {
+  color-scheme: light;
+  /* palette: SANSA (page owner) */
+  --hanji: #f3eee2; --hanji-2: #e9e2d2; --hanji-3: #d9cfba; --mist: #e4e3dc;
+  --wood: #8a6f55; --wood-d: #5b4534; --wood-l: #b59c7e; --wood-xl: #d6c4a8;
+  --noerok: #4f7a68; --noerok-d: #355a4b; --noerok-l: #8db3a1; --noerok-wash: #dfeae3;
+  --ganju: #8e3b2a; --ganju-d: #64261a; --ganju-l: #b85e48; --ganju-wash: #f2ddd5;
+  --ochre: #c49a4a; --ochre-l: #e6c98a; --gunjeong: #2f4a7a; --lotus: #d98c9f; --lotus-l: #f3cdd6;
+  --stone: #9c9c95; --stone-d: #6e6e68; --stone-l: #c9c8c0; --moss: #7d8f5a;
+  --bronze: #6f6a4a; --bronze-l: #9f9a70; --bronze-d: #45412c;
+  --ink: #2b2621; --ink-2: #554b40; --ink-3: #75695b;
+  --band: linear-gradient(var(--noerok-d) 0 2px, var(--noerok) 2px 6px, #f3eee2 6px 7px, var(--gunjeong) 7px 10px, #f3eee2 10px 11px, var(--ganju) 11px 14px, var(--ochre) 14px 15px, var(--noerok) 15px 19px, var(--noerok-d) 19px);
+  /* motion: SANSA, for everyone */
+  --slow: cubic-bezier(.25,.8,.3,1); --settle: cubic-bezier(.3,1.35,.5,1);
+  /* fonts: RISO (page owner) */
+  --font-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-serif: "Noto Serif KR", "AppleMyungjo", "Batang", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  /* fonts that came along with lifted parts */
+  --s-title: "Hahmlet", "Nanum Myeongjo", serif; --s-font: "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
+  --d-title: "Song Myung", "Gowun Batang", serif; --d-serif: "Gowun Batang", "Batang", serif; --d-sans: "Gowun Dodum", "Apple SD Gothic Neo", system-ui, sans-serif;
+  /* RISO inks, prefixed */
+  --r-paper: #f2ede2; --r-paper-2: #e9e2d3; --r-paper-3: #ddd4c1; --r-sheet: #fbf8f1;
+  --r-ink: #1b1a17; --r-ink-2: #48443c; --r-ink-3: #6d675b;
+  --r-blue: #2c4fa0; --r-blue-ink: #223f82; --r-blue-wash: #d9deec;
+  --r-pink: #ff4fa7; --r-pink-ink: #c4246f; --r-pink-wash: #fbd9e8;
+  --r-yellow: #ffd93b; --r-yellow-wash: #fbf0b8; --r-green: #2f7d5b; --r-green-wash: #d6eadf; --r-red: #c8321e; --r-red-wash: #f6d9d2;
+  --r-rule: #1b1a17; --r-rule-soft: #c9c0ad; --r-rule-w: 2px;
+  --mis-x: 3px; --mis-y: 2px; --mis-hover-x: 5px; --mis-hover-y: 4px; --radius: 0px;
+  --dur: .45s; /* riso was .14s; sansa motion slows it */
+  --dots: radial-gradient(circle, currentColor 1.1px, transparent 1.3px);
+  /* DAL porcelain, prefixed */
+  --d-hanji: #f3eee2; --d-hanji-2: #e9e1cf; --d-hanji-3: #dcd1b9;
+  --d-glaze: #fcfbf6; --d-glaze-2: #eeede6; --d-glaze-edge: #c9c8bd;
+  --d-cobalt: #24418f; --d-cobalt-deep: #142a63; --d-cobalt-wash: #dfe5f2; --d-cobalt-soft: #7f95c8;
+  --d-jinsa: #a5302a; --d-jinsa-deep: #6e1c17; --d-jinsa-wash: #f5ddd7;
+  --d-wood: #6e4527; --d-wood-deep: #3f2513; --d-wood-light: #a2703f; --d-wood-grain: #5c381e;
+  --d-brass: #c79a3c; --d-brass-deep: #7f5c1b; --d-brass-light: #efd48a;
+  --d-ink: #221d17; --d-ink-2: #4d453a; --d-ink-3: #6f6657;
+  --d-pine: #3c7354; --d-pine-wash: #dcebe1; --d-amber: #a86a12; --d-amber-wash: #f6e7c8;
+  --depth: 5px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--hanji); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
+/* page background: SANSA (mist to hanji); type: RISO */
+body { margin: 0; color: var(--ink); font: 400 16.5px/1.7 var(--font-sans); word-break: keep-all; -webkit-font-smoothing: antialiased;
+  background: linear-gradient(var(--mist), var(--hanji) 700px) no-repeat, var(--hanji); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--noerok-d); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+code { font: 500 .86em var(--font-mono); background: var(--hanji-2); padding: 1px 5px; }
+.wrap { position: relative; max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* focus: DAL, for everyone */
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--d-cobalt); outline-offset: 4px; border-radius: 6px; }
+
+/* ---- lifted from sansa: eave nav ---- */
+/* ---------- Eave + nav ---------- */
+.eave { position: sticky; top: 0; z-index: 40; }
+.eave__roof { height: 16px; background: repeating-linear-gradient(90deg, #4a4a48 0 9px, #3a3a38 9px 12px); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); border-bottom: 2px solid #2e2e2c; }
+.eave__beam { height: 19px; background: var(--band); box-shadow: 0 3px 10px rgba(43,38,33,.18); }
+.eave__bar { background: rgba(243,238,226,.94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--hanji-3); }
+.eave__bar .wrap { display: flex; align-items: center; gap: 18px; min-height: 54px; overflow-x: auto; scrollbar-width: none; }
+.eave__name { flex: none; display: flex; align-items: baseline; gap: 10px; font: 600 19px/1 var(--s-title); }
+.eave__name small { font: 400 13px/1 var(--s-title); color: var(--ink-3); letter-spacing: .2em; }
+.eave nav { margin-left: auto; display: flex; gap: 2px; flex: none; }
+.eave nav a { position: relative; display: grid; place-items: center; height: 40px; padding: 0 12px; color: var(--ink-2); text-decoration: none; font: 500 14.5px/1 var(--s-font); }
+.eave nav a:hover { color: var(--ink); }
+.eave nav a[aria-current="true"] { color: var(--noerok-d); font-weight: 700; }
+.eave nav a[aria-current="true"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 4px; height: 3px; background: linear-gradient(90deg, var(--gunjeong) 0 33%, var(--ganju) 33% 66%, var(--ochre) 66%); border-radius: 2px; }
+@media (max-width: 900px) { .eave nav { display: none; } }
+/* Bay: one bay of a hall. Pillars left and right on base stones, a painted beam above, a wind bell at the eave. */
+.bay { position: relative; padding: 0 26px 18px; }
+.bay__beam { position: relative; height: 26px; margin: 0 -8px; background: var(--band); border-top: 7px solid var(--wood-d); box-shadow: 0 6px 8px -4px rgba(43,38,33,.4); }
+/* meoricho: pattern bursts at both ends of the beam, plain line in the middle (moro dancheong) */
+.bay__beam::before, .bay__beam::after { content: ""; position: absolute; top: 0; bottom: 0; width: 120px;
+  background: radial-gradient(circle at 50% 50%, var(--ochre) 0 4px, var(--ganju) 4px 7px, #f3eee2 7px 8px, var(--gunjeong) 8px 11px, transparent 11px) 22px 50%/24px 24px no-repeat,
+    radial-gradient(circle at 50% 50%, var(--ochre) 0 4px, var(--ganju) 4px 7px, #f3eee2 7px 8px, var(--gunjeong) 8px 11px, transparent 11px) 66px 50%/24px 24px no-repeat,
+    linear-gradient(90deg, var(--ganju) 0 4px, #f3eee2 4px 5px, var(--gunjeong) 5px 9px, #f3eee2 9px 10px, transparent 10px), var(--noerok-d); }
+.bay__beam::before { left: 0; } .bay__beam::after { right: 0; transform: scaleX(-1); }
+.bay__body { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); border-left: 16px solid var(--ganju); border-right: 16px solid var(--ganju); background: var(--hanji); box-shadow: inset 8px 0 10px -6px rgba(43,38,33,.3), inset -8px 0 10px -6px rgba(43,38,33,.3); }
+.bay__body::before, .bay__body::after { content: ""; position: absolute; bottom: -18px; width: 36px; height: 18px; background: linear-gradient(var(--stone-l), var(--stone) 60%, var(--stone-d)); border-radius: 3px 3px 0 0; clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); }
+.bay__body::before { left: -26px; } .bay__body::after { right: -26px; }
+/* the wind bell hanging at the beam end */
+.chime { position: absolute; top: 24px; width: 22px; height: 70px; pointer-events: none; transform-origin: 50% 0; animation: sway 5s ease-in-out infinite; z-index: 3; }
+.chime--l { left: -6px; } .chime--r { right: -6px; animation-delay: -2.4s; }
+.chime svg { width: 22px; height: 70px; display: block; }
+@keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+.note { padding: 28px 26px 30px; display: grid; gap: 8px; align-content: start; min-width: 0; border-right: 1px solid var(--hanji-3); }
+.note h3 { font: 600 21px/1.4 var(--s-title); display: flex; align-items: baseline; gap: 10px; }
+.note h3 small { font: 500 13px/1 var(--s-title); color: var(--ganju); }
+.note p { color: var(--ink-2); font-size: 15.5px; }
+.note ul { margin: 2px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 14.5px; color: var(--ink-2); }
+.note li { position: relative; padding-left: 18px; }
+.note li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 7px; height: 7px; border-radius: 50%; background: var(--noerok); }
+/* courtyard: where the specimen sits, on raked sand with a faint lattice shadow */
+.yard { position: relative; min-width: 0; padding: 44px 28px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; align-content: center; min-height: 170px;
+  background: radial-gradient(ellipse 80% 60% at 70% 20%, rgba(255,250,235,.8), transparent 70%), repeating-linear-gradient(0deg, transparent 0 9px, rgba(117,105,91,.07) 9px 10px), var(--hanji-2); }
+.yard.col { flex-direction: column; align-items: stretch; }
+.yard > * { min-width: 0; max-width: 100%; }
+@media (max-width: 820px) { .bay { padding: 0 14px 18px; } .bay__body { grid-template-columns: 1fr; border-left-width: 10px; border-right-width: 10px; } .note { border-right: 0; border-bottom: 1px solid var(--hanji-3); padding: 24px 18px 20px; } .yard { padding: 40px 16px 36px; } .bay__body::before { left: -18px; width: 26px; } .bay__body::after { right: -18px; width: 26px; } .bay__beam::before, .bay__beam::after { width: 74px; } }
+/* ---------- Foundations ---------- */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 42%), 1fr)); gap: 18px; width: 100%; }
+.sw { display: grid; gap: 6px; }
+.sw i { height: 70px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(43,38,33,.12); }
+.sw b { font: 600 16px/1.3 var(--s-title); }
+.sw code { background: none; padding: 0; font-size: 11.5px; color: var(--ink-3); }
+.sw span { font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+.swhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; font: 600 18px/1 var(--s-title); margin-top: 6px; }
+.swhead:first-child { margin-top: 0; }
+.swhead::after { content: ""; flex: 1; height: 1px; background: var(--hanji-3); }
+.swhead span { font: 400 13px/1 var(--s-font); color: var(--ink-3); }
+.bandrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 22px; width: 100%; }
+.bandrow figure { margin: 0; display: grid; gap: 8px; }
+.bandrow figure > div { height: 54px; border-radius: 3px; }
+.bandrow b { font: 600 15.5px/1.3 var(--s-title); }
+.bandrow span { font-size: 13.5px; color: var(--ink-2); }
+.typerow { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 18px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--hanji-3); }
+.typerow:first-child { border-top: 0; }
+.typerow .k { display: grid; gap: 2px; } .typerow .k b { font: 600 14.5px/1.3 var(--s-title); } .typerow .k span { font-size: 12.5px; color: var(--ink-3); }
+@media (max-width: 560px) { .typerow { grid-template-columns: 1fr; gap: 4px; } }
+.precepts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0; margin: 0; padding: 0; list-style: none; counter-reset: p; border-top: 1px solid var(--ink-3); }
+.precepts li { counter-increment: p; padding: 20px 22px 24px 0; display: grid; gap: 6px; border-bottom: 1px solid var(--hanji-3); }
+.precepts li::before { content: counter(p, cjk-ideographic); font: 600 22px/1 var(--s-title); color: var(--ganju); }
+.precepts b { font: 600 18px/1.4 var(--s-title); }
+.precepts span { font-size: 14.5px; color: var(--ink-2); }
+/* ---------- Buttons ---------- */
+/* Painted board: noerok green with dancheong bands at both ends, like a beam end */
+.s-btn { --g: var(--noerok); --gd: var(--noerok-d); --t: #f6f1e4;
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 50px; padding: 0 36px; border: 0; border-radius: 4px; cursor: pointer; text-decoration: none;
+  font: 600 16px/1 var(--s-title); letter-spacing: .08em; color: var(--t); background: var(--g);
+  box-shadow: inset 0 -3px 0 var(--gd), 0 2px 0 var(--gd), 0 8px 14px -8px rgba(43,38,33,.55); transition: transform .5s var(--settle), box-shadow .5s var(--settle), background .3s; }
+.s-btn::before, .s-btn::after { content: ""; position: absolute; top: 0; bottom: 0; width: 13px; background: linear-gradient(90deg, var(--ganju) 0 3px, #f3eee2 3px 4px, var(--gunjeong) 4px 7px, #f3eee2 7px 8px, var(--ochre) 8px 10px, transparent 10px); }
+.s-btn::before { left: 0; border-radius: 4px 0 0 4px; } .s-btn::after { right: 0; transform: scaleX(-1); border-radius: 4px 0 0 4px; }
+.s-btn:hover { --g: #5a8875; transform: translateY(-1px); }
+.s-btn:active { transform: translateY(2px); box-shadow: inset 0 -1px 0 var(--gd), 0 0 0 var(--gd), 0 2px 4px -2px rgba(43,38,33,.4); transition-duration: .08s; }
+.s-btn svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 1.7; flex: none; }
+.s-btn--ganju { --g: var(--ganju); --gd: var(--ganju-d); }
+.s-btn--ganju:hover { --g: #9c4532; }
+.s-btn--ganju::before, .s-btn--ganju::after { background: linear-gradient(90deg, var(--noerok-d) 0 3px, #f3eee2 3px 4px, var(--ochre) 4px 7px, transparent 7px); }
+/* Hanji paper in a thin wooden frame: secondary */
+.s-btn--paper { --t: var(--ink); background: var(--hanji); box-shadow: inset 0 0 0 2px var(--wood), inset 0 0 0 4px var(--hanji), inset 0 0 0 5px var(--wood-l), 0 2px 0 var(--wood-d), 0 8px 14px -8px rgba(43,38,33,.4); }
+.s-btn--paper:hover { --g: var(--hanji); background: #fbf8f0; }
+.s-btn--paper::before, .s-btn--paper::after { display: none; }
+.s-btn--paper:active { box-shadow: inset 0 0 0 2px var(--wood), inset 0 0 0 4px var(--hanji), inset 0 0 0 5px var(--wood-l), 0 0 0 var(--wood-d); }
+/* Stone: quiet */
+.s-btn--stone { --t: var(--ink); background: linear-gradient(var(--stone-l), #b5b4ac); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 2px 0 var(--stone-d), 0 8px 14px -8px rgba(43,38,33,.4); border-radius: 14px; padding: 0 28px; }
+.s-btn--stone::before, .s-btn--stone::after { display: none; }
+.s-btn--stone:active { box-shadow: inset 0 2px 4px rgba(0,0,0,.15), 0 0 0 var(--stone-d); }
+.s-btn--ink { background: none; box-shadow: none; color: var(--ink-2); padding: 0 8px; letter-spacing: .04em; }
+.s-btn--ink::before { display: block; left: 8px; right: 8px; top: auto; bottom: 10px; width: auto; height: 2px; background: var(--ink-3); border-radius: 2px; transform-origin: left; transform: scaleX(.3); transition: transform .5s var(--slow); }
+.s-btn--ink::after { display: none; }
+.s-btn--ink:hover { --g: none; color: var(--ink); transform: none; }
+.s-btn--ink:hover::before { transform: scaleX(1); }
+.s-btn--ink:active { transform: none; box-shadow: none; }
+.s-btn--sm { min-height: 40px; padding: 0 26px; font-size: 14.5px; }
+.s-btn--sm::before, .s-btn--sm::after { width: 10px; }
+.s-btn:disabled { cursor: not-allowed; --g: var(--hanji-3); --gd: #c2b69c; --t: var(--ink-3); transform: none; }
+.s-btn:disabled::before, .s-btn:disabled::after { opacity: .3; }
+.s-btn .breath { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: breath 1.6s ease-in-out infinite; }
+@keyframes breath { 50% { transform: scale(.4); opacity: .4; } }
+/* Temple bell (beomjong): the one big call to action. Strike it with the log; ripples spread. */
+.bell { position: relative; display: grid; justify-items: center; gap: 12px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--ink); }
+.bell svg { width: 210px; height: 220px; overflow: visible; }
+.bell .log { transition: transform .5s var(--settle); transform-origin: 200px 132px; }
+.bell:hover .log { transform: translateX(6px); }
+.bell.strike .log { animation: log .7s var(--settle); }
+@keyframes log { 30% { transform: translateX(-10px); } }
+.bell .body { transform-origin: 105px 20px; }
+.bell.strike .body { animation: hum 1.8s var(--slow); }
+@keyframes hum { 10% { transform: rotate(-1.5deg); } 30% { transform: rotate(1deg); } 55% { transform: rotate(-.5deg); } }
+.bell .wave { fill: none; stroke: var(--bronze-l); stroke-width: 1.5; opacity: 0; transform-origin: 105px 120px; }
+.bell.strike .wave { animation: wave 2.4s var(--slow); }
+.bell.strike .wave:nth-of-type(2) { animation-delay: .4s; } .bell.strike .wave:nth-of-type(3) { animation-delay: .8s; }
+@keyframes wave { from { opacity: .7; transform: scale(.7); } to { opacity: 0; transform: scale(1.8); } }
+.bell b { font: 600 17px/1 var(--s-title); letter-spacing: .3em; padding-left: .3em; }
+.bell small { font-size: 13px; color: var(--ink-3); }
+.bell:focus-visible { outline-offset: 2px; }
+/* ---------- Choosing ---------- */
+/* Segmented: stepping stones; the chosen stone is wet with moss green */
+.steps-seg { display: inline-flex; gap: 10px; padding: 6px; max-width: 100%; overflow-x: auto; }
+.steps-seg button { min-height: 46px; min-width: 70px; padding: 0 16px; border: 0; border-radius: 22px 26px 20px 24px / 24px 20px 26px 22px; cursor: pointer; font: 600 15.5px/1 var(--s-title); color: var(--ink-2);
+  background: linear-gradient(var(--stone-l), #b8b7af); box-shadow: 0 2px 0 var(--stone-d); transition: transform .5s var(--settle), background .4s; }
+.steps-seg button:nth-child(2n) { border-radius: 26px 20px 24px 22px / 20px 26px 22px 24px; }
+.steps-seg button:hover { transform: translateY(-2px); }
+.steps-seg button[aria-checked="true"] { color: #f6f1e4; background: linear-gradient(var(--noerok-l), var(--noerok)); box-shadow: 0 2px 0 var(--noerok-d), 0 0 0 4px var(--noerok-wash); }
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; width: 100%; }
+.field > label, .flabel { font: 600 15px/1.3 var(--s-title); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.field > label small, .flabel small { font: 400 12.5px/1.3 var(--s-font); color: var(--ink-3); }
+.help { font-size: 13.5px; color: var(--ink-2); }
+.help.err { color: var(--ganju); font-weight: 500; }
+.help.ok { color: var(--noerok-d); font-weight: 500; }
+/* Side menu: the path through the temple grounds, gate by gate */
+.path { width: 100%; max-width: 320px; margin: 0; padding: 0; list-style: none; position: relative; }
+.path::before { content: ""; position: absolute; left: 21px; top: 20px; bottom: 20px; width: 3px; background: repeating-linear-gradient(var(--stone) 0 10px, transparent 10px 16px); }
+.path a { position: relative; display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px; min-height: 52px; color: var(--ink-2); text-decoration: none; font: 500 16px/1.2 var(--s-title); border-radius: 26px; padding-right: 16px; transition: background .4s; }
+.path a span { width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; background: var(--stone-l); color: var(--ink-2); font: 600 14px/1 var(--s-title); box-shadow: 0 2px 0 var(--stone-d); position: relative; z-index: 1; }
+.path a em { font-style: normal; font: 400 13px/1 var(--s-font); color: var(--ink-3); }
+.path a:hover { background: rgba(255,255,255,.55); }
+.path a[aria-current="page"] { background: #fbf8f0; color: var(--ink); font-weight: 600; box-shadow: inset 0 0 0 1px var(--hanji-3); }
+.path a[aria-current="page"] span { background: var(--ganju); color: #f6edd6; box-shadow: 0 2px 0 var(--ganju-d), 0 0 0 4px var(--ganju-wash); }
+.path a .new { background: var(--lotus-l); color: var(--ink); padding: 3px 8px; border-radius: 10px; }
+
+/* ---------- Inputs: hanji in a thin wooden frame; focus spreads ink ---------- */
+.input { position: relative; display: flex; align-items: stretch; min-height: 52px; background: #fbf8f0; box-shadow: inset 0 0 0 1.5px var(--wood), inset 0 0 0 4px #fbf8f0, inset 0 0 0 4.6px var(--wood-xl); transition: box-shadow .4s; }
+.input::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 6px; height: 2px; background: var(--noerok); transform: scaleX(0); transform-origin: left; transition: transform .6s var(--slow); }
+.input:focus-within::after { transform: scaleX(1); }
+.input:focus-within { box-shadow: inset 0 0 0 1.5px var(--noerok-d), inset 0 0 0 4px #fbf8f0, inset 0 0 0 4.6px var(--noerok-l), 0 0 0 4px var(--noerok-wash); }
+.input input, .input textarea { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; padding: 0 16px; font: 400 16.5px/1.5 var(--s-font); }
+.input textarea { padding: 14px 16px; min-height: 110px; resize: vertical; line-height: 1.8; }
+.input input::placeholder, .input textarea::placeholder { color: var(--ink-3); opacity: .7; }
+.input__ico { display: grid; place-items: center; padding-left: 14px; }
+.input__ico svg { width: 18px; height: 18px; stroke: var(--ink-3); fill: none; stroke-width: 1.8; }
+.input__aff { display: grid; place-items: center; padding: 0 16px; font: 500 15px/1 var(--s-title); color: var(--ink-2); border-left: 1px solid var(--wood-xl); margin: 8px 0; }
+.input__btn { margin: 7px; padding: 0 12px; border: 0; cursor: pointer; font: 500 13.5px/1 var(--s-title); background: var(--hanji-2); color: var(--ink-2); }
+.input__btn:hover { background: var(--hanji-3); }
+.input.is-err { box-shadow: inset 0 0 0 1.5px var(--ganju), inset 0 0 0 4px #fbf8f0, inset 0 0 0 4.6px var(--ganju-l); background: #fdf5f1; }
+.input.is-err::after { background: var(--ganju); transform: scaleX(1); }
+.input.is-ok::after { transform: scaleX(1); }
+.input.is-off { background: var(--hanji-2); box-shadow: inset 0 0 0 1.5px var(--wood-xl); }
+.input.is-off input { color: var(--ink-3); cursor: not-allowed; }
+.input .num { text-align: right; font: 600 18px/1 var(--s-title); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; width: 100%; }
+.count { text-align: right; font: 500 13px/1 var(--s-title); color: var(--ink-3); }
+
+/* Accordion: sutra pages folded accordion-style */
+.sutra { width: 100%; display: grid; gap: 0; border-top: 2px solid var(--ink-3); }
+.sutra details { border-bottom: 1px solid var(--hanji-3); }
+.sutra summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 40px 1fr 20px; align-items: center; gap: 12px; min-height: 58px; font: 600 16.5px/1.4 var(--s-title); }
+.sutra summary::-webkit-details-marker { display: none; }
+.sutra summary b { font: 600 18px/1 var(--s-title); color: var(--ganju); text-align: center; }
+.sutra summary::after { content: ""; width: 9px; height: 9px; border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3); transform: rotate(45deg) translate(-2px, -2px); transition: transform .5s var(--settle); }
+.sutra details[open] summary::after { transform: rotate(-135deg); }
+.sutra summary:hover { color: var(--noerok-d); }
+.sutra summary:focus-visible { outline-offset: -3px; }
+.sutra details > div { padding: 0 20px 20px 52px; color: var(--ink-2); font-size: 15px; }
+@media (max-width: 480px) { .sutra details > div { padding-left: 12px; } }
+
+/* Table: the templestay schedule */
+.tablewrap { width: 100%; overflow-x: auto; background: #fbf8f0; box-shadow: inset 0 0 0 1px var(--hanji-3); }
+table { width: 100%; border-collapse: collapse; min-width: 540px; font-size: 15px; }
+caption { padding: 14px 16px 10px; text-align: left; font: 600 15px/1 var(--s-title); letter-spacing: .1em; color: var(--ink-2); }
+th { text-align: left; padding: 11px 16px; font: 600 14px/1.2 var(--s-title); color: #f6edd6; background: var(--wood-d); white-space: nowrap; }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+th button:focus-visible { outline: 3px solid var(--d-cobalt); outline-offset: 3px; }
+th[aria-sort="ascending"] button::after { content: "▲"; font-size: 10px; } th[aria-sort="descending"] button::after { content: "▼"; font-size: 10px; }
+td { padding: 13px 16px; border-bottom: 1px solid var(--hanji-3); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--noerok-wash); }
+td.num, th.num { text-align: right; } td.num, td.time { font: 600 16px/1 var(--s-title); }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; font: 500 14px/1 var(--s-title); color: var(--ink-3); }
+.pager ol { display: flex; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.pager button { width: 40px; height: 40px; border: 0; border-radius: 50%; cursor: pointer; font: 600 15px/1 var(--s-title); background: var(--stone-l); color: var(--ink-2); box-shadow: 0 2px 0 var(--stone-d); transition: transform .5s var(--settle); }
+.pager button:hover:not(:disabled) { transform: translateY(-2px); }
+.pager button[aria-current="page"] { background: var(--noerok); color: #f6f1e4; box-shadow: 0 2px 0 var(--noerok-d); }
+.pager button:disabled { opacity: .4; cursor: not-allowed; }
+/* ---------- Overlays ---------- */
+dialog { padding: 0; border: 0; background: transparent; color: var(--ink); width: 100%; max-width: min(480px, calc(100vw - 40px)); overflow: visible; }
+dialog::backdrop { background: rgba(228,227,220,.72); backdrop-filter: blur(4px) grayscale(.4); }
+dialog[open] { animation: settle .7s var(--slow); }
+@keyframes settle { from { opacity: 0; transform: translateY(14px); } }
+.dlg { position: relative; padding-top: 34px; }
+.dlg__roof { position: absolute; left: -22px; right: -22px; top: 0; height: 40px; z-index: 1; }
+.dlg__roof svg { width: 100%; height: 100%; display: block; }
+.dlg__in { position: relative; background: #fbf8f0; box-shadow: inset 0 0 0 1px var(--hanji-3), 0 30px 50px -20px rgba(43,38,33,.45); border-left: 10px solid var(--ganju); border-right: 10px solid var(--ganju); }
+.dlg__band { height: 18px; background: var(--band); }
+.dlg__body { padding: 28px 26px 24px; display: grid; gap: 10px; text-align: center; justify-items: center; }
+.dlg h3 { font: 600 24px/1.4 var(--s-title); }
+.dlg p { color: var(--ink-2); font-size: 15.5px; }
+.dlg__foot { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+.dlg .chime { top: 30px; z-index: 2; }
+.dlg .chime--l { left: -12px; } .dlg .chime--r { right: -12px; }
+
+/* ---- lifted from riso: label, misprint type ---- */
+.label { font: 500 12px/1.3 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--r-ink-2); }
+.mis { position: relative; display: inline-block; color: var(--r-blue); isolation: isolate; }
+.mis::after { content: attr(data-t); position: absolute; left: 0; top: 0; z-index: -1; color: var(--r-pink); transform: translate(var(--mis-x), var(--mis-y)); pointer-events: none; white-space: pre; }
+/* ---- riso: section heads ---- */
+section.part { padding-block: 64px 8px; scroll-margin-top: 50px; display: grid; gap: 28px; }
+.part__head { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 20px; border-top: 6px solid var(--r-rule); padding-top: 14px; }
+.part__no { font: 900 64px/.9 var(--font-serif); }
+.part__head h2 { font: 900 clamp(32px, 4.6vw, 46px)/1.1 var(--font-serif); letter-spacing: -.02em; }
+.part__head p { margin-top: 10px; color: var(--r-ink-2); max-width: 60ch; }
+@media (max-width: 640px) { .part__head { grid-template-columns: 1fr; gap: 6px; } .part__no { font-size: 44px; } }
+/* ---- riso: primary + icon buttons ---- */
+/* ---------- Buttons ---------- */
+.btn { --c: var(--r-blue); --on: var(--r-sheet); --second: var(--r-pink);
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 20px;
+  border: var(--r-rule-w) solid var(--c); background: var(--c); color: var(--on); font: 700 15.5px/1 var(--font-sans); cursor: pointer; isolation: isolate; text-decoration: none; }
+.btn::after { content: ""; position: absolute; inset: calc(var(--r-rule-w) * -1); border: var(--r-rule-w) solid var(--second); mix-blend-mode: multiply; pointer-events: none;
+  transform: translate(var(--mis-x), var(--mis-y)); transition: transform var(--dur) var(--slow); }
+.btn:hover::after { transform: translate(var(--mis-hover-x), var(--mis-hover-y)); }
+.btn:active::after, .btn[aria-pressed="true"]::after, .btn[aria-expanded="true"]::after { transform: translate(0, 0); }
+.btn:active { background: var(--r-blue-ink); border-color: var(--r-blue-ink); }
+.btn--line { --on: var(--c); background: transparent; }
+.btn--line:hover { background: var(--r-blue-wash); }
+.btn--line:active { background: var(--r-blue-wash); border-color: var(--c); }
+.btn--ink { --c: var(--r-ink); --second: var(--r-yellow); }
+.btn--ink:active { background: #000; border-color: #000; }
+.btn--danger { --c: var(--r-red); --second: var(--r-ink); }
+.btn--danger:active { background: #9e2414; border-color: #9e2414; }
+.btn--ghost { --on: var(--r-ink); background: transparent; border-color: transparent; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; text-decoration-color: var(--r-pink); }
+.btn--ghost::after { display: none; }
+.btn--ghost:hover { text-decoration-color: var(--r-blue); background: transparent; }
+.btn--ghost:active { background: var(--r-blue-wash); border-color: transparent; }
+.btn--sm { min-height: 36px; padding: 0 12px; font-size: 14px; }
+.btn--icon { width: 46px; padding: 0; }
+.btn svg { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; }
+.btn:disabled, .btn[aria-disabled="true"] { cursor: not-allowed; color: var(--r-ink-3); border-color: var(--r-ink-3); background: transparent; }
+.btn:disabled { background-image: radial-gradient(circle, var(--r-paper-3) 1.2px, transparent 1.4px); background-size: 5px 5px; }
+.btn:disabled::after { display: none; }
+.btn .spin { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(1turn); } }
+/* ---- riso: switch A, checkbox ---- */
+/* ---------- Toggles ---------- */
+.switch { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0; background: none; border: 0; cursor: pointer; text-align: left; }
+.switch__track { position: relative; width: 84px; height: 34px; border: var(--r-rule-w) solid var(--r-ink); background: var(--r-sheet); display: grid; grid-template-columns: 1fr 1fr; font: 600 11px/1 var(--font-mono); letter-spacing: .06em; flex: none; }
+.switch__track span { display: grid; place-items: center; position: relative; z-index: 1; transition: color var(--dur); }
+.switch__track::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 50%; background: var(--r-ink); transition: transform var(--dur) var(--slow), background var(--dur); }
+.switch__track span:first-child { color: var(--r-sheet); }
+.switch[aria-checked="true"] .switch__track::before { transform: translateX(100%); background: var(--r-blue); }
+.switch[aria-checked="true"] .switch__track span:first-child { color: var(--r-ink-3); }
+.switch[aria-checked="true"] .switch__track span:last-child { color: var(--r-sheet); }
+.switch[aria-checked="false"] .switch__track span:last-child { color: var(--r-ink-3); }
+.switch__text { display: grid; line-height: 1.35; }
+.switch__text small { color: var(--r-ink-2); font-size: 13.5px; }
+.switch:focus-visible { outline: 3px solid var(--d-cobalt); outline-offset: 4px; }
+
+.r-check { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; min-height: 32px; }
+.r-check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.r-check__box { position: relative; width: 24px; height: 24px; flex: none; border: var(--r-rule-w) solid var(--r-ink); background: var(--r-sheet); margin-top: 1px; isolation: isolate; }
+.r-check__box svg { position: absolute; inset: -2px; width: 24px; height: 24px; opacity: 0; transition: opacity var(--dur); }
+.r-check__box svg path { fill: none; stroke-width: 3.5; stroke-linecap: square; }
+.r-check__box svg .a { stroke: var(--r-blue); }
+.r-check__box svg .b { stroke: var(--r-pink); mix-blend-mode: multiply; transform: translate(2px, 1.5px); }
+.r-check input:checked + .r-check__box svg { opacity: 1; }
+.r-check input:indeterminate + .r-check__box::after { content: ""; position: absolute; left: 3px; right: 3px; top: 8px; height: 4px; background: var(--r-blue); }
+.r-check input:focus-visible + .r-check__box { outline: 3px solid var(--d-cobalt); outline-offset: 3px; }
+.r-check input:disabled + .r-check__box { border-color: var(--r-ink-3); background: var(--dots) 0 0/5px 5px; color: var(--r-paper-3); }
+.r-check input:disabled ~ .r-check__t { color: var(--r-ink-3); }
+.r-check__t { display: grid; line-height: 1.45; }
+.r-check__t small { color: var(--r-ink-2); font-size: 13.5px; }
+.stack { display: grid; gap: 14px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 10px; }
+/* ---- riso: cards ---- */
+.card { position: relative; background: var(--r-sheet); border: 1px solid var(--r-ink); display: grid; min-width: 0; }
+.card__img { height: 150px; position: relative; isolation: isolate; overflow: hidden; border-bottom: 1px solid var(--r-ink); background: var(--r-yellow-wash); }
+.card__img i { position: absolute; mix-blend-mode: multiply; }
+.card__body { padding: 16px 18px 18px; display: grid; gap: 6px; }
+.card__body h4 { font: 700 19px/1.35 var(--font-serif); }
+.card__body p { font-size: 14.5px; color: var(--r-ink-2); }
+.card__meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 18px; border-top: 1px dashed var(--r-ink); font: 400 12px/1 var(--font-mono); color: var(--r-ink-2); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; width: 100%; }
+.card--link { cursor: pointer; transition: transform var(--dur) var(--slow), box-shadow var(--dur) var(--slow); text-decoration: none; color: inherit; }
+.card--link:hover { box-shadow: 6px 6px 0 var(--r-pink); transform: translate(-2px, -2px); }
+.card--link:active { box-shadow: 0 0 0 var(--r-pink); transform: none; }
+.card--link:focus-visible { outline: 3px solid var(--d-cobalt); outline-offset: 4px; }
+/* ---- riso: empty ---- */
+.empty { width: 100%; padding: 32px 20px; display: grid; justify-items: center; gap: 10px; text-align: center; border: 1.5px dashed var(--r-ink-3); }
+.empty b { font: 700 19px/1.3 var(--font-serif); }
+.empty p { color: var(--r-ink-2); font-size: 14.5px; max-width: 36ch; }
+/* ---- riso: side panel, toasts, tooltip, menu ---- */
+.sheet { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(400px, 100vw); background: var(--r-sheet); border-left: var(--r-rule-w) solid var(--r-ink); display: grid; grid-template-rows: auto 1fr auto; transform: translateX(105%); transition: transform .26s var(--slow); visibility: hidden; }
+.sheet.open { transform: none; visibility: visible; }
+.sheet__perf { position: absolute; left: -10px; top: 0; bottom: 0; width: 10px; background: radial-gradient(circle at 0 50%, var(--r-paper) 3px, transparent 3.5px) 0 0/10px 14px; }
+.sheet__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: var(--r-rule-w) solid var(--r-ink); }
+.sheet__head h3 { font: 900 22px/1.3 var(--font-serif); }
+.sheet__body { padding: 20px; overflow: auto; display: grid; gap: 18px; align-content: start; }
+.sheet__foot { padding: 16px 20px; border-top: 1px solid var(--r-ink); display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+.scrim { position: fixed; inset: 0; z-index: 59; background: rgba(27,26,23,.25); opacity: 0; pointer-events: none; transition: opacity .2s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+.toasts { position: fixed; z-index: 70; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); display: grid; gap: 10px; width: min(360px, calc(100vw - 32px)); }
+.toast { position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; padding: 14px 14px 14px 16px; background: var(--r-sheet); border: var(--r-rule-w) solid var(--r-ink); box-shadow: 5px 5px 0 var(--r-ink); animation: print .24s var(--slow); }
+.toast.out { animation: toastout .2s var(--slow) forwards; }
+@keyframes toastout { to { opacity: 0; transform: translateY(8px); } }
+.toast__mark { width: 12px; height: 12px; margin-top: 6px; background: var(--r-blue); box-shadow: 2px 2px 0 var(--r-pink); }
+.toast--ok .toast__mark { background: var(--r-green); }
+.toast--err .toast__mark { background: var(--r-red); box-shadow: 2px 2px 0 var(--r-ink); }
+.toast b { display: block; font: 700 15.5px/1.4 var(--font-sans); }
+.toast span { font-size: 14px; color: var(--r-ink-2); }
+.toast button.x { width: 30px; height: 30px; border: 0; background: none; cursor: pointer; font: 400 18px/1 var(--font-mono); color: var(--r-ink-2); }
+.toast button.x:hover { background: var(--r-paper-2); color: var(--r-ink); }
+.toast .undo { margin-top: 6px; }
+
+.tip { position: relative; display: inline-flex; }
+.tip__bubble { position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%); z-index: 10; padding: 7px 10px; background: var(--r-ink); color: var(--r-sheet); font: 500 13px/1.4 var(--font-sans); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity var(--dur); box-shadow: 3px 3px 0 var(--r-pink); }
+.tip__bubble::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--r-ink); }
+.tip:hover .tip__bubble, .tip:focus-within .tip__bubble { opacity: 1; }
+
+.menu { position: relative; display: inline-block; }
+.menu__list { position: absolute; top: calc(100% + 8px); right: 0; z-index: 15; min-width: 190px; padding: 0; margin: 0; list-style: none; background: var(--r-sheet); border: var(--r-rule-w) solid var(--r-ink); box-shadow: 5px 5px 0 var(--r-blue); }
+.menu__list [role="menuitem"] { display: flex; justify-content: space-between; gap: 14px; width: 100%; min-height: 44px; padding: 0 14px; align-items: center; border: 0; border-bottom: 1px solid var(--r-rule-soft); background: none; cursor: pointer; text-align: left; font-size: 15px; }
+.menu__list li:last-child [role="menuitem"] { border-bottom: 0; }
+.menu__list [role="menuitem"] kbd { font: 400 11.5px/1 var(--font-mono); color: var(--r-ink-3); }
+.menu__list [role="menuitem"]:hover, .menu__list [role="menuitem"]:focus { background: var(--r-blue); color: var(--r-sheet); outline: none; }
+.menu__list [role="menuitem"]:hover kbd, .menu__list [role="menuitem"]:focus kbd { color: var(--r-blue-wash); }
+.menu__list .danger { color: var(--r-red); }
+.menu__list .danger:hover, .menu__list .danger:focus { background: var(--r-red); color: var(--r-sheet); }
+/* ---- riso: colophon ---- */
+.colophon { margin-top: 80px; padding: 28px 0 48px; border-top: 6px solid var(--r-rule); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; font-size: 14px; color: var(--r-ink-2); }
+.colophon b { display: block; color: var(--r-ink); font: 500 11px/1.4 var(--font-mono); letter-spacing: .1em; margin-bottom: 4px; }
+
+/* ---- lifted from dal: hero ---- */
+/* ---------- Hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 30px; align-items: center; padding-block: 56px 30px; }
+.hero__k { display: inline-flex; gap: 10px; align-items: center; font: 400 15px/1 var(--d-serif); color: var(--d-cobalt); letter-spacing: .2em; margin-bottom: 18px; }
+.hero__k::before { content: ""; width: 34px; height: 2px; background: var(--d-cobalt); box-shadow: 0 4px 0 var(--d-cobalt); }
+.hero h1 { font: 400 clamp(72px, 13vw, 150px)/.9 var(--d-title); color: var(--d-ink); }
+.hero h1 small { display: block; font: 400 clamp(24px, 3.2vw, 34px)/1.3 var(--d-title); color: var(--d-cobalt); margin-top: 12px; }
+.hero p { margin-top: 20px; font: 400 18px/1.75 var(--d-serif); color: var(--d-ink-2); max-width: 36ch; }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 30px; align-items: flex-end; }
+.jar { position: relative; display: grid; place-items: center; }
+.jar svg { width: min(100%, 400px); height: auto; filter: drop-shadow(0 26px 22px rgba(80,62,36,.22)); }
+@media (max-width: 800px) { .hero { grid-template-columns: 1fr; } .jar { order: -1; } .jar svg { width: 240px; } }
+/* ---- dal: pulse ---- */
+@keyframes pulse { 50% { transform: scale(1.12); } }
+/* ---------- Toggles ---------- */
+/* Sliding paper door (midaji): two lattice panels slide apart to open */
+.door { display: inline-flex; align-items: center; gap: 16px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.door__frame { position: relative; width: 92px; height: 58px; flex: none; border-radius: 3px; background: linear-gradient(#2a1f14, #1a130c); box-shadow: 0 0 0 4px var(--d-wood), 0 0 0 5px var(--d-wood-deep), 0 5px 0 5px var(--d-wood-deep); overflow: hidden; }
+.door__frame::before { content: "열림"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--d-brass-light); font: 400 14px/1 var(--d-title); letter-spacing: .1em;
+  background: radial-gradient(ellipse at 50% 110%, rgba(239,212,138,.35), transparent 70%); }
+.door__p { position: absolute; top: 0; bottom: 0; width: 50%; transition: transform .38s var(--settle);
+  background: linear-gradient(var(--d-wood) 0 0) 50% 0/2px 100% no-repeat, linear-gradient(90deg, var(--d-wood) 0 0) 0 33%/100% 2px no-repeat, linear-gradient(90deg, var(--d-wood) 0 0) 0 66%/100% 2px no-repeat, #f8f2e1;
+  box-shadow: inset 0 0 0 2px var(--d-wood); }
+.door__p:first-child { left: 0; } .door__p:last-child { right: 0; }
+.door[aria-checked="true"] .door__p:first-child { transform: translateX(-78%); }
+.door[aria-checked="true"] .door__p:last-child { transform: translateX(78%); }
+.door__t { display: grid; line-height: 1.45; }
+.door__t b { font: 700 16.5px/1.4 var(--d-serif); }
+.door__t small { font-size: 13.5px; color: var(--d-ink-2); }
+.door__t em { font-style: normal; font: 700 12.5px/1 var(--d-sans); color: var(--d-ink-3); }
+.door[aria-checked="true"] .door__t em { color: var(--d-cobalt); }
+/* ---- dal: coin radio (checkbox rules ride along unused) ---- */
+/* Checkbox: a hanji square that gets a cobalt brushstroke */
+.d-check { position: relative; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; min-height: 30px; }
+.d-check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.d-check__box { position: relative; width: 26px; height: 26px; flex: none; margin-top: 1px; border-radius: 6px; background: var(--d-glaze); border: 2px solid var(--d-ink-3); box-shadow: inset 0 2px 2px rgba(0,0,0,.08); }
+.d-check__box svg { position: absolute; inset: -6px -8px -4px -2px; width: 36px; height: 36px; overflow: visible; }
+.d-check__box path { fill: none; stroke: var(--d-cobalt); stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; transition: stroke-dashoffset .28s var(--slow); }
+.d-check:hover .d-check__box { border-color: var(--d-cobalt); }
+.d-check input:checked + .d-check__box { border-color: var(--d-cobalt); }
+.d-check input:checked + .d-check__box path { stroke-dashoffset: 0; }
+.d-check input:indeterminate + .d-check__box::after { content: ""; position: absolute; left: 4px; right: 4px; top: 9px; height: 4px; border-radius: 2px; background: var(--d-cobalt); }
+.d-check input:focus-visible + .d-check__box { outline: 3px solid var(--d-cobalt); outline-offset: 3px; }
+.d-check input:disabled + .d-check__box { background: var(--d-hanji-2); border-color: #b7ac95; }
+.d-check input:disabled ~ .d-check__t { color: var(--d-ink-3); }
+.d-check__t { display: grid; line-height: 1.5; }
+.d-check__t small { font-size: 13.5px; color: var(--d-ink-2); }
+/* Radio: a brass coin (yeopjeon) with a square hole */
+.coin { width: 30px; height: 30px; flex: none; border-radius: 50%; position: relative; background: var(--d-glaze); border: 2px solid var(--d-ink-3); transition: background .2s, border-color .2s, transform .35s var(--settle); }
+.coin::after { content: ""; position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border: 2px solid transparent; }
+.d-check:hover .coin { border-color: var(--d-brass-deep); }
+.d-check input:checked + .coin { background: radial-gradient(circle at 35% 30%, var(--d-brass-light), var(--d-brass) 50%, var(--d-brass-deep)); border-color: var(--d-brass-deep); transform: rotate(45deg); box-shadow: 0 2px 0 var(--d-wood-deep); }
+.d-check input:checked + .coin::after { background: var(--d-hanji); border-color: var(--d-brass-deep); }
+.d-check input:focus-visible + .coin { outline: 3px solid var(--d-cobalt); outline-offset: 3px; }
+.stack { display: grid; gap: 14px; }
+/* Tabs: book tabs (seochaek) sticking out of a bound book */
+.book { width: 100%; }
+.book__tabs { display: flex; gap: 4px; padding-left: 12px; overflow-x: auto; }
+.book__tabs button { position: relative; min-height: 44px; padding: 0 18px; border: 1px solid var(--d-hanji-3); border-bottom: 0; border-radius: 10px 10px 0 0; background: var(--d-hanji-2); cursor: pointer; font: 700 15px/1 var(--d-serif); color: var(--d-ink-2); top: 4px; transition: top .25s var(--settle); white-space: nowrap; }
+.book__tabs button:hover { top: 1px; }
+.book__tabs button[aria-selected="true"] { top: 0; background: var(--d-cobalt); color: #fff; border-color: var(--d-cobalt-deep); box-shadow: inset 0 0 0 2px var(--d-cobalt), inset 0 0 0 3px rgba(255,255,255,.6); }
+.book__page { position: relative; padding: 18px 20px 18px 34px; background: #fbf8ef; border: 1px solid var(--d-hanji-3); border-radius: 4px; box-shadow: 0 3px 0 var(--d-hanji-3); color: var(--d-ink-2); font: 400 15.5px/1.8 var(--d-serif); }
+.book__page::before { content: ""; position: absolute; left: 12px; top: 10px; bottom: 10px; width: 2px; background: repeating-linear-gradient(var(--d-jinsa) 0 6px, transparent 6px 16px); }
+
+/* Chips: hojae name tags (hopae) */
+.tags { display: flex; flex-wrap: wrap; gap: 10px; }
+.hopae { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px 0 26px; border-radius: 8px 20px 20px 8px; border: 2px solid var(--d-wood); background: linear-gradient(#f0dfbd, #dfc493); color: var(--d-wood-deep); cursor: pointer; font: 700 14.5px/1 var(--d-serif); transition: transform .3s var(--settle); }
+.hopae::before { content: ""; position: absolute; left: 9px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--d-hanji); box-shadow: inset 0 0 0 2px var(--d-wood); }
+.hopae:hover { transform: rotate(-3deg); }
+.hopae[aria-pressed="true"] { background: linear-gradient(#3053a8, var(--d-cobalt)); border-color: var(--d-cobalt-deep); color: #fff; }
+.hopae[aria-pressed="true"]::before { background: var(--d-brass-light); box-shadow: inset 0 0 0 2px var(--d-brass-deep); }
+.hopae[aria-pressed="true"]::after { content: "✓"; font-size: 13px; }
+.d-field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; min-width: 0; width: 100%; }
+.d-field > label, .d-flabel { font: 700 15px/1.3 var(--d-serif); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.d-field > label small, .d-flabel small { font: 400 12.5px/1.3 var(--d-sans); color: var(--d-ink-3); }
+.d-help { font-size: 13.5px; color: var(--d-ink-2); }
+.d-help.err { color: var(--d-jinsa); font-weight: 700; display: flex; gap: 8px; align-items: flex-start; }
+.d-help.err::before { content: "誤"; flex: none; width: 20px; height: 20px; display: grid; place-items: center; border: 1.5px solid var(--d-jinsa); border-radius: 3px; font: 400 12px/1 var(--d-title); transform: rotate(-6deg); margin-top: 1px; }
+.d-help.ok { color: var(--d-pine); font-weight: 700; }
+
+.select { position: relative; }
+.select select { appearance: none; width: 100%; min-height: 50px; padding: 0 48px 0 16px; border-radius: 12px; border: 2px solid var(--d-ink-3); background: var(--d-glaze); cursor: pointer; font: 400 16px/1 var(--d-serif); box-shadow: inset 0 2px 3px rgba(0,0,0,.06); }
+.select select:hover { border-color: var(--d-cobalt); }
+.select::after { content: ""; position: absolute; right: 6px; top: 6px; bottom: 6px; width: 38px; border-radius: 8px; background: var(--d-cobalt); pointer-events: none; }
+.select svg { position: absolute; right: 16px; top: 50%; width: 18px; height: 18px; margin-top: -9px; stroke: #fff; stroke-width: 2.4; fill: none; z-index: 1; pointer-events: none; }
+
+/* Range: a brushstroke filling a groove, with a coin for a handle */
+.range { display: grid; gap: 8px; width: 100%; }
+.range__top { display: flex; justify-content: space-between; align-items: baseline; }
+.range__top output { font: 400 30px/1 var(--d-title); color: var(--d-jinsa); }
+.range__top output small { font: 400 15px/1 var(--d-serif); color: var(--d-ink-3); margin-left: 3px; }
+.range input { -webkit-appearance: none; appearance: none; width: 100%; height: 40px; margin: 0; background: transparent; cursor: pointer; --p: 50%; }
+.range input::-webkit-slider-runnable-track { height: 14px; border-radius: 7px; box-shadow: inset 0 2px 3px rgba(0,0,0,.35);
+  background: linear-gradient(90deg, #f6b25a, var(--d-jinsa)) 0 0/var(--p) 100% no-repeat, linear-gradient(var(--d-wood-deep), var(--d-wood)); }
+.range input::-moz-range-track { height: 14px; border-radius: 7px; background: linear-gradient(var(--d-wood-deep), var(--d-wood)); }
+.range input::-moz-range-progress { height: 14px; border-radius: 7px; background: linear-gradient(90deg, #f6b25a, var(--d-jinsa)); }
+.range input::-webkit-slider-thumb { -webkit-appearance: none; width: 34px; height: 34px; margin-top: -10px; border-radius: 50%; border: 2px solid var(--d-brass-deep);
+  background: linear-gradient(var(--d-hanji), var(--d-hanji)) center/9px 9px no-repeat, radial-gradient(circle at 35% 30%, var(--d-brass-light), var(--d-brass) 50%, var(--d-brass-deep)); box-shadow: 0 3px 0 var(--d-wood-deep); }
+.range input::-moz-range-thumb { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--d-brass-deep); background: linear-gradient(var(--d-hanji), var(--d-hanji)) center/9px 9px no-repeat, radial-gradient(circle at 35% 30%, var(--d-brass-light), var(--d-brass) 50%, var(--d-brass-deep)); }
+.range input:focus-visible { outline: 3px solid var(--d-cobalt); outline-offset: 6px; }
+.range__scale { display: flex; justify-content: space-between; font: 400 12.5px/1 var(--d-serif); color: var(--d-ink-3); }
+/* ---- dal: badges ---- */
+/* ---------- Display ---------- */
+.pill { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 12px; border-radius: 14px; font: 700 13px/1 var(--d-sans); border: 1.5px solid currentColor; background: var(--d-glaze); }
+.pill--c { color: var(--d-cobalt); background: var(--d-cobalt-wash); }
+.pill--j { color: var(--d-jinsa); background: var(--d-jinsa-wash); }
+.pill--p { color: var(--d-pine); background: var(--d-pine-wash); }
+.pill--a { color: var(--d-amber); background: var(--d-amber-wash); }
+.pill--solid { color: #fff; background: var(--d-ink); border-color: var(--d-ink); }
+.pill i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+/* Kiln progress */
+.kiln { width: 100%; display: grid; gap: 8px; }
+.kiln__top { display: flex; justify-content: space-between; align-items: baseline; }
+.kiln__top b { font: 700 16px/1.3 var(--d-serif); }
+.kiln__top output { font: 400 26px/1 var(--d-title); color: var(--d-jinsa); font-variant-numeric: tabular-nums; }
+.kiln__bar { position: relative; height: 26px; border-radius: 13px; background: linear-gradient(#2a1f14, #1a130c); box-shadow: 0 0 0 3px var(--d-wood), 0 0 0 4px var(--d-wood-deep), 0 4px 0 4px var(--d-wood-deep); overflow: hidden; }
+.kiln__bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 13px; background: linear-gradient(90deg, #f6b25a, #e8742a 50%, var(--d-jinsa)); box-shadow: 0 0 14px #f39a3d; transition: width .6s var(--slow); }
+.kiln__bar i::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(110deg, rgba(255,255,255,.18) 0 8px, transparent 8px 18px); animation: flame 1s linear infinite; }
+@keyframes flame { to { background-position: 38px 0; } }
+.kiln__marks { margin-top: 6px; display: flex; justify-content: space-between; font: 400 12px/1 var(--d-serif); color: var(--d-ink-3); }
+.quest { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; width: 100%; padding: 0; margin: 0; list-style: none; position: relative; }
+.quest::before { content: ""; position: absolute; left: 10%; right: 10%; top: 21px; height: 4px; background: var(--d-hanji-3); border-radius: 2px; }
+.quest li { position: relative; display: grid; justify-items: center; gap: 6px; text-align: center; font: 400 13.5px/1.3 var(--d-serif); color: var(--d-ink-3); }
+.quest li span { position: relative; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--d-hanji-2); border: 2px solid var(--d-hanji-3); font: 400 19px/1 var(--d-title); color: var(--d-ink-3); }
+.quest li.done { color: var(--d-ink-2); }
+.quest li.done span { background: var(--d-glaze); border-color: var(--d-cobalt); color: var(--d-cobalt); box-shadow: inset 0 0 0 3px var(--d-glaze), inset 0 0 0 4.5px var(--d-cobalt); }
+.quest li.now { color: var(--d-ink); font-weight: 700; }
+.quest li.now span { background: var(--d-jinsa); border-color: var(--d-jinsa-deep); color: #fff; box-shadow: 0 0 0 5px var(--d-jinsa-wash); animation: pulse 1.8s ease-in-out infinite; }
+@media (max-width: 480px) { .quest li { font-size: 12px; } .quest li span { width: 38px; height: 38px; font-size: 16px; } .quest::before { top: 17px; } }
+/* ---------- Code ---------- */
+pre.code { margin: 0; padding: 20px 22px; overflow: auto; max-height: 520px; border-radius: 12px; background: #1f2433; color: #e8e4d8; font: 400 13px/1.7 ui-monospace, Menlo, Consolas, monospace; border: 3px solid var(--d-wood); box-shadow: 0 5px 0 var(--d-wood-deep); }
+pre.code .c { color: #8a90a6; } pre.code .p { color: #f6b25a; } pre.code .v { color: #9fb6ec; }
+
+/* ================= glue: the minimum to make the forced parts fit ================= */
+section.part { grid-template-columns: minmax(0, 1fr); scroll-margin-top: 96px; }
+.eave { z-index: 50; }
+.eave__name small { letter-spacing: .12em; }
+@media (max-width: 900px) { .eave nav { display: flex; } .eave__bar .wrap { gap: 10px; } }
+.eave nav a:focus-visible { outline-offset: -3px; }
+.hero { overflow-x: clip; }
+.hero h1 small { font-size: clamp(20px, 2.8vw, 30px); }
+.mast-tag { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.part__head h2 { font-family: var(--font-serif); }
+/* source tag shown in each bay's note */
+.note h3 small.src { font: 600 11px/1 var(--font-mono); letter-spacing: .1em; padding: 4px 6px; border: 1.5px solid currentColor; }
+.src--sansa { color: var(--noerok-d) !important; } .src--dal { color: var(--d-cobalt) !important; } .src--riso { color: var(--r-pink-ink) !important; }
+/* 44px targets */
+.btn--sm { min-height: 44px; }
+.s-btn--sm { min-height: 44px; }
+.pager button { width: 44px; height: 44px; }
+.hopae { min-height: 44px; }
+.toast button.x { width: 44px; height: 44px; }
+.r-check, .d-check { min-height: 44px; align-items: center; }
+.range input { height: 48px; }
+.menu .btn--icon { width: 44px !important; }
+.sheet .btn--icon { width: 44px !important; }
+.input__btn { min-width: 48px; }
+.yard .stack, .yard fieldset { width: 100%; }
+.cards { width: 100%; }
+.tablewrap.assign table { min-width: 560px; }
+.assign td:first-child { font: 600 15px/1.3 var(--s-title); white-space: nowrap; }
+.assign td small { color: var(--ink-3); font-size: 13px; }
+.extra td:first-child::after { content: " *"; color: var(--ganju); }
+.foot-note { font-size: 13.5px; color: var(--ink-2); margin-top: 10px; }
+.lifted { display: grid; gap: 4px; width: 100%; }
+.lifted b { font: 600 15px/1.3 var(--s-title); }
+.mis-num { font: 900 56px/1 var(--font-serif); }
+.yard > .kiln + .kiln { margin-top: 8px; }
+.toasts { z-index: 80; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: center; }
+@media (max-width: 560px) { .part__head { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- DAL: glaze gradient + moon jar -->
+  <radialGradient id="glz" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f4f2ea"/><stop offset="1" stop-color="#cfcabb"/></radialGradient>
+  <symbol id="moonjar" viewBox="0 0 120 130"><path d="M44 8h32c0 6 3 9 3 12 22 6 35 24 35 46 0 26-19 46-54 52h0C25 112 6 92 6 66c0-22 13-40 35-46 0-3 3-6 3-12z" fill="url(#glz)" stroke="#bdb8a8" stroke-width="1.2"/><path d="M42 20c12 3 24 3 36 0" fill="none" stroke="#d6d1c3" stroke-width="1.5"/><ellipse cx="38" cy="50" rx="10" ry="18" fill="#fff" opacity=".7"/><path d="M14 74c10 4 24 6 46 6s36-2 46-6" fill="none" stroke="#e1ddd0" stroke-width="1.2"/></symbol>
+  <!-- SANSA: wind bell + tiled roof -->
+  <symbol id="pg" viewBox="0 0 22 70"><path d="M11 0v10" stroke="#5b4534" stroke-width="1.4"/><path d="M5 12h12l1 16c0 3-3 4-7 4s-7-1-7-4z" fill="#6f6a4a" stroke="#45412c" stroke-width="1"/><path d="M6 16h10" stroke="#9f9a70" stroke-width="1"/><path d="M11 32v14" stroke="#5b4534" stroke-width="1"/><path d="M11 46c5 2 7 6 6 10-1 3-3 5-6 6-3-1-5-3-6-6-1-4 1-8 6-10zM8 60l3 6 3-6" fill="#8db3a1" stroke="#45412c" stroke-width="1"/><circle cx="12.5" cy="52" r="1" fill="#2b2621"/></symbol>
+  <symbol id="roof" viewBox="0 0 300 40" preserveAspectRatio="none"><path d="M0 34 Q18 26 34 20 L58 6 H242 L266 20 Q282 26 300 34 L300 40 L0 40Z" fill="#4a4a48"/><path d="M58 6 H242" stroke="#2e2e2c" stroke-width="3"/><path d="M0 34 Q18 26 34 20 L58 6 H242 L266 20 Q282 26 300 34" fill="none" stroke="#2e2e2c" stroke-width="2"/><path d="M50 12h200" stroke="#e8e4d8" stroke-width="2"/></symbol>
+</defs></svg>
+
+<!-- NAV: SANSA eave (extra draw) -->
+<header class="eave">
+  <div class="eave__roof" aria-hidden="true"></div>
+  <div class="eave__beam" aria-hidden="true"></div>
+  <div class="eave__bar"><div class="wrap"><span class="eave__name">묵판 <small>INKSTONE</small></span>
+    <nav aria-label="섹션" id="nav"><a href="#base">기초</a><a href="#press">누르기</a><a href="#toggle">켜고 끄기</a><a href="#choose">고르기</a><a href="#type-in">입력</a><a href="#show">보여 주기</a><a href="#float">띄우기</a><a href="#code">코드</a></nav></div></div>
+</header>
+
+<!-- HERO: DAL (extra draw) -->
+<div class="wrap hero">
+  <div>
+    <div class="hero__k">CROSSOVER · SANSA × DAL × RISO</div>
+    <h1>묵판<small>제비뽑기로 붙인 세 장의 판</small></h1>
+    <p>산사의 법당 칸, 달의 백자와 엽전, 리소의 어긋난 잉크. 요소마다 출처를 무작위로 뽑고, 뽑힌 원본을 그대로 떼어 와 한 장 위에 억지로 붙였습니다. 서로 어울리지 않는 것이 이 시스템의 규칙입니다.</p>
+    <div class="hero__cta"><a class="btn" href="#base">배정표 보기</a><a class="s-btn s-btn--paper" href="#code">토큰 받기</a></div>
+    <div class="mast-tag"><span class="pill pill--p"><i></i>산사 14</span><span class="pill pill--c"><i></i>달 12</span><span class="pill pill--j"><i></i>리소 12</span></div>
+  </div>
+  <div class="jar"><svg viewBox="0 0 120 130" role="img" aria-label="달항아리"><use href="#moonjar"/></svg></div>
+</div>
+
+<main class="wrap">
+
+<!-- 01 기초 -->
+<section class="part" id="base">
+  <div class="part__head"><div class="part__no"><span class="mis" data-t="01">01</span></div><div><h2>기초</h2><p>묵판은 Sansa · Dal · Riso 세 시스템의 크로스오버입니다. 다만 섞지 않았습니다. 요소마다 출처를 <b>무작위로 뽑았고</b>, 뽑힌 시스템의 파일에서 그 요소의 모양·재료·색·글꼴·움직임을 최대한 그대로 떼어 와 <b>억지로</b> 한 페이지에 붙였습니다. 부딪히는 것이 의도입니다.</p></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>크로스오버 배정표 <small class="src src--sansa">표 · SANSA</small></h3><p>왼쪽은 요소, 오른쪽은 제비로 뽑힌 출처. 별표(*)는 배정 목록에 없어 붙이는 데 필요해 같은 방식으로 임의로 뽑은 것입니다.</p><ul><li>접착은 최소한만: 변수 접두사, 이름 겹침 피하기, 44px, 대비.</li></ul></div>
+    <div class="yard col"><div class="tablewrap assign"><table><caption>요소 38개 · 출처 3곳</caption><thead><tr><th scope="col">요소</th><th scope="col">출처</th><th scope="col">떼어 온 것</th></tr></thead><tbody id="assignBody"></tbody></table></div></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="yard col" style="grid-column:1/-1;align-items:stretch;padding:40px 30px"><div class="swatches" id="swatches"></div></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>글꼴 <small class="src src--riso">RISO</small></h3><p>페이지 글자는 리소 몫: 제목 Noto Serif KR, 본문 IBM Plex Sans KR, 라벨 IBM Plex Mono. 떼어 온 부품은 원래 글꼴을 들고 왔습니다.</p><ul><li>산사 부품은 함렛, 달 부품은 송명·고운 바탕.</li></ul></div><div class="yard col" id="typescale" style="display:block;padding:30px 28px"></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="yard col" style="grid-column:1/-1;padding:34px 28px">
+    <ol class="precepts">
+      <li><b>원본 그대로.</b><span>뽑힌 시스템의 CSS 규칙을 줄째로 옮깁니다. 리소 버튼은 여전히 평평하고, 달 알약은 여전히 유약처럼 둥급니다.</span></li>
+      <li><b>접착은 최소.</b><span>변수에 출처 접두사(<code>--r-</code> 리소, <code>--d-</code> 달)를 붙이고 겹치는 클래스 이름만 바꿉니다. 산사가 접두사 없는 팔레트의 주인입니다.</span></li>
+      <li><b>두 가지만 통일.</b><span>초점은 모두 달의 3px 청화 테두리, 움직임은 모두 산사의 느리게 가라앉는 곡선. 배정이 그렇게 나왔기 때문입니다.</span></li>
+      <li><b>읽기는 타협 없음.</b><span>본문 16px 이상, 글자 대비 4.5:1 이상, 누르는 곳 44px 이상, 키보드로 모두 쓸 수 있게.</span></li>
+    </ol></div></div></div>
+</section>
+
+<!-- 02 누르기 -->
+<section class="part" id="press">
+  <div class="part__head"><div class="part__no"><span class="mis" data-t="02">02</span></div><div><h2>누르기</h2><p>주요 동작은 리소의 평평한 잉크, 보조와 위험은 산사의 단청 들보, 가장 큰 행동은 산사의 범종. 한 줄에 그림자 없는 버튼과 그림자 있는 버튼이 나란히 섭니다.</p></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>세 종류 버튼</h3><p><b>주요</b>는 리소: 블루 잉크 위에 핑크 판이 어긋나 있다가 누르면 맞춰집니다. <b>보조</b>는 산사의 나무 테 두른 한지, <b>위험</b>은 산사의 석간주.</p><ul><li>한 화면에 주요 버튼은 하나.</li></ul></div>
+    <div class="yard"><button class="btn">인쇄 보내기</button><button class="s-btn s-btn--paper">일정 보기</button><button class="s-btn s-btn--ganju">예약 취소</button></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>크기와 상태 <small class="src src--riso">RISO · SANSA</small></h3><p>리소 비활성은 망점, 산사 비활성은 색이 빠진 나무. 기다리는 동안 리소 버튼은 글자를 바꿔 알립니다.</p></div>
+    <div class="yard"><button class="btn btn--sm">작게</button><button class="btn">기본</button><button class="btn" disabled>비활성</button><button class="btn" id="loadBtn"><span>보내기</span></button><button class="s-btn s-btn--paper s-btn--sm">작은 보조</button><button class="s-btn s-btn--ganju" disabled>자리 없음</button></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>아이콘 버튼 <small class="src src--riso">RISO</small></h3><p>테두리만 있는 리소 사각 버튼에 먹 말풍선. 법당 기둥 사이에 인쇄소 공구가 걸려 있는 셈입니다.</p><ul><li>아이콘만 있으면 이름을 붙입니다.</li></ul></div>
+    <div class="yard">
+      <span class="tip"><button class="btn btn--line btn--icon" aria-label="인쇄"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/></svg></button><span class="tip__bubble" role="tooltip">인쇄 ⌘P</span></span>
+      <span class="tip"><button class="btn btn--line btn--icon" aria-label="공유"><svg viewBox="0 0 24 24"><path d="M12 3v13M7 8l5-5 5 5M5 14v7h14v-7"/></svg></button><span class="tip__bubble" role="tooltip">공유</span></span>
+      <span class="tip"><button class="btn btn--line btn--icon" aria-label="종 치기 소리"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM16 9c1.5 1.5 1.5 4.5 0 6"/></svg></button><span class="tip__bubble" role="tooltip">소리</span></span>
+    </div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>범종 <small class="src src--sansa">SANSA</small></h3><p>한 화면에 하나뿐인 가장 큰 행동. 당목으로 종을 치면 소리 결이 천천히 번지고, 리소 쪽지가 알림을 찍어 냅니다.</p></div>
+    <div class="yard" id="bellYard"></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>더보기 메뉴 <small class="src src--riso">RISO *</small></h3><p>자주 쓰지 않는 동작을 접어 둡니다. 화살표 키로 이동, Esc로 닫기. 위험한 동작을 고르면 산사의 확인 창이 뜹니다.</p></div>
+    <div class="yard" style="min-height:330px;align-content:start;padding-top:52px">
+      <div style="display:flex;align-items:center;gap:16px;justify-content:space-between;width:100%;max-width:400px;border-top:2px solid var(--r-ink);border-bottom:1px solid var(--r-ink);padding:10px 0">
+        <div style="display:grid;line-height:1.4"><b style="font-family:var(--font-serif)">11월호 표지 시안</b><span class="label" style="text-transform:none;letter-spacing:0">윤하린 · 4분 전</span></div>
+        <div class="menu"><button class="btn btn--line btn--icon btn--sm" aria-label="더보기" aria-haspopup="menu" aria-expanded="false" id="menuBtn"><svg viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+          <ul class="menu__list" role="menu" id="menuList" hidden>
+            <li role="none"><button role="menuitem" tabindex="-1">이름 바꾸기 <kbd>R</kbd></button></li>
+            <li role="none"><button role="menuitem" tabindex="-1">복제하기 <kbd>D</kbd></button></li>
+            <li role="none"><button role="menuitem" tabindex="-1">링크 복사 <kbd>L</kbd></button></li>
+            <li role="none" class="menu__sep"></li>
+            <li role="none"><button role="menuitem" tabindex="-1" class="danger">삭제</button></li>
+          </ul></div>
+      </div>
+    </div></div></div>
+</section>
+
+<!-- 03 켜고 끄기 -->
+<section class="part" id="toggle">
+  <div class="part__head"><div class="part__no"><span class="mis" data-t="03">03</span></div><div><h2>켜고 끄기</h2><p>리소의 OFF/ON 잉크 블록 옆에 달의 미닫이 창호. 체크는 리소의 두 판, 라디오는 달의 놋 엽전.</p></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>스위치 A <small class="src src--riso">RISO</small></h3><p>바로 적용되는 설정. 잉크 블록이 OFF 칸에서 ON 칸으로 옮겨 갑니다. 상태 글자가 늘 찍혀 있습니다.</p></div>
+    <div class="yard col" style="align-items:flex-start">
+      <button class="switch" role="switch" aria-checked="true"><span class="switch__track" aria-hidden="true"><span>OFF</span><span>ON</span></span><span class="switch__text">새 댓글 알림<small>누가 내 글에 답하면 알려 줍니다</small></span></button>
+      <button class="switch" role="switch" aria-checked="false"><span class="switch__track" aria-hidden="true"><span>OFF</span><span>ON</span></span><span class="switch__text">주간 요약 메일<small>월요일 아침 9시</small></span></button>
+    </div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>스위치 B <small class="src src--dal">DAL</small></h3><p>미닫이 창호. 켜면 두 짝이 양옆으로 밀려 열리고, 안쪽 불빛에 "열림"이 보입니다. 열림/닫힘을 글자로도.</p></div>
+    <div class="yard col" style="align-items:flex-start" id="doors"></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>체크박스 <small class="src src--riso">RISO</small></h3><p>블루와 핑크 두 판으로 찍은 체크. 일부만 골랐으면 "전부"에 가로 막대.</p></div>
+    <div class="yard col" style="align-items:flex-start">
+      <fieldset class="stack"><legend class="label">내보낼 형식</legend>
+        <label class="r-check"><input type="checkbox" id="chkAll"><span class="r-check__box"><svg viewBox="0 0 24 24"><path class="b" d="M5 12.5l4.5 4.5L19 7"/><path class="a" d="M5 12.5l4.5 4.5L19 7"/></svg></span><span class="r-check__t"><b>전부</b></span></label>
+        <div class="stack" style="padding-left:36px">
+          <label class="r-check"><input type="checkbox" class="chkItem" checked><span class="r-check__box"><svg viewBox="0 0 24 24"><path class="b" d="M5 12.5l4.5 4.5L19 7"/><path class="a" d="M5 12.5l4.5 4.5L19 7"/></svg></span><span class="r-check__t">PDF<small>인쇄용, 재단선 포함</small></span></label>
+          <label class="r-check"><input type="checkbox" class="chkItem"><span class="r-check__box"><svg viewBox="0 0 24 24"><path class="b" d="M5 12.5l4.5 4.5L19 7"/><path class="a" d="M5 12.5l4.5 4.5L19 7"/></svg></span><span class="r-check__t">PNG<small>화면용, 2배 크기</small></span></label>
+          <label class="r-check"><input type="checkbox" disabled><span class="r-check__box"><svg viewBox="0 0 24 24"><path class="b" d="M5 12.5l4.5 4.5L19 7"/><path class="a" d="M5 12.5l4.5 4.5L19 7"/></svg></span><span class="r-check__t">TIFF<small>유료 플랜에서 쓸 수 있어요</small></span></label>
+        </div>
+      </fieldset>
+    </div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>엽전 라디오 <small class="src src--dal">DAL</small></h3><p>하나만 고를 때. 고른 엽전이 놋쇠로 빛나며 45도 돌아갑니다.</p></div>
+    <div class="yard col" style="align-items:flex-start">
+      <fieldset class="stack"><legend class="label">장터 가는 길</legend>
+        <label class="d-check"><input type="radio" name="road" checked><span class="coin"></span><span class="d-check__t">나룻배<small>반나절 · 엽전 20</small></span></label>
+        <label class="d-check"><input type="radio" name="road"><span class="coin"></span><span class="d-check__t">소달구지<small>하루 · 엽전 8</small></span></label>
+        <label class="d-check"><input type="radio" name="road"><span class="coin"></span><span class="d-check__t">걸어서<small>사흘 · 공짜, 깨질 수 있음</small></span></label>
+      </fieldset>
+    </div></div></div>
+</section>
+
+<!-- 04 고르기 -->
+<section class="part" id="choose">
+  <div class="part__head"><div class="part__no"><span class="mis" data-t="04">04</span></div><div><h2>고르기</h2><p>산사의 징검돌과 절길, 달의 서책 탭·호패·가마 슬라이더. 고르기는 달이 가장 많이 뽑혔습니다.</p></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>징검돌 분할 버튼 <small class="src src--sansa">SANSA</small></h3><p>두셋 중 하나를 바로 바꿀 때. 고른 돌이 이끼 빛으로 젖습니다. ←→ 키로 옮겨 디딥니다.</p></div>
+    <div class="yard"><div class="steps-seg" role="radiogroup" aria-label="계절"><button role="radio" aria-checked="false">봄</button><button role="radio" aria-checked="false">여름</button><button role="radio" aria-checked="true">가을</button><button role="radio" aria-checked="false">겨울</button></div></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>서책 탭 <small class="src src--dal">DAL</small></h3><p>묶은 책 위로 삐죽 나온 책갈피. 고른 장은 청화로 물들고 앞으로 나옵니다.</p><ul><li>←→ 키로 넘깁니다.</li></ul></div>
+    <div class="yard col"><div class="book">
+      <div class="book__tabs" role="tablist" aria-label="도감"><button role="tab" aria-selected="true" aria-controls="tp1" id="t1">백자</button><button role="tab" aria-selected="false" aria-controls="tp2" id="t2" tabindex="-1">청화</button><button role="tab" aria-selected="false" aria-controls="tp3" id="t3" tabindex="-1">진사</button></div>
+      <div class="book__page" role="tabpanel" id="tp1" aria-labelledby="t1" tabindex="0">눈처럼 흰 그릇. 장식 없이 형태와 유약만으로 아름다움을 냅니다. 도감 12점 중 9점.</div>
+      <div class="book__page" role="tabpanel" id="tp2" aria-labelledby="t2" tabindex="0" hidden>코발트 안료로 그림을 그린 그릇. 소나무, 매화, 구름이 단골 무늬입니다. 도감 18점 중 6점.</div>
+      <div class="book__page" role="tabpanel" id="tp3" aria-labelledby="t3" tabindex="0" hidden>구리 안료가 붉게 피어난 그릇. 불 조절이 까다로워 귀합니다. 도감 6점 중 1점.</div>
+    </div></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>호패 필터 <small class="src src--dal">DAL</small></h3><p>여러 개를 켜고 끄는 필터. 켜진 호패는 청화로 칠해지고 체크가 붙습니다.</p></div>
+    <div class="yard"><div class="tags"><button class="hopae" aria-pressed="true">항아리</button><button class="hopae" aria-pressed="false">사발</button><button class="hopae" aria-pressed="true">병</button><button class="hopae" aria-pressed="false">연적</button><button class="hopae" aria-pressed="false">필통</button></div></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>드롭다운과 슬라이더 <small class="src src--dal">DAL</small></h3><p>목록이 길면 청화 꼭지가 달린 유약 칸. 값을 끌 때는 나무 홈에 붓질이 차오르고, 엽전을 잡아 끕니다.</p></div>
+    <div class="yard col">
+      <div class="d-field"><label for="sel1">유약 <small>가마마다 한 가지</small></label><div class="select"><select id="sel1"><option>백자유 · 맑고 푸른 흰빛</option><option>청화 · 코발트 안료</option><option>진사 · 구리 안료</option><option>철화 · 쇠 안료</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+      <div class="range"><div class="range__top"><label class="d-flabel" for="rg">가마 온도</label><output id="rgOut" for="rg">1,250<small>℃</small></output></div><input type="range" id="rg" min="800" max="1350" step="25" value="1250"><div class="range__scale" aria-hidden="true"><span>800 초벌</span><span>1,100</span><span>1,350 재벌</span></div></div>
+    </div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>절길 사이드 메뉴 <small class="src src--sansa">SANSA</small></h3><p>일주문에서 법당까지 걷는 길. 돌길 위에 문이 차례로 서고, 지금 선 곳에 석간주 표시.</p></div>
+    <div class="yard"><nav aria-label="절길"><ol class="path" id="path">
+      <li><a href="#"><span>一</span>일주문<em></em></a></li><li><a href="#" aria-current="page"><span>天</span>천왕문<em>안내</em></a></li><li><a href="#"><span>不</span>불이문<em></em></a></li><li><a href="#"><span>大</span>대웅전<em class="new">예불</em></a></li><li><a href="#"><span>寮</span>요사채<em>4</em></a></li>
+    </ol></nav></div></div></div>
+</section>
+
+<!-- 05 입력 -->
+<section class="part" id="type-in">
+  <div class="part__head"><div class="part__no"><span class="mis" data-t="05">05</span></div><div><h2>입력</h2><p>입력 칸은 전부 산사: 가는 나무 살에 끼운 한지. 쓰는 동안 아래로 뇌록 먹물이 천천히 번집니다. 초점 테두리만 달의 청화.</p></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>글자 입력 <small class="src src--sansa">SANSA</small></h3><p>이름은 칸 위에. 틀리면 테가 석간주로 바뀌고, 무엇을 어떻게 고칠지 한 문장으로.</p></div>
+    <div class="yard col"><div class="grid2">
+      <div class="field"><label for="i1">이름</label><div class="input"><input id="i1" placeholder="예: 윤솔" autocomplete="name"></div></div>
+      <div class="field"><label for="i2">이메일</label><div class="input is-err"><input id="i2" type="email" value="yoonsol@sansa" aria-invalid="true" aria-describedby="i2e" autocomplete="email"></div><span class="help err" id="i2e">주소가 끝나지 않았어요. yoonsol@sansa.kr처럼 적어 주세요.</span></div>
+      <div class="field"><label for="i3">찾기</label><div class="input"><span class="input__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></span><input id="i3" type="search" placeholder="절 이름, 가마, 인쇄소"></div></div>
+      <div class="field"><label for="i4">비밀번호</label><div class="input is-ok"><input id="i4" type="password" value="morningbell" autocomplete="new-password"><button class="input__btn" type="button" id="pwBtn" aria-pressed="false">보기</button></div><span class="help ok">충분히 깁니다</span></div>
+      <div class="field"><label for="i5">인원</label><div class="input"><input id="i5" class="num" type="number" value="2" min="1"><span class="input__aff">명</span></div></div>
+      <div class="field"><label for="i6">예약 번호 <small>바꿀 수 없음</small></label><div class="input is-off"><input id="i6" value="TS-1122-08" disabled></div></div>
+    </div></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>날짜와 긴 글 <small class="src src--sansa">SANSA</small></h3><p>날짜는 기본 달력으로. 여러 줄 입력은 남은 글자 수를 아래에.</p></div>
+    <div class="yard col">
+      <div class="grid2"><div class="field"><label for="d1">들어가는 날</label><div class="input"><input id="d1" type="date" value="2026-11-22"></div></div><div class="field"><label for="d2">도착 시각</label><div class="input"><input id="d2" type="time" value="14:00"></div></div></div>
+      <div class="field"><label for="ta">스님께 남길 말</label><div class="input"><textarea id="ta" maxlength="140" placeholder="예: 채식만 합니다">무릎이 좋지 않아 108배는 절반만 하려 합니다.</textarea></div><div class="count" id="taCount" aria-live="polite"></div></div>
+    </div></div></div>
+</section>
+
+<!-- 06 보여 주기 -->
+<section class="part" id="show">
+  <div class="part__head"><div class="part__no"><span class="mis" data-t="06">06</span></div><div><h2>보여 주기</h2><p>달의 유약 알약이 리소의 인쇄 카드 위에 앉고, 달의 가마 불길과 퀘스트 길 아래로 산사의 경전과 일과표가 이어집니다.</p></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>뱃지 <small class="src src--dal">DAL</small></h3><p>유약 알약. 색과 함께 점과 글자로 상태를 적습니다.</p></div>
+    <div class="yard"><span class="pill pill--c">새로 빚음</span><span class="pill pill--p"><i></i>잘 구워짐</span><span class="pill pill--a"><i></i>말리는 중</span><span class="pill pill--j"><i></i>금 감</span><span class="pill pill--solid">한정</span></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>카드 <small class="src src--riso">RISO</small></h3><p>2도로 찍은 카드. 올리면 핑크 판 그림자가 벌어지고 누르면 붙습니다. 안쪽 상태 표시는 배정대로 달의 알약.</p></div>
+    <div class="yard"><div class="cards">
+      <a class="card card--link" href="#show"><div class="card__img" aria-hidden="true"><i style="left:12%;top:20%;width:90px;height:90px;border-radius:50%;background:var(--r-pink)"></i><i style="left:34%;top:34%;width:120px;height:70px;background:var(--r-blue)"></i></div><div class="card__body"><span class="label">포스터 · A2</span><h4>겨울 장터 2026</h4><p>블루와 핑크 2도. 핑크 판은 1mm 어긋나게.</p></div><div class="card__meta"><span>300부</span><span class="pill pill--p"><i></i>완료</span></div></a>
+      <a class="card card--link" href="#show"><div class="card__img" aria-hidden="true" style="background:var(--r-blue-wash)"><i style="left:20%;top:0;width:24px;height:100%;background:var(--r-blue)"></i><i style="left:36%;top:0;width:24px;height:100%;background:var(--r-blue)"></i><i style="left:16%;top:30%;width:70%;height:40%;background:var(--r-pink)"></i></div><div class="card__body"><span class="label">진 · 24쪽</span><h4>골목 인쇄소 지도</h4><p>갱지에 블랙 1도, 표지만 2도.</p></div><div class="card__meta"><span>120부</span><span class="pill pill--a"><i></i>교정 중</span></div></a>
+    </div></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>가마 진행과 퀘스트 <small class="src src--dal">DAL</small></h3><p>오래 걸리는 일은 가마 불길로, 여러 단계의 일은 퀘스트 길로. 지금 단계가 붉게 뜁니다.</p></div>
+    <div class="yard col" style="gap:30px">
+      <div class="kiln"><div class="kiln__top"><b>2번 가마 · 재벌구이</b><output id="kilnOut">1,180℃</output></div><div class="kiln__bar" role="progressbar" aria-label="2번 가마 굽기" aria-valuemin="0" aria-valuemax="100" aria-valuenow="62" id="kiln"><i style="width:62%"></i></div><div class="kiln__marks" aria-hidden="true"><span>불 넣기</span><span>남은 시간 1시진</span><span>꺼내기</span></div></div>
+      <div class="kiln"><div class="kiln__top"><b>1번 가마 · 초벌</b><output>30%</output></div><div class="kiln__bar" role="progressbar" aria-label="1번 가마 초벌" aria-valuemin="0" aria-valuemax="100" aria-valuenow="30"><i style="width:30%"></i></div></div>
+      <ol class="quest" aria-label="달항아리 빚기"><li class="done"><span>土</span>흙 고르기</li><li class="done"><span>形</span>빚기</li><li class="now" aria-current="step"><span>乾</span>말리기</li><li><span>初</span>초벌</li><li><span>窯</span>재벌</li></ol>
+    </div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>접은 경전 <small class="src src--sansa">SANSA</small></h3><p>긴 설명은 접은 경전처럼 한 장씩. 펼친 장은 화살표가 위로 돌아갑니다.</p></div>
+    <div class="yard"><div class="sutra">
+      <details open><summary><b>一</b>왜 서로 안 어울리나요?</summary><div>일부러 그렇습니다. 요소마다 출처를 제비로 뽑고, 뽑힌 원본을 고치지 않고 붙였습니다.</div></details>
+      <details><summary><b>二</b>무엇은 고쳤나요?</summary><div>글자 대비, 44px 누르는 곳, 키보드 동작, 그리고 서로 이름이 겹친 변수와 클래스. 그 밖에는 원본 그대로입니다.</div></details>
+      <details><summary><b>三</b>다시 뽑으면 어떻게 되나요?</summary><div>다른 묵판이 나옵니다. 배정표만 바꾸면 됩니다.</div></details>
+    </div></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>일과표 <small class="src src--sansa">SANSA</small></h3><p>나무 머리에 한지 칸, 시각은 함렛으로.</p><ul><li>머리글을 누르면 정렬됩니다.</li></ul></div>
+    <div class="yard col">
+      <div class="tablewrap"><table id="tbl"><caption>첫째 날 일과</caption><thead><tr><th scope="col" aria-sort="ascending"><button data-k="0">시각</button></th><th scope="col">일과</th><th scope="col">곳</th><th scope="col" class="num" aria-sort="none"><button data-k="3">걸리는 시간</button></th></tr></thead>
+      <tbody>
+        <tr><td class="time">14:00</td><td>입재와 안내</td><td>종무소</td><td class="num">30분</td></tr>
+        <tr><td class="time">15:00</td><td>사찰 둘러보기</td><td>경내</td><td class="num">60분</td></tr>
+        <tr><td class="time">17:30</td><td>저녁 공양</td><td>공양간</td><td class="num">40분</td></tr>
+        <tr><td class="time">18:30</td><td>저녁 예불</td><td>대웅전</td><td class="num">35분</td></tr>
+      </tbody></table></div>
+      <div class="pager"><span id="pgInfo">일과 12개 중 1–4</span><nav aria-label="쪽"><ol><li><button aria-label="이전 쪽" disabled>‹</button></li><li><button aria-current="page">1</button></li><li><button>2</button></li><li><button>3</button></li><li><button aria-label="다음 쪽">›</button></li></ol></nav></div>
+    </div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>비어 있음 <small class="src src--riso">RISO *</small></h3><p>빈 자리는 어긋나게 찍힌 0 하나와 할 일 하나.</p></div>
+    <div class="yard"><div class="empty"><span class="mis mis-num" data-t="0">0</span><b>아직 보관한 원고가 없어요</b><p>인쇄가 끝난 원고는 30일 뒤 이곳으로 옮겨집니다.</p><button class="btn btn--sm">원고 올리기</button></div></div></div></div>
+</section>
+
+<!-- 07 띄우기 -->
+<section class="part" id="float">
+  <div class="part__head"><div class="part__no"><span class="mis" data-t="07">07</span></div><div><h2>띄우기</h2><p>확인 창은 산사의 기와 얹은 전각, 옆 판은 리소의 천공선 낱장, 알림은 리소의 먹 그림자 쪽지.</p></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>확인 창 <small class="src src--sansa">SANSA</small></h3><p>되돌릴 수 없는 일 앞에서. 뒤는 안개처럼 흐리게. 버튼은 결과를 말합니다.</p></div>
+    <div class="yard"><button class="s-btn s-btn--ganju" id="dlgOpen">예약 취소…</button></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>옆 판 <small class="src src--riso">RISO</small></h3><p>지금 화면을 떠나지 않고 자세히 볼 때. 천공선이 난 낱장이 오른쪽에서 밀려옵니다. Esc로 닫고, Tab은 판 안에서만 돕니다.</p></div>
+    <div class="yard"><button class="s-btn s-btn--paper" id="sheetOpen">작업 자세히</button></div></div></div>
+
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>알림 <small class="src src--riso">RISO</small></h3><p>방금 일어난 일. 먹 그림자 쪽지가 오른쪽 아래에 찍혀 나와 5초 뒤 사라집니다. 오류는 <code>role="alert"</code>.</p></div>
+    <div class="yard"><button class="btn" data-toast="ok">저장 알림</button><button class="s-btn s-btn--paper" data-toast="undo">되돌리기 알림</button><button class="s-btn s-btn--ganju" data-toast="err">오류 알림</button></div></div></div>
+</section>
+
+<!-- 08 코드 -->
+<section class="part" id="code">
+  <div class="part__head"><div class="part__no"><span class="mis" data-t="08">08</span></div><div><h2>코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. shadcn 기본 토큰은 산사 팔레트, 떼어 온 부품의 색은 출처 접두사를 달고 따라옵니다.</p></div></div>
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="yard col" style="grid-column:1/-1;padding:30px 26px"><div class="codebar"><span class="flabel">app/globals.css <small class="src src--dal" style="font:600 11px/1 var(--font-mono);letter-spacing:.1em">코드 블록 · DAL *</small></span><button class="s-btn s-btn--sm s-btn--paper" id="copyBtn">복사하기</button></div><pre class="code" id="codeBlock"></pre></div></div></div>
+</section>
+</main>
+
+<!-- FOOTER: RISO colophon (extra draw) -->
+<footer class="wrap colophon">
+  <div><b>묵판 · INKSTONE</b>Sansa · Dal · Riso 크로스오버. 요소마다 제비로 출처를 뽑아 억지로 붙였습니다.</div>
+  <div><b>글꼴</b>페이지 IBM Plex Sans KR · Noto Serif KR · IBM Plex Mono. 따라온 글꼴 Hahmlet · Noto Sans KR · Song Myung · Gowun.</div>
+  <div><b>색</b>산사 팔레트 위에 리소 <code>--r-*</code>, 달 <code>--d-*</code>.</div>
+  <div><b>다른 시스템</b><a href="../">Oat</a> · <a href="../riso/">Riso</a> · <a href="../arcology/">Arcology</a> · <a href="../dal/">Dal</a> · <a href="../canopy/">Canopy</a> · <a href="../sansa/">Sansa</a> · <a href="../abyss/">Abyss</a> · <a href="../atomic/">Atomic</a></div>
+</footer>
+
+<!-- DIALOG: SANSA -->
+<dialog id="dlg" aria-labelledby="dlgT" aria-describedby="dlgD">
+  <div class="dlg">
+    <div class="dlg__roof" aria-hidden="true"><svg><use href="#roof"/></svg></div>
+    <div class="dlg__in"><div class="dlg__band" aria-hidden="true"></div>
+      <span class="chime chime--l" aria-hidden="true"><svg><use href="#pg"/></svg></span><span class="chime chime--r" aria-hidden="true"><svg><use href="#pg"/></svg></span>
+      <div class="dlg__body"><h3 id="dlgT">템플스테이 예약을 취소할까요?</h3><p id="dlgD">11월 22일 1박 2일, 2인 예약이 취소됩니다. 사흘 전까지는 전액 돌려드립니다.</p>
+        <div class="dlg__foot"><button class="s-btn s-btn--paper" data-close>그대로 두기</button><button class="s-btn s-btn--ganju" data-close data-after="err">예약 취소</button></div></div></div>
+  </div>
+</dialog>
+
+<!-- SIDE PANEL: RISO (with sansa inputs, dal chips, riso switch inside) -->
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetT" aria-hidden="true">
+  <span class="sheet__perf" aria-hidden="true"></span>
+  <div class="sheet__head"><div><span class="label">작업 RS-2611-004</span><h3 id="sheetT">겨울 장터 포스터</h3></div><button class="btn btn--line btn--icon btn--sm" aria-label="닫기" data-sclose><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="sheet__body">
+    <div class="field"><label for="s1">제목</label><div class="input"><input id="s1" value="겨울 장터 포스터"></div></div>
+    <div class="field"><label for="s2">부수</label><div class="input"><input id="s2" class="num" type="number" value="300"><span class="input__aff">부</span></div></div>
+    <div class="field"><span class="flabel">잉크</span><div class="tags"><button class="hopae" aria-pressed="true">블루</button><button class="hopae" aria-pressed="true">핑크</button><button class="hopae" aria-pressed="false">먹</button></div></div>
+    <button class="switch" role="switch" aria-checked="true"><span class="switch__track" aria-hidden="true"><span>OFF</span><span>ON</span></span><span class="switch__text">판 어긋남 남기기<small>1mm 안팎</small></span></button>
+  </div>
+  <div class="sheet__foot"><button class="s-btn s-btn--paper" data-sclose>닫기</button><button class="btn" data-sclose data-after="save">변경 저장</button></div>
+</aside>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  // SANSA: every bay gets wind bells at both beam ends
+  $$('[data-bay]').forEach(b => b.insertAdjacentHTML('afterbegin', '<span class="chime chime--l" aria-hidden="true"><svg><use href="#pg"/></svg></span><span class="chime chime--r" aria-hidden="true"><svg><use href="#pg"/></svg></span>'));
+
+  // Assignment table
+  const SRC = { sansa: ['산사', 'pill--p', 'SANSA'], dal: ['달', 'pill--c', 'DAL'], riso: ['리소', 'pill--j', 'RISO'] };
+  const A = [
+    ['색 팔레트', 'sansa', '한지·뇌록·석간주 토큰, 페이지 글자색'], ['글꼴', 'riso', 'Noto Serif KR · IBM Plex Sans KR · IBM Plex Mono'], ['페이지 배경', 'sansa', '안개에서 한지로 내려오는 바탕'],
+    ['섹션 머리', 'riso', '6px 먹 괘선, 어긋나 찍힌 큰 번호'], ['판(패널) 틀', 'sansa', '석간주 기둥 · 주춧돌 · 모로단청 들보 · 풍경'], ['주요 버튼', 'riso', '블루 잉크 + 어긋난 핑크 판'],
+    ['보조 버튼', 'sansa', '나무 테 두른 한지'], ['위험 버튼', 'sansa', '석간주 단청 버튼'], ['아이콘 버튼', 'riso', '테두리 사각 + 먹 말풍선'],
+    ['가장 큰 CTA', 'sansa', '범종과 당목, 소리 결'], ['스위치 A', 'riso', 'OFF / ON 잉크 블록'], ['스위치 B', 'dal', '미닫이 창호 문'],
+    ['체크박스', 'riso', '두 판으로 찍은 체크'], ['라디오', 'dal', '놋 엽전'], ['분할 버튼', 'sansa', '징검돌'],
+    ['탭', 'dal', '서책 책갈피'], ['필터 칩', 'dal', '호패'], ['슬라이더', 'dal', '나무 홈 붓질 + 엽전 손잡이'],
+    ['사이드 메뉴', 'sansa', '절길'], ['입력 칸', 'sansa', '나무 살에 끼운 한지'], ['뱃지', 'dal', '유약 알약'],
+    ['카드', 'riso', '2도 인쇄 카드'], ['진행 표시', 'dal', '가마 불길'], ['단계', 'dal', '퀘스트 길'],
+    ['아코디언', 'sansa', '접은 경전'], ['표', 'sansa', '나무 머리 일과표 + 돌 쪽 번호'], ['확인 창', 'sansa', '기와 얹은 전각'],
+    ['옆 판', 'riso', '천공선 낱장'], ['알림', 'riso', '먹 그림자 쪽지'], ['초점 표시', 'dal', '3px 청화 테두리'], ['움직임(이징)', 'sansa', '느리게 가라앉는 곡선'],
+    ['상단 내비', 'sansa', '기와 처마 + 단청 띠', 1], ['히어로', 'dal', '달항아리와 송명 제목', 1], ['더보기 메뉴', 'riso', '먹 테 목록', 1],
+    ['드롭다운', 'dal', '청화 꼭지 유약 칸', 1], ['빈 상태', 'riso', '어긋나 찍힌 0', 1], ['코드 블록', 'dal', '나무 테 남색 판', 1], ['푸터', 'riso', '판권면', 1],
+  ];
+  $('#assignBody').innerHTML = A.map(([el, s, what, x]) => `<tr${x ? ' class="extra"' : ''}><td>${el}</td><td><span class="pill ${SRC[s][1]}"><i></i>${SRC[s][0]} · ${SRC[s][2]}</span></td><td>${what}${x ? ' <small>(배정 밖)</small>' : ''}</td></tr>`).join('');
+
+  // Swatches (SANSA style) + colours that came along with lifted parts
+  const G = [
+    ['바탕', '산사 · 한지와 나무', [['한지', '#F3EEE2', '--hanji', '페이지 바탕'], ['안개', '#E4E3DC', '--mist', '머리, 뒤 흐림'], ['바랜 나무', '#8A6F55', '--wood', '문틀, 테'], ['먹', '#2B2621', '--ink', '본문']]],
+    ['단청', '산사 · 바탕색과 강조', [['뇌록', '#4F7A68', '--noerok', '판 이음, 선택'], ['석간주', '#8E3B2A', '--ganju', '기둥, 위험'], ['군청', '#2F4A7A', '--gunjeong', '단청 띠'], ['황토', '#C49A4A', '--ochre', '단청 띠']]],
+    ['따라온 색 · 리소', '--r- 접두사', [['블루', '#2C4FA0', '--r-blue', '주요 버튼'], ['핑크', '#FF4FA7', '--r-pink', '어긋난 판'], ['리소 먹', '#1B1A17', '--r-ink', '스위치, 카드 괘선']]],
+    ['따라온 색 · 달', '--d- 접두사', [['청화', '#24418F', '--d-cobalt', '탭, 호패, 초점'], ['진사', '#A5302A', '--d-jinsa', '가마, 퀘스트'], ['놋쇠', '#C79A3C', '--d-brass', '엽전, 손잡이']]],
+  ];
+  $('#swatches').innerHTML = G.map(([g, s, it]) => `<div class="swhead">${g}<span>${s}</span></div>` + it.map(([n, hex, v, u]) => `<div class="sw"><i style="background:${hex}"></i><b>${n}</b><code>${v} · ${hex}</code><span>${u}</span></div>`).join('')).join('');
+
+  // Type scale (RISO fonts, laid out in sansa rows)
+  $('#typescale').innerHTML = [
+    ['디스플레이', 'Noto Serif KR 900', '<span style="font:900 52px/1 var(--font-serif);letter-spacing:-.03em">묵판</span>'],
+    ['제목', 'Noto Serif KR 700 · 21', '<span style="font:700 21px/1.35 var(--font-serif)">판이 맞춰지는 순간</span>'],
+    ['본문', 'IBM Plex Sans KR 400 · 16.5/1.7', '<span>세 시스템의 부품을 제비로 뽑아 한 장에 붙입니다.</span>'],
+    ['라벨', 'IBM Plex Mono 500 · 12', '<span class="label">PLATE 02-A · 300부</span>'],
+    ['따라옴 · 산사', 'Hahmlet 600', '<span style="font:600 24px/1.2 var(--s-title)">새벽 종소리 108</span>'],
+    ['따라옴 · 달', 'Song Myung · Gowun Batang', '<span style="font:400 26px/1.2 var(--d-title)">달항아리</span> <span style="font:700 17px/1.2 var(--d-serif)">엽전 20닢</span>'],
+  ].map(([k, s, ex]) => `<div class="typerow"><div class="k"><b>${k}</b><span>${s}</span></div><div>${ex}</div></div>`).join('');
+
+  // Nav (sansa eave): current section
+  const links = $$('#nav a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => { const on = a.hash === '#' + e.target.id; a.setAttribute('aria-current', on ? 'true' : 'false'); const bar = $('.eave__bar .wrap'); if (on && bar.scrollWidth > bar.clientWidth) bar.scrollTo({ left: a.offsetLeft - 90 }); }); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.part').forEach(s => io.observe(s));
+
+  // RISO toasts
+  const T = { ok: ['저장했어요', '겨울 장터 포스터 · 방금'], undo: ['원고 1개를 보관했어요', '보관함에서 다시 꺼낼 수 있어요'], err: ['인쇄를 보내지 못했어요', '용지가 걸렸어요. 2번 급지대를 확인해 주세요'] };
+  function toast(kind, title, sub) {
+    const [t, s] = T[kind] || T.ok; const el = document.createElement('div');
+    el.className = `toast toast--${kind === 'err' ? 'err' : kind === 'ok' ? 'ok' : 'info'}`; el.setAttribute('role', kind === 'err' ? 'alert' : 'status');
+    el.innerHTML = `<span class="toast__mark" aria-hidden="true"></span><div><b>${title || t}</b><span>${sub || (title ? '방금' : s)}</span>${kind === 'undo' ? '<div class="undo"><button class="btn btn--sm btn--line">되돌리기</button></div>' : ''}</div><button class="x" aria-label="알림 닫기">×</button>`;
+    const kill = () => { el.classList.add('out'); setTimeout(() => el.remove(), 200); };
+    $('.x', el).onclick = kill; const u = $('.undo button', el); if (u) u.onclick = () => { kill(); toast('ok', '되돌렸어요'); };
+    const box = $('#toasts'); box.appendChild(el); while (box.children.length > 3) box.firstChild.remove(); setTimeout(kill, 5000);
+  }
+  $$('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+
+  // RISO loading button
+  $('#loadBtn').addEventListener('click', e => {
+    const b = e.currentTarget; if (b.dataset.busy) return;
+    b.dataset.busy = 1; b.setAttribute('aria-disabled', 'true'); b.innerHTML = '<span class="spin" aria-hidden="true"></span><span>보내는 중</span>';
+    setTimeout(() => { b.innerHTML = '<span>보냈어요 ✓</span>'; }, 1400);
+    setTimeout(() => { delete b.dataset.busy; b.removeAttribute('aria-disabled'); b.innerHTML = '<span>보내기</span>'; }, 2800);
+  });
+
+  // SANSA bell
+  const bell = (label, sub) => `<button class="bell" data-bell><svg viewBox="0 0 230 220" aria-hidden="true">
+      <path d="M20 8h170" stroke="#5b4534" stroke-width="8" stroke-linecap="round"/><path d="M105 8v12" stroke="#45412c" stroke-width="6"/>
+      <circle class="wave" cx="105" cy="120" r="80"/><circle class="wave" cx="105" cy="120" r="80"/><circle class="wave" cx="105" cy="120" r="80"/>
+      <g class="body"><path d="M78 20c-6 0-10 4-10 10 0 30-10 90-26 140h126c-16-50-26-110-26-140 0-6-4-10-10-10z" fill="#6f6a4a"/>
+        <path d="M70 46h70M64 96h82M48 156h114" stroke="#45412c" stroke-width="2"/><path d="M72 34c0 30-6 70-16 110" stroke="#9f9a70" stroke-width="4" stroke-linecap="round" fill="none" opacity=".7"/>
+        <g fill="#9f9a70"><circle cx="82" cy="58" r="3"/><circle cx="96" cy="58" r="3"/><circle cx="110" cy="58" r="3"/><circle cx="124" cy="58" r="3"/><circle cx="82" cy="72" r="3"/><circle cx="96" cy="72" r="3"/><circle cx="110" cy="72" r="3"/><circle cx="124" cy="72" r="3"/></g>
+        <circle cx="105" cy="128" r="12" fill="none" stroke="#9f9a70" stroke-width="2.5"/><circle cx="105" cy="128" r="4" fill="#9f9a70"/>
+        <path d="M42 170h126v8H42z" fill="#45412c"/></g>
+      <g class="log"><path d="M176 132h50" stroke="#8a6f55" stroke-width="14" stroke-linecap="round"/><path d="M182 132h40" stroke="#b59c7e" stroke-width="3" stroke-linecap="round"/><path d="M200 120V8" stroke="#5b4534" stroke-width="1.5"/><path d="M216 120V8" stroke="#5b4534" stroke-width="1.5"/></g>
+    </svg><b>${label}</b><small>${sub}</small></button>`;
+  $('#bellYard').innerHTML = bell('예불 시작', '모두에게 알립니다');
+  $$('[data-bell]').forEach(b => b.addEventListener('click', () => { b.classList.remove('strike'); void b.offsetWidth; b.classList.add('strike'); toast('ok', '종을 쳤습니다', '소리가 산 아래까지 닿습니다'); }));
+
+  // RISO menu
+  const mb = $('#menuBtn'), ml = $('#menuList'), items = $$('[role=menuitem]', ml);
+  const closeMenu = f => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); if (f) mb.focus(); };
+  const openMenu = () => { ml.hidden = false; mb.setAttribute('aria-expanded', 'true'); items[0].focus(); };
+  mb.addEventListener('click', () => ml.hidden ? openMenu() : closeMenu());
+  mb.addEventListener('keydown', e => { if (e.key === 'ArrowDown' && ml.hidden) { e.preventDefault(); openMenu(); } });
+  ml.addEventListener('keydown', e => {
+    const i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    if (e.key === 'Home') { e.preventDefault(); items[0].focus(); } if (e.key === 'End') { e.preventDefault(); items.at(-1).focus(); }
+    if (e.key === 'Escape') closeMenu(true);
+    if (e.key === 'Tab') closeMenu();
+  });
+  items.forEach(it => it.addEventListener('click', () => { closeMenu(true); if (it.classList.contains('danger')) $('#dlg').showModal(); else toast('ok', it.textContent.replace(/\s+\S$/, '').trim()); }));
+  document.addEventListener('click', e => { if (!ml.hidden && !e.target.closest('.menu')) closeMenu(); });
+
+  // RISO switch
+  document.addEventListener('click', e => { const s = e.target.closest('.switch'); if (s) s.setAttribute('aria-checked', s.getAttribute('aria-checked') !== 'true'); });
+  // DAL door switch
+  const door = (t, s, on) => `<button class="door" role="switch" aria-checked="${on}"><span class="door__frame" aria-hidden="true"><span class="door__p"></span><span class="door__p"></span></span><span class="door__t"><em>${on ? '열림' : '닫힘'}</em><b>${t}</b><small>${s}</small></span></button>`;
+  $('#doors').innerHTML = door('사랑방 손님 받기', '다른 도공이 공방을 구경할 수 있어요', true) + door('안채 잠그기', '곳간과 도감을 숨깁니다', false);
+  document.addEventListener('click', e => { const d = e.target.closest('.door'); if (d) { const on = d.getAttribute('aria-checked') !== 'true'; d.setAttribute('aria-checked', on); $('em', d).textContent = on ? '열림' : '닫힘'; } });
+
+  // RISO checkbox group
+  const all = $('#chkAll'), its = $$('.chkItem');
+  const sync = () => { const n = its.filter(c => c.checked).length; all.checked = n === its.length; all.indeterminate = n > 0 && n < its.length; };
+  its.forEach(c => c.addEventListener('change', sync)); all.addEventListener('change', () => { its.forEach(c => c.checked = all.checked); sync(); }); sync();
+
+  // SANSA stepping stones (radiogroup)
+  $$('.steps-seg').forEach(g => { const bs = $$('button', g);
+    const pick = b => { bs.forEach(x => { x.setAttribute('aria-checked', x === b); x.tabIndex = x === b ? 0 : -1; }); b.focus(); };
+    bs.forEach(b => { b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1; b.addEventListener('click', () => pick(b)); });
+    g.addEventListener('keydown', e => { const i = bs.indexOf(document.activeElement); if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); pick(bs[(i + 1) % bs.length]); } if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); pick(bs[(i - 1 + bs.length) % bs.length]); } });
+  });
+
+  // DAL book tabs
+  const tabs = $$('[role=tab]');
+  const sel = t => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); };
+  tabs.forEach(t => t.addEventListener('click', () => sel(t)));
+  $('[role=tablist]').addEventListener('keydown', e => { const i = tabs.indexOf(document.activeElement);
+    if (e.key === 'ArrowRight') { e.preventDefault(); sel(tabs[(i + 1) % tabs.length]); } if (e.key === 'ArrowLeft') { e.preventDefault(); sel(tabs[(i - 1 + tabs.length) % tabs.length]); }
+    if (e.key === 'Home') { e.preventDefault(); sel(tabs[0]); } if (e.key === 'End') { e.preventDefault(); sel(tabs.at(-1)); } });
+
+  // DAL hopae chips
+  document.addEventListener('click', e => { const c = e.target.closest('.hopae'); if (c) c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'); });
+
+  // DAL range
+  const rg = $('#rg'), ro = $('#rgOut'); const upd = () => { rg.style.setProperty('--p', ((rg.value - rg.min) / (rg.max - rg.min) * 100) + '%'); ro.innerHTML = `${Number(rg.value).toLocaleString('ko-KR')}<small>℃</small>`; }; rg.addEventListener('input', upd); upd();
+
+  // SANSA path
+  $$('#path a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $$('#path a').forEach(x => x.removeAttribute('aria-current')); a.setAttribute('aria-current', 'page'); }));
+
+  // SANSA inputs
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; e.currentTarget.textContent = on ? '숨기기' : '보기'; e.currentTarget.setAttribute('aria-pressed', on); });
+  const ta = $('#ta'), tc = $('#taCount'); const cnt = () => tc.textContent = `${ta.value.length} / 140`; ta.addEventListener('input', cnt); cnt();
+
+  // DAL kiln
+  let k = 62; setInterval(() => { k = k >= 100 ? 10 : k + 3; const el = $('#kiln'); el.setAttribute('aria-valuenow', k); $('i', el).style.width = k + '%'; $('#kilnOut').textContent = Math.round(800 + k * 5.5).toLocaleString('ko-KR') + '℃'; }, 1000);
+
+  // SANSA table sort + pager
+  const tb = $('#tbl tbody'), num = s => Number(s.replace(/\D/g, ''));
+  $$('#tbl th button').forEach(b => b.addEventListener('click', () => {
+    const th = b.parentElement, kk = +b.dataset.k, dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    $$('#tbl th[aria-sort]').forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', dir);
+    $$('tr', tb).sort((a, c) => { const r = num(a.cells[kk].textContent) - num(c.cells[kk].textContent); return dir === 'ascending' ? r : -r; }).forEach(r => tb.appendChild(r));
+  }));
+  const pbs = $$('.pager li button'), pages = pbs.slice(1, -1); let cur = 1;
+  const go = n => { cur = n; pages.forEach((b, i) => i + 1 === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')); pbs[0].disabled = n === 1; pbs.at(-1).disabled = n === pages.length; $('#pgInfo').textContent = `일과 12개 중 ${(n - 1) * 4 + 1}–${n * 4}`; };
+  pages.forEach((b, i) => b.addEventListener('click', () => go(i + 1)));
+  pbs[0].addEventListener('click', () => go(Math.max(1, cur - 1))); pbs.at(-1).addEventListener('click', () => go(Math.min(pages.length, cur + 1)));
+
+  // SANSA dialog
+  const dlg = $('#dlg'); $('#dlgOpen').addEventListener('click', () => dlg.showModal());
+  $$('[data-close]', dlg).forEach(b => b.addEventListener('click', () => { dlg.close(); if (b.dataset.after === 'err') toast('err', '예약이 취소되었습니다', '사흘 안에 전액 돌려드립니다'); }));
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // RISO side panel: focus trap + Esc + scrim
+  const sh = $('#sheet'), sc = $('#scrim'); let opener;
+  const openSheet = () => { opener = document.activeElement; sh.classList.add('open'); sc.classList.add('open'); sh.setAttribute('aria-hidden', 'false'); setTimeout(() => $('#s1').focus(), 60); };
+  const closeSheet = () => { sh.classList.remove('open'); sc.classList.remove('open'); sh.setAttribute('aria-hidden', 'true'); opener && opener.focus(); };
+  $('#sheetOpen').addEventListener('click', openSheet); sc.addEventListener('click', closeSheet);
+  $$('[data-sclose]', sh).forEach(b => b.addEventListener('click', () => { closeSheet(); if (b.dataset.after === 'save') toast('ok', '변경을 저장했어요'); }));
+  sh.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSheet();
+    if (e.key === 'Tab') { const f = $$('button, input', sh).filter(x => !x.disabled); const a = f[0], z = f.at(-1);
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } }
+  });
+
+  // DAL code block
+  const css = `<span class="c">/* Inkstone 묵판 — Sansa × Dal × Riso 억지 크로스오버 · Tailwind v4 + shadcn */</span>
+@import "tailwindcss";
+
+<span class="p">:root</span> {
+  <span class="c">/* shadcn 기본 토큰: 산사 팔레트 (배정: 색 팔레트 = sansa) */</span>
+  <span class="v">--background</span>: #f3eee2;  <span class="v">--foreground</span>: #2b2621;
+  <span class="v">--card</span>: #fbf8f0;  <span class="v">--card-foreground</span>: #2b2621;
+  <span class="v">--popover</span>: #fbf8f0;  <span class="v">--popover-foreground</span>: #2b2621;
+  <span class="v">--primary</span>: #2c4fa0;  <span class="v">--primary-foreground</span>: #fbf8f1;   <span class="c">/* 주요 버튼 = riso 블루 */</span>
+  <span class="v">--secondary</span>: #f3eee2;  <span class="v">--secondary-foreground</span>: #2b2621;   <span class="c">/* 보조 = sansa 한지 */</span>
+  <span class="v">--muted</span>: #e9e2d2;  <span class="v">--muted-foreground</span>: #75695b;
+  <span class="v">--accent</span>: #dfeae3;  <span class="v">--accent-foreground</span>: #355a4b;
+  <span class="v">--destructive</span>: #8e3b2a;   <span class="c">/* 위험 = sansa 석간주 */</span>
+  <span class="v">--border</span>: #d9cfba;  <span class="v">--input</span>: #8a6f55;
+  <span class="v">--ring</span>: #24418f;   <span class="c">/* 초점 = dal 청화 */</span>
+  <span class="v">--radius</span>: 0.25rem;
+
+  <span class="c">/* 떼어 온 부품의 색: 출처 접두사 */</span>
+  <span class="v">--r-blue</span>: #2c4fa0;  <span class="v">--r-pink</span>: #ff4fa7;  <span class="v">--r-ink</span>: #1b1a17;
+  <span class="v">--d-cobalt</span>: #24418f;  <span class="v">--d-jinsa</span>: #a5302a;  <span class="v">--d-brass</span>: #c79a3c;
+  <span class="v">--mis-x</span>: 3px;  <span class="v">--mis-y</span>: 2px;
+  <span class="v">--slow</span>: cubic-bezier(.25,.8,.3,1);  <span class="v">--settle</span>: cubic-bezier(.3,1.35,.5,1);
+}
+
+@theme inline {
+  <span class="v">--color-background</span>: var(--background);
+  <span class="v">--color-foreground</span>: var(--foreground);
+  <span class="v">--color-primary</span>: var(--primary);
+  <span class="v">--color-destructive</span>: var(--destructive);
+  <span class="v">--color-ring</span>: var(--ring);
+  <span class="v">--color-riso-pink</span>: var(--r-pink);
+  <span class="v">--color-dal-cobalt</span>: var(--d-cobalt);
+  <span class="v">--font-sans</span>: "IBM Plex Sans KR", system-ui, sans-serif;   <span class="c">/* 글꼴 = riso */</span>
+  <span class="v">--font-serif</span>: "Noto Serif KR", serif;
+  <span class="v">--font-mono</span>: "IBM Plex Mono", ui-monospace, monospace;
+  <span class="v">--ease-slow</span>: var(--slow);  <span class="v">--ease-settle</span>: var(--settle);
+}
+
+<span class="c">/* 주요 버튼 (riso): 핑크 판이 어긋나 있다가 누르면 맞춰짐 */</span>
+@utility <span class="p">misprint</span> {
+  position: relative; isolation: isolate;
+  &::after { content: ""; position: absolute; inset: -2px; pointer-events: none;
+    border: 2px solid var(--r-pink); mix-blend-mode: multiply;
+    transform: translate(var(--mis-x), var(--mis-y)); transition: transform .45s var(--slow); }
+  &:active::after { transform: none; }
+}
+
+<span class="c">/* 판 틀 (sansa): 단청 들보 + 석간주 기둥 */</span>
+@utility <span class="p">bay</span> {
+  border-inline: 16px solid #8e3b2a; background: #f3eee2;
+  box-shadow: inset 0 26px 0 #4f7a68;
+}
+
+<span class="c">/* 초점 (dal): 모두 같은 청화 테두리 */</span>
+@layer base { :focus-visible { outline: 3px solid var(--d-cobalt); outline-offset: 4px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}`;
+  $('#codeBlock').innerHTML = css;
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget; try { await navigator.clipboard.writeText($('#codeBlock').textContent); b.textContent = '복사했어요 ✓'; } catch { b.textContent = '직접 선택해 주세요'; } setTimeout(() => b.textContent = '복사하기', 1800); });
+})();
+</script>
+</body>
+</html>

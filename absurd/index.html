@@ -1,0 +1,1269 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Absurd 디자인 시스템</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Nanum+Gothic+Coding:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+/* Absurd: postmodern collage over an existentialist void.
+   The page is mostly empty grey paper. Things break, but only by four rules:
+   1) three tilt angles, 2) one cut corner (top right), 3) one hard offset shadow (the gaze of the other),
+   4) taped-on fragments and typewritten margin notes. One red (the stamp), one acid (used once per view). */
+:root {
+  color-scheme: light;
+  --void: #f2f1ed; --sheet: #fbfaf7; --ash: #e4e2dc; --ash-2: #cdcac2; --ash-3: #a29e95;
+  --ink: #111110; --ink-2: #3b3935; --ink-3: #625e57;
+  --red: #d4321c; --red-ink: #b3230f; --red-wash: #f7ddd6;
+  --acid: #d9ff3d; --acid-ink: #4a5a00; --acid-wash: #f0fcc4;
+  --tilt-1: -2deg; --tilt-2: 1.5deg; --tilt-3: -3.5deg;   /* the only three angles anything may lean at */
+  --cut: 14px;                                           /* the one corner that is missing */
+  --gaze-x: 6px; --gaze-y: 6px;                          /* the other's shadow */
+  --dur: .16s; --ease: cubic-bezier(.2,.8,.2,1);
+  --f-display: "Anton", "Black Han Sans", Impact, sans-serif;
+  --f-kdisplay: "Black Han Sans", "Anton", sans-serif;
+  --f-serif: "Bodoni Moda", "Nanum Myeongjo", Didot, serif;
+  --f-kserif: "Nanum Myeongjo", "Bodoni Moda", "AppleMyungjo", serif;
+  --f-sans: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-type: "Courier Prime", "Nanum Gothic Coding", ui-monospace, Menlo, monospace;
+  --cut-poly: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+  --torn-poly: polygon(0 0, 100% 0, 98% 13%, 100% 26%, 96.6% 40%, 99.4% 55%, 97% 69%, 100% 83%, 97.4% 100%, 0 100%);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--void); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important; animation: none !important; } }
+body { margin: 0; background: var(--void); color: var(--ink); font: 400 16.5px/1.75 var(--f-sans); word-break: keep-all; overflow-wrap: break-word; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--ink); text-decoration-thickness: 2px; text-underline-offset: 4px; text-decoration-color: var(--red); }
+a:hover { text-decoration-style: wavy; }
+code { font: 400 .88em var(--f-type); background: var(--ash); padding: 1px 5px; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
+.type { font-family: var(--f-type); }
+.label { font: 400 13px/1.35 var(--f-type); letter-spacing: .04em; color: var(--ink-3); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Margin note: typewritten, red, leaning at one of the three angles */
+.anno { display: inline-block; font: 400 14px/1.45 var(--f-type); color: var(--red-ink); transform: rotate(var(--tilt-1)); transform-origin: 0 50%; max-width: 100%; }
+.anno::before { content: "↳ "; }
+/* Tape: a translucent strip that holds fragments on the page */
+.tape { position: absolute; width: 76px; height: 22px; background: rgba(217,255,61,.62); border-left: 1px dashed rgba(17,17,16,.25); border-right: 1px dashed rgba(17,17,16,.25); pointer-events: none; z-index: 3; }
+.tape--grey { background: rgba(205,202,194,.7); }
+
+/* Focus: a dashed cut line, "자르는 선" */
+:focus { outline: none; }
+:focus-visible { outline: 2px dashed var(--ink); outline-offset: 4px; }
+
+/* ---------- Masthead + hero ---------- */
+.mast { display: flex; justify-content: space-between; gap: 8px 18px; flex-wrap: wrap; padding-block: 14px 12px; border-bottom: 1px solid var(--ink); }
+.mast span { font: 400 13px/1.4 var(--f-type); color: var(--ink-2); }
+.hero { position: relative; padding-block: 34px 70px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px 40px; align-items: center; overflow-x: clip; }
+.hero__copy { position: relative; display: grid; gap: 26px; min-width: 0; }
+.title { font-weight: 400; line-height: .82; position: relative; }
+.title__word { display: flex; align-items: flex-end; font: 400 clamp(84px, 17.5vw, 214px)/.86 var(--f-display); letter-spacing: -.01em; white-space: nowrap; }
+.title__word .l { display: inline-block; }
+.title__word .l2 { font: italic 500 1.06em/.8 var(--f-serif); letter-spacing: -.04em; margin-right: .02em; transform: translateY(-.04em); }
+.title__word .l3 { color: transparent; -webkit-text-stroke: 2px var(--ink); }
+.title__word .l4 { transform: rotate(var(--tilt-2)) translateY(.06em); font-size: .74em; color: var(--red); }
+.title__word .l5 { font-size: .9em; }
+.title__word .l6 { transform: rotate(var(--tilt-3)) translate(.04em, .1em); clip-path: inset(0 0 22% 0); }
+.title__ko { display: inline-block; margin-top: -.28em; margin-left: .7em; padding: .08em .3em .02em; font: 400 clamp(40px, 7.4vw, 88px)/1.1 var(--f-kdisplay); background: var(--acid); color: var(--ink); transform: rotate(var(--tilt-1)); position: relative; box-shadow: var(--gaze-x) var(--gaze-y) 0 var(--ink); }
+.title__note { position: absolute; right: 0; top: 4px; }
+.hero__deck { display: grid; gap: 10px; max-width: 34em; }
+.hero__deck p { font: 400 clamp(18px, 2.1vw, 21px)/1.75 var(--f-kserif); }
+.hero__deck p b { font-weight: 800; background: linear-gradient(transparent 62%, var(--acid) 62% 92%, transparent 92%); }
+.hero__deck cite { font: italic 400 17px/1.4 var(--f-serif); color: var(--ink-2); }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 18px 22px; align-items: center; }
+.collage { position: relative; min-width: 0; }
+.collage svg { width: 100%; height: auto; display: block; overflow: visible; }
+.collage__cap { margin-top: 6px; font: 400 13px/1.5 var(--f-type); color: var(--ink-3); }
+@media (max-width: 860px) { .hero { grid-template-columns: minmax(0, 1fr); padding-block: 24px 48px; } .collage { max-width: 440px; justify-self: center; width: 100%; } .title__note { position: static; display: block; margin-top: 18px; } }
+
+/* ---------- Nav ---------- */
+.nav { position: sticky; top: 0; z-index: 30; background: rgba(242,241,237,.96); border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.nav .wrap { overflow-x: auto; scrollbar-width: none; }
+.nav .wrap::-webkit-scrollbar { display: none; }
+.nav ol { display: flex; list-style: none; margin: 0; padding: 0; width: max-content; counter-reset: n; }
+.nav li { counter-increment: n; }
+.nav a { position: relative; display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 15px; color: var(--ink); text-decoration: none; font: 500 15px/1 var(--f-sans); }
+.nav a::before { content: counter(n, decimal-leading-zero); font: 400 12px/1 var(--f-type); color: var(--ink-3); }
+.nav a:hover { background: var(--ash); }
+.nav a[aria-current="true"] { background: var(--ink); color: var(--sheet); }
+.nav a[aria-current="true"]::before { color: var(--acid); }
+.nav a:focus-visible { outline-offset: -5px; }
+.nav a[aria-current="true"]:focus-visible { outline-color: var(--acid); }
+
+/* ---------- Sections ---------- */
+section.part { padding-block: 76px 8px; scroll-margin-top: 52px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 30px; }
+.part__head { position: relative; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 22px; padding-top: 16px; border-top: 2px solid var(--ink); }
+.part__head::after { content: ""; position: absolute; top: 5px; left: 22%; width: 30%; height: 2px; background: var(--red); }   /* misregistered rule */
+.part__no { height: 78px; overflow: hidden; font: 400 112px/1 var(--f-display); color: transparent; -webkit-text-stroke: 2px var(--ink); border-bottom: 3px solid var(--red); letter-spacing: -.02em; }
+.part__head h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; font: 400 clamp(36px, 5vw, 52px)/1.1 var(--f-kdisplay); }
+.part__head h2 i { font: italic 400 clamp(19px, 2.2vw, 24px)/1.2 var(--f-serif); color: var(--ink-3); }
+.part__head p { margin-top: 10px; color: var(--ink-2); max-width: 62ch; }
+.part__head .anno { margin-top: 12px; }
+@media (max-width: 640px) { .part__head { grid-template-columns: minmax(0, 1fr); gap: 4px; } .part__no { font-size: 84px; height: 60px; } }
+
+.spec { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 0 34px; padding-top: 22px; border-top: 1px solid var(--ash-2); }
+.spec__text { display: grid; gap: 9px; align-content: start; min-width: 0; padding-bottom: 12px; }
+.spec__text h3 { font: 900 21px/1.35 var(--f-sans); }
+.spec__text p { color: var(--ink-2); font-size: 16px; }
+.spec__text ul { margin: 2px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 15.5px; color: var(--ink-2); }
+.spec__text li { padding-left: 20px; position: relative; }
+.spec__text li::before { content: "—"; position: absolute; left: 0; color: var(--red-ink); }
+.plate { position: relative; min-width: 0; margin: 12px 10px 30px; padding: 52px 28px 36px; background: var(--sheet); border-top: 2px solid var(--ink);
+  display: flex; flex-wrap: wrap; gap: 18px; align-items: center; align-content: center; justify-content: center; }
+.plate.col { flex-direction: column; align-items: stretch; }
+.plate > * { min-width: 0; max-width: 100%; }
+.plate::before { content: ""; position: absolute; inset: -11px; pointer-events: none;
+  background:
+    linear-gradient(var(--ink),var(--ink)) 0 0/12px 1px, linear-gradient(var(--ink),var(--ink)) 0 0/1px 12px,
+    linear-gradient(var(--ink),var(--ink)) 100% 0/12px 1px, linear-gradient(var(--ink),var(--ink)) 100% 0/1px 12px,
+    linear-gradient(var(--ink),var(--ink)) 0 100%/12px 1px, linear-gradient(var(--ink),var(--ink)) 0 100%/1px 12px,
+    linear-gradient(var(--ink),var(--ink)) 100% 100%/12px 1px, linear-gradient(var(--ink),var(--ink)) 100% 100%/1px 12px;
+  background-repeat: no-repeat; }
+.plate::after { content: attr(data-fig); position: absolute; top: 14px; left: 16px; font: 400 12.5px/1 var(--f-type); letter-spacing: .06em; color: var(--ink-3); }
+.plate .rule-mis { position: absolute; top: 5px; right: 14%; width: 26%; height: 2px; background: var(--red); }
+@media (max-width: 820px) { .spec { grid-template-columns: minmax(0, 1fr); } .plate { padding: 50px 16px 30px; margin-inline: 8px; } }
+
+/* ---------- Foundations ---------- */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 168px), 1fr)); gap: 22px 18px; }
+.swgroup { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-top: 10px; border-top: 2px solid var(--ink); font: 400 clamp(22px, 2.6vw, 26px)/1.2 var(--f-kdisplay); }
+.swgroup span { font: 400 13.5px/1.4 var(--f-type); color: var(--ink-3); }
+.sw { position: relative; display: grid; gap: 2px; font-size: 14.5px; color: var(--ink-2); line-height: 1.5; }
+.sw i { display: block; height: 92px; margin-bottom: 8px; clip-path: var(--cut-poly); box-shadow: inset 0 0 0 1px rgba(17,17,16,.12); }
+.sw b { color: var(--ink); font: 700 16px/1.4 var(--f-sans); }
+.sw code { background: none; padding: 0; font-size: 13px; color: var(--ink-2); }
+.sw:nth-child(4n+2) i { transform: rotate(var(--tilt-2)); }
+.sw .warn { color: var(--red-ink); font: 400 12.5px/1.4 var(--f-type); }
+
+.breaks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 26px; }
+.brk { display: grid; gap: 10px; align-content: start; }
+.brk__art { position: relative; height: 150px; background: var(--sheet); border-top: 2px solid var(--ink); display: grid; place-items: center; overflow: clip; }
+.brk p { font-size: 15.5px; color: var(--ink-2); }
+.brk b { color: var(--ink); }
+.tilts { display: flex; gap: 16px; align-items: center; }
+.tilts span { width: 46px; height: 64px; border: 2px solid var(--ink); display: grid; place-items: end center; padding-bottom: 4px; font: 400 11.5px/1 var(--f-type); background: var(--void); }
+.slab-demo { width: 120px; height: 72px; background: var(--ink); clip-path: var(--cut-poly); }
+.gaze-demo { position: relative; width: 120px; height: 72px; background: var(--sheet); border: 2px solid var(--ink); box-shadow: var(--gaze-x) var(--gaze-y) 0 var(--acid), calc(var(--gaze-x) + 2px) calc(var(--gaze-y) + 2px) 0 var(--ink); }
+.gaze-demo svg { position: absolute; inset: 0; margin: auto; width: 46px; height: 26px; }
+
+.typerow { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 18px; align-items: baseline; padding-block: 18px; border-top: 1px solid var(--ash-2); }
+.typerow:first-child { border-top: 2px solid var(--ink); }
+.typerow .k { display: grid; gap: 2px; }
+.typerow .k b { font: 700 14px/1.3 var(--f-sans); }
+.typerow .k span { font: 400 12.5px/1.4 var(--f-type); color: var(--ink-3); }
+.typerow > div:last-child { min-width: 0; }
+@media (max-width: 560px) { .typerow { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
+.mixed { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0 .12em; line-height: .9; }
+.mixed span { display: inline-block; }
+
+.rules { counter-reset: r; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 0 26px; }
+.rules li { list-style: none; counter-increment: r; padding-block: 16px 22px; border-top: 2px solid var(--ink); display: grid; gap: 6px; align-content: start; }
+.rules li::before { content: "조항 " counter(r, upper-roman); font: 400 13px/1 var(--f-type); color: var(--red-ink); }
+.rules b { font: 800 19px/1.45 var(--f-kserif); }
+.rules span { color: var(--ink-2); font-size: 15.5px; }
+
+/* ---------- Buttons ---------- */
+.btn { --bg: var(--ink); --fg: var(--sheet); --sh: var(--acid);
+  position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 50px; padding: 0 26px 0 22px; border: 0; background: none; color: var(--fg); font: 700 16px/1.2 var(--f-sans); cursor: pointer; text-decoration: none; text-align: center;
+  transition: transform var(--dur) var(--ease); }
+.btn::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--bg); clip-path: var(--cut-poly); transition: background var(--dur); }
+.btn::after { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--sh); clip-path: var(--cut-poly); transform: translate(var(--gaze-x), var(--gaze-y)); transition: transform var(--dur) var(--ease); }
+.btn:hover::after { transform: translate(calc(var(--gaze-x) + 3px), calc(var(--gaze-y) - 2px)) rotate(1deg); }
+.btn:active { transform: translate(4px, 4px); }
+.btn:active::after { transform: translate(2px, 2px); }
+.btn svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; }
+/* secondary: a sheet torn off along the right edge */
+.btn--paper { --fg: var(--ink); }
+.btn--paper::before { background: var(--ink); clip-path: var(--torn-poly); }
+.btn--paper::after { inset: 2px 3px 2px 2px; z-index: -1; background: var(--sheet); clip-path: var(--torn-poly); transform: none; }
+.btn--paper:hover::after { background: var(--acid-wash); transform: none; }
+.btn--paper:active::after { transform: none; }
+/* acid: the one highlighter per view */
+.btn--acid { --bg: var(--acid); --fg: var(--ink); --sh: var(--ink); }
+/* ghost: just a word with a squiggle under it */
+.btn--ghost { --fg: var(--ink); padding: 0 10px; text-decoration: underline wavy var(--red); text-decoration-thickness: 2px; text-underline-offset: 7px; }
+.btn--ghost::before, .btn--ghost::after { display: none; }
+.btn--ghost:hover { background: var(--ash); }
+/* danger: a rubber stamp */
+.btn--stamp { --fg: var(--red-ink); padding: 0 20px; border: 3px double var(--red-ink); font: 400 18px/1.15 var(--f-kdisplay); letter-spacing: .06em; transform: rotate(var(--tilt-1)); background: rgba(247,221,214,.35); flex-direction: column; gap: 1px; }
+.btn--stamp small { font: 700 10.5px/1 var(--f-type); letter-spacing: .16em; }
+.btn--stamp::before, .btn--stamp::after { display: none; }
+.btn--stamp:hover { background: var(--red-ink); color: var(--sheet); border-color: var(--red-ink); }
+.btn--stamp:active { transform: rotate(0deg) scale(.97); }
+.btn--stamp:focus-visible { outline-offset: 6px; }
+.btn--sm { min-height: 44px; padding: 0 18px 0 16px; font-size: 15px; --cut: 10px; }
+.btn--lg { min-height: 64px; padding: 0 36px 0 30px; font: 400 24px/1.1 var(--f-kdisplay); --cut: 20px; }
+.btn:disabled, .btn[aria-disabled="true"]:not(.is-busy) { cursor: not-allowed; --fg: var(--ink-3); transform: none; }
+.btn:disabled::before { background: repeating-linear-gradient(-45deg, var(--ash) 0 6px, var(--void) 6px 12px); box-shadow: inset 0 0 0 2px var(--ash-2); }
+.btn:disabled::after { display: none; }
+.btn.is-busy { cursor: progress; }
+.spin { width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, var(--ash-3) 0 2px, transparent 2.5px), currentColor; animation: roll 1s linear infinite; }
+@keyframes roll { 0% { transform: translateX(-3px) rotate(0); } 50% { transform: translateX(3px) rotate(180deg); } 100% { transform: translateX(-3px) rotate(360deg); } }
+
+/* Icon buttons: cut-out circles with the scissor line still around them */
+.cutout { position: relative; width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--ink); background: var(--sheet); display: grid; place-items: center; cursor: pointer; padding: 0; transition: transform var(--dur) var(--ease); }
+.cutout::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; border: 1.5px dashed var(--ink-3); transition: transform .5s var(--ease); pointer-events: none; }
+.cutout svg { width: 22px; height: 22px; stroke: var(--ink); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cutout:hover { background: var(--acid); }
+.cutout:hover::before { transform: rotate(40deg); }
+.cutout:active { transform: scale(.94); }
+.cutout:disabled { cursor: not-allowed; background: var(--ash); border-color: var(--ash-3); }
+.cutout:disabled svg { stroke: var(--ink-3); }
+.cutout--sm { width: 44px; height: 44px; }
+.cutout--sm::before { inset: -5px; }
+.tip { position: relative; display: inline-flex; margin: 8px; }
+.tip__bubble { position: absolute; bottom: calc(100% + 16px); left: 50%; transform: translateX(-50%) rotate(var(--tilt-1)); z-index: 10; padding: 6px 10px; background: var(--ink); color: var(--sheet); font: 400 13.5px/1.4 var(--f-type); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity var(--dur); }
+.tip__bubble::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--ink); }
+.tip:hover .tip__bubble, .tip:focus-within .tip__bubble { opacity: 1; }
+
+/* Sisyphus CTA */
+.hill { width: 100%; display: grid; gap: 16px; justify-items: center; text-align: center; }
+.hill svg { width: 100%; max-width: 640px; height: auto; display: block; overflow: visible; }
+.hill .boulder, .hill .pusher { transition: transform .6s cubic-bezier(.3,.7,.3,1); }
+.hill.rolling .boulder, .hill.rolling .pusher { transition-duration: 1.6s; transition-timing-function: cubic-bezier(.55,0,.75,.55); }
+.hill__count { display: flex; gap: 8px 22px; flex-wrap: wrap; justify-content: center; font: 400 14px/1.4 var(--f-type); color: var(--ink-2); }
+.hill__count b { font: 400 22px/1 var(--f-display); color: var(--ink); margin-left: 4px; }
+.hill__msg { min-height: 1.6em; font: 400 18px/1.6 var(--f-kserif); }
+.hill__msg em { font-style: normal; background: var(--acid); padding: 0 4px; }
+
+/* More menu */
+.menu { position: relative; display: inline-block; }
+.menu__list { position: absolute; top: calc(100% + 10px); right: 0; z-index: 15; min-width: 220px; padding: 0; margin: 0; list-style: none; background: var(--sheet); border: 2px solid var(--ink); box-shadow: var(--gaze-x) var(--gaze-y) 0 var(--ink); }
+.menu__list [role="menuitem"] { display: flex; justify-content: space-between; gap: 14px; width: 100%; min-height: 46px; padding: 0 14px; align-items: center; border: 0; border-bottom: 1px solid var(--ash-2); background: none; cursor: pointer; text-align: left; font-size: 15.5px; }
+.menu__list li:last-child [role="menuitem"] { border-bottom: 0; }
+.menu__list kbd { font: 400 12.5px/1 var(--f-type); color: var(--ink-3); }
+.menu__list [role="menuitem"]:hover, .menu__list [role="menuitem"]:focus { background: var(--ink); color: var(--sheet); outline: none; }
+.menu__list [role="menuitem"]:hover kbd, .menu__list [role="menuitem"]:focus kbd { color: var(--acid); }
+.menu__list .danger { color: var(--red-ink); font-weight: 700; }
+.menu__list .danger:hover, .menu__list .danger:focus { background: var(--red-ink); color: var(--sheet); }
+.menu__sep { height: 0; border-top: 2px solid var(--ink); }
+.rock-row { display: flex; align-items: center; gap: 16px; justify-content: space-between; width: 100%; max-width: 440px; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); padding-block: 10px; }
+.rock-row b { font: 800 18px/1.4 var(--f-kserif); display: block; }
+
+/* ---------- Toggles ---------- */
+.being { display: inline-flex; align-items: center; gap: 14px; min-height: 48px; padding: 0; background: none; border: 0; cursor: pointer; text-align: left; }
+.being__track { position: relative; flex: none; width: 104px; height: 44px; border: 2px solid var(--ink); border-radius: 999px; background: var(--sheet); transition: background var(--dur); }
+.being__track::before { content: ""; position: absolute; top: 5px; left: 6px; width: 30px; height: 30px; border-radius: 50%; border: 2px dashed var(--ink-3); background: transparent; transition: transform .28s var(--ease), background var(--dur), border-color var(--dur); }
+.being__track::after { content: "무"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font: 400 16px/1 var(--f-kdisplay); color: var(--ink-3); }
+.being[aria-checked="true"] .being__track { background: var(--ink); }
+.being[aria-checked="true"] .being__track::before { transform: translateX(56px); background: var(--acid); border: 2px solid var(--acid); }
+.being[aria-checked="true"] .being__track::after { content: "존재"; right: auto; left: 12px; color: var(--sheet); font-size: 15px; }
+.tgl__text { display: grid; line-height: 1.4; }
+.tgl__text b { font-weight: 700; }
+.tgl__text small { color: var(--ink-2); font-size: 14.5px; }
+.tgl__text em { font: normal 400 13px/1.4 var(--f-type); color: var(--red-ink); }
+
+.bulb { display: inline-flex; align-items: center; gap: 16px; min-height: 48px; padding: 0; background: none; border: 0; cursor: pointer; text-align: left; }
+.bulb svg { width: 84px; height: 84px; flex: none; border: 2px solid var(--ink); }
+.bulb .room { fill: var(--ink); transition: fill .3s; }
+.bulb .persp { stroke: #3d3b37; }
+.bulb .glass { fill: none; stroke: var(--ash-3); }
+.bulb .cone { fill: var(--acid); opacity: 0; transition: opacity .3s; }
+.bulb[aria-checked="true"] .room { fill: var(--sheet); }
+.bulb[aria-checked="true"] .persp { stroke: var(--ash-2); }
+.bulb[aria-checked="true"] .glass { fill: var(--acid); stroke: var(--ink); }
+.bulb[aria-checked="true"] .cone { opacity: .45; }
+.bulb:hover svg { box-shadow: 4px 4px 0 var(--ash-2); }
+
+.q { display: flex; align-items: flex-start; gap: 14px; cursor: pointer; min-height: 44px; padding-block: 4px; }
+.q input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.q__box { position: relative; width: 28px; height: 28px; flex: none; border: 2px solid var(--ink); background: var(--sheet); margin-top: 1px; display: grid; place-items: center; transition: background var(--dur), transform var(--dur) var(--ease); }
+.q__box::before { content: "?"; font: italic 600 19px/1 var(--f-serif); color: var(--ink-3); }
+.q__box svg { position: absolute; inset: 2px; width: 20px; height: 20px; opacity: 0; }
+.q__box svg path { fill: none; stroke: var(--acid); stroke-width: 3.6; stroke-linecap: square; }
+.q input:checked + .q__box { background: var(--ink); transform: rotate(var(--tilt-1)); }
+.q input:checked + .q__box::before { content: none; }
+.q input:checked + .q__box svg { opacity: 1; }
+.q input:indeterminate + .q__box { background: var(--acid-wash); }
+.q input:indeterminate + .q__box::before { content: "…"; font: 700 18px/1 var(--f-type); color: var(--ink); font-style: normal; transform: translateY(-3px); }
+.q input:focus-visible + .q__box { outline: 2px dashed var(--ink); outline-offset: 4px; }
+.q input:disabled + .q__box { border-color: var(--ash-3); background: repeating-linear-gradient(-45deg, var(--ash) 0 4px, var(--void) 4px 8px); }
+.q input:disabled + .q__box::before { content: "×"; font: 400 18px/1 var(--f-type); color: var(--ink-3); }
+.q input:disabled ~ .q__t { color: var(--ink-3); cursor: not-allowed; }
+.q:has(input:disabled) { cursor: not-allowed; }
+.q__t { display: grid; line-height: 1.5; }
+.q__t small { color: var(--ink-2); font-size: 14.5px; }
+.q input:disabled ~ .q__t small { color: var(--ink-3); }
+.stack { display: grid; gap: 10px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 12px; font: 700 15.5px/1.4 var(--f-sans); }
+legend small { display: block; font: 400 13px/1.4 var(--f-type); color: var(--ink-3); }
+
+/* Doors (radio): choose one, the others close */
+.doors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; width: 100%; max-width: 520px; }
+.door { display: grid; gap: 8px; cursor: pointer; text-align: center; }
+.door input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.door__frame { position: relative; height: 168px; border: 3px solid var(--ink); border-bottom-width: 6px; background: var(--ink); perspective: 600px; overflow: hidden; }
+.door__frame::before { content: ""; position: absolute; left: 50%; bottom: 0; width: 6px; height: 34px; margin-left: -3px; background: var(--sheet); }   /* a figure-shaped absence in the void */
+.door__frame::after { content: ""; position: absolute; left: 50%; bottom: 34px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--sheet); }
+.door__leaf { position: absolute; inset: 0; z-index: 1; background: var(--sheet); transform-origin: 0 50%; transition: transform .5s var(--ease), background var(--dur);
+  background-image: linear-gradient(var(--ink),var(--ink)), linear-gradient(var(--ink),var(--ink)); background-size: 2px 2px; background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 10px var(--sheet), inset 0 0 0 12px var(--ink); }
+.door__leaf::before { content: ""; position: absolute; left: 12px; right: 12px; top: 46%; height: 2px; background: var(--ink); }
+.door__leaf::after { content: ""; position: absolute; right: 18px; top: 54%; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
+.door:hover .door__leaf { transform: rotateY(-14deg); }
+.door input:checked + .door__frame .door__leaf { transform: rotateY(-78deg); }
+.door input:focus-visible + .door__frame { outline: 2px dashed var(--ink); outline-offset: 5px; }
+.door__name { font: 700 16px/1.3 var(--f-sans); }
+.door__desc { font: 400 13.5px/1.4 var(--f-type); color: var(--ink-2); }
+.door__state { font: 400 12.5px/1.2 var(--f-type); min-height: 1.2em; color: var(--ink-3); }
+.doors:has(input:checked) .door:not(:has(input:checked)) .door__state::before { content: "닫힘"; }
+.doors:has(input:checked) .door:not(:has(input:checked)) .door__leaf { background-color: var(--ash); box-shadow: inset 0 0 0 10px var(--ash), inset 0 0 0 12px var(--ink); }
+.door:has(input:checked) .door__state { color: var(--red-ink); }
+.door:has(input:checked) .door__state::before { content: "열림 · 책임은 당신에게"; }
+.doors__out { font: 400 17px/1.6 var(--f-kserif); min-height: 1.6em; }
+
+/* ---------- Choosing ---------- */
+.seg { display: inline-flex; border: 2px solid var(--ink); background: var(--sheet); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.seg button { position: relative; min-height: 48px; padding: 0 18px; border: 0; border-right: 1px solid var(--ink); background: none; cursor: pointer; font: 500 15.5px/1 var(--f-sans); white-space: nowrap; }
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--ash); }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--acid); font-weight: 700; }
+.seg button:focus-visible { outline-offset: -6px; outline-color: var(--sheet); }
+.seg button[aria-checked="false"]:focus-visible { outline-color: var(--ink); }
+.seg__note { font: 400 14px/1.5 var(--f-type); color: var(--ink-2); text-align: center; width: 100%; }
+
+.tabs { display: flex; gap: 6px; padding: 10px 6px 0; overflow-x: auto; scrollbar-width: none; border-bottom: 2px solid var(--ink); }
+.tabs button { position: relative; flex: none; min-height: 50px; padding: 4px 18px 12px; border: 0; background: var(--ash); cursor: pointer; font: 400 17px/1 var(--f-kdisplay); color: var(--ink-2);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5px), 90% 100%, 80% calc(100% - 6px), 68% calc(100% - 1px), 56% calc(100% - 7px), 44% 100%, 32% calc(100% - 5px), 20% 100%, 9% calc(100% - 6px), 0 calc(100% - 2px));
+  transition: transform var(--dur) var(--ease), background var(--dur); }
+.tabs button:hover { background: var(--ash-2); color: var(--ink); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--sheet); transform: rotate(var(--tilt-1)) translateY(-2px); }
+.tabs button:focus-visible { outline: none; text-decoration: underline wavy var(--red); text-underline-offset: 6px; }
+.tabs button[aria-selected="true"]:focus-visible { text-decoration-color: var(--acid); }
+.tabpanel { position: relative; padding: 22px 4px 4px; display: grid; gap: 10px; }
+.tabpanel blockquote { margin: 0; position: relative; padding-left: 44px; font: 400 clamp(19px, 2.2vw, 22px)/1.65 var(--f-kserif); }
+.tabpanel blockquote::before { content: "“"; position: absolute; left: 0; top: -.28em; font: italic 700 72px/1 var(--f-serif); color: var(--red); }
+.tabpanel .who { padding-left: 44px; font: 400 14px/1.5 var(--f-type); color: var(--ink-2); }
+.tabpanel .who i { font-family: var(--f-serif); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { position: relative; min-height: 44px; padding: 0 16px; border: 2px solid var(--ink); background: var(--sheet); cursor: pointer; font: 500 15.5px/1 var(--f-sans); display: inline-flex; align-items: center; gap: 6px; clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%); transition: transform var(--dur) var(--ease); }
+.chip::after { content: ""; position: absolute; top: -2px; right: -2px; width: 13px; height: 2px; background: var(--ink); transform-origin: 0 0; transform: translate(-11px, 0) rotate(45deg); }
+.chip:hover { background: var(--acid-wash); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--sheet); }
+.chip[aria-pressed="true"]::before { content: "✓"; font: 700 14px/1 var(--f-type); color: var(--acid); }
+.chip[aria-pressed="true"]:nth-child(odd) { transform: rotate(var(--tilt-1)); }
+.chip[aria-pressed="true"]:nth-child(even) { transform: rotate(var(--tilt-2)); }
+.chip:focus-visible { outline: none; text-decoration: underline wavy var(--red); text-underline-offset: 5px; }
+.chip[aria-pressed="true"]:focus-visible { text-decoration-color: var(--acid); }
+
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; min-width: 0; width: 100%; }
+.field > label, .field > .flabel { font: 700 15px/1.35 var(--f-sans); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.field > label small, .field > .flabel small { font: 400 12.5px/1.3 var(--f-type); color: var(--ink-3); }
+.help { font-size: 14.5px; color: var(--ink-2); }
+.help.err { color: var(--red-ink); font-weight: 500; }
+.help.err::before { content: "✕ "; font-family: var(--f-type); }
+.help.ok { color: var(--acid-ink); font-weight: 500; }
+
+.select { position: relative; }
+.select select { appearance: none; width: 100%; min-height: 50px; padding: 0 48px 0 14px; border: 2px solid var(--ink); border-radius: 0; background: var(--sheet); cursor: pointer; font-size: 16px; }
+.select::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 44px; background: var(--ink); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); pointer-events: none; }
+.select svg { position: absolute; right: 13px; top: 50%; width: 18px; height: 18px; margin-top: -9px; pointer-events: none; stroke: var(--acid); stroke-width: 2.6; fill: none; z-index: 1; }
+.select select:hover { background: var(--void); }
+.select select:focus-visible { outline-offset: 3px; }
+
+/* Anxiety range */
+.range { display: grid; gap: 6px; width: 100%; }
+.range__top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.range__top label { font: 700 15px/1.35 var(--f-sans); }
+.range__top output { font: 400 40px/1 var(--f-display); color: var(--ink); min-width: 2.2ch; text-align: right; }
+.range input { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; cursor: pointer; --p: 30%; }
+.range input::-webkit-slider-runnable-track { height: 12px; border: 2px solid var(--ink); background: linear-gradient(var(--red), var(--red)) 0 0/var(--p) 100% no-repeat, repeating-linear-gradient(90deg, var(--ash-2) 0 1px, var(--sheet) 1px 10%); }
+.range input::-moz-range-track { height: 8px; border: 2px solid var(--ink); background: var(--sheet); }
+.range input::-moz-range-progress { height: 8px; background: var(--red); }
+.range input::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -10px; border: 2px solid var(--ink); background: var(--acid); transform: rotate(45deg); }
+.range input::-moz-range-thumb { width: 22px; height: 22px; border: 2px solid var(--ink); border-radius: 0; background: var(--acid); transform: rotate(45deg); }
+.range input:focus-visible { outline-offset: 2px; }
+.range__scale { display: flex; justify-content: space-between; font: 400 12.5px/1 var(--f-type); color: var(--ink-3); }
+.anx { --amp: 0px; position: relative; width: 100%; padding: 22px 20px; border: 2px solid var(--ink); background: var(--sheet); overflow: clip; }
+.anx__inner { display: grid; gap: 6px; }
+.anx__inner b { font: 400 clamp(22px, 3vw, 28px)/1.3 var(--f-kdisplay); text-shadow: calc(var(--amp) * 1.4) 0 0 rgba(212,50,28,.55), calc(var(--amp) * -1) 0 0 rgba(17,17,16,.18); letter-spacing: calc(var(--amp) * .08); }
+.anx__inner span { font: 400 14px/1.5 var(--f-type); color: var(--ink-2); }
+.anx.is-shaking .anx__inner { animation: jitter .16s steps(2, end) infinite; }
+@keyframes jitter {
+  0% { transform: translate(var(--amp), calc(var(--amp) * -.6)) skewX(calc(var(--amp) * -.6deg)); }
+  50% { transform: translate(calc(var(--amp) * -.8), calc(var(--amp) * .5)) skewX(calc(var(--amp) * .5deg)); }
+  100% { transform: translate(calc(var(--amp) * .3), var(--amp)); } }
+
+/* Side menu: rooms in a hotel with no exit */
+.rooms { width: 100%; max-width: 340px; border: 2px solid var(--ink); background: var(--sheet); }
+.rooms__head { padding: 12px 14px 10px; border-bottom: 2px solid var(--ink); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.rooms__head b { font: 400 20px/1.2 var(--f-kdisplay); }
+.rooms__head span { font: 400 12.5px/1.2 var(--f-type); color: var(--ink-3); }
+.rooms a { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 52px; padding: 0 14px 0 10px; border-bottom: 1px solid var(--ash-2); color: var(--ink); text-decoration: none; font-size: 16px; }
+.rooms a:last-child { border-bottom: 0; }
+.rooms a .no { display: grid; place-items: center; width: 34px; height: 34px; border: 2px solid var(--ink); font: 400 17px/1 var(--f-display); }
+.rooms a em { font: normal 400 12.5px/1.2 var(--f-type); color: var(--ink-3); }
+.rooms a svg { width: 22px; height: 14px; stroke: var(--acid); fill: none; stroke-width: 2; display: none; }
+.rooms a:hover { background: var(--ash); }
+.rooms a[aria-current="page"] { background: var(--ink); color: var(--sheet); font-weight: 700; }
+.rooms a[aria-current="page"] .no { border-color: var(--acid); color: var(--acid); }
+.rooms a[aria-current="page"] em { display: none; }
+.rooms a[aria-current="page"] svg { display: block; }
+.rooms a:focus-visible { outline-offset: -5px; }
+.rooms a[aria-current="page"]:focus-visible { outline-color: var(--acid); }
+
+/* ---------- Inputs ---------- */
+.input { position: relative; display: flex; align-items: stretch; border: 2px solid var(--ink); background: var(--sheet); min-height: 50px; transition: box-shadow var(--dur) var(--ease); }
+.input input, .input textarea { flex: 1; min-width: 0; border: 0; background: transparent; padding: 0 14px; font-size: 16px; outline: none; }
+.input textarea { padding: 12px 14px; resize: vertical; min-height: 110px; line-height: 1.7; }
+.input:focus-within { box-shadow: var(--gaze-x) var(--gaze-y) 0 var(--acid), calc(var(--gaze-x) + 2px) calc(var(--gaze-y) + 2px) 0 var(--ink); }
+.input input::placeholder, .input textarea::placeholder { color: var(--ink-3); }
+.input__affix { display: grid; place-items: center; padding: 0 12px; border-left: 2px solid var(--ink); font: 400 14px/1 var(--f-type); color: var(--ink-2); background: var(--ash); }
+.input__affix--l { border-left: 0; border-right: 2px solid var(--ink); }
+.input__icon { display: grid; place-items: center; padding-left: 12px; }
+.input__icon svg { width: 20px; height: 20px; stroke: var(--ink-2); fill: none; stroke-width: 2; }
+.input__btn { min-width: 64px; border: 0; border-left: 2px solid var(--ink); background: var(--ash); padding: 0 12px; cursor: pointer; font: 400 14px/1 var(--f-type); }
+.input__btn:hover { background: var(--acid); }
+.input__btn:focus-visible { outline-offset: -6px; }
+.input.is-err { border-color: var(--red-ink); background: linear-gradient(90deg, var(--red-ink) 0 6px, var(--sheet) 6px); }
+.input.is-err input { padding-left: 18px; }
+.input.is-err:focus-within { box-shadow: var(--gaze-x) var(--gaze-y) 0 var(--red-wash), calc(var(--gaze-x) + 2px) calc(var(--gaze-y) + 2px) 0 var(--red-ink); }
+.input.is-ok { border-color: var(--ink); }
+.input.is-disabled { border-style: dashed; border-color: var(--ink-3); background: repeating-linear-gradient(-45deg, var(--ash) 0 1px, var(--void) 1px 9px); }
+.input.is-disabled input { color: var(--ink-3); cursor: not-allowed; }
+.input input[type="date"], .input input[type="time"] { font-family: var(--f-type); font-size: 16px; }
+.input input::-webkit-calendar-picker-indicator { cursor: pointer; }
+.num-in { text-align: right; font-family: var(--f-type) !important; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 22px 20px; width: 100%; }
+.count { display: flex; justify-content: space-between; gap: 10px; font: 400 13px/1.3 var(--f-type); color: var(--ink-3); }
+
+/* ---------- Display ---------- */
+.badge { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 0 10px; font: 700 13px/1 var(--f-sans); border: 2px solid var(--ink); background: var(--sheet); color: var(--ink); }
+.badge i { width: 8px; height: 8px; background: currentColor; flex: none; }
+.badge--ink { background: var(--ink); color: var(--sheet); }
+.badge--hollow { border-style: dashed; color: var(--ink-2); border-color: var(--ink-3); }
+.badge--red { color: var(--red-ink); border-color: var(--red-ink); background: var(--red-wash); }
+.badge--acid { background: var(--acid); transform: rotate(var(--tilt-2)); }
+.badge--wait i { border-radius: 50%; background: var(--ink-3); animation: blink 1.6s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .15; } }
+.stamp { display: inline-grid; place-items: center; padding: 8px 16px; border: 3px double var(--red-ink); color: var(--red-ink); font: 400 21px/1.15 var(--f-kdisplay); letter-spacing: .1em; transform: rotate(var(--tilt-3)); opacity: .92;
+  -webkit-mask: radial-gradient(circle at 40% 40%, transparent 0 .9px, #000 1.1px) 0 0/5px 6px; mask: radial-gradient(circle at 40% 40%, transparent 0 .9px, #000 1.1px) 0 0/5px 6px; }
+.stamp small { font: 700 10.5px/1.2 var(--f-type); letter-spacing: .18em; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 30px 22px; width: 100%; }
+.card { position: relative; display: grid; grid-template-rows: auto 1fr auto; background: var(--sheet); border: 2px solid var(--ink); color: inherit; text-decoration: none; min-width: 0; transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+.card:nth-child(2) { transform: rotate(var(--tilt-2)); }
+.card:hover { transform: translate(-3px, -3px); box-shadow: var(--gaze-x) var(--gaze-y) 0 var(--acid), calc(var(--gaze-x) + 2px) calc(var(--gaze-y) + 2px) 0 var(--ink); }
+.card:active { transform: none; box-shadow: none; }
+.card .tape { top: -12px; left: 50%; margin-left: -38px; transform: rotate(var(--tilt-1)); }
+.card__art { position: relative; height: 176px; overflow: hidden; border-bottom: 2px solid var(--ink);
+  background: var(--void) linear-gradient(var(--ash-2) 1px, transparent 1px) 0 0/100% 22px, var(--void) linear-gradient(90deg, var(--ash-2) 1px, transparent 1px) 0 0/22px 100%; background-color: var(--void); }
+.card__art svg { position: absolute; }
+.card__quote { position: absolute; right: 10px; bottom: 12px; max-width: 64%; padding: 6px 9px; background: var(--sheet); font: 700 14px/1.45 var(--f-kserif); box-shadow: 2px 2px 0 var(--ink); transform: rotate(var(--tilt-1)); }
+.card__body { padding: 16px 18px 18px; display: grid; gap: 6px; align-content: start; }
+.card__body h4 { font: 400 22px/1.25 var(--f-kdisplay); }
+.card__body p { font-size: 15.5px; color: var(--ink-2); }
+.card__meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 18px; border-top: 1px dashed var(--ink-3); font: 400 13px/1.2 var(--f-type); color: var(--ink-2); }
+
+.meter { display: grid; gap: 7px; width: 100%; }
+.meter__top { display: flex; justify-content: space-between; gap: 10px; font-size: 15.5px; flex-wrap: wrap; }
+.meter__top b { font: 400 20px/1 var(--f-display); }
+.meter__top small { font: 400 13px/1.4 var(--f-type); color: var(--ink-3); }
+.meter__bar { height: 22px; border: 2px solid var(--ink); background: var(--sheet); position: relative; overflow: hidden; }
+.meter__bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ink); transition: width .7s var(--ease); }
+.meter__bar i::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 6px; background: var(--acid); }
+.meter__bar.dropping i { transition: width 1.1s cubic-bezier(.55,0,.75,.55); }
+.godot .meter__bar i { width: 99%; background: repeating-linear-gradient(-45deg, var(--ink) 0 8px, var(--ink-2) 8px 16px); animation: wait 9s cubic-bezier(.1,.8,.1,1) forwards, crawl 1s linear infinite; background-size: 22.6px 22.6px; }
+@keyframes wait { from { width: 0; } to { width: 99%; } }
+@keyframes crawl { to { background-position: 22.6px 0; } }
+.gauges { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; width: 100%; }
+.gauge { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.gauge__ring { width: 116px; height: 116px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--ink); background: conic-gradient(var(--c, var(--ink)) calc(var(--v) * 1%), var(--ash) 0); }
+.gauge__ring span { width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center; background: var(--sheet); border: 2px solid var(--ink); font: 400 24px/1 var(--f-display); }
+.gauge b { font-weight: 700; font-size: 15.5px; }
+.gauge small { font: 400 12.5px/1.4 var(--f-type); color: var(--ink-3); max-width: 15ch; }
+.clock svg { width: 116px; height: 116px; display: block; }
+
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; width: 100%; margin: 0; padding: 0; counter-reset: s; }
+.steps li { list-style: none; counter-increment: s; position: relative; padding: 12px 12px 14px; border: 2px solid var(--ink); border-right-width: 0; display: grid; gap: 4px; background: var(--sheet); min-width: 0; }
+.steps li:last-child { border-right-width: 2px; }
+.steps li::before { content: counter(s, upper-roman); font: 400 22px/1 var(--f-display); color: var(--ink-3); }
+.steps li b { font: 400 18px/1.25 var(--f-kdisplay); }
+.steps li span { font: 400 12.5px/1.4 var(--f-type); color: var(--ink-2); }
+.steps li.done b { text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; }
+.steps li.done::before { content: "✓ " counter(s, upper-roman); color: var(--ink); }
+.steps li.now { background: var(--ink); color: var(--sheet); transform: rotate(var(--tilt-1)) translateY(-4px); z-index: 1; border-right-width: 2px; margin-right: -2px; }
+.steps li.now::before { color: var(--acid); }
+.steps li.now span { color: var(--ash-2); }
+.steps li.todo { border-style: dashed; background: transparent; }
+@media (max-width: 560px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } .steps li { border-right-width: 2px; margin: 0 -1px -1px 0; } }
+
+.fold { width: 100%; border-top: 2px solid var(--ink); }
+.fold details { border-bottom: 1px solid var(--ink); }
+.fold summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 14px; min-height: 56px; padding: 6px 6px; font: 700 17px/1.45 var(--f-kserif); }
+.fold summary::-webkit-details-marker { display: none; }
+.fold summary::after { content: "+"; flex: none; width: 34px; height: 34px; display: grid; place-items: center; font: 400 26px/1 var(--f-display); border: 2px solid var(--ink); transition: transform var(--dur) var(--ease), background var(--dur); }
+.fold details[open] summary::after { transform: rotate(45deg); background: var(--acid); }
+.fold summary:hover { background: var(--ash); }
+.fold summary:focus-visible { outline-offset: -3px; }
+.fold details > div { padding: 4px 6px 20px; color: var(--ink-2); font-size: 16px; }
+
+.tablewrap { width: 100%; overflow-x: auto; border-top: 4px solid var(--ink); border-bottom: 2px solid var(--ink); }
+table { width: 100%; border-collapse: collapse; font-size: 15.5px; min-width: 540px; }
+caption { text-align: left; padding: 0 0 8px; font: 400 13px/1.4 var(--f-type); color: var(--ink-3); caption-side: bottom; padding-top: 8px; }
+th { text-align: left; font: 700 13px/1.2 var(--f-sans); color: var(--ink-2); padding: 0 10px; height: 46px; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; min-height: 44px; }
+th button::after { content: "↕"; font-family: var(--f-type); color: var(--ash-3); }
+th button:focus-visible { outline: 2px dashed var(--ink); outline-offset: 2px; }
+th[aria-sort="ascending"] button::after { content: "↑"; color: var(--red-ink); }
+th[aria-sort="descending"] button::after { content: "↓"; color: var(--red-ink); }
+td { padding: 12px 10px; border-bottom: 1px solid var(--ash-2); vertical-align: middle; }
+td:first-child { font-weight: 700; }
+td i { font-family: var(--f-kserif); font-style: normal; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--acid-wash); }
+td.num, th.num { text-align: right; font-family: var(--f-type); font-variant-numeric: tabular-nums; }
+th.num button { flex-direction: row-reverse; }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; flex-wrap: wrap; font: 400 14px/1 var(--f-type); color: var(--ink-2); }
+.pager ol { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.pager button { min-width: 44px; height: 44px; border: 2px solid var(--ink); background: var(--sheet); cursor: pointer; font: 400 18px/1 var(--f-display); }
+.pager button:hover:not(:disabled) { background: var(--acid-wash); }
+.pager button[aria-current="page"] { background: var(--ink); color: var(--sheet); transform: rotate(var(--tilt-1)); }
+.pager button:disabled { color: var(--ink-3); border-style: dashed; border-color: var(--ink-3); cursor: not-allowed; background: transparent; }
+
+.empty { width: 100%; padding: 26px 20px 30px; display: grid; justify-items: center; gap: 10px; text-align: center; }
+.empty svg { width: min(100%, 360px); height: auto; }
+.empty b { font: 400 24px/1.3 var(--f-kdisplay); }
+.empty p { color: var(--ink-2); max-width: 36ch; }
+
+/* ---------- Overlays ---------- */
+dialog { padding: 0; border: 2px solid var(--ink); background: var(--sheet); color: var(--ink); max-width: min(480px, calc(100vw - 32px)); width: 100%; box-shadow: 10px 10px 0 var(--acid), 12px 12px 0 var(--ink); overflow: visible; }
+dialog::backdrop { background: rgba(17,17,16,.62); }
+dialog[open] { animation: settle .28s var(--ease); }
+@keyframes settle { from { opacity: 0; transform: rotate(var(--tilt-3)) translateY(12px); } }
+.dlg__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 8px 8px 16px; background: var(--ink); color: var(--sheet); font: 400 13px/1 var(--f-type); letter-spacing: .04em; }
+.dlg__x { width: 44px; height: 44px; border: 0; background: none; color: var(--sheet); cursor: pointer; font: 400 24px/1 var(--f-type); }
+.dlg__x:hover { background: var(--acid); color: var(--ink); }
+.dlg__x:focus-visible { outline-color: var(--acid); outline-offset: -5px; }
+.dlg__body { position: relative; padding: 24px 24px 8px; display: grid; gap: 12px; }
+.dlg__body h3 { font: 400 46px/1.05 var(--f-kdisplay); letter-spacing: -.01em; }
+.dlg__body h3 i { font: italic 500 .5em/1 var(--f-serif); color: var(--ink-3); margin-left: 6px; letter-spacing: 0; }
+.dlg__body p { color: var(--ink-2); }
+.dlg__body .anno { margin-top: 2px; }
+.dlg__foot { display: flex; justify-content: flex-end; align-items: center; gap: 14px 16px; padding: 22px 24px 26px; flex-wrap: wrap; }
+
+.scrim { position: fixed; inset: 0; z-index: 59; background: rgba(17,17,16,.55); opacity: 0; pointer-events: none; transition: opacity .25s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+.beyond { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(430px, 100vw); background: var(--sheet); border-left: 3px solid var(--ink); display: grid; grid-template-rows: auto 1fr auto; overflow: hidden;
+  transform: translateX(105%); visibility: hidden; transition: transform .3s var(--ease), visibility 0s linear .3s; }
+.beyond.open { transform: none; visibility: visible; transition: transform .3s var(--ease), visibility 0s; }
+.beyond__leaf { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: var(--ink); transform-origin: 0 50%; backface-visibility: hidden;
+  box-shadow: inset 0 0 0 26px var(--ink), inset 0 0 0 28px #3d3b37; transition: transform .8s cubic-bezier(.5,0,.2,1) .28s; }
+.beyond__leaf::after { content: ""; position: absolute; right: 44px; top: 50%; width: 16px; height: 16px; border-radius: 50%; background: var(--acid); }
+.beyond.open .beyond__leaf { transform: perspective(1400px) rotateY(-105deg); }
+.beyond__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px 14px 20px; border-bottom: 2px solid var(--ink); }
+.beyond__head h3 { font: 400 26px/1.2 var(--f-kdisplay); }
+.beyond__body { padding: 0 20px 22px; overflow: auto; display: grid; gap: 20px; align-content: start; }
+.beyond__void { margin: 0 -20px; height: 190px; position: relative; border-bottom: 1px solid var(--ash-2); display: grid; place-items: end center; padding-bottom: 14px; }
+.beyond__void svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.beyond__void p { position: relative; font: 400 14px/1.5 var(--f-type); color: var(--ink-3); text-align: center; padding: 0 20px; }
+.beyond__foot { padding: 16px 20px 18px; border-top: 2px solid var(--ink); display: flex; gap: 12px 16px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+
+.toasts { position: fixed; z-index: 70; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; width: min(370px, calc(100vw - 32px)); }
+.toast { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 16px 8px 14px 14px; background: var(--sheet); border: 2px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); animation: settle .26s var(--ease); }
+.toast .tape { top: -11px; left: 22px; width: 62px; height: 18px; transform: rotate(var(--tilt-1)); }
+.toast.out { animation: toastout .22s var(--ease) forwards; }
+@keyframes toastout { to { opacity: 0; transform: translateY(10px) rotate(var(--tilt-2)); } }
+.toast__eye { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; background: var(--void); }
+.toast__eye svg { width: 20px; height: 12px; fill: none; stroke: var(--ink); stroke-width: 2; }
+.toast small { display: block; font: 400 12.5px/1.3 var(--f-type); color: var(--ink-3); }
+.toast b { display: block; font: 700 16px/1.45 var(--f-sans); }
+.toast span.msg { display: block; font-size: 14.5px; color: var(--ink-2); line-height: 1.55; }
+.toast--err { border-color: var(--red-ink); box-shadow: 5px 5px 0 var(--red-ink); }
+.toast--err small { color: var(--red-ink); }
+.toast--err .toast__eye { border-color: var(--red-ink); background: var(--red-wash); }
+.toast--err .toast__eye svg { stroke: var(--red-ink); }
+.toast .x { width: 44px; height: 44px; margin-top: -8px; border: 0; background: none; cursor: pointer; font: 400 22px/1 var(--f-type); color: var(--ink-2); }
+.toast .x:hover { background: var(--ash); color: var(--ink); }
+.toast .undo { margin-top: 10px; }
+
+/* ---------- Code ---------- */
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+pre.code { margin: 0; padding: 22px; overflow: auto; background: var(--ink); color: #e9e7e1; font: 400 13.5px/1.7 var(--f-type); max-height: 540px; clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%); }
+pre.code .c { color: #a29e95; }
+pre.code .p { color: var(--acid); }
+pre.code .v { color: #ffb4a6; }
+pre.code:focus-visible { outline: 2px dashed var(--acid); outline-offset: -6px; }
+
+/* ---------- Footer ---------- */
+.foot { margin-top: 96px; padding-block: 30px 56px; border-top: 2px solid var(--ink); display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; }
+.foot__end { font: 400 clamp(64px, 12vw, 140px)/.9 var(--f-display); letter-spacing: -.01em; }
+.foot__end i { font: italic 400 .32em/1 var(--f-serif); color: var(--ink-3); letter-spacing: 0; display: block; margin-top: 10px; }
+.foot__cols { display: grid; gap: 18px; font-size: 15px; color: var(--ink-2); align-content: end; }
+.foot__cols b { display: block; color: var(--ink); font: 400 13px/1.4 var(--f-type); letter-spacing: .06em; margin-bottom: 2px; }
+.foot__links { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.foot__links a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; }
+@media (max-width: 720px) { .foot { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="bust" viewBox="0 0 100 122">
+      <path d="M38 10C52 3 70 7 74 21c2 6 1 10 4 14l6 10c1 2-1 3-4 3v6c2 2 0 4-1 5 1 3-1 5-3 5-2 4-6 6-12 5l-2 9c8 4 20 6 26 14l4 12H8l4-12c4-8 14-12 24-14l2-10c-8-4-12-12-12-22-2-16 0-30 12-36z" fill="#d9d6cf" stroke="#111110" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M34 20c4-4 10-4 12 0M30 30c4-4 10-4 12 0M44 13c4-3 10-2 12 2M30 42c3-3 8-3 10 1" fill="none" stroke="#111110" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M66 34c3-1 6 0 7 2" fill="none" stroke="#111110" stroke-width="1.6"/>
+      <rect x="22" y="104" width="56" height="7" fill="#e4e2dc" stroke="#111110" stroke-width="2"/>
+      <rect x="15" y="111" width="70" height="9" fill="#fbfaf7" stroke="#111110" stroke-width="2"/>
+    </symbol>
+    <symbol id="eye" viewBox="0 0 24 14"><path d="M1 7c3-4 7-6 11-6s8 2 11 6c-3 4-7 6-11 6S4 11 1 7z"/><circle cx="12" cy="7" r="3"/></symbol>
+    <symbol id="figure" viewBox="0 0 20 52"><circle cx="10" cy="6" r="5"/><path d="M10 11v20M10 31l-6 20M10 31l6 20M10 16l-7 11M10 16l7 11" stroke-width="3" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap mast"><span>디자인 시스템 · 제0호 · 본질 이전판</span><span>2026년 11월 · 어딘가</span><span>흑 · 백 · 회색 + 붉은 도장 + 형광 한 번</span></div>
+
+<header class="wrap hero">
+  <div class="hero__copy">
+    <h1 class="title" aria-label="Absurd 부조리">
+      <span class="title__word" aria-hidden="true"><span class="l l1">A</span><span class="l l2">b</span><span class="l l3">S</span><span class="l l4">U</span><span class="l l5">R</span><span class="l l6">D</span></span>
+      <span class="title__ko" aria-hidden="true">부조리</span>
+      <span class="title__note anno" aria-hidden="true">일부러 부서진 제목입니다. 규칙대로.</span>
+    </h1>
+    <div class="hero__deck">
+      <p><b>실존은 본질에 앞섭니다.</b> 이 버튼들도 그렇습니다. 무엇이 될지는 미리 정해져 있지 않고, 당신이 누르는 순간에야 비로소 무언가가 됩니다. 텅 빈 회색 종이 위에, 고전과 형광을 오려 붙여 만든 디자인 시스템.</p>
+      <cite>— l’existence précède l’essence. (대략)</cite>
+    </div>
+    <div class="hero__cta">
+      <a class="btn" href="#base">내려가 보기</a>
+      <button class="btn btn--ghost" type="button" id="stayBtn">그대로 있기</button>
+    </div>
+  </div>
+  <figure class="collage" style="margin:0">
+    <svg viewBox="0 0 480 520" role="img" aria-label="콜라주: 부서진 이오니아식 기둥, 형광 구불선, 비탈의 바위와 그것을 미는 작은 사람, 붉은 태양">
+      <g stroke="#cdcac2" stroke-width="1">
+        <path d="M180 60v400M222 60v400M264 60v400M306 60v400M348 60v400M390 60v400M432 60v400M180 60h252M180 102h252M180 144h252M180 186h252M180 228h252M180 270h252M180 312h252M180 354h252M180 396h252M180 438h252"/>
+      </g>
+      <circle cx="350" cy="150" r="78" fill="#d4321c"/>
+      <g fill="#111110"><circle cx="440" cy="40" r="3"/><circle cx="456" cy="40" r="3"/><circle cx="472" cy="40" r="3"/><circle cx="440" cy="56" r="3"/><circle cx="456" cy="56" r="3"/><circle cx="472" cy="56" r="3"/><circle cx="440" cy="72" r="3"/><circle cx="456" cy="72" r="3"/><circle cx="472" cy="72" r="3"/></g>
+      <!-- column fragment -->
+      <g stroke="#111110" stroke-width="2.5" stroke-linejoin="round" transform="rotate(-3.5 120 260)">
+        <rect x="26" y="40" width="190" height="16" fill="#fbfaf7"/>
+        <path d="M44 56h154c0 14-10 22-24 22H68c-14 0-24-8-24-22z" fill="#e4e2dc"/>
+        <circle cx="50" cy="74" r="24" fill="#fbfaf7"/><path d="M50 74m-14 0a14 14 0 1 1 14 14a8 8 0 1 1 0-16a3 3 0 1 1 0 6" fill="none"/>
+        <circle cx="192" cy="74" r="24" fill="#fbfaf7"/><path d="M192 74m14 0a14 14 0 1 0-14 14a8 8 0 1 0 0-16a3 3 0 1 0 0 6" fill="none"/>
+        <path d="M70 98h102v300l-12 10 6 18-20 6-8-16-16 22-14-12-12 18-14-20-12 6z" fill="#fbfaf7"/>
+        <path d="M84 104v296M98 104v310M112 104v300M126 104v312M140 104v304M154 104v298" stroke-width="1.5" fill="none"/>
+      </g>
+      <!-- acid squiggle, outlined -->
+      <path d="M118 360c22-40 44-40 66 0s44 40 66 0 44-40 66 0 44 40 66 0 44-40 66 0" fill="none" stroke="#111110" stroke-width="20" stroke-linecap="round"/>
+      <path d="M118 360c22-40 44-40 66 0s44 40 66 0 44-40 66 0 44 40 66 0 44-40 66 0" fill="none" stroke="#d9ff3d" stroke-width="13" stroke-linecap="round"/>
+      <!-- slope, boulder, figure -->
+      <path d="M150 512L478 400v112z" fill="#e4e2dc"/>
+      <path d="M150 512L478 400" stroke="#111110" stroke-width="3"/>
+      <circle cx="408" cy="396" r="30" fill="#111110"/>
+      <path d="M396 384l10 8-4 12M418 382l-6 10" stroke="#625e57" stroke-width="2" fill="none"/>
+      <use href="#figure" x="352" y="388" width="20" height="52" fill="#111110" stroke="#111110" transform="rotate(-24 362 440)"/>
+      <!-- tape + triangle -->
+      <rect x="14" y="20" width="84" height="24" fill="rgba(205,202,194,.8)" transform="rotate(-8 56 32)"/>
+      <path d="M430 470l30-52 16 60z" fill="#111110"/>
+      <path d="M200 488l12-10 12 10 12-10 12 10 12-10" fill="none" stroke="#111110" stroke-width="3"/>
+    </svg>
+    <figcaption class="collage__cap">그림 1. 기둥(과거) · 구불선(지금) · 바위(언제나). 서로 아무 상관이 없습니다.</figcaption>
+  </figure>
+</header>
+
+<nav class="nav" aria-label="섹션"><div class="wrap"><ol id="navlist">
+  <li><a href="#base">기초</a></li><li><a href="#press">누르기</a></li><li><a href="#toggle">켜고 끄기</a></li><li><a href="#choose">고르기</a></li>
+  <li><a href="#type-in">입력</a></li><li><a href="#show">보여 주기</a></li><li><a href="#float">띄우기</a></li><li><a href="#code">코드</a></li>
+</ol></div></nav>
+
+<main class="wrap">
+
+<!-- 01 -->
+<section class="part" id="base">
+  <div class="part__head"><div class="part__no" aria-hidden="true">01</div><div><h2>기초 <i>les fondements</i></h2><p>바탕은 텅 빈 회색 종이입니다. 그 위에 먹, 그리고 갑자기 끼어드는 두 색: 되돌릴 수 없는 일에 찍는 붉은 도장, 한 화면에 딱 한 번 쓰는 형광. 나머지는 여백이 맡습니다.</p><span class="anno">기초는 없습니다. 그래도 일단 적어 둡니다.</span></div></div>
+
+  <div class="swatches" id="swatches"></div>
+
+  <div class="breaks">
+    <div class="brk"><div class="brk__art"><div class="tilts" aria-hidden="true"><span style="transform:rotate(-2deg)">-2°</span><span style="transform:rotate(1.5deg)">1.5°</span><span style="transform:rotate(-3.5deg)">-3.5°</span></div></div><p><b>기울기는 셋뿐.</b> 선택된 것, 붙여 놓은 것, 도장만 기웁니다. 각도는 <code>--tilt-1·2·3</code> 세 가지 외에는 쓰지 않습니다.</p></div>
+    <div class="brk"><div class="brk__art"><div class="slab-demo" aria-hidden="true"></div></div><p><b>잘린 모서리 하나.</b> 오른쪽 위 모서리만 14px 잘립니다. 완전한 사각형은 없습니다. 본질이 조금 모자란 상태가 기본값.</p></div>
+    <div class="brk"><div class="brk__art"><div class="gaze-demo" aria-hidden="true"><svg viewBox="0 0 24 14" fill="none" stroke="#111110" stroke-width="1.6"><use href="#eye"/></svg></div></div><p><b>타인의 시선 = 그림자.</b> 흐린 그림자 대신 6px 밀린 단단한 판. 주요 버튼, 포커스된 입력 칸, 떠 있는 창에만 생깁니다.</p></div>
+  </div>
+
+  <div id="typescale"></div>
+
+  <ol class="rules">
+    <li><b>솔직한 화면.</b><span>UI는 자기가 무엇인지 말합니다. 확실하지 않으면 확실하지 않다고. 여백의 타자기 주석이 그 역할을 합니다.</span></li>
+    <li><b>부서지되 규칙대로.</b><span>각도 셋, 잘린 모서리 하나, 시선의 그림자 하나, 테이프. 이 밖의 방식으로는 깨뜨리지 않습니다.</span></li>
+    <li><b>여백은 재료.</b><span>빈 곳을 채우려 하지 않습니다. 고독한 사람 하나와 지평선 하나면 충분합니다.</span></li>
+    <li><b>읽히게.</b><span>본문 16.5px, 누르는 곳 44px 이상, 대비 4.5:1 이상. 형광은 글자색으로 쓰지 않고, 움직임 줄이기를 켜면 불안의 떨림도 멈춥니다.</span></li>
+  </ol>
+</section>
+
+<!-- 02 -->
+<section class="part" id="press">
+  <div class="part__head"><div class="part__no" aria-hidden="true">02</div><div><h2>누르기 <i>l’acte</i></h2><p>누르는 것은 선택이고, 선택은 그 사람을 만듭니다. 주요 버튼은 모서리가 잘린 검은 판, 뒤에는 형광 그림자가 6px 밀려 있습니다. 누르면 판이 그림자 쪽으로 내려앉습니다.</p></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>버튼</h3><p>검은 판은 한 화면에 하나. 찢어 낸 종이는 보조, 물결 밑줄은 가벼운 동작, 붉은 도장은 되돌릴 수 없는 일에만.</p><ul><li>레이블은 결과를 말하는 동사로.</li><li>형광 판은 화면에 단 한 번.</li></ul><span class="anno">맨 오른쪽 버튼은 아무 의미가 없을 수도 있습니다.</span></div>
+    <div class="plate" data-fig="FIG. 02—A"><span class="rule-mis" aria-hidden="true"></span>
+      <button class="btn" type="button">선택하기</button>
+      <button class="btn btn--paper" type="button">다시 생각하기</button>
+      <button class="btn btn--acid" type="button">반항하기</button>
+      <button class="btn btn--stamp" type="button">되돌릴 수 없음<small>IRRÉVERSIBLE</small></button>
+      <button class="btn btn--ghost" type="button">아무것도 안 하기</button>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>크기와 상태</h3><p>작은 판도 44px 아래로는 줄이지 않습니다. 할 수 없는 일은 빗금으로, 일하는 중에는 작은 바위가 굴러갑니다.</p><ul><li>비활성 레이블에는 이유를 적습니다.</li></ul></div>
+    <div class="plate" data-fig="FIG. 02—B">
+      <button class="btn btn--sm" type="button">작게</button>
+      <button class="btn" type="button">보통</button>
+      <button class="btn btn--lg" type="button">크게</button>
+      <button class="btn" type="button" disabled>구원받기 (불가)</button>
+      <button class="btn btn--paper" type="button" id="loadBtn"><span>의미 불러오기</span></button>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>오려 낸 동그라미</h3><p>아이콘만 있는 버튼은 종이에서 오려 낸 원. 가위가 지나간 점선이 둘레에 남아 있습니다.</p><ul><li>이름(<code>aria-label</code>)과 말풍선을 꼭 붙입니다.</li></ul></div>
+    <div class="plate" data-fig="FIG. 02—C" style="gap:22px">
+      <span class="tip"><button class="cutout" type="button" aria-label="바라보기"><svg viewBox="0 0 24 24"><path d="M2 12c3-5 6-7 10-7s7 2 10 7c-3 5-6 7-10 7s-7-2-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button><span class="tip__bubble" role="tooltip">바라보기 — 그리고 보여지기</span></span>
+      <span class="tip"><button class="cutout" type="button" aria-label="기다리기"><svg viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 6 10 6 10 9s-10 3-10 9M17 3c0 6-10 6-10 9s10 3 10 9"/></svg></button><span class="tip__bubble" role="tooltip">기다리기 (고도)</span></span>
+      <span class="tip"><button class="cutout" type="button" aria-label="문 열기"><svg viewBox="0 0 24 24"><path d="M5 21V3h11v18M3 21h18M13 12h.01M16 5l4 1v15"/></svg></button><span class="tip__bubble" role="tooltip">문 열기</span></span>
+      <span class="tip"><button class="cutout" type="button" aria-label="의미 찾기" disabled><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5M9 9l4 4M13 9l-4 4"/></svg></button><span class="tip__bubble" role="tooltip">의미 찾기 — 지금은 없음</span></span>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>산을 오르기</h3><p>가장 큰 행동. 누를 때마다 바위가 한 칸 올라가고, 꼭대기에 닿으면 처음으로 굴러 내려갑니다. 진행이 초기화되는 일을 숨기지 말고 보여 주세요.</p><ul><li>몇 번째 시도인지 늘 적어 둡니다.</li></ul><span class="anno">카뮈: 그래도 그는 행복하다고 상상해야 한다.</span></div>
+    <div class="plate" data-fig="FIG. 02—D">
+      <div class="hill" id="hill">
+        <svg viewBox="0 0 640 250" aria-hidden="true">
+          <path d="M0 238L600 58h40v192H0z" fill="#e4e2dc"/>
+          <path d="M0 238L600 58" stroke="#111110" stroke-width="3"/>
+          <path d="M600 58v-34" stroke="#111110" stroke-width="2"/><path d="M600 24h34l-8 8 8 8h-34" fill="#d4321c"/>
+          <text x="520" y="18" font-family="Courier Prime, Nanum Gothic Coding, monospace" font-size="13" fill="#625e57">정상 (잠깐)</text>
+          <g class="pusher" id="pusher"><g transform="rotate(-16.7)"><use href="#figure" x="-10" y="-52" width="20" height="52" fill="#111110" stroke="#111110" transform="rotate(14 0 -20)"/></g></g>
+          <g class="boulder" id="boulder"><circle r="28" fill="#111110"/><path d="M-12-8l8 6-3 12M10-16l-5 9M14 6l-8 4" stroke="#a29e95" stroke-width="2" fill="none"/></g>
+        </svg>
+        <div class="hill__count"><span>높이<b id="hillH">0</b> / 5</span><span>시도<b id="hillN">1</b>회</span><span>정상에 머문 시간<b>0</b>초</span></div>
+        <button class="btn btn--lg" type="button" id="hillBtn">산을 오르기</button>
+        <p class="hill__msg" id="hillMsg" aria-live="polite"></p>
+      </div>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>더보기 메뉴</h3><p>자주 쓰지 않는 동작은 접어 둡니다. 포기는 굵은 선 아래, 맨 끝에.</p><ul><li>↑↓ Home End로 이동, Esc로 닫기.</li></ul></div>
+    <div class="plate" data-fig="FIG. 02—E" style="min-height:340px;align-content:start;padding-top:60px">
+      <div class="rock-row">
+        <div><b>오늘의 바위</b><span class="label">3번째 시도 · 방금</span></div>
+        <div class="menu"><button class="cutout cutout--sm" type="button" aria-label="더보기" aria-haspopup="menu" aria-expanded="false" aria-controls="menuList" id="menuBtn"><svg viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+          <ul class="menu__list" role="menu" id="menuList" aria-label="바위에 대해" hidden>
+            <li role="none"><button role="menuitem" tabindex="-1" type="button">다시 밀기 <kbd>R</kbd></button></li>
+            <li role="none"><button role="menuitem" tabindex="-1" type="button">내일로 미루기 <kbd>L</kbd></button></li>
+            <li role="none"><button role="menuitem" tabindex="-1" type="button">의미 부여하기 <kbd>M</kbd></button></li>
+            <li role="none" class="menu__sep"></li>
+            <li role="none"><button role="menuitem" tabindex="-1" type="button" class="danger">전부 포기하기…</button></li>
+          </ul></div>
+      </div>
+    </div></div>
+</section>
+
+<!-- 03 -->
+<section class="part" id="toggle">
+  <div class="part__head"><div class="part__no" aria-hidden="true">03</div><div><h2>켜고 끄기 <i>être ou ne pas être</i></h2><p>켜짐과 꺼짐은 색만으로 말하지 않습니다. 언제나 글자가 함께 바뀝니다. 그리고 꺼 두는 것도 하나의 결정입니다.</p></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>존재 / 무 스위치</h3><p>바로 적용되는 설정. 꺼져 있을 때 손잡이는 점선의 빈자리, 켜면 형광으로 채워집니다.</p><ul><li>트랙 안의 글자가 상태를 말합니다.</li></ul></div>
+    <div class="plate col" data-fig="FIG. 03—A" style="align-items:flex-start">
+      <button class="being" type="button" role="switch" aria-checked="true"><span class="being__track" aria-hidden="true"></span><span class="tgl__text"><b>알림 받기</b><small>타인의 시선을 실시간으로</small><em data-on="존재함 — 켜져 있습니다" data-off="무 — 꺼져 있습니다">존재함 — 켜져 있습니다</em></span></button>
+      <button class="being" type="button" role="switch" aria-checked="false"><span class="being__track" aria-hidden="true"></span><span class="tgl__text"><b>자동 의미 부여</b><small>권장하지 않습니다</small><em data-on="존재함 — 켜져 있습니다" data-off="무 — 꺼져 있습니다">무 — 꺼져 있습니다</em></span></button>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>빈 방의 전등</h3><p>큰 설정 하나. 전등을 켜면 방이 밝아집니다. 방은 여전히 비어 있습니다.</p></div>
+    <div class="plate col" data-fig="FIG. 03—B" style="align-items:flex-start">
+      <button class="bulb" type="button" role="switch" aria-checked="false"><svg viewBox="0 0 84 84" aria-hidden="true"><rect class="room" width="84" height="84"/><path class="persp" d="M0 0l20 18M84 0l-20 18M0 84l20-20M84 84l-20-20M20 18h44v46H20z" fill="none" stroke-width="1.5"/><path d="M42 0v20" stroke="#a29e95" stroke-width="1.5"/><path class="cone" d="M36 30h12l22 34H14z"/><circle class="glass" cx="42" cy="26" r="7" stroke-width="2"/></svg><span class="tgl__text"><b>방에 불 켜기</b><small>집중 모드 — 모든 장식을 끕니다</small><em data-on="켜짐 · 방은 여전히 비어 있습니다" data-off="꺼짐 · 어둡고 조용합니다">꺼짐 · 어둡고 조용합니다</em></span></button>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>스스로 묻는 체크박스</h3><p>여러 개를 고를 때. 비어 있는 칸은 물음표로 자기를 의심하고, 일부만 골랐을 때는 말줄임표로 망설입니다.</p><ul><li>'전부'는 아래 항목을 한꺼번에 바꿉니다.</li></ul></div>
+    <div class="plate col" data-fig="FIG. 03—C" style="align-items:flex-start">
+      <fieldset class="stack"><legend>오늘 짊어질 것<small>무게는 고른 사람의 몫</small></legend>
+        <label class="q"><input type="checkbox" id="chkAll"><span class="q__box" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M3 10.5l4.5 4.5L17 5"/></svg></span><span class="q__t"><b>전부</b></span></label>
+        <div class="stack" style="padding-left:42px">
+          <label class="q"><input type="checkbox" class="chkItem" checked><span class="q__box" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M3 10.5l4.5 4.5L17 5"/></svg></span><span class="q__t">자유<small>피할 수 없음. 선고받은 것에 가깝습니다</small></span></label>
+          <label class="q"><input type="checkbox" class="chkItem"><span class="q__box" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M3 10.5l4.5 4.5L17 5"/></svg></span><span class="q__t">책임<small>자유와 한 묶음으로 배송됩니다</small></span></label>
+          <label class="q"><input type="checkbox" class="chkItem"><span class="q__box" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M3 10.5l4.5 4.5L17 5"/></svg></span><span class="q__t">불안<small>선택하지 않아도 따라옵니다</small></span></label>
+          <label class="q"><input type="checkbox" disabled><span class="q__box" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M3 10.5l4.5 4.5L17 5"/></svg></span><span class="q__t">확실한 답<small>재고 없음</small></span></label>
+        </div>
+      </fieldset>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>문 라디오</h3><p>하나만 고를 때. 문 하나를 열면 나머지 문은 닫힙니다. 문 뒤에는 늘 같은 것이 있습니다: 빈 공간과 한 사람.</p><ul><li>←→ 키로 문을 옮겨 다닙니다.</li></ul></div>
+    <div class="plate col" data-fig="FIG. 03—D" style="align-items:center">
+      <fieldset style="width:100%;max-width:520px"><legend>문 하나를 고르세요<small>고르지 않으면, 고르지 않은 사람이 됩니다</small></legend>
+        <div class="doors" id="doors">
+          <label class="door"><input type="radio" name="door" value="출구 없음"><span class="door__frame" aria-hidden="true"><span class="door__leaf"></span></span><span class="door__name">문 A</span><span class="door__desc">출구 없음</span><span class="door__state" aria-hidden="true"></span></label>
+          <label class="door"><input type="radio" name="door" value="또 다른 문"><span class="door__frame" aria-hidden="true"><span class="door__leaf"></span></span><span class="door__name">문 B</span><span class="door__desc">또 다른 문</span><span class="door__state" aria-hidden="true"></span></label>
+          <label class="door"><input type="radio" name="door" value="벽에 그려진 문"><span class="door__frame" aria-hidden="true"><span class="door__leaf"></span></span><span class="door__name">문 C</span><span class="door__desc">벽에 그려진 문</span><span class="door__state" aria-hidden="true"></span></label>
+        </div>
+      </fieldset>
+      <p class="doors__out" id="doorsOut" aria-live="polite">아직 아무 문도 열지 않았습니다.</p>
+    </div></div>
+</section>
+
+<!-- 04 -->
+<section class="part" id="choose">
+  <div class="part__head"><div class="part__no" aria-hidden="true">04</div><div><h2>고르기 <i>le choix</i></h2><p>고른 것은 검게 칠해지고, 조금 기웁니다. 선택은 질서를 흔드는 일이니까요. 고르지 않은 것은 반듯하게 남습니다.</p></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>분할 버튼</h3><p>두셋 중 하나를 바로 바꿀 때. 고른 칸은 먹 바탕에 형광 글자.</p><ul><li>←→ 키로 옮기면 바로 고릅니다.</li></ul></div>
+    <div class="plate col" data-fig="FIG. 04—A" style="align-items:center">
+      <div class="seg" role="radiogroup" aria-label="기다림의 단위" id="seg"><button type="button" role="radio" aria-checked="false">하루</button><button type="button" role="radio" aria-checked="true">일주일</button><button type="button" role="radio" aria-checked="false">내일</button><button type="button" role="radio" aria-checked="false">영원</button></div>
+      <p class="seg__note" id="segNote" aria-live="polite">일주일 단위로 기다립니다.</p>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>찢어 붙인 이름표 탭</h3><p>철학자 이름을 찢어 낸 종이 이름표. 고른 이름표는 먹으로 칠해지고 -2° 기웁니다.</p><ul><li>←→ Home End로 넘깁니다.</li><li>인용은 짧게 풀어 씁니다. 긴 원문을 옮기지 않습니다.</li></ul></div>
+    <div class="plate col" data-fig="FIG. 04—B">
+      <div class="tabs" role="tablist" aria-label="철학자" id="tabs">
+        <button type="button" role="tab" aria-selected="true" aria-controls="tp1" id="t1">사르트르</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="tp2" id="t2" tabindex="-1">카뮈</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="tp3" id="t3" tabindex="-1">키르케고르</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="tp4" id="t4" tabindex="-1">보부아르</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="tp1" aria-labelledby="t1" tabindex="0"><blockquote>사람은 먼저 존재하고, 그다음에 스스로를 만들어 간다. 그러니 핑계 댈 본성은 없다.</blockquote><p class="who">— 사르트르, 느슨하게 풀어 씀 · <i>L’existentialisme est un humanisme</i>, 1946</p></div>
+      <div class="tabpanel" role="tabpanel" id="tp2" aria-labelledby="t2" tabindex="0" hidden><blockquote>의미를 묻는 사람과 대답하지 않는 세계, 그 사이의 어긋남이 부조리다. 답은 도망이 아니라 반항.</blockquote><p class="who">— 카뮈, 느슨하게 풀어 씀 · <i>Le Mythe de Sisyphe</i>, 1942</p></div>
+      <div class="tabpanel" role="tabpanel" id="tp3" aria-labelledby="t3" tabindex="0" hidden><blockquote>불안은 자유 앞에서 느끼는 현기증이다. 고를 수 있다는 사실 자체가 어지럽다.</blockquote><p class="who">— 키르케고르, 느슨하게 풀어 씀 · <i>Begrebet Angest</i>, 1844</p></div>
+      <div class="tabpanel" role="tabpanel" id="tp4" aria-labelledby="t4" tabindex="0" hidden><blockquote>우리는 무엇으로 태어나지 않는다. 무엇이 되어 간다. 그리고 타인의 자유 없이는 나의 자유도 없다.</blockquote><p class="who">— 보부아르, 느슨하게 풀어 씀 · <i>Le Deuxième Sexe</i>, 1949</p></div>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>필터 칩</h3><p>여러 개를 켜고 끄는 필터. 켠 칩은 먹으로 칠하고 ✓와 함께 살짝 기웁니다. 모서리 하나는 잘려 있습니다.</p></div>
+    <div class="plate" data-fig="FIG. 04—C"><div class="chips" aria-label="기분으로 거르기" role="group"><button type="button" class="chip" aria-pressed="true">불안</button><button type="button" class="chip" aria-pressed="false">구토</button><button type="button" class="chip" aria-pressed="true">권태</button><button type="button" class="chip" aria-pressed="false">반항</button><button type="button" class="chip" aria-pressed="false">희망 (?)</button></div></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>드롭다운과 불안 눈금</h3><p>목록이 길면 드롭다운. 불안 눈금을 올리면 아래 판이 떨리고 글자가 어긋납니다. 움직임 줄이기 설정에서는 떨림 없이 어긋남만 남습니다.</p></div>
+    <div class="plate col" data-fig="FIG. 04—D">
+      <div class="field"><label for="sel1">기다리는 대상 <small>하나만</small></label><div class="select"><select id="sel1"><option>고도</option><option>막차</option><option>답장</option><option>의미</option><option>금요일</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+      <div class="range"><div class="range__top"><label for="rg">불안 수준</label><output id="rgOut" for="rg">30</output></div><input type="range" id="rg" min="0" max="100" step="1" value="30" aria-describedby="anxText"><div class="range__scale" aria-hidden="true"><span>평온</span><span>망설임</span><span>현기증</span></div></div>
+      <div class="anx" id="anx"><div class="anx__inner"><b id="anxText">무언가를 빠뜨린 것 같습니다.</b><span>이 판은 불안 수준에 따라 흔들립니다.</span></div></div>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>닫힌 방 메뉴</h3><p>사이드 메뉴는 출구 없는 호텔의 방 목록. 지금 있는 방은 먹으로 칠하고 형광 눈이 당신을 봅니다.</p><ul><li><code>aria-current="page"</code>로 현재 방을 알립니다.</li></ul></div>
+    <div class="plate" data-fig="FIG. 04—E"><nav class="rooms" aria-label="방" id="rooms">
+      <div class="rooms__head"><b>닫힌 방</b><span>3층 · 출구 없음</span></div>
+      <a href="#choose" aria-current="page"><span class="no">1</span>응접실<em>3명</em><svg viewBox="0 0 24 14" aria-hidden="true"><use href="#eye"/></svg></a>
+      <a href="#choose"><span class="no">2</span>긴 복도<em>비어 있음</em><svg viewBox="0 0 24 14" aria-hidden="true"><use href="#eye"/></svg></a>
+      <a href="#choose"><span class="no">3</span>거울 없는 방<em>1명</em><svg viewBox="0 0 24 14" aria-hidden="true"><use href="#eye"/></svg></a>
+      <a href="#choose"><span class="no">4</span>대기실<em>계속</em><svg viewBox="0 0 24 14" aria-hidden="true"><use href="#eye"/></svg></a>
+      <a href="#choose"><span class="no">5</span>출구<em>없음</em><svg viewBox="0 0 24 14" aria-hidden="true"><use href="#eye"/></svg></a>
+    </nav></div></div>
+</section>
+
+<!-- 05 -->
+<section class="part" id="type-in">
+  <div class="part__head"><div class="part__no" aria-hidden="true">05</div><div><h2>입력 <i>la parole</i></h2><p>입력 칸은 먹 테두리의 빈칸입니다. 쓰는 동안에는 타인의 시선처럼 형광 그림자가 따라붙어, 지금 어디에 쓰고 있는지 멀리서도 보입니다.</p></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>글자 입력</h3><p>레이블은 언제나 칸 위에. 자리표시자는 예시일 뿐 이름을 대신하지 않습니다.</p><ul><li>오류는 빨간 테두리와 한 문장으로: 무엇이 틀렸고 어떻게 고치는지.</li></ul></div>
+    <div class="plate col" data-fig="FIG. 05—A">
+      <div class="grid2">
+        <div class="field"><label for="i1">이름 <small>임시</small></label><div class="input"><input id="i1" placeholder="예: 뫼르소" autocomplete="name"></div></div>
+        <div class="field"><label for="i2">이메일</label><div class="input is-err"><input id="i2" type="email" value="godot@" aria-invalid="true" aria-describedby="i2e" autocomplete="email"></div><span class="help err" id="i2e">@ 뒤 주소가 비어 있어요. 예: godot@nowhere.kr</span></div>
+        <div class="field"><label for="i3">의미 검색</label><div class="input"><span class="input__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></span><input id="i3" type="search" placeholder="무엇이든 (결과는 보장 못 함)"></div></div>
+        <div class="field"><label for="i4">비밀번호</label><div class="input"><input id="i4" type="password" value="sisyphus" autocomplete="new-password" aria-describedby="i4h"><button class="input__btn" type="button" id="pwBtn" aria-pressed="false" aria-controls="i4">보기</button></div><span class="help ok" id="i4h">✓ 충분히 깁니다. 영원할 만큼은 아니지만</span></div>
+        <div class="field"><label for="n1">바위를 민 횟수</label><div class="input"><input id="n1" class="num-in" type="number" value="1042" min="0" inputmode="numeric"><span class="input__affix">회</span></div></div>
+        <div class="field"><label for="i6">본질 <small>잠김</small></label><div class="input is-disabled"><input id="i6" value="아직 정해지지 않음" disabled></div></div>
+      </div>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>날짜와 시간</h3><p>숫자는 타자기 글꼴로. 약속은 정확하게 적되, 지켜질지는 보장하지 않습니다.</p></div>
+    <div class="plate col" data-fig="FIG. 05—B">
+      <div class="grid2">
+        <div class="field"><label for="d1">고도가 오기로 한 날</label><div class="input"><input id="d1" type="date" value="2026-11-02"></div></div>
+        <div class="field"><label for="d2">나무 아래, 몇 시</label><div class="input"><input id="d2" type="time" value="18:00"></div></div>
+      </div>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>긴 글</h3><p>여러 줄 입력. 제한이 있으면 남은 글자 수를 오른쪽 아래에.</p></div>
+    <div class="plate col" data-fig="FIG. 05—C">
+      <div class="field"><label for="ta">오늘 내린 선택과 그 변명</label><div class="input"><textarea id="ta" maxlength="140" aria-describedby="taCount" placeholder="예: 커피 대신 홍차를 골랐다. 이유는 없다.">아무것도 고르지 않기로 골랐다. 그것도 선택이라는 걸 알면서.</textarea></div><div class="count"><span>변명은 140자까지</span><span id="taCount" aria-live="polite"></span></div></div>
+    </div></div>
+</section>
+
+<!-- 06 -->
+<section class="part" id="show">
+  <div class="part__head"><div class="part__no" aria-hidden="true">06</div><div><h2>보여 주기 <i>le regard</i></h2><p>정보는 오려 붙인 자료처럼 놓입니다. 고전 흉상, 모눈, 짧은 문장. 서로 맞지 않는 조각이 한 판에 붙어 있어도, 붙이는 규칙은 늘 같습니다.</p></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>뱃지와 도장</h3><p>뱃지는 작은 상태 표시. 도장은 되돌릴 수 없는 것이 확정됐을 때만.</p></div>
+    <div class="plate" data-fig="FIG. 06—A">
+      <span class="badge badge--ink">실존 중</span><span class="badge badge--hollow">본질 없음</span><span class="badge badge--acid">자유</span>
+      <span class="badge badge--wait"><i></i>기다리는 중</span><span class="badge badge--red"><i></i>출구 없음</span><span class="badge">부조리</span>
+      <span class="stamp">되돌릴 수 없음<small>2026.11.01</small></span>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>콜라주 카드</h3><p>흉상 실루엣, 모눈, 오려 낸 문장 한 줄을 테이프로 붙입니다. 누를 수 있는 카드는 올리면 시선의 그림자가 생깁니다.</p><ul><li>가운데 카드만 1.5° 기웁니다. 셋 다 기울이지 않습니다.</li></ul></div>
+    <div class="plate" data-fig="FIG. 06—B" style="padding-top:60px"><div class="cards">
+      <a class="card" href="#show"><span class="tape" aria-hidden="true"></span><div class="card__art" aria-hidden="true"><svg viewBox="0 0 100 122" style="left:14px;bottom:-6px;width:118px;height:144px"><use href="#bust"/></svg><svg viewBox="0 0 100 40" style="right:-10px;top:18px;width:120px;height:48px"><path d="M4 20c8-14 16-14 24 0s16 14 24 0 16-14 24 0 16 14 24 0" fill="none" stroke="#d4321c" stroke-width="6" stroke-linecap="round"/></svg><span class="card__quote">존재가 먼저, 나머지는 나중.</span></div><div class="card__body"><span class="label">파리 · 1943</span><h4>카페의 철학자</h4><p>창가 자리, 식은 커피, 끝없는 원고.</p></div><div class="card__meta"><span>읽는 데 6분</span><span class="badge badge--ink">실존 중</span></div></a>
+      <a class="card" href="#show"><span class="tape tape--grey" aria-hidden="true"></span><div class="card__art" aria-hidden="true"><svg viewBox="0 0 200 120" style="inset:0;width:100%;height:100%" preserveAspectRatio="xMidYMax slice"><path d="M0 120L200 30v90z" fill="#e4e2dc"/><path d="M0 120L200 30" stroke="#111110" stroke-width="2.5"/><circle cx="142" cy="44" r="16" fill="#111110"/><circle cx="40" cy="30" r="18" fill="#d9ff3d" stroke="#111110" stroke-width="2"/></svg><span class="card__quote">다시, 처음부터.</span></div><div class="card__body"><span class="label">언덕 · 언제나</span><h4>시시포스의 아침</h4><p>바위는 그대로, 언덕도 그대로. 오늘의 나만 다릅니다.</p></div><div class="card__meta"><span>1,042번째</span><span class="badge badge--acid">반항</span></div></a>
+      <a class="card" href="#show"><span class="tape" aria-hidden="true"></span><div class="card__art" aria-hidden="true"><svg viewBox="0 0 200 120" style="inset:0;width:100%;height:100%" preserveAspectRatio="xMidYMax slice"><path d="M0 98h200" stroke="#111110" stroke-width="2"/><path d="M100 98V44M100 60l-16-12M100 70l14-10M100 52l8-12" stroke="#111110" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M100 46l-6-8M100 46l7-6" stroke="#111110" stroke-width="2"/><use href="#figure" x="146" y="64" width="13" height="34" fill="#111110" stroke="#111110"/><circle cx="34" cy="28" r="10" fill="none" stroke="#111110" stroke-width="2" stroke-dasharray="3 3"/></svg><span class="card__quote">아무도 오지 않는다. 또.</span></div><div class="card__body"><span class="label">시골길 · 저녁</span><h4>나무 아래에서</h4><p>나무 한 그루, 두 사람, 오지 않는 한 사람.</p></div><div class="card__meta"><span>2막</span><span class="badge badge--wait"><i></i>기다리는 중</span></div></a>
+    </div></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>진행과 기다림</h3><p>끝이 있는 일은 먹 막대로, 끝이 없는 기다림은 99%에서 멈춘 빗금 막대로. 다 차면 처음으로 돌아가는 진행도 숨기지 않습니다.</p><ul><li>비율은 <code>role="progressbar"</code>와 <code>aria-valuenow</code>로.</li><li>값이 없으면 <code>aria-valuetext</code>로 말합니다.</li></ul></div>
+    <div class="plate col" data-fig="FIG. 06—C">
+      <div class="meter"><div class="meter__top"><span>바위의 높이</span><b id="mtVal">40%</b></div><div class="meter__bar" role="progressbar" aria-label="바위의 높이" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" id="mt"><i style="width:40%"></i></div></div>
+      <div class="meter godot"><div class="meter__top"><span>고도를 기다리는 중 <small>곧 옵니다 (내일)</small></span><small id="godotT">기다린 시간 00:00</small></div><div class="meter__bar" role="progressbar" aria-label="고도를 기다리는 중" aria-valuetext="끝나지 않음"><i></i></div></div>
+      <div class="gauges">
+        <div class="gauge"><div class="gauge__ring" role="meter" aria-label="자유" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" style="--v:100;--c:var(--ink)"><span>100</span></div><b>자유</b><small>줄일 수 없습니다</small></div>
+        <div class="gauge"><div class="gauge__ring" role="meter" aria-label="주어진 의미" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="--v:0"><span>0</span></div><b>주어진 의미</b><small>정상 범위입니다</small></div>
+        <div class="gauge clock"><svg viewBox="0 0 116 116" role="img" aria-label="바늘 없는 시계: 시간은 흐르지만 몇 시인지는 알 수 없습니다"><circle cx="58" cy="58" r="55" fill="#fbfaf7" stroke="#111110" stroke-width="2"/><g id="ticks" stroke="#111110" stroke-width="2"></g><circle cx="58" cy="58" r="3" fill="#d4321c"/></svg><b>시각</b><small>바늘 없는 시계</small></div>
+      </div>
+      <ol class="steps" aria-label="실존의 단계">
+        <li class="done"><b>던져짐</b><span>고르지 않고 시작</span></li>
+        <li class="done"><b>불안</b><span>자유의 현기증</span></li>
+        <li class="now" aria-current="step"><b>선택</b><span>지금 여기</span></li>
+        <li class="todo"><b>책임</b><span>되돌릴 수 없음</span></li>
+      </ol>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>접기</h3><p>자주 묻는 것. 열린 항목의 +는 돌아가 ×가 되고, 형광으로 칠해집니다.</p></div>
+    <div class="plate" data-fig="FIG. 06—D"><div class="fold">
+      <details open><summary>이 버튼은 정말 아무 의미가 없나요?</summary><div>의미는 미리 들어 있지 않습니다. 레이블이 무엇을 하는지는 정확히 말하지만, 그것이 왜 중요한지는 누르는 사람이 정합니다. 그래서 레이블은 늘 결과를 말하는 동사로 씁니다.</div></details>
+      <details><summary>왜 모든 것이 조금씩 기울어 있나요?</summary><div>모든 것이 기울지는 않습니다. 고른 것, 붙인 것, 도장만 -2°, 1.5°, -3.5° 중 하나로 기웁니다. 나머지는 반듯합니다. 그래야 기운 것이 '선택되었다'는 뜻을 가집니다.</div></details>
+      <details><summary>어두운 모드는 있나요?</summary><div>아직 없습니다. 이미 충분히 어둡다는 의견이 있었습니다. 만든다면 '빛이 꺼진 빈 방' 버전으로, 종이와 먹의 역할을 맞바꿔 설계할 예정입니다.</div></details>
+    </div></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>표와 쪽 넘기기</h3><p>머리 위는 4px, 아래는 2px 먹 괘선. 숫자 열은 타자기 글꼴로 오른쪽 정렬.</p><ul><li>머리글을 누르면 정렬되고, 화살표가 붉게 바뀝니다.</li></ul></div>
+    <div class="plate col" data-fig="FIG. 06—E">
+      <div class="tablewrap" role="region" aria-labelledby="tblCap" tabindex="0"><table id="tbl"><caption id="tblCap">카페 체류 시간은 하루 기준 추정치입니다. 아무도 재지 않았습니다.</caption><thead><tr><th scope="col" aria-sort="none"><button type="button" data-k="0">이름</button></th><th scope="col" aria-sort="none"><button type="button" data-k="1">대표작</button></th><th scope="col" class="num" aria-sort="ascending"><button type="button" data-k="2">연도</button></th><th scope="col" class="num" aria-sort="none"><button type="button" data-k="3">카페(시간)</button></th></tr></thead>
+        <tbody></tbody></table></div>
+      <div class="pager"><span id="pgInfo"></span><nav aria-label="쪽"><ol>
+        <li><button type="button" aria-label="이전 쪽" data-pg="prev">‹</button></li><li><button type="button" data-pg="1">1</button></li><li><button type="button" data-pg="2">2</button></li><li><button type="button" data-pg="3">3</button></li><li><button type="button" aria-label="다음 쪽" data-pg="next">›</button></li></ol></nav></div>
+    </div></div>
+
+  <div class="spec"><div class="spec__text"><h3>비어 있음</h3><p>아무것도 없을 때는 지평선 하나와 사람 하나. 비어 있음은 오류가 아니라고 말해 주고, 할 수 있는 일 하나를 둡니다.</p></div>
+    <div class="plate" data-fig="FIG. 06—F"><div class="empty">
+      <svg viewBox="0 0 360 120" aria-hidden="true"><path d="M0 96h360" stroke="#111110" stroke-width="2"/><path d="M0 104h120M200 104h60" stroke="#a29e95" stroke-width="1"/><use href="#figure" x="226" y="54" width="16" height="42" fill="#111110" stroke="#111110"/><path d="M236 96h-90" stroke="#cdcac2" stroke-width="6"/></svg>
+      <b>여기에는 아무것도 없습니다.</b><p>그게 요점입니다. 무엇을 둘지는 당신이 정합니다. 아무것도 두지 않아도 괜찮습니다.</p><button class="btn btn--paper btn--sm" type="button" data-toast="placed">무언가를 두기</button></div></div></div>
+</section>
+
+<!-- 07 -->
+<section class="part" id="float">
+  <div class="part__head"><div class="part__no" aria-hidden="true">07</div><div><h2>띄우기 <i>l’autre</i></h2><p>화면 위로 떠오르는 것은 모두 타인에게서 옵니다. 묻는 창, 열리는 문, 남기고 간 쪽지. 떠 있는 것은 기운 채 들어와 반듯하게 자리 잡습니다.</p></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>"정말로요?" 창</h3><p>되돌릴 수 없는 일 앞에서만. 뒤 화면은 어둡게 눌러 둡니다.</p><ul><li>버튼은 결과를 말합니다. '확인' 대신 '이 길로 가기'.</li><li>Esc나 ×로 닫힙니다.</li></ul></div>
+    <div class="plate" data-fig="FIG. 07—A"><button class="btn btn--stamp" type="button" id="dlgOpen">되돌릴 수 없는 선택…<small>À VOS RISQUES</small></button></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>문 너머 패널</h3><p>지금 화면을 떠나지 않고 자세히 볼 때. 오른쪽에서 문이 밀려 들어와 열리고, 그 뒤는 비어 있습니다.</p><ul><li>Tab은 패널 안에서만 돕니다. Esc나 바깥을 누르면 닫힙니다.</li></ul></div>
+    <div class="plate" data-fig="FIG. 07—B"><button class="btn btn--paper" type="button" id="sheetOpen" aria-haspopup="dialog" aria-controls="beyond">문을 열어 보기</button></div></div>
+
+  <div class="spec"><div class="spec__text"><h3>타인의 시선 쪽지</h3><p>방금 일어난 일을 오른쪽 아래에 테이프로 붙여 둡니다. 5초 뒤 떨어지고, 되돌릴 수 있으면 버튼을 둡니다.</p><ul><li>일반 쪽지는 <code>role="status"</code>, 오류는 <code>role="alert"</code>.</li></ul></div>
+    <div class="plate" data-fig="FIG. 07—C"><button class="btn" type="button" data-toast="gaze">시선 느끼기</button><button class="btn btn--paper" type="button" data-toast="undo">선택 기록 쪽지</button><button class="btn btn--ghost" type="button" data-toast="err">오류 쪽지</button></div></div>
+</section>
+
+<!-- 08 -->
+<section class="part" id="code">
+  <div class="part__head"><div class="part__no" aria-hidden="true">08</div><div><h2>코드 <i>l’essence</i></h2><p>본질은 마지막에 옵니다. Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 잘린 모서리, 시선의 그림자, 세 각도가 토큰으로 들어 있습니다.</p></div></div>
+  <div class="codebar"><span class="label">app/globals.css</span><button class="btn btn--sm" type="button" id="copyBtn">복사하기</button></div>
+  <pre class="code" id="codeBlock" tabindex="0" aria-label="globals.css 코드"></pre>
+</section>
+
+</main>
+
+<footer class="wrap foot">
+  <p class="foot__end">끝.<i>— ou le commencement. (혹은 시작)</i></p>
+  <div class="foot__cols">
+    <div><b>글꼴</b>Anton · Bodoni Moda · Courier Prime, 한글은 Black Han Sans · 나눔명조 · Noto Sans KR · 나눔고딕코딩.</div>
+    <div><b>색</b>먹 #111110, 빈 종이 #F2F1ED, 붉은 도장 #D4321C, 형광 #D9FF3D.</div>
+    <div><b>다른 시스템</b><span class="foot__links"><a href="../">Oat</a><a href="../riso/">Riso</a><a href="../arcology/">Arcology</a><a href="../dal/">Dal</a><a href="../canopy/">Canopy</a><a href="../sansa/">Sansa</a></span></div>
+  </div>
+</footer>
+
+<!-- overlays -->
+<dialog id="dlg" aria-labelledby="dlgT" aria-describedby="dlgD">
+  <div class="dlg__head"><span>확인 · 실존적 · 되돌릴 수 없음</span><button class="dlg__x" type="button" aria-label="닫기" data-close>×</button></div>
+  <div class="dlg__body"><h3 id="dlgT">정말로요?<i>vraiment ?</i></h3><p id="dlgD">이 길로 가면 당신은 이것을 고른 사람이 됩니다. 나중에 '어쩔 수 없었다'고 말할 수 없습니다. 그 말을 들어 줄 본성도 없습니다.</p><span class="anno">선택하지 않는 것도 선택입니다.</span></div>
+  <div class="dlg__foot"><button class="btn btn--ghost" type="button" data-close data-after="none">고르지 않기</button><button class="btn btn--paper" type="button" data-close data-after="later">다시 생각하기</button><button class="btn btn--stamp" type="button" data-close data-after="chose">이 길로 가기<small>SANS RETOUR</small></button></div>
+</dialog>
+
+<div class="scrim" id="scrim"></div>
+<aside class="beyond" id="beyond" role="dialog" aria-modal="true" aria-labelledby="beyondT" aria-hidden="true">
+  <span class="beyond__leaf" aria-hidden="true"></span>
+  <div class="beyond__head"><div><span class="label">문 너머 · 방 2</span><h3 id="beyondT">빈 공간</h3></div><button class="cutout cutout--sm" type="button" aria-label="문 닫기" data-sclose><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="beyond__body">
+    <div class="beyond__void"><svg viewBox="0 0 430 190" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 160h430" stroke="#111110" stroke-width="1.5"/><use href="#figure" x="300" y="122" width="14" height="38" fill="#111110" stroke="#111110"/></svg><p>문 너머에는 아무것도 없습니다. 무엇을 둘지 정하세요.</p></div>
+    <div class="field"><label for="s1">이 방의 이름</label><div class="input"><input id="s1" value="긴 복도"></div></div>
+    <div class="field"><label for="s2">머무를 시간</label><div class="input"><input id="s2" class="num-in" type="number" value="40" min="0"><span class="input__affix">년</span></div></div>
+    <div class="field"><span class="flabel">이 방에 둘 것</span><div class="chips" role="group" aria-label="이 방에 둘 것"><button type="button" class="chip" aria-pressed="true">의자 하나</button><button type="button" class="chip" aria-pressed="false">창문</button><button type="button" class="chip" aria-pressed="false">거울</button></div></div>
+    <button class="being" type="button" role="switch" aria-checked="false"><span class="being__track" aria-hidden="true"></span><span class="tgl__text"><b>문을 열어 두기</b><small>누군가 들어올 수 있습니다</small><em data-on="존재함 — 켜져 있습니다" data-off="무 — 꺼져 있습니다">무 — 꺼져 있습니다</em></span></button>
+  </div>
+  <div class="beyond__foot"><button class="btn btn--ghost" type="button" data-sclose>그냥 닫기</button><button class="btn" type="button" data-sclose data-after="saved">이 방으로 정하기</button></div>
+</aside>
+<div class="toasts" id="toasts"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  // Swatches
+  const groups = [
+    ['빈 종이', '바탕과 여백', [
+      ['공허', '#F2F1ED', '--void', '페이지 바탕'], ['한 장', '#FBFAF7', '--sheet', '판, 카드, 입력 칸'], ['재', '#E4E2DC', '--ash', '덧칸, 비탈'], ['재 2', '#CDCAC2', '--ash-2', '괘선, 모눈']]],
+    ['먹', '글자와 판', [
+      ['먹', '#111110', '--ink', '본문, 주요 버튼, 선택됨'], ['먹 2', '#3B3935', '--ink-2', '보조 글자'], ['먹 3', '#625E57', '--ink-3', '라벨, 주석, 비활성']]],
+    ['충격', '갑자기 끼어드는 두 색', [
+      ['붉은 도장', '#D4321C', '--red', '되돌릴 수 없음, 면'], ['붉은 글자', '#B3230F', '--red-ink', '오류, 주석 글자'], ['형광', '#D9FF3D', '--acid', '시선의 그림자, 강조 면', '글자에 쓰지 않음'], ['형광 글자', '#4A5A00', '--acid-ink', '성공 문구']]],
+  ];
+  $('#swatches').innerHTML = groups.map(([g, s, items]) => `<div class="swgroup">${g}<span>${s}</span></div>` + items.map(([n, hex, v, use, w]) =>
+    `<div class="sw"><i style="background:${hex}"></i><b>${n}</b><code>${v} · ${hex}</code><span>${use}</span>${w ? `<span class="warn">※ ${w}</span>` : ''}</div>`).join('')).join('');
+
+  // Type scale
+  const types = [
+    ['디스플레이', 'Anton · 84–214', '<span style="font:400 72px/1 var(--f-display)">ABSURD</span>'],
+    ['한글 디스플레이', 'Black Han Sans · 36–88', '<span style="font:400 46px/1.1 var(--f-kdisplay)">부조리</span>'],
+    ['인용', 'Nanum Myeongjo 400 · 19–22 / Bodoni Italic', '<span style="font:400 21px/1.6 var(--f-kserif)">실존은 본질에 앞선다.</span> <i style="font:italic 400 20px/1.4 var(--f-serif);color:var(--ink-2)">— Sartre, roughly</i>'],
+    ['제목', 'Noto Sans KR 900 · 21', '<span style="font:900 21px/1.35 var(--f-sans)">선택은 그 사람을 만든다</span>'],
+    ['본문', 'Noto Sans KR 400 · 16.5/1.75', '<span>버튼은 스스로 무엇인지 알지 못한 채 놓여 있다가, 누르는 순간 버튼이 됩니다. 본문은 언제나 반듯하고 읽기 쉽게.</span>'],
+    ['주석', 'Courier Prime · 나눔고딕코딩 · 13–14', '<span class="anno" style="transform:none">이 문장은 여백에 있습니다.</span>'],
+    ['섞어 짜기', '한 단어에 글꼴 셋 · 제목에만', '<span class="mixed" aria-label="Nausea 구토"><span style="font:400 64px/.9 var(--f-display)">NA</span><span style="font:italic 500 66px/.9 var(--f-serif)">u</span><span style="font:400 40px/1 var(--f-display);-webkit-text-stroke:1.5px var(--ink);color:transparent">SE</span><span style="font:400 64px/.9 var(--f-display);transform:rotate(-3.5deg)">A</span><span style="font:400 30px/1.1 var(--f-kdisplay);background:var(--acid);padding:0 6px;margin-left:8px;transform:rotate(1.5deg)">구토</span></span>'],
+  ];
+  $('#typescale').innerHTML = types.map(([k, s, ex]) => `<div class="typerow"><div class="k"><b>${k}</b><span>${s}</span></div><div>${ex}</div></div>`).join('');
+
+  // Clock ticks
+  $('#ticks').innerHTML = Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6, r1 = i % 3 ? 46 : 40, r2 = 51;
+    return `<line x1="${(58 + Math.sin(a) * r1).toFixed(1)}" y1="${(58 - Math.cos(a) * r1).toFixed(1)}" x2="${(58 + Math.sin(a) * r2).toFixed(1)}" y2="${(58 - Math.cos(a) * r2).toFixed(1)}"/>`; }).join('');
+
+  // Nav: current section
+  const links = $$('#navlist a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute('aria-current', a.hash === '#' + e.target.id ? 'true' : 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.part').forEach(s => io.observe(s));
+
+  // Toasts: notes from the other
+  const T = {
+    gaze: ['타인의 시선', '누군가 당신을 보고 있습니다', '당신은 지금 보이는 사람이 되었습니다. 그래도 당신입니다.'],
+    undo: ['기록', '선택이 기록되었습니다', '되돌릴 수는 있지만, 고른 적이 있다는 사실은 남습니다.'],
+    err: ['경고', '의미를 찾지 못했습니다', '검색 결과 0건. 직접 만드는 수밖에 없습니다.'],
+    stay: ['타인의 시선', '그대로 있기를 골랐습니다', '선택하지 않는 것도 선택입니다.'],
+    placed: ['기록', '의자 하나를 두었습니다', '방은 여전히 거의 비어 있습니다. 좋습니다.'],
+    saved: ['기록', '이 방으로 정했습니다', '긴 복도 · 40년. 출구는 여전히 없습니다.'],
+    chose: ['기록', '이 길로 갔습니다', '이제 이것을 고른 사람입니다. 도장이 찍혔습니다.'],
+    later: ['타인의 시선', '다시 생각하는 중입니다', '생각하는 동안에도 시간은 고릅니다.'],
+    none: ['타인의 시선', '고르지 않기를 골랐습니다', '그것도 선택입니다. 기록해 두었습니다.'],
+  };
+  function toast(kind, override) {
+    const [k, t, s] = T[kind] || T.gaze; const err = kind === 'err'; const el = document.createElement('div');
+    el.className = 'toast' + (err ? ' toast--err' : ''); el.setAttribute('role', err ? 'alert' : 'status');
+    el.innerHTML = `<span class="tape" aria-hidden="true"></span><span class="toast__eye" aria-hidden="true"><svg viewBox="0 0 24 14"><use href="#eye"/></svg></span><div><small>${k}</small><b>${override || t}</b><span class="msg">${s}</span>${kind === 'undo' ? '<div class="undo"><button class="btn btn--sm btn--paper" type="button">되돌리기</button></div>' : ''}</div><button class="x" type="button" aria-label="쪽지 떼기">×</button>`;
+    const kill = () => { if (el.classList.contains('out')) return; el.classList.add('out'); setTimeout(() => el.remove(), 220); };
+    $('.x', el).onclick = kill; const u = $('.undo button', el); if (u) u.onclick = () => { kill(); toast('later', '되돌렸습니다. 대략.'); };
+    const box = $('#toasts'); box.appendChild(el); while (box.children.length > 3) box.firstChild.remove(); setTimeout(kill, 5000);
+  }
+  $$('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+  $('#stayBtn').addEventListener('click', () => toast('stay'));
+
+  // Loading button
+  $('#loadBtn').addEventListener('click', e => {
+    const b = e.currentTarget; if (b.dataset.busy) return;
+    b.dataset.busy = 1; b.classList.add('is-busy'); b.setAttribute('aria-disabled', 'true'); b.innerHTML = '<span class="spin" aria-hidden="true"></span><span>불러오는 중…</span>';
+    setTimeout(() => { b.innerHTML = '<span>불러올 의미가 없었습니다</span>'; }, 1600);
+    setTimeout(() => { delete b.dataset.busy; b.classList.remove('is-busy'); b.removeAttribute('aria-disabled'); b.innerHTML = '<span>의미 불러오기</span>'; }, 3600);
+  });
+
+  // Sisyphus
+  const hill = $('#hill'), boulder = $('#boulder'), pusher = $('#pusher'), hBtn = $('#hillBtn'), hMsg = $('#hillMsg');
+  const STEPS = 5; let stage = 0, tries = 1, rolling = false;
+  const lineY = x => 238 - 0.3 * x;
+  const place = () => {
+    const t = stage / STEPS, x = 90 + 450 * t, cx = x - 8, cy = lineY(x) - 26.8, deg = t * 450 * 1.044 / 28 * 57.3;
+    boulder.style.transform = `translate(${cx}px, ${cy}px) rotate(${deg}deg)`;
+    const fx = x - 50; pusher.style.transform = `translate(${fx}px, ${lineY(fx)}px)`;
+    $('#hillH').textContent = stage; $('#hillN').textContent = tries;
+  };
+  hBtn.addEventListener('click', () => {
+    if (rolling) return;
+    stage++; place();
+    if (stage < STEPS) { hMsg.textContent = ['', '한 칸. 바위는 무겁습니다.', '두 칸. 어깨가 기억하는 무게.', '세 칸. 거의 다 왔다고 말하지 않겠습니다.', '네 칸. 정상이 보입니다.'][stage]; return; }
+    hMsg.textContent = '정상입니다. 잠깐만.'; rolling = true; hBtn.setAttribute('aria-disabled', 'true');
+    setTimeout(() => {
+      hill.classList.add('rolling'); stage = 0; tries++; place();
+      hMsg.innerHTML = '바위가 다시 굴러 내려갔습니다. <em>시시포스는 행복하다고 상상해야 한다.</em>';
+      hBtn.textContent = '다시 산을 오르기';
+      setTimeout(() => { hill.classList.remove('rolling'); rolling = false; hBtn.removeAttribute('aria-disabled'); }, 1650);
+    }, 900);
+  });
+  place();
+
+  // Menu
+  const mb = $('#menuBtn'), ml = $('#menuList'), items = $$('[role=menuitem]', ml);
+  const closeMenu = focus => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); if (focus) mb.focus(); };
+  const openMenu = (i = 0) => { ml.hidden = false; mb.setAttribute('aria-expanded', 'true'); items.at(i).focus(); };
+  mb.addEventListener('click', () => ml.hidden ? openMenu() : closeMenu());
+  mb.addEventListener('keydown', e => { if (e.key === 'ArrowDown') { e.preventDefault(); openMenu(0); } if (e.key === 'ArrowUp') { e.preventDefault(); openMenu(-1); } });
+  ml.addEventListener('keydown', e => {
+    const i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    if (e.key === 'End') { e.preventDefault(); items.at(-1).focus(); }
+    if (e.key === 'Escape') { e.preventDefault(); closeMenu(true); }
+    if (e.key === 'Tab') closeMenu();
+  });
+  items.forEach(it => it.addEventListener('click', () => { closeMenu(true);
+    if (it.classList.contains('danger')) { dlg.showModal(); return; }
+    toast('gaze', it.firstChild.textContent.trim() + ' — 골랐습니다'); }));
+  document.addEventListener('click', e => { if (!ml.hidden && !e.target.closest('.menu')) closeMenu(); });
+
+  // Switches (both kinds)
+  document.addEventListener('click', e => {
+    const s = e.target.closest('.being, .bulb'); if (!s) return;
+    const on = s.getAttribute('aria-checked') !== 'true'; s.setAttribute('aria-checked', on);
+    const em = $('em', s); if (em) em.textContent = on ? em.dataset.on : em.dataset.off;
+  });
+
+  // Checkbox group
+  const all = $('#chkAll'), its = $$('.chkItem');
+  const sync = () => { const n = its.filter(c => c.checked).length; all.checked = n === its.length; all.indeterminate = n > 0 && n < its.length; };
+  its.forEach(c => c.addEventListener('change', sync)); all.addEventListener('change', () => { its.forEach(c => c.checked = all.checked); sync(); }); sync();
+
+  // Doors
+  $$('#doors input').forEach(r => r.addEventListener('change', () => { $('#doorsOut').textContent = `'${r.value}'을(를) 열었습니다. 나머지 문은 닫혔습니다.`; }));
+
+  // Segmented (radiogroup)
+  const segNote = { '하루': '하루 단위로 기다립니다. 매일이 처음입니다.', '일주일': '일주일 단위로 기다립니다.', '내일': '내일 온다고 했습니다. 내일도 그렇게 말할 겁니다.', '영원': '영원 단위로 기다립니다. 간식을 챙기세요.' };
+  $$('.seg').forEach(g => { const bs = $$('button', g);
+    const pick = (b, focus = true) => { bs.forEach(x => { x.setAttribute('aria-checked', x === b); x.tabIndex = x === b ? 0 : -1; }); if (focus) b.focus(); $('#segNote').textContent = segNote[b.textContent] || ''; };
+    bs.forEach(b => { b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1; b.addEventListener('click', () => pick(b)); });
+    g.addEventListener('keydown', e => { const i = bs.indexOf(document.activeElement); if (i < 0) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); pick(bs[(i + 1) % bs.length]); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); pick(bs[(i - 1 + bs.length) % bs.length]); } });
+  });
+
+  // Tabs
+  const tabs = $$('#tabs [role=tab]');
+  const sel = t => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); };
+  tabs.forEach(t => t.addEventListener('click', () => sel(t)));
+  $('#tabs').addEventListener('keydown', e => { const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+    const k = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
+    if (k !== undefined) { e.preventDefault(); sel(tabs[k]); } });
+
+  // Chips
+  document.addEventListener('click', e => { const c = e.target.closest('.chip'); if (c) c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'); });
+
+  // Anxiety range
+  const rg = $('#rg'), ro = $('#rgOut'), anx = $('#anx'), anxT = $('#anxText');
+  const lines = [[0, '평온합니다. 의심스러울 만큼.'], [20, '무언가를 빠뜨린 것 같습니다.'], [50, '모든 선택지가 한꺼번에 보입니다.'], [80, '자유의 현기증. 잠깐 앉으세요.']];
+  const upd = () => { const v = +rg.value; rg.style.setProperty('--p', v + '%'); ro.textContent = v;
+    anx.style.setProperty('--amp', (v / 100 * 3).toFixed(2) + 'px'); anx.classList.toggle('is-shaking', v >= 15);
+    anxT.textContent = lines.filter(([m]) => v >= m).at(-1)[1]; };
+  rg.addEventListener('input', upd); upd();
+
+  // Rooms
+  $$('#rooms a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $$('#rooms a').forEach(x => x.removeAttribute('aria-current')); a.setAttribute('aria-current', 'page'); }));
+
+  // Inputs
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; e.currentTarget.textContent = on ? '숨기기' : '보기'; e.currentTarget.setAttribute('aria-pressed', on); });
+  $('#i2').addEventListener('input', e => { const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value); const w = e.target.closest('.input'), h = $('#i2e');
+    w.classList.toggle('is-err', !ok); e.target.setAttribute('aria-invalid', !ok); h.className = ok ? 'help ok' : 'help err'; h.textContent = ok ? '✓ 타인에게 닿을 수 있는 주소입니다' : '@ 뒤 주소가 비어 있어요. 예: godot@nowhere.kr'; });
+  const ta = $('#ta'), tc = $('#taCount'); const cnt = () => tc.textContent = `${ta.value.length} / 140`; ta.addEventListener('input', cnt); cnt();
+
+  // Progress: the boulder rises, then drops back to the bottom
+  let p = 40; const mt = $('#mt'), mi = $('i', mt);
+  setInterval(() => { if (p >= 100) { p = 0; mt.classList.add('dropping'); } else { p += 10; mt.classList.remove('dropping'); }
+    mt.setAttribute('aria-valuenow', p); mi.style.width = p + '%'; $('#mtVal').textContent = p + '%'; }, 1000);
+  const t0 = Date.now(); setInterval(() => { const s = Math.floor((Date.now() - t0) / 1000); $('#godotT').textContent = `기다린 시간 ${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }, 1000);
+
+  // Table: sort + real paging
+  const DATA = [
+    ['사르트르', '존재와 무', 1943, 6], ['카뮈', '시지프 신화', 1942, 3], ['보부아르', '제2의 성', 1949, 5], ['키르케고르', '불안의 개념', 1844, 2],
+    ['베케트', '고도를 기다리며', 1953, 4], ['하이데거', '존재와 시간', 1927, 1], ['니체', '즐거운 학문', 1882, 2], ['도스토옙스키', '지하로부터의 수기', 1864, 3],
+    ['카프카', '소송', 1925, 1], ['메를로퐁티', '지각의 현상학', 1945, 4], ['야스퍼스', '철학', 1932, 1], ['리오타르', '포스트모던의 조건', 1979, 2]];
+  const PER = 4, tb = $('#tbl tbody'), pbs = $$('.pager button'), pages = pbs.filter(b => /^\d$/.test(b.dataset.pg));
+  let sortK = 2, sortDir = 'ascending', page = 1;
+  const render = () => {
+    const rows = [...DATA].sort((a, b) => { const r = typeof a[sortK] === 'number' ? a[sortK] - b[sortK] : a[sortK].localeCompare(b[sortK], 'ko'); return sortDir === 'ascending' ? r : -r; });
+    tb.innerHTML = rows.slice((page - 1) * PER, page * PER).map(r => `<tr><td>${r[0]}</td><td><i>『${r[1]}』</i></td><td class="num">${r[2]}</td><td class="num">${r[3]}</td></tr>`).join('');
+    pages.forEach(b => +b.dataset.pg === page ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+    pbs[0].disabled = page === 1; pbs.at(-1).disabled = page === pages.length;
+    $('#pgInfo').textContent = `${DATA.length}명 중 ${(page - 1) * PER + 1}–${Math.min(page * PER, DATA.length)}`;
+  };
+  $$('#tbl th button').forEach(b => b.addEventListener('click', () => {
+    const th = b.parentElement, k = +b.dataset.k; sortDir = sortK === k && sortDir === 'ascending' ? 'descending' : 'ascending'; sortK = k; page = 1;
+    $$('#tbl th').forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', sortDir); render(); }));
+  pbs.forEach(b => b.addEventListener('click', () => { const v = b.dataset.pg; page = v === 'prev' ? Math.max(1, page - 1) : v === 'next' ? Math.min(pages.length, page + 1) : +v; render(); }));
+  render();
+
+  // Dialog
+  const dlg = $('#dlg'); $('#dlgOpen').addEventListener('click', () => dlg.showModal());
+  $$('[data-close]', dlg).forEach(b => b.addEventListener('click', () => { dlg.close(); if (b.dataset.after) toast(b.dataset.after); }));
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Side panel: a door onto blank space
+  const sh = $('#beyond'), sc = $('#scrim'); let opener;
+  const focusables = () => $$('button, input, [href], select, textarea, [tabindex]:not([tabindex="-1"])', sh).filter(x => !x.disabled);
+  const openSheet = () => { opener = document.activeElement; sh.classList.add('open'); sc.classList.add('open'); sh.setAttribute('aria-hidden', 'false'); setTimeout(() => $('#s1').focus(), 80); };
+  const closeSheet = () => { if (!sh.classList.contains('open')) return; sh.classList.remove('open'); sc.classList.remove('open'); sh.setAttribute('aria-hidden', 'true'); opener && opener.focus(); };
+  $('#sheetOpen').addEventListener('click', openSheet); sc.addEventListener('click', closeSheet);
+  $$('[data-sclose]', sh).forEach(b => b.addEventListener('click', () => { closeSheet(); if (b.dataset.after) toast(b.dataset.after); }));
+  sh.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); closeSheet(); }
+    if (e.key === 'Tab') { const f = focusables(), a = f[0], z = f.at(-1);
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } }
+  });
+
+  // Code
+  $('#codeBlock').innerHTML = `<span class="c">/* Absurd — 포스트모던 × 실존주의 디자인 시스템 · Tailwind v4 + shadcn */</span>
+@import "tailwindcss";
+
+<span class="p">:root</span> {
+  <span class="c">/* 빈 종이와 먹 */</span>
+  <span class="v">--background</span>: #f2f1ed;          <span class="c">/* 공허 */</span>
+  <span class="v">--foreground</span>: #111110;          <span class="c">/* 먹 */</span>
+  <span class="v">--card</span>: #fbfaf7;  <span class="v">--card-foreground</span>: #111110;
+  <span class="v">--popover</span>: #fbfaf7;  <span class="v">--popover-foreground</span>: #111110;
+  <span class="v">--primary</span>: #111110;  <span class="v">--primary-foreground</span>: #fbfaf7;     <span class="c">/* 검은 판 */</span>
+  <span class="v">--secondary</span>: #e4e2dc;  <span class="v">--secondary-foreground</span>: #111110;
+  <span class="v">--muted</span>: #e4e2dc;  <span class="v">--muted-foreground</span>: #625e57;
+  <span class="v">--accent</span>: #d9ff3d;  <span class="v">--accent-foreground</span>: #111110;      <span class="c">/* 형광: 면에만, 한 화면에 한 번 */</span>
+  <span class="v">--destructive</span>: #d4321c;                                      <span class="c">/* 붉은 도장 */</span>
+  <span class="v">--border</span>: #111110;  <span class="v">--input</span>: #111110;  <span class="v">--ring</span>: #111110;
+  <span class="v">--radius</span>: 0rem;
+
+  <span class="c">/* 깨뜨리는 규칙 */</span>
+  <span class="v">--tilt-1</span>: -2deg;  <span class="v">--tilt-2</span>: 1.5deg;  <span class="v">--tilt-3</span>: -3.5deg;
+  <span class="v">--cut</span>: 14px;                          <span class="c">/* 오른쪽 위 모서리만 */</span>
+  <span class="v">--gaze-x</span>: 6px;  <span class="v">--gaze-y</span>: 6px;       <span class="c">/* 타인의 시선 = 그림자 */</span>
+}
+
+@theme inline {
+  <span class="v">--color-background</span>: var(--background);
+  <span class="v">--color-foreground</span>: var(--foreground);
+  <span class="v">--color-primary</span>: var(--primary);
+  <span class="v">--color-accent</span>: var(--accent);
+  <span class="v">--color-destructive</span>: var(--destructive);
+  <span class="v">--color-border</span>: var(--border);
+  <span class="v">--font-display</span>: "Anton", "Black Han Sans", sans-serif;
+  <span class="v">--font-serif</span>: "Bodoni Moda", "Nanum Myeongjo", serif;
+  <span class="v">--font-sans</span>: "Noto Sans KR", system-ui, sans-serif;
+  <span class="v">--font-mono</span>: "Courier Prime", "Nanum Gothic Coding", monospace;
+  <span class="v">--radius-sm</span>: 0; <span class="v">--radius-md</span>: 0; <span class="v">--radius-lg</span>: 0;
+}
+
+<span class="c">/* 잘린 모서리 + 시선의 그림자. shadcn &lt;Button&gt;에 붙입니다 */</span>
+@utility <span class="p">slab</span> {
+  position: relative; isolation: isolate; background: none;
+  &::before, &::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+  }
+  &::before { z-index: -1; background: var(--primary); }
+  &::after  { z-index: -2; background: var(--accent); transform: translate(var(--gaze-x), var(--gaze-y)); }
+  &:active  { transform: translate(4px, 4px); }
+}
+
+<span class="c">/* 고른 것만 기운다 */</span>
+@utility <span class="p">chosen</span> { transform: rotate(var(--tilt-1)); }
+
+<span class="c">/* 여백의 타자기 주석 */</span>
+@utility <span class="p">margin-note</span> {
+  font-family: var(--font-mono); font-size: 14px; color: #b3230f;
+  transform: rotate(var(--tilt-1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}`;
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget; try { await navigator.clipboard.writeText($('#codeBlock').textContent); b.textContent = '복사했습니다 ✓'; } catch { b.textContent = '직접 선택해 주세요'; } setTimeout(() => b.textContent = '복사하기', 1800); });
+})();
+</script>
+</body>
+</html>

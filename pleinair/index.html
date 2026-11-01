@@ -1277,7 +1277,8 @@ pre.code .c { color: #a7a3c9; } pre.code .p { color: #f6cf6a; } pre.code .v { co
   const closeS = () => { side.classList.remove('open'); sc.classList.remove('open'); side.setAttribute('aria-hidden', 'true'); opener && opener.focus(); };
   $('#sideOpen').addEventListener('click', e => openS(e.currentTarget)); sc.addEventListener('click', closeS);
   $$('[data-sclose]', side).forEach(b => b.addEventListener('click', () => { closeS(); if (b.dataset.after) toast(b.dataset.after); }));
-  side.addEventListener('keydown', e => { if (e.key === 'Escape') closeS();
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && side.classList.contains('open')) closeS(); });
+  side.addEventListener('keydown', e => {
     if (e.key === 'Tab') { const f = $$('button, input', side).filter(x => !x.disabled), a = f[0], z = f.at(-1);
       if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } } });
 

@@ -13,6 +13,7 @@
     { id: 'atomic', path: 'atomic/index.html', name: 'Atomic', ko: '우주시대 다이너', c: ['#fdf6e6', '#6fd0c4', '#f4856f'] },
     { id: 'riad', path: 'riad/index.html', name: 'Riad', ko: '모로코 리아드', c: ['#efe3cc', '#1f4fa0', '#c8763a'] },
     { id: 'cockpit', path: 'cockpit/index.html', name: 'Cockpit', ko: '거대 로봇 조종석', c: ['#0e1420', '#7dffb0', '#ff3b3b'] },
+    { id: 'tactical', path: 'tactical/index.html', name: 'Tactical', ko: '전술 작전 게임 UI', c: ['#141c28', '#7cc8f0', '#ffffff'] },
     { id: 'zoo', path: 'zoo/index.html', name: 'Zoo Orbit', ko: '동물 우주비행단', c: ['#101632', '#f2f0ea', '#ff7a2f'] },
     { id: 'sanctum', path: 'sanctum/index.html', name: 'Sanctum', ko: '천국과 지옥', c: ['#0f0c0b', '#c9a24a', '#d0401f'] },
     { id: 'reverie', path: 'reverie/index.html', name: 'Reverie', ko: '꿈속', c: ['#e9e2f6', '#b9a6e8', '#f7c6b4'] },

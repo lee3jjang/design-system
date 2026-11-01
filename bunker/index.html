@@ -473,6 +473,7 @@ legend { padding: 0; margin-bottom: 8px; }
 .osteps li.now .key::before { content: ""; position: absolute; right: -5px; top: -5px; width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--foreground); background: var(--tint); box-shadow: 0 0 0 3px var(--tint-glow), 0 0 12px 2px var(--tint-glow); }
 .osteps li.now { color: var(--bone); font-weight: 700; }
 .osteps li.todo .key { --travel: var(--depth); cursor: default; opacity: .7; }
+@media (max-width: 560px) { .osteps li { min-width: 0; font-size: 14px; } .osteps li::before { left: calc(-50% + 24px); right: calc(50% + 24px); } }
 
 /* ================= 아코디언 (Arcology): regulations ================= */
 .regs { width: 100%; border-top: 1px solid var(--line-3); }

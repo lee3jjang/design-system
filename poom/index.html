@@ -255,6 +255,7 @@ body.holding .clock { filter: blur(.6px); }
     w: 0,          // warmth
     c: 0,          // heart convergence
     nestle: 0,
+    arms: 0,       // her small arms around your neck (from ~4s of holding)
     phP: 0, phC: .37, brP: 0, brC: 0,
     growth: mem.growth, growthShown: returning ? Math.max(1, mem.growth - 0.02) : mem.growth,
     felt: 0, last: performance.now(), now: 0,
@@ -444,6 +445,8 @@ body.holding .clock { filter: blur(.6px); }
     S.h += ((S.holding ? 1 : 0) - S.h) * (1 - Math.exp(-dt / (S.holding ? 1.1 : 3.2)));
     S.w += ((S.holding ? 1 : 0) - S.w) * (1 - Math.exp(-dt / (S.holding ? 5.5 : 7.5)));
     S.nestle += ((S.holding ? 1 : 0) - S.nestle) * (1 - Math.exp(-dt / (S.holding ? 1.6 : 4.5)));
+    const armsTo = S.holding && S.holdT >= 3.6 ? 1 : 0;
+    S.arms = RM ? armsTo : S.arms + (armsTo - S.arms) * (1 - Math.exp(-dt / (armsTo ? 1.3 : 2.6)));
     if (S.holding) { S.holdT = S.now - S.holdStart; S.c = Math.min(1, S.c + dt / 16); }
     else S.c = Math.max(0, S.c - dt / 11);
     S.growthShown += (S.growth - S.growthShown) * (1 - Math.exp(-dt / 4));
@@ -633,7 +636,35 @@ body.holding .clock { filter: blur(.6px); }
     const nx = lerp(.6, .34, S.nestle) - .03 * sq, ny = lerp(.5, .36, S.nestle) - .03 * sq;
     const kx = cx + R * nx + wx, ky = cy - R * ny + wy;
     const rC = childBaseR * S.growthShown * (1 + .03 * bC + (.03 + .03 * h) * pC) * (1 - .04 * sq);
-    const ccol = mix([244, 196, 172], [249, 170, 140], w);
+    // as the warmth rises she turns a little rosier than you, so she stays herself inside the apricot
+    const ccol = mix([244, 196, 172], [250, 168, 160], w);
+    // her small arms around your neck: two soft, rounded strokes reaching from her over the top of you
+    const ar = S.arms * (.35 + .65 * h);
+    if (ar > .01) {
+      ctx.save();
+      ctx.lineCap = 'round';
+      const reach = .3 + .7 * ar;
+      const acol = mix([238, 172, 154], [238, 142, 132], w);
+      for (const [sx, sy, ex, ey, bend, lw, a] of [
+        [-.5, -.5, -.3, -.62, -.32, .21, .5],
+        [-.82, -.04, -.3, -.3, -.28, .18, .38],
+      ]) {
+        const x0 = kx + rC * sx, y0 = ky + rC * sy;
+        const x1 = lerp(x0, cx + R * ex, reach), y1 = lerp(y0, cy + R * ey, reach);
+        const mx = (x0 + x1) / 2, my = (y0 + y1) / 2, dx = x1 - x0, dy = y1 - y0;
+        const qx = mx + dy * bend, qy = my - dx * bend;   // bowed over you, like an arm curving round
+        ctx.strokeStyle = `rgba(${acol},${.3 * a * ar})`;   // feathered edge, so they stay soft
+        ctx.lineWidth = rC * lw * 1.7;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(qx, qy, x1, y1); ctx.stroke();
+        ctx.strokeStyle = `rgba(${acol},${.8 * a * ar})`;
+        ctx.lineWidth = rC * lw;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(qx, qy, x1, y1); ctx.stroke();
+        ctx.strokeStyle = `rgba(255,238,228,${.3 * a * ar})`;
+        ctx.lineWidth = rC * lw * .35;
+        ctx.beginPath(); ctx.moveTo(x0, y0 - rC * lw * .12); ctx.quadraticCurveTo(qx, qy - rC * lw * .14, x1, y1 - rC * lw * .1); ctx.stroke();
+      }
+      ctx.restore();
+    }
     softDisc(ctx, kx, ky, rC * 1.14, ccol, .95, .74);
     // her heart, quick
     const cg = ctx.createRadialGradient(kx - rC * .1, ky + rC * .1, 0, kx, ky, rC * .7);
@@ -643,6 +674,24 @@ body.holding .clock { filter: blur(.6px); }
     const og = ctx.createRadialGradient(lerp(cx, kx, .62), lerp(cy, ky, .62), 0, lerp(cx, kx, .62), lerp(cy, ky, .62), rC * .9);
     og.addColorStop(0, `rgba(255,236,214,${.18 + .35 * w})`); og.addColorStop(1, 'rgba(255,236,214,0)');
     ctx.fillStyle = og; ctx.beginPath(); ctx.arc(lerp(cx, kx, .62), lerp(cy, ky, .62), rC * .9, 0, 6.2832); ctx.fill();
+    // ...but she stays herself: a soft glow of her own edge, a little lighter on top,
+    // and her quick small heart still beating inside yours
+    if (w > .01) {
+      const rim = ctx.createRadialGradient(kx, ky, rC * .78, kx, ky, rC * 1.22);
+      rim.addColorStop(0, 'rgba(255,240,230,0)');
+      rim.addColorStop(.48, `rgba(255,240,230,${.38 * w})`);
+      rim.addColorStop(.7, `rgba(255,232,220,${.13 * w})`);
+      rim.addColorStop(1, 'rgba(255,232,220,0)');
+      ctx.fillStyle = rim; ctx.beginPath(); ctx.arc(kx, ky, rC * 1.22, 0, 6.2832); ctx.fill();
+      const body = ctx.createRadialGradient(kx, ky - rC * .1, 0, kx, ky, rC * .86);
+      body.addColorStop(0, `rgba(${mix([246, 178, 166], [244, 150, 142], w)},${.45 * w})`);
+      body.addColorStop(1, `rgba(${mix([246, 178, 166], [244, 150, 142], w)},0)`);
+      ctx.fillStyle = body; ctx.beginPath(); ctx.arc(kx, ky, rC * .86, 0, 6.2832); ctx.fill();
+      const hr = rC * (.3 + .1 * pC);
+      const ch = ctx.createRadialGradient(kx - rC * .08, ky + rC * .1, 0, kx - rC * .08, ky + rC * .1, hr);
+      ch.addColorStop(0, `rgba(222,98,92,${w * (.22 + .5 * pC)})`); ch.addColorStop(1, 'rgba(222,98,92,0)');
+      ctx.fillStyle = ch; ctx.beginPath(); ctx.arc(kx - rC * .08, ky + rC * .1, hr, 0, 6.2832); ctx.fill();
+    }
 
     // the sweet warm smell of the top of her head
     for (const p of S.scent) {
@@ -677,6 +726,6 @@ body.holding .clock { filter: blur(.6px); }
   requestAnimationFrame(t => { S.last = t; requestAnimationFrame(frame); });
 })();
 </script>
-<script src="../systems-nav.js" defer></script>
+<script src="../systems-nav.js?v=20261101" defer></script>
 </body>
 </html>

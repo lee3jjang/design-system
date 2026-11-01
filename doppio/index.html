@@ -1,0 +1,1112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Doppio · 소꿉 계산대와 아침 커피</title>
+<meta name="description" content="장난감 계산대가 진짜 커피 기계 위에 올라앉은 아침. 아이가 찍으면 기계가 내리고, 가짜 값이 진짜 영수증에 찍힌다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400;1,9..144,600&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@300;400;500&family=Jua&family=Nanum+Gothic+Coding:wght@400;700&display=swap">
+<style>
+/* Doppio — two objects, one counter.
+   Upper world: a child's register. Injection-moulded, matte, apricot. Buttons exist to be pressed, not to work.
+   Lower world: a parent's espresso machine. Black glass, one hairline weight, one white. Buttons that do exactly one thing.
+   They touch at a single line: the toy's fat base sitting on the machine's glossy lid. */
+:root {
+  color-scheme: light;
+  /* the room */
+  --wall: #efe6da; --wall-2: #e6dbcc; --sun: #fff7e8;
+  --counter: #d9cdbd; --counter-edge: #b9a993; --counter-front: #a8977f;
+  --ink: #2a221d; --ink-2: #57483e;
+  /* the toy */
+  --apricot: #f5c6a2; --apricot-l: #fbdcc2; --apricot-d: #e3a67e; --apricot-s: #c98a62;
+  --mint: #a3dcc7; --mint-d: #6fbba1; --mint-s: #4e9a80;
+  --choco: #5b3727; --choco-d: #3f2519; --choco-l: #7a4e3a;
+  --sky: #a8d7ef; --sky-d: #79b9da;
+  --cap: #fffaf2; --cap-side: #e8d6c4; --cap-seam: rgba(120,78,52,.16);
+  --butter: #ffd977;
+  --toy-ink: #4a2a1c;
+  --lcd: #bcc5a3; --lcd-ink: #252b1d;
+  /* the machine */
+  --glass: #0b0c0e; --glass-2: #141619; --body: #101113;
+  --line: rgba(255,255,255,.9); --dim: rgba(255,255,255,.66); --faint: rgba(255,255,255,.16);
+  --glow: #eaf4ff; --amber: #ffb547;
+  /* type */
+  --f-title: "Fraunces", "Gowun Dodum", serif;
+  --f-prose: "Gowun Dodum", "Apple SD Gothic Neo", sans-serif;
+  --f-toy: "Jua", "Gowun Dodum", sans-serif;
+  --f-real: "IBM Plex Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
+  --f-paper: "Nanum Gothic Coding", ui-monospace, monospace;
+  --toy-press: cubic-bezier(.3,1.6,.5,1);
+  --glass-ease: cubic-bezier(.2,.7,.2,1);
+}
+* { box-sizing: border-box; }
+html { background: var(--wall); }
+body {
+  margin: 0; min-height: 100vh; color: var(--ink); font: 400 17px/1.65 var(--f-prose);
+  background:
+    radial-gradient(1200px 700px at 78% -10%, var(--sun), transparent 70%),
+    linear-gradient(180deg, var(--wall) 0%, var(--wall-2) 100%);
+  overflow-x: hidden; -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid #1d5fd1; outline-offset: 3px; border-radius: 10px; }
+.sr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- header ---------- */
+.top { max-width: 1160px; margin: 0 auto; padding: 36px 24px 0; display: grid; grid-template-columns: 1fr auto; gap: 8px 32px; align-items: start; }
+.title { margin: 0; font: italic 400 clamp(64px, 11vw, 128px)/.86 var(--f-title); letter-spacing: -.035em; font-variation-settings: "opsz" 144, "SOFT" 100; }
+.title .pp { font-weight: 600; color: var(--choco); }
+.title .o2 { display: inline-block; color: transparent; -webkit-text-stroke: 1.5px var(--ink); }
+.sub { margin: 30px 0 0; font: 400 clamp(19px, 2.2vw, 24px)/1.4 var(--f-prose); color: var(--ink-2); }
+.sub b { font-weight: 400; color: var(--ink); background: linear-gradient(transparent 62%, rgba(245,198,162,.7) 62%); }
+.about { grid-column: 1 / -1; max-width: 640px; margin: 18px 0 0; color: var(--ink-2); }
+.sound { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 14px 6px 8px; border: 1.5px solid rgba(42,34,29,.22); border-radius: 999px; background: rgba(255,255,255,.4); font: 500 16px var(--f-real); color: var(--ink); }
+.sound i { width: 34px; height: 20px; border-radius: 10px; background: #cbbfae; position: relative; transition: background .2s; }
+.sound i::after { content: ""; position: absolute; left: 3px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .2s var(--glass-ease); }
+.sound[aria-pressed="true"] i { background: var(--choco); }
+.sound[aria-pressed="true"] i::after { transform: translateX(14px); }
+.clock { font: 300 16px var(--f-real); color: var(--ink-2); margin-top: 10px; text-align: right; letter-spacing: .04em; }
+
+/* ---------- the room / scene ---------- */
+.scene { position: relative; margin-top: 18px; padding: 70px 16px 0; overflow-x: clip; }
+html, body { overflow-x: clip; }
+.sunpatch { position: absolute; top: 10px; left: 56%; width: 520px; height: 760px; background: var(--sun); opacity: .5; transform: skewX(-18deg); filter: blur(70px); pointer-events: none; }
+.shelf { position: absolute; left: 0; right: 0; top: 104px; height: 120px; pointer-events: none; }
+.shelf .plank { position: absolute; left: 4%; right: 4%; bottom: 0; height: 12px; background: #c9b39a; border-radius: 2px; box-shadow: 0 10px 18px -8px rgba(80,55,35,.35), inset 0 2px 0 rgba(255,255,255,.35); }
+.shelf .figs { position: absolute; left: 4%; right: 4%; bottom: 12px; height: 110px; filter: blur(1.6px); opacity: .9; }
+.fig { position: absolute; bottom: 0; }
+.fig.bear { left: 6%; width: 64px; height: 76px; }
+.fig.bear::before { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 46px; border-radius: 48% 48% 40% 40%; background: #c7a98d; }
+.fig.bear::after { content: ""; position: absolute; left: 12px; right: 12px; top: 6px; height: 36px; border-radius: 50%; background: #c7a98d; box-shadow: -14px -12px 0 -8px #c7a98d, 14px -12px 0 -8px #c7a98d; }
+.fig.pin { left: 16%; width: 30px; height: 96px; border-radius: 15px 15px 8px 8px; background: #9fbab2; }
+.fig.pin::after { content: ""; position: absolute; left: 3px; top: -16px; width: 24px; height: 24px; border-radius: 50%; background: #e7c9b3; }
+.fig.dome { left: 24%; width: 58px; height: 52px; border-radius: 30px 30px 6px 6px; background: #b8b1cc; }
+.fig.cone { right: 22%; width: 0; height: 0; border-left: 26px solid transparent; border-right: 26px solid transparent; border-bottom: 84px solid #d9a497; }
+.fig.cone::after { content: ""; position: absolute; left: -10px; top: -6px; width: 20px; height: 20px; border-radius: 50%; background: #efd7a8; }
+.fig.cube { right: 12%; width: 46px; height: 46px; border-radius: 8px; background: #a8bfd0; transform: rotate(-6deg); }
+.fig.duck { right: 4%; width: 54px; height: 44px; border-radius: 50% 50% 46% 46%; background: #ecd598; }
+.fig.duck::after { content: ""; position: absolute; right: 0; top: -22px; width: 30px; height: 30px; border-radius: 50%; background: #ecd598; }
+
+.object { position: relative; z-index: 2; width: min(100%, 470px); margin: 0 auto; }
+
+/* ================= UPPER WORLD: the toy ================= */
+.toy { position: relative; z-index: 3; filter: drop-shadow(0 18px 14px rgba(70,40,20,.18)); }
+.head { display: block; width: 100%; height: auto; margin-bottom: -2px; }
+.head .shell { fill: var(--apricot); }
+.head .shine { fill: none; stroke: rgba(255,255,255,.45); stroke-width: 7; stroke-linecap: round; }
+.head .inner-ear { fill: var(--mint); stroke: var(--mint); stroke-width: 10; stroke-linejoin: round; }
+.head .arch { fill: none; stroke: var(--mint); stroke-width: 15; stroke-linecap: round; }
+.head .arch-seam { fill: none; stroke: rgba(78,154,128,.45); stroke-width: 1.2; }
+.head .star { fill: var(--cap); stroke: var(--apricot-s); stroke-width: 2.4; stroke-linejoin: round; transition: fill .25s, transform .35s var(--toy-press); transform-box: fill-box; transform-origin: center; }
+.head .star.lit { fill: var(--butter); stroke: var(--choco); transform: scale(1.18) rotate(-8deg); }
+.head .pin { fill: var(--apricot-d); opacity: .55; }
+
+.body { position: relative; background: var(--apricot); border-radius: 0 0 26px 26px; padding: 4px 22px 26px;
+  box-shadow: inset 10px 0 18px -10px rgba(255,255,255,.45), inset -12px 0 20px -10px rgba(170,95,55,.22), inset 0 -22px 26px -16px rgba(170,95,55,.25); }
+.band { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 -6px; padding: 8px 18px; min-height: 48px; border-radius: 12px; background: var(--sky); color: var(--toy-ink);
+  box-shadow: 0 1px 0 rgba(90,55,40,.12), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(50,110,150,.18); }
+.band .shop { font: 400 24px/1 var(--f-toy); letter-spacing: .02em; }
+.band .shop small { font-size: 16px; margin-left: 6px; opacity: .85; }
+.band .tag { font: 400 16px var(--f-toy); padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.55); }
+
+.lcdrow { display: grid; grid-template-columns: minmax(0,1fr) 76px; gap: 14px; margin-top: 16px; align-items: stretch; }
+.bezel { background: var(--choco); border-radius: 16px; padding: 9px; box-shadow: inset 0 2px 0 rgba(255,255,255,.12), inset 0 -3px 0 rgba(0,0,0,.25), 0 2px 0 rgba(120,70,40,.25); }
+.lcd { position: relative; height: 84px; border-radius: 8px; background: var(--lcd); overflow: hidden; display: grid; grid-template-columns: 22px 1fr; align-items: center; padding: 6px 10px 18px 8px;
+  box-shadow: inset 0 3px 8px rgba(30,40,20,.35), inset 0 -1px 0 rgba(255,255,255,.35); }
+.lcd::after { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,.22) 0 28%, transparent 28.5%); pointer-events: none; }
+.lcd.off .digits svg .on, .lcd.off .ann .on, .lcd.off .dots i { fill: rgba(37,43,29,.07); background: rgba(37,43,29,.07); opacity: 1; }
+.dots { display: grid; gap: 6px; justify-items: center; }
+.dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--lcd-ink); opacity: .1; }
+.dots.think i { animation: think 1.2s infinite steps(1); }
+.dots.think i:nth-child(2) { animation-delay: .2s; } .dots.think i:nth-child(3) { animation-delay: .4s; }
+@keyframes think { 0% { opacity: .9; } 50% { opacity: .1; } }
+.digits { display: flex; justify-content: flex-end; gap: 3px; transform: skewX(-7deg); height: 54px; }
+.digits svg { height: 100%; width: auto; min-width: 0; flex: 0 1 auto; }
+.bezel { min-width: 0; }
+.digits .seg { fill: rgba(37,43,29,.05); }
+.digits .seg.on { fill: var(--lcd-ink); }
+.ann { position: absolute; left: 34px; right: 12px; bottom: 3px; display: flex; gap: 12px; font: 400 13px/1 var(--f-toy); color: var(--lcd-ink); }
+.ann span { opacity: .12; }
+.ann span.on { opacity: .9; }
+.ann .pwr { margin-left: auto; }
+
+/* scanner, resting in its holster */
+.holster { position: relative; background: var(--choco); border-radius: 18px 18px 22px 22px; box-shadow: inset 0 2px 0 rgba(255,255,255,.12), inset 0 -4px 0 rgba(0,0,0,.25); }
+.scanner { position: absolute; left: 6px; right: 6px; top: -26px; bottom: 8px; border: 0; padding: 0; background: none; border-radius: 16px; transform-origin: 50% 90%; transition: transform .28s var(--toy-press); }
+.scanner .gun { position: absolute; inset: 0; border-radius: 20px 20px 14px 14px; background: var(--mint);
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.5), inset 0 -8px 12px -6px rgba(40,110,90,.45), 0 3px 0 var(--mint-s); }
+.scanner .gun::before { /* parting line of the two moulded halves */ content: ""; position: absolute; left: 50%; top: 6px; bottom: 6px; width: 1px; background: rgba(40,110,90,.28); }
+.scanner .eye { position: absolute; left: 10px; right: 10px; top: 9px; height: 14px; border-radius: 7px; background: #b33a3a; box-shadow: inset 0 2px 3px rgba(0,0,0,.35); }
+.scanner .trig { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); font: 400 18px/1 var(--f-toy); color: var(--toy-ink); }
+.scanner .beam { position: absolute; left: 50%; top: 14px; width: 2px; height: 0; background: linear-gradient(#ff4b3b, rgba(255,75,59,0)); transform: translateX(-50%) rotate(180deg); transform-origin: top; opacity: 0; }
+.scanner:hover { transform: translateY(-3px) rotate(-3deg); }
+.scanner.zap { transform: translateY(-14px) rotate(-14deg); }
+.scanner.zap .eye { background: #ff5a48; box-shadow: 0 0 14px 4px rgba(255,80,60,.65); }
+
+/* keycaps: injection-moulded, with a parting line and a fat skirt */
+.keys { display: grid; grid-template-columns: repeat(3, 1fr) 1.3fr; grid-auto-rows: 56px; gap: 11px; margin-top: 20px; }
+.key { position: relative; border: 0; border-radius: 14px; min-height: 44px; background: var(--cap); color: var(--toy-ink); font: 400 26px/1 var(--f-toy);
+  box-shadow: inset 0 0 0 3px var(--cap), inset 0 0 0 4px var(--cap-seam), 0 6px 0 var(--cap-side), 0 8px 6px rgba(140,80,45,.28);
+  transform: translateY(0); transition: transform .09s ease-out, box-shadow .09s ease-out; -webkit-tap-highlight-color: transparent; }
+.key::after { /* sprue mark */ content: ""; position: absolute; right: 7px; bottom: 6px; width: 4px; height: 4px; border-radius: 50%; background: rgba(120,78,52,.12); }
+.key:active, .key.down { transform: translateY(5px); box-shadow: inset 0 0 0 3px var(--cap), inset 0 0 0 4px var(--cap-seam), 0 1px 0 var(--cap-side), 0 2px 2px rgba(140,80,45,.3); transition-duration: .03s; }
+.key.on-off { background: var(--sky); font-size: 17px; box-shadow: inset 0 0 0 3px var(--sky), inset 0 0 0 4px rgba(40,90,130,.2), 0 6px 0 var(--sky-d), 0 8px 6px rgba(60,90,120,.28); }
+.key.on-off:active, .key.on-off.down { box-shadow: inset 0 0 0 3px var(--sky), inset 0 0 0 4px rgba(40,90,130,.2), 0 1px 0 var(--sky-d); }
+.key.ce { background: var(--choco); color: #fff4ea; font-size: 28px; letter-spacing: .04em; box-shadow: inset 0 0 0 3px var(--choco), inset 0 0 0 4px rgba(255,255,255,.12), 0 6px 0 var(--choco-d), 0 8px 6px rgba(60,30,15,.35); }
+.key.ce:active, .key.ce.down { box-shadow: inset 0 0 0 3px var(--choco), inset 0 0 0 4px rgba(255,255,255,.12), 0 1px 0 var(--choco-d); }
+.key.go { grid-row: span 2; background: var(--mint); font-size: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  box-shadow: inset 0 0 0 3px var(--mint), inset 0 0 0 4px rgba(40,110,90,.22), 0 6px 0 var(--mint-s), 0 8px 6px rgba(40,90,70,.3); }
+.key.go:active, .key.go.down { box-shadow: inset 0 0 0 3px var(--mint), inset 0 0 0 4px rgba(40,110,90,.22), 0 1px 0 var(--mint-s); }
+.key.go svg { width: 46px; height: 30px; }
+.key.star { color: var(--apricot-s); font-size: 28px; }
+.key.toyoff:not(.on-off) { color: rgba(74,42,28,.5); }
+.key.ce.toyoff { color: rgba(255,244,234,.55); }
+
+.ejector { position: absolute; width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 1px 2px rgba(150,80,45,.35), 0 1px 0 rgba(255,255,255,.5); }
+
+/* the thick base and its cash drawer */
+.base { position: relative; margin: -10px -12px 0; height: 74px; border-radius: 16px 16px 24px 24px; background: var(--choco); z-index: -1; padding-top: 18px;
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.1), inset 0 -10px 16px -8px rgba(0,0,0,.4); }
+.drawer { position: relative; margin: 0 34px; height: 40px; border-radius: 6px 6px 12px 12px; background: var(--choco-l); transition: transform .45s var(--toy-press);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.14), 0 0 0 1px rgba(0,0,0,.18); }
+.drawer::before { content: ""; position: absolute; left: 50%; top: 12px; width: 64px; height: 12px; margin-left: -32px; border-radius: 0 0 10px 10px; background: var(--choco-d); box-shadow: inset 0 3px 3px rgba(0,0,0,.4); }
+.coins { position: absolute; left: 40px; right: 40px; top: 12px; height: 18px; display: flex; gap: 6px; justify-content: center; align-items: end; opacity: 0; transition: opacity .2s; }
+.coins i { width: 16px; height: 16px; border-radius: 50%; background: var(--butter); box-shadow: inset 0 -2px 0 rgba(0,0,0,.15); }
+.coins i:nth-child(2n) { background: var(--mint); } .coins i:nth-child(3n) { background: var(--sky); width: 12px; height: 12px; }
+.toy.open .drawer { transform: translateY(14px) scale(1.04); }
+.toy.open .coins { opacity: 1; }
+.slit { position: absolute; right: 14px; top: 30px; width: 8px; height: 30px; border-radius: 4px; background: #1c0f09; box-shadow: inset 1px 0 2px rgba(0,0,0,.6); }
+.feet { position: absolute; left: 30px; right: 30px; bottom: -7px; height: 10px; display: flex; justify-content: space-between; }
+.feet i { width: 36px; height: 10px; border-radius: 0 0 8px 8px; background: #2a1810; }
+
+/* toy speech bubble */
+.bubble { position: absolute; right: -6px; top: 6px; z-index: 5; max-width: 220px; padding: 10px 16px; border-radius: 20px 20px 20px 6px; background: #fff; color: var(--toy-ink); font: 400 18px/1.35 var(--f-toy);
+  box-shadow: 0 6px 0 rgba(120,70,40,.12), 0 10px 22px rgba(120,70,40,.18); transform-origin: 10% 100%; transform: scale(.4) translateY(10px); opacity: 0; transition: transform .3s var(--toy-press), opacity .2s; pointer-events: none; }
+.bubble.show { transform: none; opacity: 1; }
+
+/* ================= LOWER WORLD: the machine ================= */
+.machine { position: relative; z-index: 1; margin-top: -2px; border-radius: 14px 14px 18px 18px; background: var(--body); padding: 0 18px 16px;
+  box-shadow: 0 30px 40px -18px rgba(30,20,10,.55), 0 2px 0 rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.18); }
+.lid { position: relative; height: 22px; margin: 0 -18px; border-radius: 14px 14px 0 0; background: linear-gradient(180deg, #24272b 0%, #121315 100%); overflow: hidden; }
+.lid::before { /* the toy, seen in the glossy lid */ content: ""; position: absolute; left: 18%; right: 18%; top: 2px; height: 26px; border-radius: 50%; background: var(--apricot); opacity: .32; filter: blur(5px); }
+.lid::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: rgba(255,255,255,.35); }
+.glass { position: relative; margin-top: 12px; border-radius: 16px; padding: 16px 16px 14px; background: var(--glass); overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), inset 0 1px 0 rgba(255,255,255,.18), 0 1px 0 rgba(255,255,255,.06); }
+.glass::before { /* a window, reflected */ content: ""; position: absolute; inset: -20% -30% auto auto; width: 70%; height: 140%; background: linear-gradient(105deg, transparent 0 40%, rgba(255,255,255,.055) 40.2% 58%, transparent 58.2% 63%, rgba(255,255,255,.035) 63.2% 70%, transparent 70.2%); pointer-events: none; z-index: 2; }
+.glass.dark .tile, .glass.dark .slider-col, .glass.dark .status, .glass.dark .start { opacity: .16; filter: saturate(0); }
+.glass .tile, .glass .slider-col, .glass .status, .glass .start { transition: opacity .6s var(--glass-ease); }
+
+.status { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 2px 10px; font: 300 16px/1.3 var(--f-real); color: var(--dim); letter-spacing: .01em; }
+.status .msg { flex: 1; min-width: 0; color: var(--line); }
+.status .msg small { display: block; font-size: 16px; color: var(--dim); }
+.indic { display: flex; gap: 6px; align-items: center; }
+.indic svg { width: 22px; height: 22px; stroke: var(--dim); fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.water-bars { display: flex; gap: 2px; align-items: end; height: 16px; }
+.water-bars i { width: 3px; background: var(--dim); border-radius: 1px; opacity: .25; }
+.water-bars i.on { opacity: 1; }
+.warn { width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; display: grid; place-items: center; }
+.warn svg { width: 24px; height: 24px; stroke: rgba(255,255,255,.22); fill: none; stroke-width: 1.5; stroke-linejoin: round; }
+.warn.lit svg { stroke: var(--amber); filter: drop-shadow(0 0 6px rgba(255,181,71,.7)); }
+.warn.lit { animation: warnpulse 1.6s infinite; }
+@keyframes warnpulse { 50% { opacity: .55; } }
+
+.deck { display: grid; grid-template-columns: 1fr 58px; gap: 12px; }
+.tiles { display: grid; gap: 8px; }
+.tilerow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+fieldset.tg { margin: 0; padding: 0; border: 0; min-width: 0; display: contents; }
+fieldset.tg.tilerow { display: grid; }
+.tile { position: relative; display: grid; grid-template-rows: 1fr auto; justify-items: center; align-items: center; aspect-ratio: 1 / .92; min-height: 64px; padding: 10px 4px 8px;
+  border-radius: 10px; border: 0; background: rgba(255,255,255,.025); color: var(--dim); font: 400 16px/1.15 var(--f-real); text-align: center; cursor: pointer; overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--faint); transition: box-shadow .35s var(--glass-ease), color .35s, background .35s; -webkit-tap-highlight-color: transparent; }
+.tile svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; transition: transform .4s var(--glass-ease); }
+.tile input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.tile .led { position: absolute; top: 7px; right: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--glow); opacity: 0; transition: opacity .35s; box-shadow: 0 0 8px 2px rgba(234,244,255,.7); }
+.tile:has(input:checked), .tile[aria-pressed="true"] { color: #fff; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7), 0 0 22px -6px rgba(234,244,255,.55); }
+.tile:has(input:checked) .led { opacity: 1; }
+.tile:has(input:checked) svg { transform: translateY(-1px); }
+.tile:has(input:focus-visible) { outline: 3px solid #7fb2ff; outline-offset: 2px; }
+.tile:hover { color: #fff; }
+.tile:has(input:disabled), .tile:disabled { cursor: default; }
+/* touch: a soft bloom from the finger */
+.tile::after, .start::after, .ring::after { content: ""; position: absolute; left: var(--tx, 50%); top: var(--ty, 50%); width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: radial-gradient(circle, rgba(234,244,255,.55), transparent 70%); opacity: 0; transform: scale(1); pointer-events: none; }
+.touched::after { animation: bloom .55s var(--glass-ease); }
+@keyframes bloom { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(16); } }
+/* the toy's scanner reaching down into the glass */
+.tile .laser { position: absolute; left: 6px; right: 6px; top: 0; height: 2px; background: #ff4b3b; box-shadow: 0 0 10px 2px rgba(255,75,59,.75); opacity: 0; pointer-events: none; }
+.tile.scanned .laser { animation: laser .7s ease-in-out; }
+@keyframes laser { 0% { top: 8%; opacity: 0; } 15% { opacity: 1; } 50% { top: 86%; } 85% { opacity: 1; } 100% { top: 10%; opacity: 0; } }
+
+.ctrlrow { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 8px; }
+.ring { position: relative; justify-self: center; width: 64px; height: 64px; border-radius: 50%; border: 0; background: transparent; display: grid; place-items: center; overflow: hidden; }
+.ring .r { position: absolute; inset: 8px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.85); box-shadow: 0 0 14px rgba(234,244,255,.45), inset 0 0 10px rgba(234,244,255,.2); transition: all .5s var(--glass-ease); }
+.ring svg { position: relative; width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 1.6; stroke-linecap: round; }
+.ring[aria-pressed="false"] .r { border-color: rgba(255,120,90,.55); box-shadow: none; }
+.ring[aria-pressed="false"] svg { stroke: rgba(255,170,150,.8); }
+.start { position: relative; display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 64px; border: 0; border-radius: 10px; background: rgba(255,255,255,.03); color: #fff; font: 400 17px var(--f-real); letter-spacing: .04em; overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
+.start svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 1.5; stroke-linejoin: round; }
+.start .stop { display: none; }
+.start[aria-pressed="true"] { box-shadow: inset 0 0 0 1px rgba(255,255,255,.9), 0 0 24px -6px rgba(234,244,255,.6); }
+.start[aria-pressed="true"] .play { display: none; } .start[aria-pressed="true"] .stop { display: block; }
+.start:disabled, .tile:disabled, .ring:disabled { cursor: not-allowed; }
+
+.slider-col { position: relative; display: grid; grid-template-rows: auto 1fr auto; justify-items: center; gap: 6px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--faint); padding: 10px 0 8px; }
+.slider-col .lab { font: 400 16px/1 var(--f-real); color: var(--dim); }
+.slider-col .val { font: 300 16px/1 var(--f-real); color: #fff; }
+.vtrack { position: relative; width: 44px; height: 100%; min-height: 160px; }
+.vticks { position: absolute; left: 50%; top: 12px; bottom: 12px; width: 26px; margin-left: -13px; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+.vticks i { display: block; height: 1px; background: rgba(255,255,255,.3); }
+.vticks i:nth-child(odd) { margin: 0 -4px; }
+.vticks i.on { background: rgba(255,255,255,.9); }
+.vfill { position: absolute; left: 50%; bottom: 12px; width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 10px rgba(234,244,255,.8); height: var(--fill, 50%); transition: height .3s var(--glass-ease); pointer-events: none; }
+.vline { position: absolute; left: 50%; top: 12px; bottom: 12px; width: 1px; margin-left: -.5px; background: rgba(255,255,255,.22); }
+input.strength { position: absolute; left: 50%; top: 50%; width: var(--len, 160px); height: 44px; margin: 0; transform: translate(-50%, -50%) rotate(-90deg); -webkit-appearance: none; appearance: none; background: transparent; cursor: ns-resize; }
+input.strength::-webkit-slider-runnable-track { height: 44px; background: transparent; }
+input.strength::-moz-range-track { height: 44px; background: transparent; }
+input.strength::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 40px; margin-top: 2px; border-radius: 3px; background: #fff; box-shadow: 0 0 0 4px rgba(11,12,14,1), 0 0 16px 2px rgba(234,244,255,.6); }
+input.strength::-moz-range-thumb { width: 8px; height: 40px; border: 0; border-radius: 3px; background: #fff; box-shadow: 0 0 0 4px rgba(11,12,14,1), 0 0 16px 2px rgba(234,244,255,.6); }
+input.strength:focus-visible { outline: 3px solid #7fb2ff; outline-offset: 0; border-radius: 4px; }
+
+progress.brew { display: block; width: 100%; height: 3px; margin: 14px 0 0; border: 0; border-radius: 2px; background: rgba(255,255,255,.1); -webkit-appearance: none; appearance: none; }
+progress.brew::-webkit-progress-bar { background: rgba(255,255,255,.1); border-radius: 2px; }
+progress.brew::-webkit-progress-value { background: #fff; border-radius: 2px; box-shadow: 0 0 8px rgba(234,244,255,.9); transition: width .2s linear; }
+progress.brew::-moz-progress-bar { background: #fff; }
+
+.toast { position: absolute; left: 14px; right: 14px; bottom: 14px; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; background: rgba(28,30,34,.96); color: #fff; font: 400 16px/1.4 var(--f-real);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 12px 30px rgba(0,0,0,.6); transform: translateY(16px); opacity: 0; transition: transform .45s var(--glass-ease), opacity .3s; pointer-events: none; }
+.toast.show { transform: none; opacity: 1; }
+.toast svg { flex: none; width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* the bay: nozzle, streams, cups */
+.bay { position: relative; height: 220px; margin-top: 14px; border-radius: 12px 12px 6px 6px; background: linear-gradient(180deg, #050506 0%, #0d0e10 60%, #17191c 100%); overflow: hidden;
+  box-shadow: inset 0 10px 18px rgba(0,0,0,.9), inset 0 0 0 1px rgba(255,255,255,.05); }
+.nozzle { position: absolute; left: 50%; top: 0; width: 96px; height: 30px; margin-left: -48px; border-radius: 0 0 8px 8px;
+  background: linear-gradient(90deg, #5c6166 0%, #c9ced2 22%, #f2f4f5 34%, #9aa0a5 55%, #6d7277 78%, #3d4144 100%); box-shadow: 0 4px 8px rgba(0,0,0,.6); }
+.spout { position: absolute; top: 28px; width: 12px; height: 16px; margin-left: -6px; border-radius: 0 0 5px 5px; left: calc(50% + var(--sx, 0px)); transition: left .6s var(--glass-ease);
+  background: linear-gradient(90deg, #5c6166, #e8ebed 40%, #7d8287); }
+.spout.a { --sx: -9px; } .spout.b { --sx: 9px; }
+.bay.two .spout.a { --sx: -38px; } .bay.two .spout.b { --sx: 36px; }
+.stream { position: absolute; top: 44px; width: 3px; margin-left: -1.5px; height: 0; left: calc(50% + var(--sx, 0px)); border-radius: 2px; background: linear-gradient(#3b2116, #6b3a22); transition: left .6s var(--glass-ease); }
+.stream.a { --sx: -9px; } .stream.b { --sx: 9px; }
+.bay.two .stream.a { --sx: -38px; }
+.bay.two .stream.b { --sx: 36px; width: 4px; background: radial-gradient(circle, var(--butter) 1.4px, transparent 1.8px) 0 0 / 4px 9px repeat-y; }
+.bay.pour .stream { height: 118px; animation: wob .18s infinite alternate; }
+.bay.water .stream.a, .bay.water .stream.b:not(.bay.two .stream.b) { background: linear-gradient(rgba(220,235,255,.65), rgba(220,235,255,.35)); }
+@keyframes wob { to { transform: scaleX(.75); } }
+.grate { position: absolute; left: 0; right: 0; bottom: 0; height: 22px; background: repeating-linear-gradient(90deg, #2a2d31 0 7px, #0b0c0d 7px 10px); box-shadow: inset 0 1px 0 rgba(255,255,255,.18); }
+.cup { position: absolute; bottom: 22px; left: 50%; transition: transform .6s var(--glass-ease), opacity .4s; }
+.glasscup { width: 64px; height: 72px; margin-left: -32px; border-radius: 4px 4px 16px 16px; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.38), inset 6px 0 8px -6px rgba(255,255,255,.35); overflow: hidden; }
+.glasscup::after { content: ""; position: absolute; left: 9px; top: 8px; width: 4px; height: 44px; border-radius: 2px; background: rgba(255,255,255,.22); }
+.glasscup .fill { position: absolute; left: 2px; right: 2px; bottom: 2px; height: var(--lvl, 0%); border-radius: 0 0 14px 14px; background: linear-gradient(180deg, #c99566 0 9px, #6a3a20 9px, #3a1d10); transition: height .25s linear; }
+.glasscup.water .fill { background: linear-gradient(180deg, rgba(220,235,255,.45), rgba(200,220,240,.25)); }
+.bay.two .glasscup { transform: translateX(-38px); }
+.toycup { width: 42px; height: 40px; margin-left: -21px; border-radius: 4px 4px 14px 14px; background: var(--mint); opacity: 0; transform: translateX(80px) translateY(4px);
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.5), inset 0 -6px 8px -4px rgba(40,110,90,.5); }
+.toycup::before { content: ""; position: absolute; right: -11px; top: 9px; width: 12px; height: 16px; border: 4px solid var(--mint); border-left: 0; border-radius: 0 10px 10px 0; }
+.toycup::after { content: ""; position: absolute; left: 4px; right: 4px; top: 0; height: 6px; border-radius: 50%; background: rgba(40,110,90,.35); }
+.bay.two .toycup { opacity: 1; transform: translateX(36px); }
+.pretend { position: absolute; left: 50%; bottom: 66px; width: 0; height: 0; transform: translateX(36px); pointer-events: none; }
+.pretend i { position: absolute; left: -6px; width: 12px; height: 12px; color: var(--butter); font: 400 14px/1 var(--f-toy); opacity: 0; }
+.bay.two.done .pretend i { animation: rise 2.6s infinite; }
+.pretend i:nth-child(2) { animation-delay: .8s !important; left: 4px; } .pretend i:nth-child(3) { animation-delay: 1.6s !important; left: -14px; }
+@keyframes rise { 0% { opacity: 0; transform: translateY(0) scale(.6); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-46px) scale(1.1); } }
+.steam { position: absolute; left: 50%; bottom: 96px; width: 40px; height: 50px; margin-left: -20px; pointer-events: none; opacity: 0; transition: opacity 1s; }
+.bay.two .steam { transform: translateX(-38px); }
+.bay.done .steam { opacity: 1; }
+.steam path { fill: none; stroke: rgba(255,255,255,.35); stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 60; animation: steam 3s infinite linear; }
+.steam path:nth-child(2) { animation-delay: 1.4s; }
+@keyframes steam { 0% { stroke-dashoffset: 60; opacity: 0; } 30% { opacity: 1; } 100% { stroke-dashoffset: -60; opacity: 0; } }
+.tray { height: 26px; margin: 0 6px; border-radius: 0 0 10px 10px; background: linear-gradient(180deg, #1d1f22, #0e0f11); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); position: relative; }
+.tray::after { content: ""; position: absolute; right: 22px; top: 8px; width: 26px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #6f757b, #e4e8ea, #7d8287); }
+
+/* ---------- the counter ---------- */
+.counter { position: relative; z-index: 0; height: 120px; margin: -14px -16px 0; background: var(--counter); box-shadow: inset 0 2px 0 rgba(255,255,255,.55), inset 0 -40px 0 var(--counter-edge); }
+.counter::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: linear-gradient(180deg, var(--counter-edge), var(--counter-front)); }
+
+/* ---------- side props: the play tray (left) and the receipt (right) ---------- */
+.playbox { position: relative; z-index: 4; margin: 28px auto 0; max-width: 470px; padding: 18px 18px 20px; border-radius: 22px; background: var(--apricot-l); color: var(--toy-ink);
+  box-shadow: inset 0 0 0 3px var(--apricot-l), inset 0 0 0 4px rgba(170,95,55,.18), 0 7px 0 var(--apricot-d), 0 18px 22px -8px rgba(120,70,40,.35); }
+.playbox h2 { margin: 0 0 4px; font: 400 22px/1.2 var(--f-toy); }
+.playbox p.hint { margin: 0 0 12px; font: 400 16px/1.45 var(--f-prose); color: var(--ink-2); }
+.playbox fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.playbox legend { padding: 0; font: 400 17px var(--f-toy); margin-bottom: 8px; }
+.tokens { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.token { position: relative; display: grid; justify-items: center; gap: 4px; cursor: pointer; font: 400 16px/1 var(--f-toy); }
+.token input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.token .chip { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: var(--cap); box-shadow: 0 5px 0 var(--cap-side), inset 0 0 0 3px var(--cap), inset 0 0 0 4px var(--cap-seam); transition: transform .18s var(--toy-press), box-shadow .1s; }
+.token .chip svg { width: 28px; height: 28px; }
+.token input:checked + .chip { transform: translateY(4px); box-shadow: 0 1px 0 var(--cap-side), inset 0 0 0 3px var(--butter), inset 0 0 0 30px rgba(255,217,119,.55); }
+.token input:focus-visible + .chip { outline: 3px solid #1d5fd1; outline-offset: 3px; }
+.who { margin-top: 16px; display: grid; gap: 6px; }
+.who label { font: 400 17px var(--f-toy); }
+.selectwrap { position: relative; }
+.selectwrap select { width: 100%; min-height: 48px; padding: 0 44px 0 16px; border: 0; border-radius: 14px; background: var(--sky); color: var(--toy-ink); font: 400 18px var(--f-toy); -webkit-appearance: none; appearance: none; cursor: pointer;
+  box-shadow: inset 0 0 0 3px var(--sky), inset 0 0 0 4px rgba(40,90,130,.2), 0 5px 0 var(--sky-d); }
+.selectwrap::after { content: ""; position: absolute; right: 18px; top: 50%; width: 10px; height: 10px; margin-top: -8px; border-right: 3px solid var(--toy-ink); border-bottom: 3px solid var(--toy-ink); transform: rotate(45deg); border-radius: 2px; pointer-events: none; }
+.checks { margin-top: 16px; display: grid; gap: 4px; }
+.tcheck { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; font: 400 17px var(--f-toy); }
+.tcheck input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.tcheck .box { flex: none; width: 30px; height: 30px; border-radius: 9px; background: var(--cap); box-shadow: 0 4px 0 var(--cap-side), inset 0 0 0 3px var(--cap), inset 0 0 0 4px var(--cap-seam); display: grid; place-items: center; transition: transform .15s var(--toy-press); }
+.tcheck .box svg { width: 20px; height: 20px; stroke: var(--choco); stroke-width: 3.4; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; transition: stroke-dashoffset .25s; }
+.tcheck input:checked + .box { transform: translateY(3px); box-shadow: 0 1px 0 var(--cap-side), inset 0 0 0 3px var(--mint), inset 0 0 0 30px var(--mint); }
+.tcheck input:checked + .box svg { stroke-dashoffset: 0; }
+.tcheck input:focus-visible + .box { outline: 3px solid #1d5fd1; outline-offset: 3px; }
+
+.receipt { position: relative; z-index: 2; margin: 30px auto 0; width: min(100%, 300px); }
+.paper { position: relative; height: var(--h, 84px); overflow: hidden; background: #fcfbf7; color: #26201c; font: 400 16px/1.5 var(--f-paper); transition: height 1.5s steps(20, end);
+  box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 14px 20px -10px rgba(60,40,20,.35);
+  -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - 8px) no-repeat, conic-gradient(from -45deg at 50% 100%, #000 90deg, transparent 0) bottom / 12px 8px repeat-x;
+          mask: linear-gradient(#000, #000) top / 100% calc(100% - 8px) no-repeat, conic-gradient(from -45deg at 50% 100%, #000 90deg, transparent 0) bottom / 12px 8px repeat-x; }
+.paper-in { padding: 16px 18px 22px; }
+.paper .stub { color: #5d544c; text-align: center; padding-top: 4px; }
+.paper .hd { text-align: center; font-weight: 700; }
+.paper .meta { text-align: center; color: #4d443d; }
+.paper .rule { border-top: 1.5px dashed #9b918a; margin: 10px 0; }
+.paper .row { display: flex; justify-content: space-between; gap: 10px; }
+.paper .row span:last-child { text-align: right; }
+.paper .real { color: #26201c; }
+.paper .sec { font-weight: 700; margin-bottom: 2px; }
+.paper .bye { text-align: center; margin-top: 8px; font-weight: 700; }
+.paper .bars { display: flex; height: 38px; gap: 0; margin: 12px auto 0; width: max-content; }
+.paper .bars i { display: block; height: 100%; background: #26201c; }
+.tear { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 14px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--choco); color: #fff4ea; font: 400 17px var(--f-toy);
+  box-shadow: 0 5px 0 var(--choco-d); transition: transform .08s, box-shadow .08s; }
+.tear:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--choco-d); }
+.tear:disabled { opacity: .45; cursor: default; }
+.receipt.torn .paper { animation: tear .6s ease-in forwards; }
+@keyframes tear { 0% { transform: none; } 30% { transform: rotate(-3deg) translateY(4px); } 100% { transform: rotate(-9deg) translate(-30px, 70px); opacity: 0; } }
+
+/* ---------- two lanes, one morning ---------- */
+.morning { max-width: 860px; margin: 64px auto 0; padding: 0 20px; }
+.morning h2 { margin: 0; font: italic 400 clamp(34px, 5vw, 48px)/1.05 var(--f-title); letter-spacing: -.02em; }
+.morning h2 span { font: 400 .48em var(--f-prose); font-style: normal; color: var(--ink-2); margin-left: 10px; letter-spacing: 0; }
+.lanes-key { display: flex; justify-content: space-between; margin: 18px 0 8px; font: 500 16px var(--f-real); color: var(--ink-2); }
+.lanes-key b { font-weight: 400; }
+.lanes-key .k1 { font-family: var(--f-toy); color: var(--toy-ink); }
+.log { position: relative; list-style: none; margin: 0; padding: 6px 0 0; display: grid; gap: 10px; }
+.log::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(42,34,29,.2); }
+.log li { position: relative; display: flex; gap: 10px; align-items: baseline; max-width: calc(50% - 22px); padding: 10px 16px; animation: drop .4s var(--toy-press); }
+.log li time { flex: none; font: 400 16px var(--f-real); opacity: .75; }
+.log li.play { justify-self: start; background: var(--apricot); color: var(--toy-ink); border-radius: 18px 18px 6px 18px; font: 400 17px/1.4 var(--f-toy); box-shadow: 0 4px 0 var(--apricot-d); }
+.log li.real { justify-self: end; background: var(--glass); color: #fff; border-radius: 4px; font: 300 16px/1.5 var(--f-real); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+.log li.real time { color: var(--dim); opacity: 1; }
+.log li.both { justify-self: center; max-width: 92%; background: #fffaf2; color: var(--ink); border-radius: 999px; font: 400 16px var(--f-prose); box-shadow: inset 0 0 0 1.5px var(--apricot-d); }
+@keyframes drop { from { transform: translateY(-8px); opacity: 0; } }
+
+/* ---------- dialog: cleaning ---------- */
+dialog.clean { width: min(92vw, 440px); padding: 0; border: 0; border-radius: 20px; background: var(--glass); color: #fff; font: 300 16px/1.55 var(--f-real);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 40px 80px rgba(20,10,5,.5); overflow: visible; }
+dialog.clean::backdrop { background: rgba(42,30,22,.5); backdrop-filter: blur(3px); }
+.clean-in { position: relative; padding: 26px 24px 22px; }
+.clean h2 { margin: 0 0 4px; font: 400 22px var(--f-real); letter-spacing: .01em; }
+.clean .lead { margin: 0 0 16px; color: var(--dim); }
+.gcheck { display: flex; align-items: center; gap: 14px; min-height: 48px; padding: 4px 0; border-top: 1px solid rgba(255,255,255,.1); cursor: pointer; }
+.gcheck input { -webkit-appearance: none; appearance: none; flex: none; width: 24px; height: 24px; margin: 0; border-radius: 6px; border: 1.5px solid rgba(255,255,255,.6); display: grid; place-items: center; cursor: pointer; transition: all .25s var(--glass-ease); }
+.gcheck input::after { content: ""; width: 10px; height: 5px; border-left: 1.8px solid #0b0c0e; border-bottom: 1.8px solid #0b0c0e; transform: rotate(-45deg) translate(1px, -1px) scale(0); transition: transform .2s var(--glass-ease); }
+.gcheck input:checked { background: #fff; border-color: #fff; box-shadow: 0 0 14px rgba(234,244,255,.6); }
+.gcheck input:checked::after { transform: rotate(-45deg) translate(1px, -1px) scale(1); }
+.gcheck input:focus-visible { outline: 3px solid #7fb2ff; outline-offset: 3px; }
+.clean .toyline { margin-top: 10px; padding: 10px 14px; border-radius: 16px; background: var(--apricot-l); color: var(--toy-ink); }
+.clean .toyline .tcheck { min-height: 44px; }
+.clean progress.brew { margin-top: 18px; }
+.clean .note { min-height: 26px; margin: 8px 0 0; color: var(--dim); }
+.clean .acts { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+.gbtn { min-height: 48px; padding: 0 20px; border: 0; border-radius: 10px; background: transparent; color: #fff; font: 400 16px var(--f-real); box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); position: relative; overflow: hidden; }
+.gbtn.primary { box-shadow: inset 0 0 0 1px rgba(255,255,255,.9), 0 0 20px -6px rgba(234,244,255,.6); }
+.gbtn:disabled { color: rgba(255,255,255,.5); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); cursor: not-allowed; }
+.gbtn:focus-visible { outline: 3px solid #7fb2ff; }
+.sticker { position: absolute; right: -14px; top: -18px; width: 74px; height: 74px; display: grid; place-items: center; border-radius: 50%; background: var(--butter); color: var(--toy-ink); font: 400 16px/1.1 var(--f-toy); text-align: center; transform: rotate(12deg); box-shadow: 0 4px 0 rgba(150,110,30,.4); }
+
+/* ---------- footer ---------- */
+.foot { max-width: 1160px; margin: 80px auto 0; padding: 28px 24px 48px 96px; border-top: 1px solid rgba(42,34,29,.15); display: flex; flex-wrap: wrap; gap: 8px 28px; align-items: baseline; color: var(--ink-2); font-size: 16px; }
+.foot b { font: italic 400 26px var(--f-title); color: var(--ink); }
+.foot a { color: var(--ink); text-underline-offset: 4px; display: inline-flex; align-items: center; min-height: 44px; }
+
+/* ---------- desktop: props step out to the sides ---------- */
+@media (min-width: 1080px) {
+  .scene { padding-top: 40px; }
+  .shelf { top: 66px; }
+  .sunpatch { top: -60px; }
+  .object { width: 470px; }
+  .playbox { position: absolute; right: calc(100% + 56px); top: 300px; width: 262px; margin: 0; transform: rotate(-2deg); }
+  .receipt { position: absolute; left: calc(100% + 2px); top: var(--slot-y, 560px); margin: 0; width: 280px; z-index: 0; }
+  .receipt .paper { border-radius: 0; }
+  .receipt .tear { margin-left: 26px; }
+  .receipt .paper { transform-origin: 0 0; }
+  .receipt::before { content: ""; position: absolute; left: -14px; top: -6px; width: 40px; height: 12px; background: var(--choco-d); border-radius: 0 6px 6px 0; z-index: 3; }
+}
+@media (max-width: 1079px) {
+  .shelf .figs .fig.cone, .shelf .figs .fig.cube { display: none; }
+}
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .top { grid-template-columns: 1fr; padding: 24px 16px 0; }
+  .top .side { display: flex; justify-content: space-between; align-items: center; }
+  .clock { margin: 0; }
+  .scene { padding: 40px 16px 0; }
+  .shelf { top: 70px; height: 100px; }
+  .body { padding: 2px 14px 22px; }
+  .band { padding: 6px 12px; }
+  .band .shop { font-size: 21px; }
+  .band .shop small { display: none; }
+  .lcdrow { grid-template-columns: minmax(0,1fr) 62px; gap: 10px; }
+  .lcd { height: 72px; }
+  .digits { height: 34px; gap: 2px; }
+  .shelf { display: none; }
+  .keys { gap: 9px; grid-auto-rows: 52px; }
+  .key { font-size: 23px; }
+  .key.go { font-size: 17px; }
+  .machine { padding: 0 12px 12px; }
+  .lid { margin: 0 -12px; }
+  .glass { padding: 12px 10px 12px; }
+  .deck { grid-template-columns: 1fr 50px; gap: 8px; }
+  .tilerow { gap: 6px; } .tiles { gap: 6px; }
+  .tile { font-size: 16px; padding: 8px 2px 6px; aspect-ratio: auto; min-height: 84px; }
+  .tile svg { width: 28px; height: 28px; }
+  .ring { width: 56px; height: 56px; }
+  .bubble { right: 0; top: -6px; max-width: 190px; font-size: 17px; }
+  .log li { max-width: 88%; }
+  .log::before { display: none; }
+  .foot { padding-left: 16px; padding-bottom: 100px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  .paper { transition: none; }
+  .bay.pour .stream { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <h1 class="title" lang="it">D<span class="o2">o</span><span class="pp">pp</span>io</h1>
+    <p class="sub"><b>소꿉 계산대</b>와 <b style="background:linear-gradient(transparent 62%, rgba(11,12,14,.16) 62%)">아침 커피</b> — 한 조리대 위의 두 개의 아침</p>
+  </div>
+  <div class="side">
+    <button class="sound" id="sound" type="button" aria-pressed="false"><i aria-hidden="true"></i><span>소리 끔</span></button>
+    <p class="clock" aria-label="지금 시각"><span id="clockTxt">오전 7:42</span></p>
+  </div>
+  <p class="about">살구색 장난감 계산대가 검은 유광 커피 기계 위에 포개져 있다. 위층에서는 아이가 별 세 개를 받고 커피를 팔고, 아래층에서는 어른이 진짜로 커피를 내린다. 아이가 <em>찍으면</em> 기계가 <em>내리고</em>, 가짜 값은 진짜 영수증에 찍힌다.</p>
+</header>
+
+<main class="scene" id="scene">
+  <div class="sunpatch" aria-hidden="true"></div>
+  <div class="shelf" aria-hidden="true">
+    <div class="figs"><i class="fig bear"></i><i class="fig pin"></i><i class="fig dome"></i><i class="fig cone"></i><i class="fig cube"></i><i class="fig duck"></i></div>
+    <div class="plank"></div>
+  </div>
+
+  <div class="object" id="object">
+
+    <!-- ========== UPPER: the toy register ========== -->
+    <section class="toy" id="toy" aria-labelledby="toyH">
+      <h2 class="sr" id="toyH">위층 · 장난감 계산대</h2>
+      <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
+      <svg class="head" viewBox="0 0 480 150" aria-hidden="true">
+        <path class="shell" d="M0 150 L0 98 C0 72 8 54 22 42 L44 12 C49 4 59 3 64 9 L110 42 C170 16 310 16 370 42 L416 9 C421 3 431 4 436 12 L458 42 C472 54 480 72 480 98 L480 150 Z"/>
+        <path class="inner-ear" d="M30 50 L53 20 L86 46 Z"/>
+        <path class="inner-ear" d="M450 50 L427 20 L394 46 Z"/>
+        <path class="shine" d="M150 34 C200 22 260 22 300 28"/>
+        <path class="arch" d="M68 104 C140 56 340 56 412 104"/>
+        <path class="arch-seam" d="M60 116 C140 66 340 66 420 116"/>
+        <g id="stars">
+          <path class="star" d="M196 36 l4.4 9 9.9 1.4 -7.2 7 1.7 9.9 -8.8 -4.7 -8.8 4.7 1.7 -9.9 -7.2 -7 9.9 -1.4z"/>
+          <path class="star" d="M240 26 l4.4 9 9.9 1.4 -7.2 7 1.7 9.9 -8.8 -4.7 -8.8 4.7 1.7 -9.9 -7.2 -7 9.9 -1.4z"/>
+          <path class="star" d="M284 36 l4.4 9 9.9 1.4 -7.2 7 1.7 9.9 -8.8 -4.7 -8.8 4.7 1.7 -9.9 -7.2 -7 9.9 -1.4z"/>
+        </g>
+        <circle class="pin" cx="34" cy="128" r="4"/><circle class="pin" cx="446" cy="128" r="4"/>
+      </svg>
+      <div class="body">
+        <div class="band"><span class="shop">콩콩 가게<small>소꿉 계산대</small></span><span class="tag">3세 이상</span></div>
+
+        <div class="lcdrow">
+          <div class="bezel">
+            <div class="lcd" id="lcd" role="img" aria-label="계산대 화면: 0">
+              <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+              <div class="digits" id="digits" aria-hidden="true"></div>
+              <div class="ann" aria-hidden="true"><span data-c="star">★별</span><span data-c="button">●단추</span><span data-c="shell">◗조개</span><span data-c="kiss">♥뽀뽀</span><span class="pwr on" id="annOn">ON</span></div>
+            </div>
+          </div>
+          <div class="holster">
+            <button class="scanner" id="scanner" type="button" aria-label="스캐너로 찍기: 기계에서 고른 메뉴를 계산대에 올려요">
+              <span class="gun" aria-hidden="true"></span><span class="eye" aria-hidden="true"></span><span class="trig" aria-hidden="true">삑</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="keys" role="group" aria-label="장난감 키패드">
+          <button class="key" type="button" data-k="7">7</button>
+          <button class="key" type="button" data-k="8">8</button>
+          <button class="key" type="button" data-k="9">9</button>
+          <button class="key on-off" type="button" id="toyPower" aria-pressed="true" aria-label="계산대 전원">ON/OFF</button>
+          <button class="key" type="button" data-k="4">4</button>
+          <button class="key" type="button" data-k="5">5</button>
+          <button class="key" type="button" data-k="6">6</button>
+          <button class="key ce" type="button" id="ce" aria-label="CE: 지우기">CE</button>
+          <button class="key" type="button" data-k="1">1</button>
+          <button class="key" type="button" data-k="2">2</button>
+          <button class="key" type="button" data-k="3">3</button>
+          <button class="key go" type="button" id="pay" aria-label="계산하기: 영수증을 뽑고 진짜 기계에 주문을 넘겨요">
+            <svg viewBox="0 0 46 30" aria-hidden="true"><path d="M4 11h22V3l17 12-17 12v-8H4z" fill="#fffaf2" stroke="#4a2a1c" stroke-width="2.4" stroke-linejoin="round"/></svg>
+            <span>계산하기</span>
+          </button>
+          <button class="key" type="button" data-k="00">00</button>
+          <button class="key" type="button" data-k="0">0</button>
+          <button class="key star" type="button" id="stamp" aria-label="별 도장 찍기">★</button>
+        </div>
+        <i class="ejector" style="left:12px; bottom:10px" aria-hidden="true"></i>
+        <i class="ejector" style="right:12px; bottom:10px" aria-hidden="true"></i>
+      </div>
+      <div class="base" aria-hidden="true">
+        <div class="coins"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="drawer"></div>
+        <span class="slit"></span>
+        <div class="feet"><i></i><i></i></div>
+      </div>
+    </section>
+
+    <!-- ========== LOWER: the real machine ========== -->
+    <section class="machine" id="machine" aria-labelledby="machH">
+      <h2 class="sr" id="machH">아래층 · 커피 기계</h2>
+      <div class="lid" aria-hidden="true"></div>
+      <div class="glass" id="glass">
+        <div class="status">
+          <p class="msg" id="msg" role="status" aria-live="polite" style="margin:0">준비됨<small id="msgSub">에스프레소 · 한 잔 · 농도 3</small></p>
+          <div class="indic" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="6" ry="8.5" transform="rotate(30 12 12)"/><path d="M9 6c3 3 3 9 6 12"/></svg>
+            <div class="water-bars" id="waterBars"><i style="height:5px"></i><i style="height:8px"></i><i style="height:11px"></i><i style="height:14px"></i><i style="height:16px"></i></div>
+          </div>
+          <button class="warn" id="warn" type="button" aria-label="경고 표시: 지금은 이상 없음">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 L22 20 H2 Z"/><path d="M12 10v4.5M12 17.2v.3" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="deck">
+          <div class="tiles">
+            <fieldset class="tg tilerow">
+              <legend class="sr">메뉴</legend>
+              <label class="tile"><input type="radio" name="menu" value="espresso" checked><span class="led"></span><span class="laser"></span>
+                <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11 17h15v4a7 7 0 0 1-7 7h-1a7 7 0 0 1-7-7z"/><path d="M26 19h2a2.5 2.5 0 0 1 0 5h-2.5"/><path d="M8 31h24"/></svg><span>에스프레소</span></label>
+              <label class="tile"><input type="radio" name="menu" value="coffee"><span class="led"></span><span class="laser"></span>
+                <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11 13h15v12a6 6 0 0 1-6 6h-3a6 6 0 0 1-6-6z"/><path d="M26 16h2a3 3 0 0 1 0 6h-2"/><path d="M15 6c-1 2 1 3 0 5M20 6c-1 2 1 3 0 5"/></svg><span>커피</span></label>
+              <label class="tile"><input type="radio" name="menu" value="water"><span class="led"></span><span class="laser"></span>
+                <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 7c4 5.5 7 9.5 7 14a7 7 0 0 1-14 0c0-4.5 3-8.5 7-14z"/><path d="M16.5 23a3.5 3.5 0 0 0 3.5 3.5"/></svg><span>뜨거운 물</span></label>
+            </fieldset>
+            <div class="tilerow">
+              <fieldset class="tg" style="display:contents">
+                <legend class="sr">잔 수</legend>
+                <label class="tile"><input type="radio" name="cups" value="1" checked><span class="led"></span>
+                  <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M14 15h12v8a6 6 0 0 1-6 6 6 6 0 0 1-6-6z"/><path d="M11 32h18"/></svg><span>한 잔</span></label>
+                <label class="tile"><input type="radio" name="cups" value="2"><span class="led"></span>
+                  <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 15h11v8a5.5 5.5 0 0 1-11 0z"/><path d="M24 19h8v5a4 4 0 0 1-8 0z"/><path d="M4 32h32"/><path d="M28 13l.8 1.6 1.7.2-1.3 1.2.3 1.7-1.5-.8-1.5.8.3-1.7-1.3-1.2 1.7-.2z"/></svg><span>두 잔<span class="sr"> (한 잔은 소꿉 컵)</span></span></label>
+              </fieldset>
+              <button class="tile" type="button" id="cleanBtn" aria-haspopup="dialog">
+                <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 8c3.5 5 6 8.5 6 12a6 6 0 0 1-12 0c0-3.5 2.5-7 6-12z"/><path d="M9 26a12 12 0 0 0 20 4M31 14a12 12 0 0 0-20-4"/><path d="M29 30l1-4.5-4.5 1M11 10l-1 4.5 4.5-1"/></svg><span>세척</span></button>
+            </div>
+            <div class="ctrlrow">
+              <button class="ring" id="power" type="button" aria-pressed="true" aria-label="기계 전원"><span class="r" aria-hidden="true"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8"/><path d="M6.5 6.8a8 8 0 1 0 11 0"/></svg></button>
+              <button class="start" id="start" type="button" aria-pressed="false">
+                <svg class="play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
+                <svg class="stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="1"/></svg>
+                <span id="startTxt">내리기</span>
+              </button>
+            </div>
+          </div>
+          <div class="slider-col">
+            <label class="lab" for="strength">농도</label>
+            <div class="vtrack" id="vtrack">
+              <span class="vline" aria-hidden="true"></span>
+              <span class="vfill" id="vfill" aria-hidden="true"></span>
+              <span class="vticks" id="vticks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+              <input class="strength" id="strength" type="range" min="1" max="5" step="1" value="3" aria-valuetext="농도 3, 보통">
+            </div>
+            <span class="val" id="strengthVal" aria-hidden="true">3</span>
+          </div>
+        </div>
+
+        <progress class="brew" id="brewProg" max="100" value="0" aria-label="추출 진행"></progress>
+        <div class="toast" id="toast" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span id="toastTxt"></span></div>
+      </div>
+
+      <div class="bay" id="bay" aria-hidden="true">
+        <div class="nozzle"></div>
+        <span class="spout a"></span><span class="spout b"></span>
+        <span class="stream a"></span><span class="stream b"></span>
+        <svg class="steam" viewBox="0 0 40 50"><path d="M14 48c-6-8 6-12 0-22s4-14 2-24"/><path d="M26 48c-6-8 6-12 0-22s4-14 2-24"/></svg>
+        <div class="cup glasscup" id="glasscup"><div class="fill"></div></div>
+        <div class="cup toycup"></div>
+        <div class="pretend"><i>★</i><i>♥</i><i>★</i></div>
+        <div class="grate"></div>
+      </div>
+      <div class="tray" aria-hidden="true"></div>
+    </section>
+
+    <!-- the play tray: what the child is paid in, and for whom -->
+    <section class="playbox" aria-labelledby="playH">
+      <h2 id="playH">놀이 상자</h2>
+      <p class="hint">진짜 돈은 없어요. 이 가게는 이걸로 받아요.</p>
+      <fieldset>
+        <legend>무엇으로 낼까요?</legend>
+        <div class="tokens">
+          <label class="token"><input type="radio" name="cur" value="star" checked><span class="chip"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3l3.3 6.8 7.4 1-5.4 5.2 1.3 7.4L14 19.9l-6.6 3.5 1.3-7.4L3.3 10.8l7.4-1z" fill="#ffd977" stroke="#5b3727" stroke-width="1.8" stroke-linejoin="round"/></svg></span>별</label>
+          <label class="token"><input type="radio" name="cur" value="button"><span class="chip"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#a3dcc7" stroke="#5b3727" stroke-width="1.8"/><circle cx="11" cy="11.5" r="1.6" fill="#5b3727"/><circle cx="17" cy="11.5" r="1.6" fill="#5b3727"/><circle cx="11" cy="16.5" r="1.6" fill="#5b3727"/><circle cx="17" cy="16.5" r="1.6" fill="#5b3727"/></svg></span>단추</label>
+          <label class="token"><input type="radio" name="cur" value="shell"><span class="chip"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 24 C6 22 3 15 5 10 C8 5 20 5 23 10 C25 15 22 22 14 24Z" fill="#f5c6a2" stroke="#5b3727" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 24 L9 9 M14 24 L14 7 M14 24 L19 9" stroke="#5b3727" stroke-width="1.4" fill="none"/></svg></span>조개</label>
+          <label class="token"><input type="radio" name="cur" value="kiss"><span class="chip"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 23 C5 17 3 12 5.5 8.5 C8 5 12 6.5 14 9.5 C16 6.5 20 5 22.5 8.5 C25 12 23 17 14 23Z" fill="#f29a8f" stroke="#5b3727" stroke-width="1.8" stroke-linejoin="round"/></svg></span>뽀뽀</label>
+        </div>
+      </fieldset>
+      <div class="who">
+        <label for="who">누구 커피예요?</label>
+        <div class="selectwrap">
+          <select id="who">
+            <option>엄마</option><option>아빠</option><option>할머니</option><option>곰돌이</option><option>나</option>
+          </select>
+        </div>
+      </div>
+      <div class="checks">
+        <label class="tcheck"><input type="checkbox" id="wantReceipt" checked><span class="box"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg></span>영수증 주세요</label>
+        <label class="tcheck"><input type="checkbox" id="wantBag"><span class="box"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg></span>봉투에 담아 주세요</label>
+      </div>
+    </section>
+
+    <!-- the receipt, printed out of the toy's slit -->
+    <section class="receipt" id="receipt" aria-labelledby="rcH">
+      <h2 class="sr" id="rcH">영수증</h2>
+      <div class="paper" id="paper"><div class="paper-in" id="paperIn"><p class="stub" style="margin:0">계산하기를 누르면<br>여기로 나와요</p></div></div>
+      <button class="tear" id="tear" type="button" disabled>✂ 영수증 뜯기</button>
+    </section>
+  </div>
+
+  <div class="counter" aria-hidden="true"></div>
+</main>
+
+<section class="morning" aria-labelledby="mornH">
+  <h2 id="mornH">같은 조리대<span>놀이와 일상이 겹친 기록</span></h2>
+  <div class="lanes-key" aria-hidden="true"><b class="k1">놀이 · 위층</b><b>일상 · 아래층</b></div>
+  <ol class="log" id="log" aria-live="polite"></ol>
+</section>
+
+<dialog class="clean" id="cleanDlg" aria-labelledby="cleanH">
+  <div class="clean-in">
+    <span class="sticker" aria-hidden="true">나도<br>도와줄래</span>
+    <h2 id="cleanH">물길 세척</h2>
+    <p class="lead">세 가지를 확인하면 기계가 물길을 헹굽니다. 약 6초.</p>
+    <label class="gcheck"><input type="checkbox" class="need" id="c1">물통을 깨끗한 물로 채웠어요</label>
+    <label class="gcheck"><input type="checkbox" class="need" id="c2">받침대를 비웠어요</label>
+    <label class="gcheck"><input type="checkbox" class="need" id="c3">노즐 아래에 큰 그릇을 놓았어요</label>
+    <div class="toyline">
+      <label class="tcheck"><input type="checkbox" id="c4"><span class="box"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg></span>곰돌이도 손을 씻었어요 (선택)</label>
+    </div>
+    <progress class="brew" id="cleanProg" max="100" value="0" aria-label="세척 진행"></progress>
+    <p class="note" id="cleanNote" role="status" aria-live="polite"></p>
+    <div class="acts">
+      <button class="gbtn" type="button" id="cleanCancel">닫기</button>
+      <button class="gbtn primary" type="button" id="cleanGo" disabled>세척 시작</button>
+    </div>
+  </div>
+</dialog>
+
+<footer class="foot">
+  <b>Doppio</b>
+  <span>Fraunces · Gowun Dodum · Jua · IBM Plex Sans KR · Nanum Gothic Coding</span>
+  <span>아이의 계산대는 건전지로, 어른의 기계는 콘센트로 움직입니다.</span>
+  <a href="../">← 모든 디자인 시스템</a>
+</footer>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const MENU = {
+    espresso: { ko: '에스프레소', ml: 40, sec: 4.2 },
+    coffee:   { ko: '커피', ml: 120, sec: 5.6 },
+    water:    { ko: '뜨거운 물', ml: 150, sec: 4.4 }
+  };
+  const CUR = { star: { ko: '별', u: '개' }, button: { ko: '단추', u: '개' }, shell: { ko: '조개', u: '개' }, kiss: { ko: '뽀뽀', u: '번' } };
+  const STR = ['', '아주 연하게', '연하게', '보통', '진하게', '아주 진하게'];
+  const S = { toyOn: true, entry: '', items: [], stars: 0, cur: 'star', machineOn: true, menu: 'espresso', cups: 1, strength: 3, brewing: false, prog: 0, water: 5, clock: 7 * 60 + 42, receiptOut: false, lastBrew: null, cleaning: false };
+
+  /* ---------- sound (off by default) ---------- */
+  let ac = null, soundOn = false;
+  const tone = (f, d = .07, type = 'square', vol = .05, slide = 0) => {
+    if (!soundOn) return;
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(f * slide, t + d);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + d + .02);
+  };
+  const toyClick = () => { tone(180, .05, 'triangle', .08, .6); };
+  const toyBeep = () => { tone(1480 + Math.random() * 60, .09, 'square', .035); };
+  const glassTick = () => tone(2100, .035, 'sine', .03);
+  $('#sound').addEventListener('click', e => {
+    soundOn = !soundOn; e.currentTarget.setAttribute('aria-pressed', soundOn);
+    e.currentTarget.querySelector('span').textContent = soundOn ? '소리 켬' : '소리 끔';
+    if (soundOn) { toyBeep(); }
+  });
+
+  /* ---------- clock and the two-lane log ---------- */
+  const fmt = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+  const tick = () => { S.clock++; $('#clockTxt').textContent = '오전 ' + fmt(S.clock); };
+  const log = (lane, text) => {
+    const li = document.createElement('li'); li.className = lane;
+    li.innerHTML = `<time>${fmt(S.clock)}</time><span></span>`; li.lastChild.textContent = text;
+    const ol = $('#log'); ol.append(li);
+    while (ol.children.length > 9) ol.firstElementChild.remove();
+  };
+
+  /* ---------- seven-segment LCD ---------- */
+  const H = (y) => `2.6,${y} 3.6,${y - 1} 8.4,${y - 1} 9.4,${y} 8.4,${y + 1} 3.6,${y + 1}`;
+  const V = (x, y0, y1) => `${x},${y0} ${x + 1},${y0 + 1} ${x + 1},${y1 - 1} ${x},${y1} ${x - 1},${y1 - 1} ${x - 1},${y0 + 1}`;
+  const SEG = { a: H(1.6), g: H(10), d: H(18.4), f: V(1.6, 2.2, 9.4), b: V(10.4, 2.2, 9.4), e: V(1.6, 10.6, 17.8), c: V(10.4, 10.6, 17.8) };
+  const MAP = { '0': 'abcdef', '1': 'bc', '2': 'abdeg', '3': 'abcdg', '4': 'bcfg', '5': 'acdfg', '6': 'acdefg', '7': 'abc', '8': 'abcdefg', '9': 'abcdfg',
+    '-': 'g', '_': 'd', ' ': '', 'E': 'adefg', 'C': 'adef', 'L': 'def', 'A': 'abcefg', 'n': 'ceg', 'o': 'cdeg', 'r': 'eg', 'P': 'abefg', 'b': 'cdefg', 'd': 'bcdeg', 'H': 'bcefg', 'F': 'aefg', 'I': 'bc', 'U': 'bcdef', 'y': 'bcdfg', 'S': 'acdfg', 't': 'defg', 'h': 'cefg', 'c': 'deg', 'O': 'abcdef' };
+  const N = 8;
+  const digits = $('#digits');
+  for (let i = 0; i < N; i++) {
+    digits.insertAdjacentHTML('beforeend', `<svg viewBox="0 0 12 20">${Object.entries(SEG).map(([k, p]) => `<polygon class="seg" data-s="${k}" points="${p}"/>`).join('')}</svg>`);
+  }
+  const lcd = (txt, label) => {
+    txt = String(txt).slice(-N).padStart(N, ' ');
+    [...digits.children].forEach((svg, i) => {
+      const on = MAP[txt[i]] ?? '';
+      svg.querySelectorAll('.seg').forEach(s => s.classList.toggle('on', on.includes(s.dataset.s)));
+    });
+    $('#lcd').setAttribute('aria-label', '계산대 화면: ' + (label || txt.trim() || '비어 있음'));
+  };
+  const ann = c => $$('.ann [data-c]').forEach(s => s.classList.toggle('on', s.dataset.c === c));
+
+  /* ---------- toy speech ---------- */
+  let bubT;
+  const say = t => { const b = $('#bubble'); b.textContent = t; b.classList.add('show'); clearTimeout(bubT); bubT = setTimeout(() => b.classList.remove('show'), 2600); };
+
+  /* ---------- toy keys ---------- */
+  const press = el => { el.classList.add('down'); setTimeout(() => el.classList.remove('down'), 110); toyClick(); };
+  $$('.key').forEach(k => k.addEventListener('keydown', e => { if (e.key === 'Enter') { k.classList.add('down'); setTimeout(() => k.classList.remove('down'), 110); } }));
+  const toyKeysState = () => $$('.key').forEach(k => k.classList.toggle('toyoff', !S.toyOn));
+
+  $$('.key[data-k]').forEach(k => k.addEventListener('click', () => {
+    toyClick();
+    if (!S.toyOn) return; // a toy button for show: it still clunks
+    toyBeep();
+    S.entry = (S.entry + k.dataset.k).replace(/^0+(?=\d)/, '').slice(0, N);
+    lcd(S.entry || '0'); ann(S.cur); $('#dots').classList.remove('think');
+  }));
+
+  $('#toyPower').addEventListener('click', e => {
+    toyClick(); S.toyOn = !S.toyOn; e.currentTarget.setAttribute('aria-pressed', S.toyOn);
+    $('#lcd').classList.toggle('off', !S.toyOn); $('#annOn').classList.toggle('on', S.toyOn);
+    toyKeysState();
+    if (S.toyOn) { lcd('HELLO', '안녕'); setTimeout(() => S.toyOn && lcd(S.entry || '0'), 900); say('어서 오세요!'); log('play', '계산대를 켰다. “어서 오세요!”'); }
+    else { lcd(''); $('#dots').classList.remove('think'); log('play', '계산대를 껐다. 건전지는 아꼈다.'); }
+  });
+
+  $('#ce').addEventListener('click', () => {
+    toyClick();
+    if (!S.toyOn) return;
+    toyBeep();
+    if (S.entry) { S.entry = ''; lcd('0'); say('지웠어요.'); }
+    else if (S.items.length) { S.items = []; lcd('0'); say('다 지웠어요!'); log('play', 'CE로 장바구니를 비웠다.'); }
+    else { lcd('0'); say('지울 게 없는데요?'); }
+    if (S.brewing) setTimeout(() => toast('CE는 장난감 버튼이에요. 기계는 계속 내려요.'), 300);
+  });
+
+  $('#stamp').addEventListener('click', () => {
+    toyClick();
+    if (!S.toyOn) return;
+    S.stars = (S.stars + 1) % 4;
+    $$('#stars .star').forEach((s, i) => s.classList.toggle('lit', i < S.stars));
+    tone(1200 + S.stars * 200, .12, 'triangle', .05);
+    say(S.stars ? ['', '별 하나!', '별 둘!', '별 셋! 참 잘했어요'][S.stars] : '별을 다시 모아요');
+    if (S.stars === 3) log('play', '별 도장 세 개를 다 찍었다.');
+  });
+
+  /* ---------- scanning: the toy reaches into the glass ---------- */
+  const PRICES = [1, 2, 3, 3, 5, 7, 10, 100, 1000000];
+  $('#scanner').addEventListener('click', () => {
+    const sc = $('#scanner');
+    sc.classList.remove('zap'); void sc.offsetWidth; sc.classList.add('zap');
+    setTimeout(() => sc.classList.remove('zap'), 520);
+    toyClick();
+    if (!S.toyOn) { say('…(꺼져 있어요)'); return; }
+    const tile = $(`input[name=menu][value=${S.menu}]`).closest('.tile');
+    tile.classList.remove('scanned'); void tile.offsetWidth; tile.classList.add('scanned');
+    setTimeout(() => { tone(1760, .12, 'square', .04); setTimeout(() => tone(1760, .12, 'square', .04), 140); }, 260);
+    const price = S.entry ? +S.entry : PRICES[Math.floor(Math.random() * PRICES.length)];
+    S.items.push({ menu: S.menu, price, cur: S.cur });
+    S.entry = '';
+    lcd(price, `${MENU[S.menu].ko} ${CUR[S.cur].ko} ${price}${CUR[S.cur].u}`); ann(S.cur);
+    $('#dots').classList.add('think');
+    say(`${MENU[S.menu].ko}는 ${CUR[S.cur].ko} ${price.toLocaleString('ko-KR')}${CUR[S.cur].u}이에요.`);
+    log('play', `${MENU[S.menu].ko}를 “삑” 찍었다. ${CUR[S.cur].ko} ${price.toLocaleString('ko-KR')}${CUR[S.cur].u}.`);
+  });
+
+  /* ---------- 계산하기: the crossing ---------- */
+  $('#pay').addEventListener('click', () => {
+    toyClick();
+    if (!S.toyOn) return;
+    if (!S.items.length) {
+      if (S.entry) { S.items.push({ menu: S.menu, price: +S.entry, cur: S.cur }); S.entry = ''; }
+      else { lcd('----', '아직 고른 게 없음'); say('먼저 스캐너로 “삑” 찍어 주세요!'); return; }
+    }
+    tick();
+    const toy = $('#toy'); toy.classList.add('open'); tone(2350, .5, 'triangle', .06);
+    setTimeout(() => toy.classList.remove('open'), 1800);
+    lcd('PAId', '결제 완료'); $('#dots').classList.remove('think');
+    const who = $('#who').value;
+    log('play', `${who}에게 계산해 줬다. 서랍이 “띵” 열렸다.`);
+    const last = S.items[S.items.length - 1];
+    let brewNote;
+    if (!S.machineOn) { brewNote = 'sleep'; say('기계가 자요. 쉿! 커피는 상상으로 드세요.'); }
+    else if (S.brewing || S.cleaning) { brewNote = 'busy'; say('지금 만드는 중이에요. 잠깐만요!'); }
+    else if (S.water <= 0) { brewNote = 'dry'; say('물이 없대요…'); }
+    else {
+      brewNote = 'ok';
+      setMenu(last.menu);
+      say('주문 들어갑니다~!');
+      setTimeout(() => startBrew('toy'), 700);
+    }
+    printReceipt(who, brewNote);
+    S.items = [];
+    setTimeout(() => S.toyOn && lcd('0'), 2200);
+  });
+
+  /* ---------- receipt ---------- */
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function printReceipt(who, brewNote) {
+    if (!$('#wantReceipt').checked) { setTimeout(() => say('영수증은 안 받으신대요.'), 900); return; }
+    const d = new Date();
+    const date = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    const totals = {};
+    S.items.forEach(it => totals[it.cur] = (totals[it.cur] || 0) + it.price);
+    const m = MENU[S.items[S.items.length - 1].menu];
+    const realLine = {
+      ok: [`${m.ko} · ${m.ml * (S.cups === 2 ? 1 : 1)}ml`, `농도 ${'●'.repeat(S.strength)}${'○'.repeat(5 - S.strength)} · ${S.cups === 2 ? '두 잔(한 잔은 소꿉)' : '한 잔'}`, `추출 시작 ${fmt(S.clock)}`],
+      sleep: ['기계 전원 꺼짐', '커피는 상상으로 제공'],
+      busy: ['이미 내리는 중', '다음 잔은 잠시 후에'],
+      dry: ['물통 비어 있음', '세척 창에서 물을 채우세요']
+    }[brewNote];
+    const bars = Array.from({ length: 34 }, () => `<i style="width:${1 + Math.floor(Math.random() * 3)}px;margin-right:${1 + Math.floor(Math.random() * 2)}px"></i>`).join('');
+    $('#paperIn').innerHTML = `
+      <div class="hd">콩콩 가게 · 소꿉 계산대</div>
+      <div class="meta">${date} ${fmt(S.clock)}</div>
+      <div class="meta">손님: ${esc(who)}</div>
+      <div class="rule"></div>
+      ${S.items.map(it => `<div class="row"><span>${MENU[it.menu].ko}</span><span>${CUR[it.cur].ko} ${it.price.toLocaleString('ko-KR')}${CUR[it.cur].u}</span></div>`).join('')}
+      ${$('#wantBag').checked ? '<div class="row"><span>봉투</span><span>공짜</span></div>' : ''}
+      <div class="rule"></div>
+      <div class="row"><span><b>합계</b></span><span><b>${Object.entries(totals).map(([c, v]) => `${CUR[c].ko} ${v.toLocaleString('ko-KR')}${CUR[c].u}`).join('<br>')}</b></span></div>
+      <div class="row"><span>받은 것</span><span>${CUR[S.cur].ko}로 받음</span></div>
+      <div class="row"><span>칭찬 도장</span><span>${'★'.repeat(S.stars)}${'☆'.repeat(3 - S.stars)}</span></div>
+      <div class="rule"></div>
+      <div class="real"><div class="sec">진짜 기계 기록</div>${realLine.map(l => `<div>${l}</div>`).join('')}</div>
+      <div class="rule"></div>
+      <div class="bye">또 오세요!</div>
+      <div class="bars" aria-hidden="true">${bars}</div>`;
+    const rc = $('#receipt'); rc.classList.remove('torn');
+    const paper = $('#paper');
+    paper.style.transition = 'none'; paper.style.setProperty('--h', '0px'); void paper.offsetHeight;
+    paper.style.transition = '';
+    const h = $('#paperIn').scrollHeight;
+    requestAnimationFrame(() => paper.style.setProperty('--h', h + 'px'));
+    if (soundOn) { let n = 0; const iv = setInterval(() => { tone(90 + Math.random() * 30, .05, 'sawtooth', .025); if (++n > 18) clearInterval(iv); }, 75); }
+    $('#tear').disabled = false; S.receiptOut = true;
+    setTimeout(() => say('영수증 나왔어요!'), 1500);
+  }
+  $('#tear').addEventListener('click', () => {
+    const rc = $('#receipt'); rc.classList.add('torn'); tone(400, .18, 'sawtooth', .03, .4);
+    $('#tear').disabled = true;
+    setTimeout(() => {
+      rc.classList.remove('torn');
+      const paper = $('#paper'); paper.style.transition = 'none';
+      $('#paperIn').innerHTML = '<p class="stub" style="margin:0">계산하기를 누르면<br>여기로 나와요</p>';
+      paper.style.setProperty('--h', '84px'); void paper.offsetHeight; paper.style.transition = '';
+      $('#pay').focus({ preventScroll: true });
+    }, reduce ? 10 : 600);
+    log('both', '영수증을 뜯어 냉장고에 붙였다.');
+  });
+
+  /* ---------- machine ---------- */
+  const glass = $('#glass'), bay = $('#bay');
+  const sub = () => { $('#msgSub').textContent = `${MENU[S.menu].ko} · ${S.cups === 2 ? '두 잔' : '한 잔'} · 농도 ${S.strength}`; };
+  const setMsg = (main, small) => { $('#msg').firstChild.textContent = main; if (small != null) $('#msgSub').textContent = small; else sub(); };
+  let toastT;
+  const toast = t => { $('#toastTxt').textContent = t; $('#toast').classList.add('show'); setMsg(t, ''); clearTimeout(toastT); toastT = setTimeout(() => { $('#toast').classList.remove('show'); if (!S.brewing && S.machineOn) setMsg('준비됨'); }, 2600); };
+  const bloom = (el, e) => {
+    const r = el.getBoundingClientRect();
+    const x = e && e.clientX ? e.clientX - r.left : r.width / 2, y = e && e.clientY ? e.clientY - r.top : r.height / 2;
+    el.style.setProperty('--tx', x + 'px'); el.style.setProperty('--ty', y + 'px');
+    el.classList.remove('touched'); void el.offsetWidth; el.classList.add('touched');
+  };
+  $$('.glass .tile, .glass .start, .glass .ring').forEach(el => el.addEventListener('pointerdown', e => { if (S.machineOn || el.id === 'power') { bloom(el, e); glassTick(); } }));
+
+  function setMenu(v) { S.menu = v; $(`input[name=menu][value=${v}]`).checked = true; bay.classList.toggle('water', v === 'water'); $('#glasscup').classList.toggle('water', v === 'water'); sub(); }
+  $$('input[name=menu]').forEach(r => r.addEventListener('change', () => { setMenu(r.value); if (!S.brewing) setMsg('준비됨'); }));
+  $$('input[name=cups]').forEach(r => r.addEventListener('change', () => {
+    S.cups = +r.value; bay.classList.toggle('two', S.cups === 2); sub();
+    if (S.cups === 2) { say('작은 컵은 내 거!'); log('play', '두 잔을 골랐다. 한 잔은 소꿉 컵.'); }
+  }));
+  const strength = $('#strength');
+  const setStrength = () => {
+    S.strength = +strength.value;
+    strength.setAttribute('aria-valuetext', `농도 ${S.strength}, ${STR[S.strength]}`);
+    $('#strengthVal').textContent = S.strength;
+    $('#vfill').style.setProperty('--fill', `calc(${(S.strength - 1) / 4} * (100% - 24px))`);
+    $$('#vticks i').forEach((t, i) => t.classList.toggle('on', (8 - i) <= (S.strength - 1) * 2));
+    sub();
+  };
+  strength.addEventListener('input', () => { setStrength(); glassTick(); });
+  const sizeSlider = () => { const h = $('#vtrack').clientHeight; strength.style.setProperty('--len', (h - 0) + 'px'); };
+  setStrength();
+
+  const updateWater = () => {
+    $$('#waterBars i').forEach((b, i) => b.classList.toggle('on', i < S.water));
+    const w = $('#warn'); const lit = S.water <= 1;
+    w.classList.toggle('lit', lit);
+    w.setAttribute('aria-label', lit ? (S.water === 0 ? '경고: 물통이 비었어요' : '경고: 물이 거의 없어요') : '경고 표시: 지금은 이상 없음');
+  };
+  $('#warn').addEventListener('click', e => {
+    bloom(e.currentTarget, e);
+    toast(S.water <= 1 ? '물이 부족해요 · 세척 창에서 채울 수 있어요' : '이상 없음 · 원두와 물 모두 충분해요');
+  });
+  updateWater();
+
+  $('#power').addEventListener('click', e => {
+    if (S.brewing) stopBrew('power');
+    S.machineOn = !S.machineOn; e.currentTarget.setAttribute('aria-pressed', S.machineOn);
+    glass.classList.toggle('dark', !S.machineOn);
+    $$('.glass input, #start, #cleanBtn, #warn').forEach(el => el.disabled = !S.machineOn);
+    tone(S.machineOn ? 660 : 440, .25, 'sine', .05, S.machineOn ? 1.5 : .6);
+    if (S.machineOn) { setMsg('예열 중…', ''); setTimeout(() => { if (S.machineOn) { setMsg('준비됨'); } }, 1200); log('real', '기계를 켰다. 예열.'); }
+    else { setMsg('꺼짐', ''); bay.classList.remove('done'); log('real', '기계를 껐다.'); setTimeout(() => S.toyOn && say('기계는 자고 나는 안 자요!'), 500); }
+  });
+
+  let raf = null, t0 = 0, dur = 0, src = 'adult';
+  function startBrew(from = 'adult') {
+    if (!S.machineOn || S.brewing || S.cleaning) return;
+    if (S.water <= 0) { toast('물통이 비었어요'); return; }
+    S.brewing = true; src = from; tick();
+    const m = MENU[S.menu]; dur = m.sec * 1000 * (.85 + S.strength * .06);
+    $('#start').setAttribute('aria-pressed', 'true'); $('#startTxt').textContent = '멈춤';
+    bay.classList.remove('done'); bay.classList.add('pour');
+    $('#glasscup').style.setProperty('--lvl', '0%');
+    setMsg(`${m.ko} 추출 중`, `${S.cups === 2 ? '두 잔' : '한 잔'} · 농도 ${S.strength} · 0%`);
+    log('real', `${m.ko} ${S.cups === 2 ? '두 잔' : '한 잔'}을 내리기 시작했다.${from === 'toy' ? ' (주문: 장난감 계산대)' : ''}`);
+    t0 = performance.now();
+    const target = S.menu === 'espresso' ? 38 : S.menu === 'coffee' ? 82 : 76;
+    const step = now => {
+      const p = Math.min(1, (now - t0) / dur);
+      S.prog = p; $('#brewProg').value = Math.round(p * 100);
+      $('#glasscup').style.setProperty('--lvl', (target * p) + '%');
+      $('#msgSub').textContent = `${S.cups === 2 ? '두 잔' : '한 잔'} · 농도 ${S.strength} · ${Math.round(p * 100)}%`;
+      if (p < 1) raf = requestAnimationFrame(step); else finishBrew();
+    };
+    raf = requestAnimationFrame(step);
+    if (soundOn) { hum(); }
+  }
+  let humNode = null;
+  function hum() {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+    o.type = 'sawtooth'; o.frequency.value = 58; f.type = 'lowpass'; f.frequency.value = 240; g.gain.value = .0001;
+    g.gain.exponentialRampToValueAtTime(.05, ac.currentTime + .3);
+    o.connect(f).connect(g).connect(ac.destination); o.start(); humNode = { o, g };
+  }
+  function unhum() { if (humNode && ac) { humNode.g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + .2); humNode.o.stop(ac.currentTime + .25); humNode = null; } }
+  function endCommon() {
+    cancelAnimationFrame(raf); S.brewing = false; unhum();
+    bay.classList.remove('pour');
+    $('#start').setAttribute('aria-pressed', 'false'); $('#startTxt').textContent = '내리기';
+  }
+  function finishBrew() {
+    endCommon(); bay.classList.add('done');
+    S.water = Math.max(0, S.water - S.cups); updateWater();
+    const m = MENU[S.menu];
+    toast(`${m.ko}${S.cups === 2 ? ' 한 잔과 소꿉 한 잔' : ''} 준비됨`);
+    tone(1320, .12, 'sine', .05); setTimeout(() => tone(1760, .18, 'sine', .05), 150);
+    log('real', `${m.ko} 완료. ${m.ml}ml.`);
+    if (S.toyOn) setTimeout(() => say(S.cups === 2 ? '짠! 하나는 엄마 거, 하나는 내 거.' : '맛있게 드세요~!'), 600);
+    if (S.cups === 2) log('play', '소꿉 컵에 상상 커피가 가득 찼다.');
+    if (S.water <= 1) setTimeout(() => toast(S.water === 0 ? '물통이 비었어요' : '물이 거의 없어요'), 2800);
+    $('#brewProg').value = 100; setTimeout(() => { if (!S.brewing) $('#brewProg').value = 0; }, 1600);
+  }
+  function stopBrew(why) {
+    endCommon();
+    toast(why === 'power' ? '전원이 꺼져 멈췄어요' : `멈춤 · ${Math.round(S.prog * 100)}%에서`);
+    log('real', `${Math.round(S.prog * 100)}%에서 멈췄다. 아이가 컵을 흔들었다.`);
+    $('#brewProg').value = 0;
+  }
+  $('#start').addEventListener('click', () => { if (S.brewing) stopBrew(); else startBrew('adult'); });
+
+  /* ---------- cleaning dialog ---------- */
+  const dlg = $('#cleanDlg');
+  const needs = $$('.need', dlg);
+  const syncClean = () => { $('#cleanGo').disabled = S.cleaning || !needs.every(c => c.checked); };
+  needs.forEach(c => c.addEventListener('change', () => { syncClean(); glassTick(); }));
+  $('#c4').addEventListener('change', e => { toyClick(); if (e.target.checked) $('#cleanNote').textContent = '곰돌이: “뽀득뽀득!”'; });
+  $('#cleanBtn').addEventListener('click', () => {
+    if (S.brewing) { toast('추출이 끝난 뒤에 세척할 수 있어요'); return; }
+    needs.forEach(c => c.checked = false); $('#c4').checked = false; $('#cleanProg').value = 0; $('#cleanNote').textContent = ''; syncClean();
+    dlg.showModal();
+  });
+  $('#cleanCancel').addEventListener('click', () => dlg.close());
+  $('#cleanGo').addEventListener('click', () => {
+    S.cleaning = true; syncClean(); S.water = 5; updateWater();
+    $('#cleanNote').textContent = '물길을 헹구는 중…';
+    setMsg('세척 중', '물길 헹굼');
+    if (S.toyOn) { lcd('CLEAn', '청소 중'); say('나도 닦을래!'); }
+    log('real', '물통을 채우고 물길 세척을 시작했다.');
+    if ($('#c4').checked) log('play', '곰돌이 손을 씻겼다. 뽀득.');
+    bay.classList.add('pour', 'water'); bay.classList.remove('done');
+    $('#glasscup').style.setProperty('--lvl', '0%');
+    const st = performance.now(), D = 6000;
+    const step = now => {
+      const p = Math.min(1, (now - st) / D); $('#cleanProg').value = Math.round(p * 100);
+      if (p < 1) requestAnimationFrame(step);
+      else {
+        S.cleaning = false; bay.classList.remove('pour'); bay.classList.toggle('water', S.menu === 'water');
+        $('#cleanNote').textContent = '세척 완료. 물통 가득.'; syncClean();
+        tone(1320, .12, 'sine', .05);
+        setTimeout(() => { if (dlg.open) dlg.close(); toast('세척 완료 · 물통 가득'); }, 900);
+        if (S.toyOn) setTimeout(() => lcd(S.entry || '0'), 900);
+        tick(); log('real', '세척 끝. 물통 가득.');
+      }
+    };
+    requestAnimationFrame(step);
+  });
+  dlg.addEventListener('close', () => { $('#cleanBtn').focus({ preventScroll: true }); });
+
+  /* ---------- play box ---------- */
+  $$('input[name=cur]').forEach(r => r.addEventListener('change', () => {
+    S.cur = r.value; toyClick(); if (S.toyOn) { ann(S.cur); say(`이제 ${CUR[S.cur].ko}로 받아요.`); }
+  }));
+  $('#who').addEventListener('change', e => { toyClick(); say(`${e.target.value} 손님, 어서 오세요!`); });
+  $('#wantReceipt').addEventListener('change', toyClick);
+  $('#wantBag').addEventListener('change', toyClick);
+
+  /* ---------- layout: the receipt slit lines up with the toy's base ---------- */
+  const place = () => {
+    const obj = $('#object').getBoundingClientRect(), slit = $('.slit').getBoundingClientRect();
+    $('#object').style.setProperty('--slot-y', (slit.top - obj.top + 10) + 'px');
+    sizeSlider();
+  };
+  addEventListener('resize', place);
+  if (document.fonts) document.fonts.ready.then(place);
+  place();
+
+  /* ---------- the morning begins ---------- */
+  lcd('HELLO', '안녕'); ann('star');
+  setTimeout(() => { if (S.toyOn && !S.entry && !S.items.length) lcd('0'); }, 1400);
+  log('real', '기계 예열 완료. 준비됨.');
+  log('play', '계산대를 켰다. “어서 오세요!”');
+  log('both', '같은 조리대, 같은 아침. 위에서는 놀고 아래에서는 내린다.');
+})();
+</script>
+<script src="../systems-nav.js?v=20261101" defer></script>
+</body>
+</html>

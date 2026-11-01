@@ -936,6 +936,6 @@ pre.code { margin: 0; padding: 16px 18px; overflow-x: auto; font: 13.5px/1.65 va
   $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget; try { await navigator.clipboard.writeText($('#codeBlock').textContent); b.textContent = '복사했어요'; toast('copied'); } catch { b.textContent = '직접 선택해 주세요'; } setTimeout(() => b.textContent = '복사하기', 1800); });
 })();
 </script>
-<script src="../systems-nav.js?v=20261101c" defer></script>
+<script src="../systems-nav.js?v=20261101d" defer></script>
 </body>
 </html>

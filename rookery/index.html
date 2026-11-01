@@ -60,6 +60,7 @@ body {
   margin: 0; background: var(--feather); color: var(--text);
   font: 400 17px/1.75 var(--sans);
   overflow-x: clip; -webkit-font-smoothing: antialiased;
+  word-break: keep-all; overflow-wrap: anywhere;
 }
 img, svg { display: block; }
 a { color: var(--acc); text-underline-offset: 4px; }
@@ -88,7 +89,7 @@ p { margin: 0 0 1em; }
 .rail { position: fixed; top: 0; bottom: 96px; width: 40px; z-index: 30; pointer-events: none; display: none; }
 .rail.l { left: 0; bottom: 96px; }
 .rail.r { right: 0; bottom: 0; }
-@media (min-width: 1240px) { .rail { display: block; } }
+@media (min-width: 1240px) { .rail { display: block; } .toasts { right: 56px; } }
 .rail svg { width: 40px; height: 100%; }
 .rail .bg { fill: var(--feather); }
 .rail .tick { stroke: var(--dim); stroke-width: 1; opacity: .5; }
@@ -121,7 +122,7 @@ p { margin: 0 0 1em; }
 .hero .marks { margin-top: 18px; }
 .hero .cap { position: absolute; z-index: 2; right: 24px; bottom: 22px; max-width: 300px; color: var(--ink); background: rgba(243,240,233,.9); padding: 12px 16px; border-radius: 4px 18px 18px 18px; font-size: 16px; line-height: 1.5; }
 .hero .cap b { font-family: var(--mono); font-weight: 500; font-size: 14px; letter-spacing: .08em; display: block; color: var(--ink-dim); }
-@media (max-width: 640px) { .hero .cap { left: 16px; right: 16px; max-width: none; bottom: 16px; } }
+@media (max-width: 640px) { .hero .cap { left: 88px; right: 16px; max-width: none; bottom: 16px; font-size: 16px; } }
 
 /* ───── ice shelf edges between back and belly ───── */
 .shelf { position: relative; height: 74px; margin-top: -73px; z-index: 3; pointer-events: none; }
@@ -190,7 +191,8 @@ section { position: relative; overflow-x: clip; }
   background: var(--shadow); opacity: .45; border-radius: 50%;
   transform: skewX(-38deg); transform-origin: 0 0; transition: transform .14s, opacity .14s;
 }
-.belly .plate::after { opacity: .3; }
+.belly .plate::after, .ex .plate::after { opacity: .3; }
+.back .plate::after, .night .plate::after { opacity: .28; right: -12%; }
 .plate:hover { transform: scale(1.02, .98); }
 .plate:active, .plate.pressed { transform: scale(1.05, .9); box-shadow: inset 0 5px 0 var(--rim), inset 0 -2px 0 rgba(0,0,0,.14); }
 .plate:active::after { transform: skewX(-38deg) scaleX(.86); }
@@ -215,6 +217,8 @@ section { position: relative; overflow-x: clip; }
 .ex .was { font-size: 16px; color: var(--ink-dim); display: flex; flex-wrap: wrap; gap: 4px 14px; }
 .ex .was b { font-weight: 600; color: var(--ink); }
 .ex .spec { margin-top: 20px; padding-top: 14px; border-top: 1px dashed #b9b4a8; font: 400 15px/1.6 var(--mono); color: var(--ink-dim); }
+.ex .dim { color: var(--ink-dim); }
+.ex :focus-visible { outline-color: var(--ink); }
 .ex .row { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
 .ex .out { font: 500 16px var(--mono); color: var(--ink); }
 
@@ -329,8 +333,8 @@ section { position: relative; overflow-x: clip; }
 @media (max-width: 520px) { .brood { grid-template-columns: 1fr; } }
 .brood svg { width: 150px; height: 150px; }
 .meter { display: grid; gap: 10px; }
-.meter .bar { height: 30px; border-radius: 15px; background: #d3dde2; overflow: hidden; box-shadow: inset 0 4px 0 rgba(0,0,0,.15); }
-.meter .bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #7fb0c2, var(--acc)); border-radius: 15px; transition: width .6s cubic-bezier(.2,.8,.3,1); }
+.meter .gauge { height: 30px; border-radius: 15px; background: #d3dde2; overflow: hidden; box-shadow: inset 0 4px 0 rgba(0,0,0,.15); }
+.meter .gauge span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #7fb0c2, var(--acc)); border-radius: 15px; transition: width .6s cubic-bezier(.2,.8,.3,1); }
 .sunring { width: 150px; height: 150px; }
 
 /* tabs: species (each sets the accent) */
@@ -411,12 +415,12 @@ dialog .acts { display: flex; flex-wrap: wrap; gap: 18px; justify-content: flex-
 .prod { width: 100%; height: 180px; margin-bottom: 8px; background: #e6eaec; border-radius: 18px; }
 
 /* night (closing) */
-.night { position: relative; background: #070b10; color: var(--text); padding: 120px 0 80px; overflow: hidden; }
+.night { position: relative; background: #070b10; color: var(--text); padding: 120px 0 0; overflow: hidden; }
 .night > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .night .wrap { position: relative; z-index: 2; }
 .night h2 { color: #eef3ee; }
 .night .lede { color: #c5d2cc; }
-footer { position: relative; z-index: 2; border-top: 1px solid var(--line); margin-top: 120px; padding: 28px 0 40px; }
+footer { position: relative; z-index: 2; border-top: 1px solid var(--line); margin-top: 200px; padding: 28px 0 40px; background: #0b1016; }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: center; padding-left: 96px; }
 @media (max-width: 640px) { footer .wrap { padding-left: 24px; padding-bottom: 72px; } }
 footer a { min-height: 48px; display: inline-flex; align-items: center; }
@@ -426,7 +430,7 @@ footer a { min-height: 48px; display: inline-flex; align-items: center; }
 
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
 @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
-.stack { display: grid; gap: 22px; }
+.stack { display: grid; gap: 22px; align-content: start; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -447,7 +451,7 @@ footer a { min-height: 48px; display: inline-flex; align-items: center; }
       <path style="fill:var(--acc)" d="M57 25C62 29 67 35 69 44 64 46 59 41 55 34Z" />
       <path style="fill:var(--acc);opacity:.45" d="M70 38C66 45 65 52 66 58 69 54 70 46 70 38Z"/>
       <path style="fill:var(--pg-back,#0d1114)" d="M41 62C48 80 53 108 52 134 47 128 41 104 38 80Z"/>
-      <path style="fill:var(--pg-rim,#f4cf9c);opacity:.8" d="M36 26C38 14 43 7 50 6 45 9 41 15 39 26 37 40 37 58 34 74 32 100 31 140 34 186L32 187C28 160 28 110 32 74 34 56 34 40 36 26Z"/>
+      <path style="fill:var(--pg-rim,#f4cf9c);opacity:.55" d="M36 26C38 14 43 7 50 6 45 9 41 15 39 26 37 40 37 58 34 74 32 100 31 140 34 186L32 187C28 160 28 110 32 74 34 56 34 40 36 26Z"/>
       <path fill="#2a2a2a" d="M72 22L95 31 86 32 72 30Z" opacity=".6"/>
     </symbol>
     <!-- front view, 100×200 -->
@@ -561,19 +565,19 @@ footer a { min-height: 48px; display: inline-flex; align-items: center; }
     <!-- shore + hill with the mast -->
     <path fill="#cbd0db" d="M0 612C110 560 230 518 330 520 420 524 500 572 600 620L0 700Z"/>
     <path fill="#e7d2c6" opacity=".55" d="M330 520C230 518 110 560 0 612V620C110 572 230 530 330 526Z"/>
-    <g stroke="#2a2f38" stroke-width="2.4" fill="none">
+    <g transform="translate(1190 40)"><g stroke="#2a2f38" stroke-width="2.4" fill="none">
       <path d="M300 522L312 250 324 522M304 440L320 440M306 380L318 380M308 320L316 320M302 480l20-40M304 440l14-60M306 380l10-60"/>
       <path d="M312 250L200 560M312 250L430 560M312 330L240 556M312 330L380 556" stroke-width="1" opacity=".55"/>
     </g>
     <g fill="#8e3a30" opacity=".85"><rect x="308" y="270" width="8" height="18"/><rect x="306" y="320" width="12" height="16"/></g>
-    <circle cx="312" cy="248" r="3" fill="#c04030"/>
+    <circle cx="312" cy="248" r="3" fill="#c04030"/></g>
     <!-- satellite dish, half full of snow -->
-    <g transform="translate(410 520) rotate(-28)">
+    <g transform="translate(455 566) rotate(-24)">
       <path d="M-40 0A40 16 0 0 0 40 0Z" fill="#9aa0ac"/>
       <path d="M-40 0A40 16 0 0 1 40 0" fill="#e7e9ee"/>
       <path d="M0 -1L6 -34" stroke="#3a3f47" stroke-width="2.5"/>
     </g>
-    <path fill="#cbd0db" d="M392 534L430 528 440 548 386 552Z"/>
+    <path fill="#cbd0db" d="M436 580L476 572 486 592 430 596Z"/>
     <!-- town land -->
     <path fill="#d7d9e1" d="M0 690C160 650 340 640 520 640 700 640 820 628 980 640 1160 652 1320 626 1600 640V1000H0Z"/>
     <!-- houses: built by JS-free markup, backlit (front faces in shade, roofs rim-lit) -->
@@ -943,7 +947,7 @@ footer a { min-height: 48px; display: inline-flex; align-items: center; }
           <svg viewBox="0 0 150 150" aria-hidden="true"><ellipse cx="75" cy="128" rx="64" ry="16" fill="#1c1f23"/><ellipse cx="75" cy="124" rx="38" ry="8" fill="#c6cdd8"/><path d="M40 122c6-6 14-8 20-4M90 118c6-4 14-2 20 4" stroke="#c46a2a" stroke-width="7" stroke-linecap="round" fill="none"/><ellipse id="egg" cx="75" cy="98" rx="20" ry="25" fill="#cfdde4"/><path d="M20 70C30 40 120 40 130 70 120 80 100 86 75 86 50 86 30 80 20 70Z" fill="#0d1114"/><path d="M28 72C40 62 110 62 122 72 110 78 96 80 75 80 54 80 40 78 28 72Z" fill="#f3f0e9"/></svg>
           <div class="meter">
             <span id="eggLbl"><b>알 온도</b></span>
-            <div class="bar" role="progressbar" aria-labelledby="eggLbl" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="40%, 아직 차갑다" id="eggBar"><span></span></div>
+            <div class="gauge" role="progressbar" aria-labelledby="eggLbl" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="40%, 아직 차갑다" id="eggBar"><span></span></div>
             <span class="out" id="eggOut">40% · 아직 차갑다</span>
             <div class="row"><button class="plate" type="button" id="eggBtn"><span class="mk" data-mark="9" aria-hidden="true"></span>배 주름으로 덮기</button></div>
           </div>
@@ -1034,12 +1038,16 @@ footer a { min-height: 48px; display: inline-flex; align-items: center; }
 <section class="night" aria-labelledby="h-night">
   <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <defs>
-      <linearGradient id="aur" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#8fdcb8" stop-opacity=".55"/><stop offset=".6" stop-color="#5fb894" stop-opacity=".18"/><stop offset="1" stop-color="#5fb894" stop-opacity="0"/></linearGradient>
+      <linearGradient id="aurS" gradientUnits="userSpaceOnUse" x1="0" y1="460" x2="0" y2="120"><stop offset="0" stop-color="#9ff0c8" stop-opacity=".9"/><stop offset=".45" stop-color="#5fc49a" stop-opacity=".35"/><stop offset="1" stop-color="#7a6fc0" stop-opacity="0"/></linearGradient>
     </defs>
-    <path class="aur" fill="url(#aur)" d="M0 420C200 360 360 420 560 380 760 340 900 260 1100 300 1300 340 1440 280 1600 300V0H0Z" opacity=".6"/>
-    <path class="aur" fill="url(#aur)" d="M200 460C400 420 560 380 760 400 960 420 1120 360 1400 380V60H200Z" opacity=".35"/>
-    <path fill="#0d141b" d="M0 700L120 660 240 690 380 640 520 680 680 650 860 690 1040 640 1200 680 1380 650 1600 690V900H0Z"/>
-    <path fill="#151d26" d="M0 780C300 760 600 770 900 772 1200 774 1400 760 1600 770V900H0Z"/>
+    <filter id="soft" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="3.5"/></filter>
+    <g filter="url(#soft)">
+      <path d="M-60 300C180 220 420 340 700 280 980 220 1220 320 1660 230" stroke="url(#aurS)" stroke-width="220" fill="none" stroke-dasharray="4 11" opacity="1"/>
+      <path d="M200 380C420 330 640 400 900 360 1160 320 1360 380 1660 330" stroke="url(#aurS)" stroke-width="160" fill="none" stroke-dasharray="3 14" opacity=".8"/>
+      <path d="M-60 420C200 380 480 440 760 400 1040 360 1300 420 1660 380" stroke="#8fdcb8" stroke-width="10" fill="none" opacity=".35"/>
+    </g>
+    <path fill="#0d141b" d="M0 640L120 610 240 636 380 596 520 630 680 606 860 640 1040 600 1200 630 1380 604 1600 636V900H0Z"/>
+    <path fill="#16202a" d="M0 700C300 684 600 690 900 692 1200 694 1400 684 1600 690V900H0Z"/><path d="M0 700C300 684 600 690 900 692 1200 694 1400 684 1600 690" stroke="#8fdcb8" stroke-opacity=".25" fill="none"/>
     <g id="nightColony"></g>
   </svg>
   <div class="wrap">
@@ -1128,29 +1136,27 @@ footer a { min-height: 48px; display: inline-flex; align-items: center; }
     u.setAttribute('width', w); u.setAttribute('height', h);
     u.setAttribute('x', -w / 2); u.setAttribute('y', -h);
     u.setAttribute('transform', `translate(${x} ${y + 2}) scale(${flip ? -1 : 1} 1)`);
-    u.style.setProperty('--pg-belly', kind === 'f' ? '#c9d0db' : '#dfe3ea');
+    u.style.setProperty('--pg-belly', kind === 'f' ? '#9aa4b4' : '#c4cbd6'); u.style.setProperty('--pg-back', '#0e1216');
     g.appendChild(u);
   }
   const col = $('#colony');
+  const gauss = () => { let u = 0; for (let i = 0; i < 4; i++) u += rnd(); return (u - 2) / .58; };
+  const sAt = y => .1 + Math.max(0, y - 700) / 260 * .7;
   const birds = [];
-  for (let r = 0; r < 9; r++) {
-    const t = r / 8, y = 712 + t * t * 230 + t * 10, s = .14 + t * .62;
-    const n = Math.round(14 - t * 8);
-    const span = 300 + t * 360, cx = 870 + (r % 2 ? 30 : -40);
-    for (let i = 0; i < n; i++) {
-      const x = cx - span + (i + rnd() * .6) * (2 * span / n);
-      if (r > 5 && Math.abs(x - 880) < 60 && rnd() < .6) continue;
-      birds.push([x, y + rnd() * 12 * (t + .2), s * (.86 + rnd() * .2), rnd() < .35 ? 'f' : 's', rnd() < .5]);
-    }
-  }
-  birds.sort((a, b) => a[1] - b[1]).forEach(b => addPenguin(col, b[0], b[1], b[2], b[3], b[4], .32));
-  // a lone adult with an egg-tyre near the right, and two on the dish
+  const cluster = (cx, cy, sx, sy, n, front) => { for (let i = 0; i < n; i++) { const y = cy + Math.abs(gauss()) * sy, x = cx + gauss() * sx; birds.push([x, y, sAt(y) * (.9 + rnd() * .16), rnd() < front ? 'f' : 's', rnd() < .5]); } };
+  cluster(880, 706, 170, 10, 46, .3);   // the colony proper, packed under the town
+  cluster(640, 744, 60, 10, 12, .25);   // a group walking in from the sea ice
+  cluster(1150, 738, 70, 9, 10, .25);
+  cluster(860, 790, 50, 10, 6, .3);
+  // a few close, separate adults
+  [[470, 900, 's', false], [715, 932, 's', true], [1012, 968, 's', true], [1190, 902, 'f', false], [590, 842, 's', false], [960, 858, 'f', false]].forEach(b => birds.push([b[0], b[1], sAt(b[1]), b[2], b[3]]));
+  birds.sort((a, b) => a[1] - b[1]).forEach(b => addPenguin(col, b[0], b[1], b[2], b[3], b[4], .3));
   addPenguin(col, 1350, 872, .62, 's', true, .3);
 
   // night colony: a huddle, tight
   const nc = $('#nightColony');
   const hb = [];
-  for (let i = 0; i < 46; i++) { const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * 1; hb.push([1100 + Math.cos(a) * rr * 210, 790 + Math.sin(a) * rr * 34, .34 + rnd() * .06, rnd() < .55 ? 'f' : 's', rnd() < .5]); }
+  for (let i = 0; i < 46; i++) { const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * 1; hb.push([1180 + Math.cos(a) * rr * 170, 740 + Math.sin(a) * rr * 26, .34 + rnd() * .06, rnd() < .55 ? 'f' : 's', rnd() < .5]); }
   hb.sort((a, b) => a[1] - b[1]).forEach(b => {
     const u = document.createElementNS(NS, 'use'); const w = 100 * b[2], h = 200 * b[2];
     u.setAttribute('href', b[3] === 'f' ? '#pg-front' : '#pg-side'); u.setAttribute('width', w); u.setAttribute('height', h);
@@ -1256,14 +1262,14 @@ footer a { min-height: 48px; display: inline-flex; align-items: center; }
   sw.addEventListener('click', () => { const v = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', v); $('#slideState').textContent = v ? '배로 미끄러진다' : '걸어서 간다'; });
 
   /* ── huddle radios ── */
-  const SPOTS = [['바람맞이', '−31°', [[30, 48]]], ['가장자리', '−4°', [[52, 30]]], ['한가운데', '+37°', [[60, 48]]]];
+  const SPOTS = [['바람맞이', '−31°'], ['바람 그늘 가장자리', '−4°'], ['한가운데', '+37°']];
   const hf = $('#huddle');
-  const ring = [[60, 48], [44, 40], [76, 40], [44, 58], [76, 58], [60, 30], [60, 66], [30, 48], [90, 48], [52, 30], [68, 30], [52, 68], [68, 68], [36, 30], [84, 30], [36, 66], [84, 66]];
+  const hex = []; [4, 5, 6, 5, 4].forEach((n, r) => { for (let c = 0; c < n; c++) hex.push([60 + (c - (n - 1) / 2) * 15, 20 + r * 14]); });
+  const ME = [hex[9], hex[14], hex[11]]; // windward edge, lee edge, centre
   SPOTS.forEach((sp, i) => {
-    const me = sp[2][0];
-    let c = ''; ring.forEach(p => { if (p[0] === me[0] && p[1] === me[1]) return; c += `<ellipse class="pg" cx="${p[0]}" cy="${p[1]}" rx="8" ry="7" fill="#454e55" stroke="#6b757e"/>`; });
-    if (!ring.some(p => p[0] === me[0] && p[1] === me[1])) {}
-    hf.insertAdjacentHTML('beforeend', `<label class="spot"><input type="radio" name="spot" value="${i}" ${i === 0 ? 'checked' : ''}><svg viewBox="0 0 110 96" aria-hidden="true"><path d="M2 20h14M0 48h14M2 76h14" stroke="#7fb0c2" stroke-width="2.5" stroke-linecap="round"/>${c}<ellipse class="me" cx="${me[0]}" cy="${me[1]}" rx="8" ry="7"/></svg><b>${sp[0]}</b><span class="t">${sp[1]}</span></label>`);
+    const me = ME[i];
+    let c = ''; hex.forEach(p => { if (p === me) return; c += `<ellipse class="pg" cx="${p[0]}" cy="${p[1]}" rx="7.5" ry="6.5" fill="#454e55" stroke="#6b757e"/>`; });
+    hf.insertAdjacentHTML('beforeend', `<label class="spot"><input type="radio" name="spot" value="${i}" ${i === 0 ? 'checked' : ''}><svg viewBox="0 0 110 96" aria-hidden="true"><path d="M2 30h14M0 48h14M2 66h14" stroke="#7fb0c2" stroke-width="2.5" stroke-linecap="round"/>${c}<ellipse class="me" cx="${me[0]}" cy="${me[1]}" rx="7.5" ry="6.5"/></svg><b>${sp[0]}</b><span class="t">${sp[1]}</span></label>`);
   });
   let huddleTimer;
   hf.addEventListener('change', e => {
@@ -1342,7 +1348,7 @@ footer a { min-height: 48px; display: inline-flex; align-items: center; }
   wk.addEventListener('input', sunUp); sunUp();
 
   /* ── migration steps ── */
-  const steps = $$('#steps li'); let cur = 4;
+  const steps = $$('#steps li'); let cur = 2;
   const swim = $('#swim'), sl = swim.getTotalLength();
   const dots = $('#stepDots'); const SP_AT = [0, .3, .55, .78, 1];
   SP_AT.forEach((f, i) => { const p = swim.getPointAtLength(f * sl); dots.insertAdjacentHTML('beforeend', `<circle cx="${p.x}" cy="${p.y}" r="9" fill="#111518" stroke="#b3bcc0" stroke-width="2" data-i="${i}"/>`); });
@@ -1415,6 +1421,6 @@ footer a { min-height: 48px; display: inline-flex; align-items: center; }
   dlg.addEventListener('close', () => { if (dlg.returnValue === 'yes') { toast('허들을 불렀다', '바깥 자리부터 차례로. 오늘 밤은 아무도 혼자 서지 않는다.'); call(.95); } else if (dlg.returnValue === 'no') toast('조금 더 기다린다', '바다에 나간 이들이 아직 돌아오는 중.'); });
 })();
 </script>
-<script src="../systems-nav.js?v=20261101c" defer></script>
+<script src="../systems-nav.js?v=20261101d" defer></script>
 </body>
 </html>

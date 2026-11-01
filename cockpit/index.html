@@ -1,0 +1,1472 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cockpit 디자인 시스템</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Oxanium:wght@500;600;700&family=Saira+Condensed:wght@500;600;700;800&display=swap">
+<style>
+/* Cockpit: the pilot's seat of a giant mecha, MF-07 "하늘매".
+   You sit inside a sealed armoured block; a 360° panoramic monitor wraps around you, tiled from flat panels.
+   Everything you touch is a console part: backlit armoured keys, knurled knobs, guarded toggles, an eject handle.
+   Everything you read is one HUD line language: 1.5px phosphor-green strokes, corner brackets, tick ladders.
+   Green = yours / OK, cool blue = friendly, amber = caution, signal red = threat. Motion snaps and locks; nothing floats. */
+:root {
+  color-scheme: dark;
+  --pl-0: #070b14; --pl-1: #0d1422; --pl-2: #141d30; --pl-3: #1c273d; --pl-4: #27354f;
+  --seam: #2c3a55; --seam-2: #44567a; --bolt: #8796b0;
+  --scr: #050d13; --scr-2: #08161b;
+  --hud: #6cf5a0; --hud-2: #3fcf80; --hud-dim: #2b6d4c; --hud-wash: rgba(108,245,160,.1); --hud-glow: rgba(108,245,160,.55);
+  --ally: #8cd2ff; --ally-d: #2f7fb8; --ally-wash: rgba(140,210,255,.12);
+  --amb: #ffb21e; --amb-d: #9c6400; --amb-wash: rgba(255,178,30,.13);
+  --red: #ff4655; --red-d: #a3121f; --red-wash: rgba(255,70,85,.14);
+  --haz: #f5c400; --haz-k: #121212;
+  --tx: #e3ebf7; --tx-2: #b3c1d6; --tx-3: #8b9cb6;
+  --snap: cubic-bezier(.2,1.3,.4,1); --slide: cubic-bezier(.7,0,.2,1); --lock: cubic-bezier(.5,0,.2,1.4);
+  --hazard: repeating-linear-gradient(-45deg, var(--haz) 0 10px, var(--haz-k) 10px 20px);
+  --font-kr: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-c: "Saira Condensed", "Noto Sans KR", sans-serif;
+  --font-n: "Oxanium", "Saira Condensed", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--pl-0); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
+body { margin: 0; color: var(--tx); font: 400 16.5px/1.75 var(--font-kr); word-break: keep-all; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  background: radial-gradient(ellipse 1200px 700px at 50% 0%, #13203a, transparent 70%) no-repeat, var(--pl-0); }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; background: repeating-linear-gradient(0deg, rgba(140,180,255,.018) 0 1px, transparent 1px 4px); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--hud); text-underline-offset: 3px; }
+code { font: 500 .86em var(--font-n); background: var(--pl-3); color: var(--hud); padding: 1px 6px; border-radius: 3px; }
+.wrap { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--amb); outline-offset: 4px; border-radius: 3px; }
+.lat { font: 600 13px/1 var(--font-c); letter-spacing: .16em; text-transform: uppercase; color: var(--tx-3); }
+.num { font-family: var(--font-n); font-variant-numeric: tabular-nums; }
+
+/* One bracket language: four L-corners in HUD green. Used on screens, cards, focus states. */
+.bk { position: relative; }
+.bk::after { content: ""; position: absolute; inset: var(--bi, 0); pointer-events: none; --c: var(--bc, var(--hud)); --l: var(--bl, 14px); --w: var(--bw, 2px);
+  background: linear-gradient(var(--c) 0 0) 0 0/var(--l) var(--w), linear-gradient(var(--c) 0 0) 0 0/var(--w) var(--l), linear-gradient(var(--c) 0 0) 100% 0/var(--l) var(--w), linear-gradient(var(--c) 0 0) 100% 0/var(--w) var(--l),
+    linear-gradient(var(--c) 0 0) 0 100%/var(--l) var(--w), linear-gradient(var(--c) 0 0) 0 100%/var(--w) var(--l), linear-gradient(var(--c) 0 0) 100% 100%/var(--l) var(--w), linear-gradient(var(--c) 0 0) 100% 100%/var(--w) var(--l);
+  background-repeat: no-repeat; transition: inset .25s var(--snap); }
+
+/* ---------- Overhead strip (nav) ---------- */
+.top { position: sticky; top: 0; z-index: 40; background: linear-gradient(#141d30, #0c1321); border-bottom: 1px solid var(--seam-2); box-shadow: 0 6px 18px rgba(0,0,0,.55); }
+.top::after { content: ""; position: absolute; left: 0; right: 0; bottom: -5px; height: 4px; background: repeating-linear-gradient(90deg, var(--seam-2) 0 1px, transparent 1px 12px); opacity: .7; pointer-events: none; }
+.top .wrap { display: flex; align-items: center; gap: 16px; min-height: 60px; }
+.brand { flex: none; display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--tx); }
+.brand i { width: 12px; height: 12px; border-radius: 50%; background: var(--hud); box-shadow: 0 0 10px var(--hud-glow), inset 0 -2px 0 rgba(0,0,0,.3); animation: lamp 2.4s steps(1) infinite; }
+@keyframes lamp { 85% { opacity: .35; } }
+.brand b { font: 800 20px/1 var(--font-c); letter-spacing: .1em; }
+.brand span { font: 700 14px/1 var(--font-kr); color: var(--tx-2); }
+.top nav { margin-left: auto; display: flex; gap: 2px; }
+.top nav a { position: relative; display: grid; place-items: center; min-height: 44px; padding: 0 11px; color: var(--tx-2); text-decoration: none; font: 700 14.5px/1 var(--font-kr); }
+.top nav a small { display: block; font: 600 10.5px/1 var(--font-n); color: var(--tx-3); letter-spacing: .08em; margin-bottom: 3px; text-align: center; }
+.top nav a:hover { color: var(--tx); }
+.top nav a[aria-current="true"] { color: var(--hud); text-shadow: 0 0 10px var(--hud-glow); }
+.top nav a[aria-current="true"] small { color: var(--hud); }
+.top nav a[aria-current="true"]::before { content: ""; position: absolute; inset: 4px 2px; --c: var(--hud);
+  background: linear-gradient(var(--c) 0 0) 0 0/8px 2px, linear-gradient(var(--c) 0 0) 0 0/2px 8px, linear-gradient(var(--c) 0 0) 100% 100%/8px 2px, linear-gradient(var(--c) 0 0) 100% 100%/2px 8px; background-repeat: no-repeat; }
+.top__sys { margin-left: auto; display: none; font: 600 13px/1 var(--font-n); color: var(--hud); letter-spacing: .08em; }
+@media (max-width: 1020px) { .top nav { display: none; } .top__sys { display: block; } }
+
+/* ---------- Hero: the panoramic monitor ---------- */
+.hero { position: relative; overflow-x: clip; padding-block: 0 0; }
+.mon { --hx: 64%; --hy: 46%; position: relative; height: clamp(620px, 86vh, 790px); overflow: hidden; background: #03060d; border-bottom: 1px solid var(--seam-2); touch-action: pan-y; }
+.mon__sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.mon__sky .tw { animation: tw 3s steps(2) infinite; }
+@keyframes tw { 50% { opacity: .25; } }
+/* flat monitor tiles: seams, tile ids, faint scanlines and a barrel vignette */
+.mon__tiles { position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px),
+    linear-gradient(90deg, transparent calc(20% - 1px), rgba(170,200,240,.13) calc(20% - 1px) 20%, transparent 20% calc(40% - 1px), rgba(170,200,240,.13) calc(40% - 1px) 40%, transparent 40% calc(60% - 1px), rgba(170,200,240,.13) calc(60% - 1px) 60%, transparent 60% calc(80% - 1px), rgba(170,200,240,.13) calc(80% - 1px) 80%, transparent 80%),
+    radial-gradient(ellipse 75% 85% at 50% 50%, transparent 55%, rgba(0,0,0,.6)); }
+.mon__tiles span { position: absolute; bottom: 10px; white-space: nowrap; font: 600 10px/1 var(--font-n); color: rgba(170,200,240,.45); letter-spacing: .1em; transform: translateX(-50%); }
+.mon__hud { position: absolute; inset: 0; z-index: 2; pointer-events: none; color: var(--hud); }
+/* heading tape across the top */
+.htape { position: absolute; top: 18px; left: var(--hx); width: min(440px, 70vw); height: 46px; transform: translateX(-50%); overflow: hidden;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); }
+.htape__in { position: absolute; top: 0; left: 50%; height: 100%; }
+.htape__in i { position: absolute; top: 0; width: 1.5px; height: 8px; background: var(--hud); }
+.htape__in i.l { height: 14px; }
+.htape__in b { position: absolute; top: 18px; font: 600 12px/1 var(--font-n); transform: translateX(-50%); text-shadow: 0 0 6px var(--hud-glow); }
+.hcaret { position: absolute; top: 60px; left: var(--hx); transform: translateX(-50%); padding: 3px 8px; border: 1.5px solid var(--hud); background: rgba(5,13,19,.7); font: 700 14px/1 var(--font-n); color: var(--hud); }
+/* speed / altitude tapes */
+.vtape { position: absolute; top: calc(var(--hy) - 140px); width: 86px; height: 280px; overflow: hidden; -webkit-mask: linear-gradient(transparent, #000 15%, #000 85%, transparent); mask: linear-gradient(transparent, #000 15%, #000 85%, transparent); }
+.vtape--l { left: calc(var(--hx) - 252px); } .vtape--r { left: calc(var(--hx) + 190px); }
+.vtape__in { position: absolute; left: 0; right: 0; top: 50%; }
+.vtape__in i { position: absolute; width: 10px; height: 1.5px; background: var(--hud); }
+.vtape__in i.l { width: 18px; }
+.vtape__in b { position: absolute; font: 600 12.5px/1 var(--font-n); transform: translateY(-50%); }
+.vtape--l i { right: 0; } .vtape--l b { right: 24px; }
+.vtape--r i { left: 0; } .vtape--r b { left: 24px; }
+.vbox { position: absolute; top: calc(var(--hy) - 15px); min-width: 74px; padding: 6px 8px; border: 1.5px solid var(--hud); background: rgba(5,13,19,.85); font: 700 15px/1 var(--font-n); text-align: center; }
+.vbox small { display: block; font: 600 9.5px/1 var(--font-c); letter-spacing: .14em; color: var(--hud-2); margin-bottom: 3px; }
+.vbox--l { left: calc(var(--hx) - 252px); } .vbox--r { left: calc(var(--hx) + 200px); }
+/* pitch ladder (artificial horizon), rolls with your aim */
+.ladder { position: absolute; left: var(--hx); top: var(--hy); width: 360px; height: 280px; margin: -140px 0 0 -180px; overflow: visible; transition: transform .12s linear; }
+.ladder line, .ladder path { stroke: var(--hud); stroke-width: 1.5; fill: none; }
+.ladder text { fill: var(--hud); font: 600 11px var(--font-n); }
+.ladder .neg { stroke-dasharray: 6 5; }
+.fpm { position: absolute; left: var(--hx); top: var(--hy); width: 60px; height: 30px; margin: -15px 0 0 -30px; }
+.fpm circle, .fpm path { stroke: var(--hud); stroke-width: 1.8; fill: none; }
+/* targets */
+.tgt { position: absolute; z-index: 3; width: 64px; height: 64px; margin: -32px 0 0 -32px; pointer-events: none; color: var(--red); transition: color .15s; }
+.tgt svg { width: 100%; height: 100%; overflow: visible; transition: transform .25s var(--lock); }
+.tgt svg * { stroke: currentColor; fill: none; stroke-width: 2; }
+.tgt span { position: absolute; left: 70px; top: 6px; white-space: nowrap; font: 600 12px/1.35 var(--font-n); letter-spacing: .04em; text-shadow: 0 0 6px rgba(0,0,0,.9); }
+.tgt span b { display: block; font: 700 13px/1.3 var(--font-kr); }
+.tgt.locked svg { transform: scale(.72) rotate(45deg); }
+.tgt.locked span::after { content: "LOCK"; display: inline-block; margin-top: 3px; padding: 1px 6px; background: var(--red); color: #1a0306; font-weight: 700; }
+.tgt--ally { color: var(--ally); }
+.tgt--e1 { left: 86%; top: 20%; } .tgt--e2 { left: 79%; top: 80%; } .tgt--a1 { left: 50%; top: 72%; }
+.tgt--e1 span, .tgt--e2 span { left: auto; right: 70px; text-align: right; }
+/* the reticle */
+.ret { position: absolute; z-index: 4; left: 0; top: 0; width: 132px; height: 132px; margin: -66px 0 0 -66px; pointer-events: none; color: var(--hud); will-change: transform; }
+.ret svg { width: 100%; height: 100%; overflow: visible; }
+.ret svg * { stroke: currentColor; fill: none; }
+.ret .spin { transform-origin: 66px 66px; animation: spin 9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ret .snapg { transform-origin: 66px 66px; transition: transform .22s var(--lock); }
+.ret.locked { color: var(--red); }
+.ret.locked .snapg { transform: rotate(45deg) scale(.78); }
+.ret.locked .spin { animation-duration: 1.4s; }
+.ret [data-w] { display: none; }
+html[data-weapon="rifle"] .ret [data-w="rifle"], html[data-weapon="shield"] .ret [data-w="shield"], html[data-weapon="blade"] .ret [data-w="blade"] { display: inline; }
+.ret__t { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); margin-top: 4px; font: 700 11px/1 var(--font-n); letter-spacing: .14em; white-space: nowrap; }
+/* radar */
+.radar { position: absolute; z-index: 3; right: 24px; bottom: 46px; width: 170px; height: 170px; border-radius: 50%; border: 1.5px solid var(--hud); overflow: hidden;
+  background: radial-gradient(circle, transparent 0 32%, rgba(108,245,160,.35) 32% calc(32% + 1px), transparent calc(32% + 1px) 64%, rgba(108,245,160,.35) 64% calc(64% + 1px), transparent calc(64% + 1px)),
+    linear-gradient(transparent calc(50% - .5px), rgba(108,245,160,.3) calc(50% - .5px) calc(50% + .5px), transparent calc(50% + .5px)), linear-gradient(90deg, transparent calc(50% - .5px), rgba(108,245,160,.3) calc(50% - .5px) calc(50% + .5px), transparent calc(50% + .5px)), rgba(4,14,14,.78); }
+.radar::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(108,245,160,.45), rgba(108,245,160,0) 70deg, transparent); animation: spin 3.2s linear infinite; }
+.radar i { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; background: var(--red); transform: rotate(45deg); box-shadow: 0 0 8px var(--red); }
+.radar i.a { background: var(--ally); border-radius: 50%; transform: none; box-shadow: 0 0 8px var(--ally); }
+.radar i.me { width: 0; height: 0; margin: -7px 0 0 -6px; background: none; transform: none; box-shadow: none; border: 6px solid transparent; border-bottom: 12px solid var(--hud); border-top: 0; }
+.radar__l { position: absolute; z-index: 3; right: 24px; bottom: 222px; width: 170px; display: flex; justify-content: space-between; font: 600 11px/1 var(--font-n); color: var(--hud); letter-spacing: .1em; }
+/* readouts in the monitor corners */
+.ro { position: absolute; z-index: 3; font: 600 12.5px/1.65 var(--font-n); color: var(--hud); letter-spacing: .05em; text-shadow: 0 0 6px rgba(0,0,0,.8); }
+.ro b { color: var(--tx); font-weight: 600; }
+.ro--tr { right: 24px; top: 24px; text-align: right; }
+.ro--bl { left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 22px; white-space: nowrap; }
+.ro--bl span { padding: 3px 10px; border: 1.5px solid var(--hud-dim); background: rgba(5,13,19,.7); }
+.ro--bl .w { color: var(--amb); border-color: var(--amb-d); }
+/* the copy block sits on the left tiles like a pilot briefing card */
+.mon__copy { position: absolute; z-index: 5; left: max(24px, 5vw); top: 50%; transform: translateY(-52%); width: min(460px, 40vw); padding: 28px 28px 30px; background: linear-gradient(rgba(8,14,26,.82), rgba(8,14,26,.68)); border-left: 3px solid var(--hud); backdrop-filter: blur(3px); }
+.mon__copy .k { display: flex; align-items: center; gap: 10px; font: 700 13px/1 var(--font-c); letter-spacing: .2em; color: var(--hud); text-transform: uppercase; }
+.mon__copy .k::before { content: ""; width: 26px; height: 2px; background: var(--hud); }
+.mon__copy h1 { margin-top: 14px; font: 900 clamp(60px, 8.4vw, 104px)/.92 var(--font-kr); letter-spacing: -.02em; color: var(--tx); }
+.mon__copy h1 span { display: block; margin-top: 10px; font: 700 clamp(22px, 2.6vw, 30px)/1 var(--font-c); letter-spacing: .32em; color: var(--hud); text-shadow: 0 0 14px var(--hud-glow); }
+.mon__copy p { margin-top: 18px; color: var(--tx-2); font-size: 16.5px; }
+.mon__cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 24px; }
+@media (max-width: 860px) {
+  .mon { --hx: 50%; --hy: 27%; height: auto; min-height: 860px; }
+  .mon__copy { position: absolute; left: 16px; right: 16px; top: auto; bottom: 64px; width: auto; transform: none; padding: 22px 18px 24px; }
+  .vtape, .vbox, .ro--tr { display: none; }
+  .radar { width: 100px; height: 100px; right: auto; left: 12px; top: 96px; bottom: auto; }
+  .radar__l { display: none; }
+  .ladder { width: 300px; margin-left: -150px; }
+  .tgt--e1 { left: 82%; top: 13%; } .tgt--e2 { left: 14%; top: 38%; } .tgt--a1 { left: 84%; top: 45%; }
+  .tgt span { font-size: 11px; } .tgt--e2 span { display: none; }
+  .tgt--a1 span { left: auto; right: 62px; text-align: right; }
+  .ro--bl { gap: 8px; font-size: 11px; }
+}
+
+/* dashboard under the monitor: what the pilot sees at knee height */
+.dash { position: relative; z-index: 2; background: linear-gradient(#1a2438, #0f1626); border-bottom: 1px solid var(--seam-2); }
+.dash::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--hazard); opacity: .9; }
+.dash .wrap { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; padding-block: 22px 18px; }
+.dash__c { padding: 6px 18px; border-left: 1px solid var(--seam); display: grid; gap: 4px; align-content: start; min-width: 0; }
+.dash__c:first-child { border-left: 0; padding-left: 0; }
+.dash__c .v { font: 700 26px/1.1 var(--font-n); color: var(--tx); }
+.dash__c .v small { font-size: 14px; color: var(--tx-3); margin-left: 3px; }
+.dash__c .s { font-size: 14px; color: var(--tx-2); }
+.dash__mini { display: flex; gap: 14px; align-items: center; }
+.dash__mini svg { width: 64px; height: 84px; flex: none; }
+.minibar { height: 10px; display: flex; gap: 2px; margin-top: 6px; }
+.minibar i { flex: 1; background: var(--pl-4); }
+.minibar i.on { background: var(--hud); box-shadow: 0 0 6px var(--hud-glow); }
+@media (max-width: 760px) { .dash .wrap { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 16px; } .dash__c:nth-child(3) { border-left: 0; padding-left: 0; } .dash__c { padding: 6px 12px; } }
+
+/* screen shake for the launch, cancelled by reduced motion */
+.shake { animation: shake .5s steps(8) 1; }
+@keyframes shake { 0%, 100% { transform: none; } 15% { transform: translate(-5px, 3px); } 30% { transform: translate(5px, -3px); } 45% { transform: translate(-4px, -2px); } 60% { transform: translate(3px, 3px); } 75% { transform: translate(-2px, 1px); } }
+
+/* ---------- Sections ---------- */
+section.ch { padding-block: 96px 8px; scroll-margin-top: 70px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 34px; }
+.ch__head { display: grid; gap: 14px; }
+.ch__code { display: flex; align-items: center; gap: 12px; font: 700 14px/1 var(--font-c); letter-spacing: .22em; color: var(--hud); }
+.ch__code b { padding: 5px 10px; background: var(--hud); color: #04150c; letter-spacing: .1em; }
+.ch__code em { font-style: normal; margin-left: auto; padding: 5px 10px 5px 30px; color: var(--haz-k); background: linear-gradient(90deg, transparent 0 4px, var(--haz) 4px), var(--hazard); background-size: auto, 22px 100%; background-repeat: no-repeat; font-size: 12px; letter-spacing: .14em; }
+.ch__head h2 { font: 900 clamp(38px, 5.4vw, 58px)/1.05 var(--font-kr); letter-spacing: -.01em; }
+.ch__head h2 span { margin-left: 14px; font: 700 .42em/1 var(--font-c); letter-spacing: .24em; color: var(--tx-3); vertical-align: middle; }
+.ch__head p { max-width: 62ch; color: var(--tx-2); }
+.ruler { height: 14px; background: linear-gradient(var(--seam-2) 0 0) 0 100%/100% 1px no-repeat, repeating-linear-gradient(90deg, var(--seam-2) 0 1px, transparent 1px 10px) 0 100%/100% 6px no-repeat, repeating-linear-gradient(90deg, var(--hud-dim) 0 2px, transparent 2px 50px) 0 100%/100% 14px no-repeat; }
+
+/* Unit: one console panel. A stencil bar on top, a spec placard on the left, the working surface on the right. */
+.unit { position: relative; border: 1px solid var(--seam); background:
+    radial-gradient(circle, #a9b6cc 0 1.3px, #2b364c 1.8px 4px, #070b14 4.4px 5px, transparent 5.6px) 0 0/22px 22px no-repeat,
+    radial-gradient(circle, #a9b6cc 0 1.3px, #2b364c 1.8px 4px, #070b14 4.4px 5px, transparent 5.6px) 100% 0/22px 22px no-repeat,
+    radial-gradient(circle, #a9b6cc 0 1.3px, #2b364c 1.8px 4px, #070b14 4.4px 5px, transparent 5.6px) 0 100%/22px 22px no-repeat,
+    radial-gradient(circle, #a9b6cc 0 1.3px, #2b364c 1.8px 4px, #070b14 4.4px 5px, transparent 5.6px) 100% 100%/22px 22px no-repeat,
+    linear-gradient(#18223a, #121a2c); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 18px 30px -18px rgba(0,0,0,.8); padding: 0 6px 6px; }
+.unit__bar { display: flex; align-items: center; gap: 12px; min-height: 34px; padding: 0 24px; font: 600 12px/1 var(--font-c); letter-spacing: .2em; color: var(--tx-3); text-transform: uppercase; }
+.unit__bar i { width: 8px; height: 8px; border-radius: 50%; background: var(--hud); box-shadow: 0 0 6px var(--hud-glow); }
+.unit__bar span:last-child { margin-left: auto; }
+.unit__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr); border: 1px solid #070b14; }
+.spec { padding: 28px 24px 30px; display: grid; gap: 8px; align-content: start; min-width: 0; background: linear-gradient(#1f2a42, #192338); border-right: 1px solid #070b14; }
+.spec h3 { font: 900 22px/1.3 var(--font-kr); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.spec h3 small { font: 700 12.5px/1 var(--font-c); letter-spacing: .18em; color: var(--hud); }
+.spec p { color: var(--tx-2); font-size: 15.5px; }
+.spec ul { margin: 2px 0 0; padding: 0; list-style: none; display: grid; gap: 5px; font-size: 14.5px; color: var(--tx-2); }
+.spec li { position: relative; padding-left: 18px; }
+.spec li::before { content: ""; position: absolute; left: 0; top: .62em; width: 8px; height: 8px; border: 1.5px solid var(--hud); transform: rotate(45deg) scale(.8); }
+/* deck: the working surface. Plate = brushed console metal; scr = an MFD screen with HUD brackets. */
+.deck { position: relative; min-width: 0; padding: 46px 28px 42px; display: flex; flex-wrap: wrap; gap: 22px; align-items: center; justify-content: center; align-content: center; min-height: 180px;
+  background: linear-gradient(90deg, transparent calc(50% - 1px), rgba(0,0,0,.35) calc(50% - 1px) 50%, rgba(255,255,255,.04) 50% calc(50% + 1px), transparent calc(50% + 1px)), repeating-linear-gradient(90deg, rgba(255,255,255,.014) 0 1px, transparent 1px 3px), linear-gradient(#141c2e, #0f1626); }
+.deck::before { content: ""; position: absolute; left: 14px; right: 14px; top: 10px; height: 8px; pointer-events: none; background: repeating-linear-gradient(90deg, var(--seam-2) 0 1px, transparent 1px 8px) 0 0/100% 4px no-repeat, repeating-linear-gradient(90deg, var(--seam-2) 0 1px, transparent 1px 40px) 0 0/100% 8px no-repeat; opacity: .8; }
+.deck.col { flex-direction: column; align-items: stretch; }
+.deck > * { min-width: 0; max-width: 100%; }
+.deck--scr { background: radial-gradient(ellipse at 50% 40%, #0a1c1f, var(--scr) 75%); box-shadow: inset 0 0 0 1px #0f2a26, inset 0 0 40px rgba(0,0,0,.7); }
+.deck--scr::before { background: repeating-linear-gradient(90deg, var(--hud-dim) 0 1px, transparent 1px 8px) 0 0/100% 4px no-repeat, repeating-linear-gradient(90deg, var(--hud-dim) 0 1px, transparent 1px 40px) 0 0/100% 8px no-repeat; }
+.deck--scr { --bi: 6px; }
+@media (max-width: 820px) { .unit__body { grid-template-columns: minmax(0, 1fr); } .spec { border-right: 0; border-bottom: 1px solid #070b14; padding: 24px 18px 22px; } .deck { padding: 42px 16px 36px; } .unit__bar { padding: 0 22px; font-size: 11px; letter-spacing: .14em; } }
+
+/* ---------- Foundations ---------- */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 42%), 1fr)); gap: 18px; width: 100%; }
+.sw { display: grid; gap: 5px; }
+.sw i { height: 66px; border: 1px solid #070b14; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); position: relative; }
+.sw i::after { content: ""; position: absolute; right: 6px; bottom: 6px; width: 14px; height: 2px; background: rgba(255,255,255,.4); }
+.sw b { font: 700 15.5px/1.3 var(--font-kr); }
+.sw code { background: none; padding: 0; font-size: 11.5px; color: var(--tx-3); }
+.sw span { font-size: 13px; color: var(--tx-2); line-height: 1.45; }
+.swhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; font: 900 17px/1 var(--font-kr); margin-top: 6px; }
+.swhead:first-child { margin-top: 0; }
+.swhead::after { content: ""; flex: 1; height: 6px; background: repeating-linear-gradient(90deg, var(--seam-2) 0 1px, transparent 1px 8px); }
+.swhead span { font: 600 12px/1 var(--font-c); letter-spacing: .18em; color: var(--tx-3); text-transform: uppercase; }
+.typerow { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 18px; align-items: baseline; padding: 14px 0; border-top: 1px dashed var(--seam); }
+.typerow:first-child { border-top: 0; }
+.typerow .k { display: grid; gap: 2px; } .typerow .k b { font: 700 14.5px/1.3 var(--font-kr); } .typerow .k span { font: 500 12.5px/1.3 var(--font-n); color: var(--tx-3); }
+@media (max-width: 560px) { .typerow { grid-template-columns: 1fr; gap: 4px; } }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; counter-reset: r; }
+.rules li { counter-increment: r; position: relative; padding: 22px 20px 22px; background: var(--pl-2); border: 1px solid var(--seam); display: grid; gap: 4px; --bc: var(--hud-dim); }
+.rules li::before { content: "R-0" counter(r); font: 700 13px/1 var(--font-n); color: var(--hud); letter-spacing: .1em; }
+.rules b { font: 900 19px/1.35 var(--font-kr); }
+.rules span { font-size: 14.5px; color: var(--tx-2); }
+.lines { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 20px; width: 100%; }
+.lines figure { margin: 0; display: grid; gap: 8px; }
+.lines figure > div { height: 80px; display: grid; place-items: center; background: var(--scr); border: 1px solid #0f2a26; }
+.lines b { font: 700 15px/1.3 var(--font-kr); }
+.lines span { font-size: 13.5px; color: var(--tx-2); }
+
+/* ---------- Buttons ---------- */
+/* Armoured console key: a thick cap in a bezel, legend backlit from inside, an LED strip on top */
+.key { --lg: var(--hud); --lgg: var(--hud-glow); --cap: #2b3850; --cap-d: #1a2336;
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 8px 26px 0; border: 1px solid #05080f; border-radius: 5px; cursor: pointer; text-decoration: none;
+  font: 900 17px/1 var(--font-kr); color: var(--lg); text-shadow: 0 0 10px var(--lgg); letter-spacing: .02em;
+  background: linear-gradient(var(--cap), var(--cap-d)); box-shadow: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -4px 0 rgba(0,0,0,.35), 0 0 0 3px #0a0f1a, 0 0 0 4px #3a4a66, 0 6px 0 3px #05080f;
+  transition: transform .09s var(--snap), box-shadow .09s; }
+.key::before { content: ""; position: absolute; left: 12px; right: 12px; top: 6px; height: 3px; border-radius: 2px; background: var(--lg); box-shadow: 0 0 8px var(--lgg); opacity: .9; }
+.key__c { font: 600 11px/1 var(--font-n); color: var(--tx-3); text-shadow: none; padding: 3px 5px; border: 1px solid var(--seam-2); border-radius: 2px; }
+.key:hover { --cap: #33425d; }
+.key:active, .key.is-down { transform: translateY(4px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), inset 0 -1px 0 rgba(0,0,0,.35), 0 0 0 3px #0a0f1a, 0 0 0 4px #3a4a66, 0 2px 0 3px #05080f; }
+.key svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; flex: none; }
+.key--ally { --lg: var(--ally); --lgg: rgba(140,210,255,.55); }
+.key--red { --lg: #ff7c86; --lgg: rgba(255,70,85,.6); --cap: #48202a; --cap-d: #2c1219; }
+.key--red:hover { --cap: #57262f; }
+.key--sm { min-height: 44px; padding: 6px 18px 0; font-size: 15px; }
+.key--sm::before { top: 5px; height: 2px; }
+.key:disabled, .key[aria-disabled="true"] { cursor: not-allowed; --lg: #6d7a90; --lgg: transparent; --cap: #1f2738; --cap-d: #182030; }
+.key:disabled::before { background: #3a465c; box-shadow: none; }
+.key:disabled:active { transform: none; }
+.key .scan { position: relative; width: 44px; height: 6px; background: #0b1220; overflow: hidden; border: 1px solid var(--hud-dim); }
+.key .scan::after { content: ""; position: absolute; top: 0; bottom: 0; width: 12px; background: var(--hud); box-shadow: 0 0 6px var(--hud); animation: scan .8s steps(6) infinite alternate; }
+@keyframes scan { from { left: 0; } to { left: 32px; } }
+/* HUD bracket button: nothing but light; the brackets snap in on hover */
+.hb { --c: var(--hud); position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 26px; border: 0; background: transparent; cursor: pointer; text-decoration: none;
+  font: 700 16px/1 var(--font-kr); color: var(--c); letter-spacing: .02em; transition: background .15s; }
+.hb::before, .hb::after { content: ""; position: absolute; top: 0; bottom: 0; width: 10px; border: 2px solid var(--c); transition: transform .2s var(--snap); }
+.hb::before { left: 0; border-right: 0; } .hb::after { right: 0; border-left: 0; }
+.hb:hover { background: color-mix(in srgb, var(--c) 10%, transparent); }
+.hb:hover::before { transform: translateX(5px); } .hb:hover::after { transform: translateX(-5px); }
+.hb:active { background: color-mix(in srgb, var(--c) 20%, transparent); }
+.hb--ally { --c: var(--ally); } .hb--red { --c: #ff7c86; } .hb--amb { --c: var(--amb); }
+.hb--sm { min-height: 44px; padding: 0 18px; font-size: 14.5px; }
+.tb { min-height: 44px; padding: 0 6px; border: 0; background: none; cursor: pointer; color: var(--tx-2); font: 700 15.5px/1 var(--font-kr); text-decoration: underline; text-decoration-color: var(--seam-2); text-decoration-thickness: 2px; text-underline-offset: 7px; }
+.tb:hover { color: var(--tx); text-decoration-color: var(--hud); }
+
+/* Round console knob: knurled ring, an index notch; it clicks round a detent on hover */
+.knob { position: relative; width: 58px; height: 58px; border: 0; padding: 0; border-radius: 50%; cursor: pointer; display: grid; place-items: center; color: var(--hud); background: #070b14; box-shadow: 0 0 0 3px #0a0f1a, 0 0 0 4px #3a4a66, 0 6px 10px rgba(0,0,0,.6); }
+.knob::before { content: ""; position: absolute; inset: 2px; border-radius: 50%; background: radial-gradient(circle, transparent 0 18px, #0b1120 18px 19px, transparent 19px), repeating-conic-gradient(#44536f 0 5deg, #1d2639 5deg 10deg); transition: transform .22s var(--lock); }
+.knob::after { content: ""; position: absolute; inset: 9px; border-radius: 50%; background: radial-gradient(circle at 40% 30%, #3a4862, #1b2436 70%); box-shadow: inset 0 1px 0 rgba(255,255,255,.15); }
+.knob i { position: absolute; z-index: 1; top: 3px; left: 50%; width: 3px; height: 8px; margin-left: -1.5px; background: var(--hud); box-shadow: 0 0 6px var(--hud-glow); transform-origin: 1.5px 26px; transition: transform .22s var(--lock); }
+.knob svg { position: relative; z-index: 1; width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px var(--hud-glow)); }
+.knob:hover::before, .knob:hover i { transform: rotate(30deg); }
+.knob:active::after { background: radial-gradient(circle at 40% 30%, #2b3850, #141c2c 70%); }
+.knob:focus-visible { border-radius: 50%; outline-offset: 6px; }
+.knob--sm { width: 46px; height: 46px; }
+.knob--sm::after { inset: 7px; } .knob--sm i { transform-origin: 1.5px 20px; height: 6px; }
+.knobs { display: flex; gap: 26px; flex-wrap: wrap; justify-content: center; padding: 6px; }
+
+/* Tooltip: a small HUD callout with a leader line */
+.tip { position: relative; display: inline-flex; }
+.tip__b { position: absolute; bottom: calc(100% + 16px); left: 50%; z-index: 10; padding: 6px 10px; background: rgba(5,13,19,.95); border: 1.5px solid var(--hud); color: var(--hud); font: 700 13px/1.3 var(--font-kr); white-space: nowrap; pointer-events: none; opacity: 0; transform: translate(-50%, 4px); transition: opacity .12s, transform .2s var(--snap); }
+.tip__b::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1.5px; height: 12px; background: var(--hud); }
+.tip:hover .tip__b, .tip:focus-within .tip__b { opacity: 1; transform: translate(-50%, 0); }
+
+/* Launch: the catapult. Chevrons light down the rail, count down, shake, go. */
+.launch { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); width: min(460px, 100%); padding: 0; border: 0; cursor: pointer; color: var(--hud); background: #060a12; text-align: left;
+  box-shadow: 0 0 0 3px #0a0f1a, 0 0 0 4px #3a4a66, 0 8px 0 3px #05080f, 0 20px 30px -10px rgba(0,0,0,.7); transition: transform .09s var(--snap); }
+.launch::before, .launch::after { content: ""; height: 12px; background: var(--hazard); }
+.launch::after { order: 3; }
+.launch__in { order: 2; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; padding: 18px 22px; background: radial-gradient(ellipse at 30% 50%, #0f2a22, #060a12 70%); }
+.launch__n { display: grid; place-items: center; width: 92px; height: 92px; border: 2px solid var(--hud); font: 900 34px/1 var(--font-kr); text-shadow: 0 0 14px var(--hud-glow); position: relative; }
+.launch__n::before { content: ""; position: absolute; inset: -8px; border: 1.5px dashed var(--hud-dim); border-radius: 50%; }
+.launch__t { display: grid; gap: 4px; min-width: 0; }
+.launch__t b { font: 800 15px/1 var(--font-c); letter-spacing: .28em; }
+.launch__t small { font-size: 14px; color: var(--tx-2); }
+.rail { display: flex; gap: 4px; margin-top: 6px; }
+.rail i { flex: 1; height: 16px; background: #13202a; clip-path: polygon(0 0, 70% 0, 100% 50%, 70% 100%, 0 100%, 30% 50%); transition: background .08s; }
+.rail i.on { background: var(--hud); }
+.launch:hover .launch__n { background: var(--hud-wash); }
+.launch:active { transform: translateY(4px); }
+.launch.go { color: var(--amb); }
+.launch.go .launch__n { border-color: var(--amb); background: var(--amb-wash); }
+.launch.go .rail i { background: var(--amb); }
+.launch[aria-disabled="true"] { cursor: progress; }
+.launch-st { font: 600 14px/1.4 var(--font-n); color: var(--hud); letter-spacing: .06em; text-align: center; min-height: 20px; }
+
+/* Eject handle: yellow-black loop, hold to pull */
+.eject { position: relative; display: inline-flex; align-items: center; gap: 18px; padding: 0 20px 0 0; border: 0; background: none; cursor: pointer; text-align: left; color: var(--tx); touch-action: none; user-select: none; -webkit-user-select: none; }
+.eject svg { width: 112px; height: 112px; flex: none; overflow: visible; }
+.eject .handle { transition: transform .2s var(--snap); }
+.eject.holding .handle { transform: translateY(6px); }
+.eject.pulled .handle { transform: translateY(16px); }
+.eject .prog { transition: stroke-dashoffset .05s linear; }
+.eject__t { display: grid; gap: 2px; }
+.eject__t b { font: 900 20px/1.3 var(--font-kr); color: var(--haz); }
+.eject__t small { font-size: 14px; color: var(--tx-2); }
+.eject__t em { font: 700 12px/1 var(--font-c); font-style: normal; letter-spacing: .2em; color: var(--red); }
+.eject:focus-visible { outline-offset: 2px; }
+
+/* More menu */
+.menu { position: relative; }
+.menu__list { position: absolute; right: 0; top: calc(100% + 14px); z-index: 15; min-width: 230px; padding: 6px; margin: 0; list-style: none; background: rgba(6,12,20,.97); border: 1.5px solid var(--hud); box-shadow: 0 18px 30px -10px rgba(0,0,0,.8); }
+.menu__list::before { content: "MENU · 무장 콘솔"; display: block; padding: 6px 10px 8px; font: 700 11px/1 var(--font-c); letter-spacing: .18em; color: var(--hud-2); border-bottom: 1px solid var(--hud-dim); margin-bottom: 4px; }
+.menu__list [role="menuitem"] { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; min-height: 44px; padding: 0 10px; border: 0; background: none; cursor: pointer; text-align: left; font: 500 15px/1 var(--font-kr); color: var(--tx); }
+.menu__list [role="menuitem"]:hover, .menu__list [role="menuitem"]:focus { background: var(--hud); color: #04150c; outline: none; }
+.menu__list .danger { color: #ff7c86; }
+.menu__list .danger:hover, .menu__list .danger:focus { background: var(--red); color: #fff; }
+.menu__list kbd { font: 600 11.5px/1 var(--font-n); opacity: .75; }
+.menu__sep { height: 1px; margin: 6px 4px; background: var(--hud-dim); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; max-width: 460px; padding: 14px 16px; background: var(--pl-1); border: 1px solid var(--seam); border-left: 3px solid var(--hud); }
+.row div { display: grid; line-height: 1.45; min-width: 0; }
+.row b { font: 900 17px/1.4 var(--font-kr); }
+.row span { font: 500 13px/1.4 var(--font-n); color: var(--tx-3); }
+
+/* ---------- Toggles ---------- */
+/* Guarded toggle: lift the red cover first, then throw the lever */
+.guard { display: flex; align-items: center; gap: 20px; }
+.guard__box { position: relative; width: 112px; height: 150px; flex: none; background: linear-gradient(#222d44, #161f31); border: 1px solid #05080f; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 3px #0a0f1a; }
+.guard__box::before { content: ""; position: absolute; left: 6px; right: 6px; bottom: 6px; height: 10px; background: var(--hazard); }
+.guard__lamps { position: absolute; top: 8px; left: 0; right: 0; display: flex; justify-content: space-around; font: 700 10.5px/1 var(--font-c); letter-spacing: .12em; color: var(--tx-3); }
+.guard__lamps span { display: grid; justify-items: center; gap: 4px; }
+.guard__lamps span::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #2a3448; }
+.guard[data-on="false"] .guard__lamps .s::before { background: var(--hud); box-shadow: 0 0 8px var(--hud-glow); }
+.guard[data-on="true"] .guard__lamps .a::before { background: var(--red); box-shadow: 0 0 8px var(--red); }
+.lever { position: absolute; left: 50%; top: 46px; width: 56px; height: 76px; margin-left: -28px; padding: 0; border: 0; border-radius: 6px; cursor: pointer; background: radial-gradient(circle at 50% 50%, #0b1120 0 12px, #3a4862 12px 15px, transparent 16px); }
+.lever::before { content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 38px; margin-left: -5px; border-radius: 5px; background: linear-gradient(90deg, #c6d0e0, #f2f5fa 40%, #8792a6); transform-origin: 50% 0; transform: rotate(180deg); transition: transform .18s var(--lock); box-shadow: 0 2px 3px rgba(0,0,0,.5); }
+.lever[aria-checked="true"]::before { transform: rotate(0deg) translateY(-100%); transform-origin: 50% 100%; }
+.lever:disabled { cursor: not-allowed; }
+.cover { position: absolute; left: 50%; top: 40px; z-index: 2; width: 72px; height: 88px; margin-left: -36px; padding: 0; border: 2px solid #3d0a10; border-radius: 4px 4px 8px 8px; cursor: pointer; transform-origin: 50% 0;
+  background: linear-gradient(rgba(255,90,100,.25), rgba(200,20,40,.55)), repeating-linear-gradient(-45deg, transparent 0 7px, rgba(0,0,0,.2) 7px 9px); box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 4px 8px rgba(0,0,0,.5); transition: transform .25s var(--lock); }
+.cover::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 6px; height: 6px; background: var(--hazard); }
+.cover[aria-pressed="true"] { transform: perspective(260px) rotateX(72deg) translateY(-6px); }
+.cover:focus-visible { outline-offset: 3px; }
+.guard__t { display: grid; gap: 4px; line-height: 1.45; }
+.guard__t em { font: 700 13px/1 var(--font-n); font-style: normal; letter-spacing: .12em; color: var(--hud); }
+.guard[data-on="true"] .guard__t em { color: var(--red); }
+.guard__t b { font: 900 19px/1.3 var(--font-kr); }
+.guard__t small { font-size: 14px; color: var(--tx-2); }
+
+/* Reactor knob: switch on and it spins up, ring segments lighting in sequence */
+.reactor { display: inline-flex; align-items: center; gap: 20px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.reactor svg { width: 128px; height: 128px; flex: none; overflow: visible; }
+.reactor .seg { stroke: #26324a; transition: stroke .1s; }
+.reactor[aria-checked="true"] .seg { stroke: var(--hud); animation: segon .05s both; animation-delay: calc(var(--i) * 28ms); filter: drop-shadow(0 0 3px var(--hud-glow)); }
+@keyframes segon { from { stroke: #26324a; } }
+.reactor .rotor { transform-origin: 64px 64px; transition: transform .3s var(--lock); }
+.reactor[aria-checked="true"] .rotor { animation: spin 1.1s linear infinite; animation-delay: .7s; }
+.reactor .core { fill: #1a2438; transition: fill .2s .5s; }
+.reactor[aria-checked="true"] .core { fill: var(--hud); }
+.reactor:focus-visible { outline-offset: 6px; }
+.reactor__t { display: grid; gap: 3px; line-height: 1.45; }
+.reactor__t em { font: 700 13px/1 var(--font-n); font-style: normal; letter-spacing: .12em; color: var(--tx-3); }
+.reactor[aria-checked="true"] .reactor__t em { color: var(--hud); }
+.reactor__t b { font: 900 19px/1.3 var(--font-kr); }
+.reactor__t small { font-size: 14px; color: var(--tx-2); }
+
+/* Rocker: small sub-system switches */
+.rocker { display: inline-flex; align-items: center; gap: 14px; min-height: 48px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.rocker__s { position: relative; width: 70px; height: 38px; flex: none; background: #070b14; border: 1px solid #05080f; box-shadow: 0 0 0 3px #0a0f1a, 0 0 0 4px #3a4a66; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+.rocker__s span { display: grid; place-items: center; font: 700 11px/1 var(--font-c); letter-spacing: .1em; color: var(--tx-3); background: linear-gradient(#2b3850, #1a2336); transition: background .12s, color .12s; }
+.rocker__s span:first-child { background: linear-gradient(#141c2c, #222d44); }
+.rocker[aria-checked="true"] .rocker__s span:first-child { background: linear-gradient(#2b3850, #1a2336); color: var(--tx-3); }
+.rocker[aria-checked="true"] .rocker__s span:last-child { background: linear-gradient(#16402c, #0d2a1d); color: var(--hud); text-shadow: 0 0 6px var(--hud-glow); box-shadow: inset 0 0 0 1px var(--hud-dim); }
+.rocker[aria-checked="false"] .rocker__s span:first-child { color: var(--tx-2); }
+.rocker__t { display: grid; line-height: 1.45; } .rocker__t b { font: 700 16.5px/1.4 var(--font-kr); } .rocker__t small { font-size: 13.5px; color: var(--tx-2); }
+
+/* Checkbox: the self-check list. A lamp per line; OK lights green. */
+.chk { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 14px; align-items: center; min-height: 48px; padding: 6px 12px 6px 10px; cursor: pointer; background: var(--pl-1); border: 1px solid var(--seam); }
+.chk input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.chk__lamp { width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #3a465c, #1a2232); box-shadow: inset 0 0 0 2px #0a0f1a, 0 0 0 2px #3a4a66; display: grid; place-items: center; transition: background .12s, box-shadow .12s; }
+.chk__lamp::after { content: ""; width: 10px; height: 5px; border-left: 2.5px solid #04150c; border-bottom: 2.5px solid #04150c; transform: rotate(-45deg) translate(1px, -1px) scale(0); transition: transform .15s var(--lock); }
+.chk input:checked + .chk__lamp { background: radial-gradient(circle at 40% 35%, #c9ffe0, var(--hud) 55%, var(--hud-2)); box-shadow: inset 0 0 0 2px #0a0f1a, 0 0 0 2px var(--hud-dim), 0 0 14px var(--hud-glow); }
+.chk input:checked + .chk__lamp::after { transform: rotate(-45deg) translate(1px, -1px) scale(1); }
+.chk input:indeterminate + .chk__lamp { background: radial-gradient(circle at 40% 35%, #ffe2a8, var(--amb) 60%); box-shadow: inset 0 0 0 2px #0a0f1a, 0 0 0 2px var(--amb-d), 0 0 12px rgba(255,178,30,.5); }
+.chk input:indeterminate + .chk__lamp::after { width: 12px; height: 0; border-left: 0; border-bottom: 3px solid #2a1a00; transform: none; }
+.chk input:focus-visible + .chk__lamp { outline: 2px solid var(--amb); outline-offset: 5px; }
+.chk input:disabled + .chk__lamp { opacity: .45; }
+.chk:has(input:disabled) { cursor: not-allowed; }
+.chk__t { display: grid; line-height: 1.4; } .chk__t b { font: 700 16.5px/1.35 var(--font-kr); } .chk__t small { font-size: 13.5px; color: var(--tx-2); }
+.chk__st { font: 700 13px/1 var(--font-n); letter-spacing: .12em; color: var(--tx-3); min-width: 3.4em; text-align: right; }
+.chk__st::before { content: "대기"; font-family: var(--font-kr); letter-spacing: 0; }
+.chk input:checked ~ .chk__st { color: var(--hud); } .chk input:checked ~ .chk__st::before { content: "OK"; font-family: var(--font-n); letter-spacing: .12em; }
+.chk input:indeterminate ~ .chk__st { color: var(--amb); } .chk input:indeterminate ~ .chk__st::before { content: "일부"; }
+.chk input:disabled ~ .chk__st { color: var(--amb); } .chk input:disabled ~ .chk__st::before { content: "정비"; }
+.chk input:disabled ~ .chk__t { color: var(--tx-3); }
+.stack { display: grid; gap: 10px; width: 100%; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 12px; font: 700 13px/1.3 var(--font-c); letter-spacing: .18em; color: var(--tx-3); text-transform: uppercase; }
+
+/* Radio: weapon select. The reticle beside it changes to match. */
+.wpns { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 22px; align-items: center; width: 100%; }
+.wpn { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 14px; align-items: center; min-height: 64px; padding: 8px 14px 8px 8px; cursor: pointer; background: var(--pl-1); border: 1px solid var(--seam); --bc: transparent; --bi: -5px; }
+.wpn input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.wpn__ico { width: 64px; height: 46px; display: grid; place-items: center; background: #060b12; border: 1px solid var(--seam); }
+.wpn__ico svg { width: 52px; height: 34px; stroke: var(--tx-3); fill: none; stroke-width: 1.6; stroke-linejoin: round; }
+.wpn__t { display: grid; line-height: 1.4; } .wpn__t b { font: 900 17px/1.35 var(--font-kr); } .wpn__t small { font: 500 13px/1.4 var(--font-n); color: var(--tx-3); }
+.wpn:has(input:checked) { --bc: var(--hud); background: linear-gradient(90deg, var(--hud-wash), transparent 70%), var(--pl-1); border-color: var(--hud-dim); }
+.wpn:has(input:checked) .wpn__ico { border-color: var(--hud); }
+.wpn:has(input:checked) .wpn__ico svg { stroke: var(--hud); filter: drop-shadow(0 0 4px var(--hud-glow)); }
+.wpn:has(input:focus-visible) { outline: 2px solid var(--amb); outline-offset: 6px; }
+.wpnview { display: grid; justify-items: center; gap: 8px; padding: 14px; background: var(--scr); border: 1px solid #0f2a26; --bi: 4px; }
+.wpnview svg { width: 140px; height: 140px; }
+.wpnview svg * { stroke: var(--hud); fill: none; }
+.wpnview [data-w] { display: none; }
+.wpnview[data-show="rifle"] [data-w="rifle"], .wpnview[data-show="shield"] [data-w="shield"], .wpnview[data-show="blade"] [data-w="blade"] { display: inline; }
+.wpnview output { font: 700 13px/1.3 var(--font-n); color: var(--hud); letter-spacing: .08em; text-align: center; }
+@media (max-width: 620px) { .wpns { grid-template-columns: minmax(0, 1fr); } .wpnview { justify-self: center; } }
+
+/* ---------- Choosing ---------- */
+/* Segmented: flight mode. A lit block slides to the chosen detent and locks. */
+.mode { --i: 0; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: min(480px, 100%); padding: 5px; background: #070b14; border: 1px solid #05080f; box-shadow: 0 0 0 3px #0a0f1a, 0 0 0 4px #3a4a66; }
+.mode::before { content: ""; position: absolute; top: 5px; bottom: 5px; left: 5px; width: calc((100% - 10px) / 3); transform: translateX(calc(var(--i) * 100%)); background: linear-gradient(#16402c, #0d2a1d); box-shadow: inset 0 0 0 1.5px var(--hud), 0 0 14px rgba(108,245,160,.25); transition: transform .26s var(--lock); }
+.mode button { position: relative; z-index: 1; min-height: 56px; padding: 0 8px; border: 0; background: none; cursor: pointer; display: grid; place-items: center; align-content: center; gap: 3px; font: 900 17px/1 var(--font-kr); color: var(--tx-2); }
+.mode button small { font: 700 10.5px/1 var(--font-c); letter-spacing: .2em; color: var(--tx-3); }
+.mode button[aria-checked="true"] { color: var(--hud); text-shadow: 0 0 8px var(--hud-glow); }
+.mode button[aria-checked="true"] small { color: var(--hud-2); }
+.mode button + button::after { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 1px; background: var(--seam); }
+.mode-d { font-size: 15px; color: var(--tx-2); text-align: center; min-height: 26px; }
+.mode-d b { color: var(--hud); font-family: var(--font-n); }
+
+/* Tabs: monitor channels. A row of bezel keys above an MFD. */
+.mfd { width: 100%; }
+.mfd__keys { display: flex; gap: 8px; padding: 10px; background: linear-gradient(#222d44, #182134); border: 1px solid #05080f; overflow-x: auto; scrollbar-width: none; }
+.mfd__key { flex: 1 0 auto; min-width: 76px; min-height: 52px; padding: 6px 12px 0; border: 1px solid #05080f; border-radius: 3px; cursor: pointer; font: 900 15px/1 var(--font-kr); color: var(--tx-2); background: linear-gradient(#2b3850, #1a2336); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 3px 0 #05080f; position: relative; transition: transform .08s; }
+.mfd__key::before { content: ""; position: absolute; left: 50%; top: 5px; width: 18px; height: 3px; margin-left: -9px; background: #3a465c; }
+.mfd__key small { display: block; margin-top: 4px; font: 700 10px/1 var(--font-n); letter-spacing: .14em; color: var(--tx-3); }
+.mfd__key[aria-selected="true"] { color: var(--hud); transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 1px 0 #05080f; text-shadow: 0 0 8px var(--hud-glow); }
+.mfd__key[aria-selected="true"]::before { background: var(--hud); box-shadow: 0 0 6px var(--hud); }
+.mfd__scr { position: relative; min-height: 190px; padding: 22px; background: radial-gradient(ellipse at 50% 30%, #0b1f20, var(--scr) 75%); border: 1px solid #05080f; border-top: 0; color: var(--tx-2); font-size: 15.5px; --bi: 8px; }
+.mfd__scr h4 { font: 700 13px/1 var(--font-c); letter-spacing: .2em; color: var(--hud); margin-bottom: 10px; }
+.mfd__scr .log { margin: 0; padding: 0; list-style: none; font: 500 14px/1.9 var(--font-n); color: var(--hud); }
+.mfd__scr .log li span { color: var(--tx-3); margin-right: 10px; }
+.mfd__scr .log li.c { color: var(--ally); }
+.mfd__split { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 18px; align-items: center; }
+.mfd__split svg { width: 140px; height: 140px; }
+@media (max-width: 480px) { .mfd__split { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
+
+/* Filter chips: HUD target tags */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { --c: var(--tx-2); display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 12px; border: 1.5px solid var(--seam-2); background: transparent; cursor: pointer; font: 700 15px/1 var(--font-kr); color: var(--tx-2); transition: background .12s, border-color .12s; }
+.chip i { width: 10px; height: 10px; border: 1.5px solid var(--c); transform: rotate(45deg); transition: background .12s; }
+.chip .n { font: 600 12.5px/1 var(--font-n); color: var(--tx-3); }
+.chip:hover { border-color: var(--tx-3); }
+.chip[aria-pressed="true"] { border-color: var(--c); color: var(--tx); background: color-mix(in srgb, var(--c) 12%, transparent); }
+.chip[aria-pressed="true"] i { background: var(--c); box-shadow: 0 0 6px var(--c); }
+.chip--e { --c: var(--red); } .chip--s { --c: var(--amb); } .chip--m { --c: #ff8a5c; } .chip--a { --c: var(--ally); } .chip--d { --c: #9aa8bf; }
+
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; width: 100%; }
+.field > label, .flabel { font: 700 15px/1.3 var(--font-kr); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; color: var(--tx); }
+.field > label small, .flabel small { font: 600 12px/1.3 var(--font-n); color: var(--tx-3); letter-spacing: .06em; }
+.help { font-size: 14px; color: var(--tx-2); }
+.help.err { color: #ff8f98; font-weight: 700; display: flex; gap: 8px; align-items: flex-start; }
+.help.err::before { content: "!"; flex: none; width: 0; height: 0; margin-top: 3px; border: 9px solid transparent; border-bottom: 15px solid var(--red); border-top: 0; color: #fff; font: 900 10px/15px var(--font-kr); text-indent: -2px; display: grid; place-items: end center; }
+.help.ok { color: var(--hud); font-weight: 700; }
+
+.select { position: relative; }
+.select select { appearance: none; width: 100%; min-height: 54px; padding: 0 64px 0 16px; border: 1px solid var(--seam-2); border-radius: 0; cursor: pointer; font: 700 16px/1 var(--font-kr); background: var(--scr); color: var(--tx); box-shadow: inset 0 2px 8px rgba(0,0,0,.6); }
+.select select:hover { border-color: var(--hud-dim); }
+.select select:focus-visible { outline-offset: 3px; border-color: var(--hud); }
+.select select option { background: #0d1422; }
+.select::after { content: ""; position: absolute; right: 1px; top: 1px; bottom: 1px; width: 48px; background: linear-gradient(#2b3850, #1a2336); border-left: 1px solid #05080f; pointer-events: none; }
+.select svg { position: absolute; right: 15px; top: 50%; width: 18px; height: 18px; margin-top: -9px; z-index: 1; stroke: var(--hud); stroke-width: 2.4; fill: none; pointer-events: none; }
+
+/* Throttle: green thrust zone, then a striped afterburner zone past the gate */
+.thr { display: grid; gap: 8px; width: 100%; }
+.thr__top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.thr__top output { font: 700 36px/1 var(--font-n); color: var(--hud); text-shadow: 0 0 10px var(--hud-glow); }
+.thr__top output small { font-size: 16px; color: var(--tx-3); margin-left: 3px; text-shadow: none; }
+.thr__mode { font: 700 13px/1 var(--font-c); letter-spacing: .16em; color: var(--hud); padding: 5px 8px; border: 1.5px solid currentColor; }
+.thr.ab .thr__top output { color: var(--amb); text-shadow: 0 0 10px rgba(255,178,30,.5); }
+.thr.ab .thr__mode { color: var(--amb); }
+.thr input { -webkit-appearance: none; appearance: none; width: 100%; height: 50px; margin: 0; background: transparent; cursor: pointer; --p: 50%; }
+.thr input::-webkit-slider-runnable-track { height: 18px; border: 1px solid #05080f; box-shadow: 0 0 0 3px #0a0f1a, 0 0 0 4px #3a4a66;
+  background: linear-gradient(90deg, var(--hud-2), var(--hud)) 0 0/min(var(--p), 80%) 100% no-repeat, linear-gradient(90deg, transparent 80%, var(--amb) 80%) 0 0/var(--p) 100% no-repeat,
+    linear-gradient(90deg, #0b1120 0 80%, transparent 80%), repeating-linear-gradient(-45deg, #3a2a0a 0 6px, #1c1406 6px 12px); }
+.thr input::-moz-range-track { height: 18px; background: linear-gradient(90deg, #0b1120 80%, #3a2a0a 80%); }
+.thr input::-moz-range-progress { height: 18px; background: var(--hud); }
+.thr input::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 46px; margin-top: -15px; border: 1px solid #05080f; border-radius: 3px; background: repeating-linear-gradient(#556583 0 2px, #2b3850 2px 5px); box-shadow: 0 0 0 2px #0a0f1a, 0 3px 6px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.12); }
+.thr input::-moz-range-thumb { width: 22px; height: 42px; border: 1px solid #05080f; border-radius: 3px; background: repeating-linear-gradient(#556583 0 2px, #2b3850 2px 5px); }
+.thr input:focus-visible { outline: 2px solid var(--amb); outline-offset: 6px; }
+.thr__scale { position: relative; height: 26px; font: 600 12.5px/1 var(--font-n); color: var(--tx-3); }
+.thr__scale span { position: absolute; top: 10px; transform: translateX(-50%); }
+.thr__scale span:first-child { transform: none; } .thr__scale span:last-child { transform: translateX(-100%); }
+.thr__scale::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: repeating-linear-gradient(90deg, var(--seam-2) 0 1px, transparent 1px 10%); }
+.thr__scale .gate { color: var(--amb); }
+
+/* Side menu: unit status by body part, with the frame beside it */
+.parts-wrap { display: grid; grid-template-columns: minmax(0, 300px) 150px; gap: 26px; align-items: center; justify-content: center; width: 100%; }
+.parts { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; width: 100%; }
+.parts a { --c: var(--hud); position: relative; display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 46px; padding: 0 14px 0 12px; color: var(--tx-2); text-decoration: none; font: 700 15.5px/1.2 var(--font-kr); border: 1px solid transparent; transition: background .12s; }
+.parts a i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 6px var(--c); }
+.parts a em { font: 600 13.5px/1 var(--font-n); font-style: normal; color: var(--c); }
+.parts a.warn { --c: var(--amb); } .parts a.crit { --c: var(--red); }
+.parts a.crit i { animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.parts a:hover { background: var(--pl-3); color: var(--tx); }
+.parts a[aria-current="page"] { background: linear-gradient(90deg, color-mix(in srgb, var(--c) 18%, transparent), transparent); color: var(--tx); border-color: color-mix(in srgb, var(--c) 50%, transparent); border-left: 3px solid var(--c); }
+.parts-wrap svg { width: 150px; height: 195px; }
+@media (max-width: 560px) { .parts-wrap { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
+
+/* Mecha frame drawing: shared by the dashboard, side menu and damage diagram */
+.mech .p polygon, .mech .p path { fill: var(--f); stroke: var(--s); stroke-width: 1.4; stroke-linejoin: round; transition: stroke .15s, fill .15s; }
+.mech .p--ok { --f: rgba(108,245,160,.13); --s: var(--hud); }
+.mech .p--warn { --f: rgba(255,178,30,.22); --s: var(--amb); }
+.mech .p--crit { --f: rgba(255,70,85,.3); --s: var(--red); }
+.mech .p--crit polygon { animation: blink 1s steps(1) infinite; }
+.mech .p.is-sel polygon { stroke: #fff; stroke-width: 2.4; filter: drop-shadow(0 0 4px rgba(255,255,255,.7)); }
+.mech .det { fill: none; stroke: rgba(5,13,19,.85); stroke-width: 1.2; }
+.mech .vis { fill: var(--hud); }
+
+/* ---------- Inputs: recessed screens; focus closes HUD brackets around the field ---------- */
+.in { position: relative; display: flex; align-items: stretch; min-height: 54px; background: var(--scr); border: 1px solid var(--seam-2); box-shadow: inset 0 2px 8px rgba(0,0,0,.6); --bc: transparent; --bi: -6px; transition: border-color .12s; }
+.in:focus-within { border-color: var(--hud); --bc: var(--hud); }
+.in input, .in textarea { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; padding: 0 14px; color: var(--tx); caret-color: var(--hud); font: 500 16.5px/1.4 var(--font-kr); }
+.in textarea { padding: 12px 14px; min-height: 120px; resize: vertical; line-height: 1.7; }
+.in input::placeholder, .in textarea::placeholder { color: var(--tx-3); opacity: 1; }
+.in input[type="date"], .in input[type="time"] { color-scheme: dark; font-family: var(--font-n); }
+.in__ico { display: grid; place-items: center; padding-left: 14px; }
+.in__ico svg { width: 18px; height: 18px; stroke: var(--hud); fill: none; stroke-width: 2; }
+.in__aff { display: grid; place-items: center; padding: 0 14px; font: 700 15px/1 var(--font-kr); color: var(--tx-2); border-left: 1px solid var(--seam); }
+.in__btn { margin: 6px; padding: 0 12px; min-width: 64px; border: 1px solid #05080f; border-radius: 2px; cursor: pointer; font: 700 13.5px/1 var(--font-kr); color: var(--hud); background: linear-gradient(#2b3850, #1a2336); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
+.in__btn:hover { color: #fff; }
+.in.is-err { border-color: var(--red); background: linear-gradient(rgba(255,70,85,.08), rgba(255,70,85,.08)), var(--scr); }
+.in.is-err:focus-within { --bc: var(--red); }
+.in.is-ok { border-color: var(--hud-dim); }
+.in.is-off { background: #111827; border-style: dashed; box-shadow: none; }
+.in.is-off input { color: var(--tx-3); cursor: not-allowed; }
+.in .numi { text-align: right; font: 600 18px/1 var(--font-n); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 22px; width: 100%; }
+.count { text-align: right; font: 600 13px/1 var(--font-n); color: var(--tx-3); letter-spacing: .06em; }
+
+/* ---------- Display ---------- */
+.tag { --c: var(--tx-3); display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 0 11px 0 9px; font: 700 13.5px/1 var(--font-kr); color: var(--tx); background: color-mix(in srgb, var(--c) 14%, #0d1422); border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); border-left: 3px solid var(--c); }
+.tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c); box-shadow: 0 0 5px var(--c); }
+.tag--ok { --c: var(--hud); } .tag--red { --c: var(--red); } .tag--amb { --c: var(--amb); } .tag--ally { --c: var(--ally); }
+.tag--red::before { animation: blink 1s steps(1) infinite; }
+.tags { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* Squad cards: a pilot ID plate. Target cards: red brackets. */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 22px; width: 100%; }
+.pc { position: relative; display: grid; background: var(--pl-1); border: 1px solid var(--seam); --bc: var(--ally); --bi: -5px; --bl: 12px; transition: transform .15s var(--snap); }
+.pc:hover { transform: translateY(-3px); }
+.pc__head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; background: linear-gradient(90deg, rgba(140,210,255,.16), transparent); border-bottom: 1px solid var(--seam); }
+.pc__head b { font: 700 22px/1 var(--font-n); color: var(--ally); letter-spacing: .04em; }
+.pc__head span { font: 600 12px/1 var(--font-c); letter-spacing: .18em; color: var(--tx-3); }
+.pc__body { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 14px; padding: 14px; align-items: center; }
+.pc__body svg { width: 62px; height: 80px; }
+.pc__body h4 { font: 900 17px/1.3 var(--font-kr); }
+.pc__body p { font-size: 13.5px; color: var(--tx-2); }
+.pc__stat { display: grid; gap: 6px; padding: 0 14px 12px; }
+.pc__stat div { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px; gap: 8px; align-items: center; font: 600 12px/1 var(--font-n); color: var(--tx-3); }
+.pc__stat div span:last-child { text-align: right; color: var(--tx); }
+.pc__stat i { height: 6px; background: #0b1120; position: relative; overflow: hidden; }
+.pc__stat i::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--v); background: var(--c, var(--hud)); }
+.pc__foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 10px 10px 14px; border-top: 1px solid var(--seam); }
+.pc--me { --bc: var(--hud); } .pc--me .pc__head { background: linear-gradient(90deg, rgba(108,245,160,.16), transparent); } .pc--me .pc__head b { color: var(--hud); }
+.tc { --bc: var(--red); --bi: -5px; position: relative; display: grid; gap: 12px; padding: 16px 18px 18px; background: linear-gradient(rgba(255,70,85,.08), transparent 60%), var(--pl-1); border: 1px solid #5a1d27; }
+.tc__h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.tc__h small { font: 700 12px/1 var(--font-c); letter-spacing: .2em; color: #ff8f98; }
+.tc__h b { font: 700 13px/1 var(--font-n); color: var(--red); }
+.tc h4 { font: 900 21px/1.3 var(--font-kr); }
+.tc dl { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tc dl div { padding: 8px 10px; background: #0b0f1a; border: 1px solid #2a1a22; }
+.tc dt { font: 600 11.5px/1 var(--font-c); letter-spacing: .14em; color: var(--tx-3); }
+.tc dd { margin: 4px 0 0; font: 700 18px/1 var(--font-n); color: var(--tx); }
+.threat { display: flex; align-items: center; gap: 10px; font: 700 13px/1 var(--font-kr); color: var(--tx-2); }
+.threat span { display: flex; gap: 3px; }
+.threat i { width: 18px; height: 10px; background: #2a1a22; transform: skewX(-20deg); }
+.threat i.on { background: var(--red); box-shadow: 0 0 6px rgba(255,70,85,.6); }
+
+/* Gauges */
+.gauges { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 26px; width: 100%; align-items: start; }
+.gbox { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 16px 12px; background: var(--scr); border: 1px solid #0f2a26; --bi: 4px; --bl: 10px; }
+.gbox b { font: 900 16px/1.3 var(--font-kr); }
+.gbox span { font-size: 13.5px; color: var(--tx-2); }
+.gbox .row2 { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.rgauge svg { width: 170px; height: 150px; overflow: visible; }
+.rgauge .arc { transition: stroke-dashoffset .5s var(--slide); }
+.ammo { display: grid; grid-template-columns: repeat(15, 8px); gap: 4px; justify-content: center; padding: 10px; background: #060b12; border: 1px solid var(--seam); }
+.ammo i { height: 26px; background: linear-gradient(var(--amb) 0 7px, #b07a12 7px); border-radius: 4px 4px 1px 1px; transition: opacity .08s, transform .12s var(--snap); }
+.ammo i.spent { opacity: .14; transform: translateY(4px); }
+.ammo-n { font: 700 32px/1 var(--font-n); color: var(--amb); }
+.ammo-n small { font-size: 16px; color: var(--tx-3); }
+.shield { width: 100%; display: grid; gap: 8px; }
+.shield__top { display: flex; justify-content: space-between; align-items: baseline; }
+.shield__top b { font: 900 16px/1.3 var(--font-kr); }
+.shield__top output { font: 700 24px/1 var(--font-n); color: var(--ally); }
+.shield__bar { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 3px; padding: 4px; background: #060b12; border: 1px solid var(--seam); }
+.shield__bar i { height: 22px; background: #172033; transition: background .12s; }
+.shield__bar i.on { background: var(--ally); box-shadow: 0 0 5px rgba(140,210,255,.5); }
+.shield.low .shield__bar i.on { background: var(--amb); } .shield.low output { color: var(--amb); }
+.shield.crit .shield__bar i.on { background: var(--red); } .shield.crit output { color: var(--red); }
+.dmg { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 28px; align-items: center; width: 100%; }
+.dmg svg.mech { width: 220px; height: 286px; }
+.dmg ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.dmg li { display: grid; grid-template-columns: 70px minmax(0, 1fr) 46px; gap: 10px; align-items: center; min-height: 34px; font: 700 14.5px/1 var(--font-kr); border-bottom: 1px dashed var(--seam); }
+.dmg li i { height: 8px; background: #0b1120; position: relative; }
+.dmg li i::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--v); background: var(--c); }
+.dmg li span { text-align: right; font: 600 14px/1 var(--font-n); color: var(--c); }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13.5px; color: var(--tx-2); margin-top: 12px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend span::before { content: ""; width: 12px; height: 12px; background: var(--c); }
+@media (max-width: 620px) { .dmg { grid-template-columns: minmax(0, 1fr); justify-items: center; } .dmg > div { width: 100%; } }
+
+/* Steps: the launch sequence along the catapult rail */
+.seq { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; margin: 0; padding: 0; list-style: none; }
+.seq::before { content: ""; position: absolute; left: 12%; right: 12%; top: 25px; height: 4px; background: repeating-linear-gradient(90deg, var(--seam-2) 0 10px, transparent 10px 14px); }
+.seq li { position: relative; display: grid; justify-items: center; gap: 8px; text-align: center; font: 700 14.5px/1.3 var(--font-kr); color: var(--tx-3); }
+.seq li span { position: relative; z-index: 1; width: 54px; height: 54px; display: grid; place-items: center; background: #0b1120; border: 1.5px solid var(--seam-2); font: 700 15px/1 var(--font-n); transform: rotate(45deg); }
+.seq li span b { transform: rotate(-45deg); }
+.seq li small { font: 600 11px/1 var(--font-c); letter-spacing: .16em; color: var(--tx-3); }
+.seq li.done { color: var(--tx-2); }
+.seq li.done span { border-color: var(--hud-dim); background: #0d2a1d; color: var(--hud); }
+.seq li.now { color: var(--hud); }
+.seq li.now span { border-color: var(--hud); background: var(--hud); color: #04150c; box-shadow: 0 0 16px var(--hud-glow); animation: nowp 1.2s steps(1) infinite; }
+@keyframes nowp { 50% { background: #0d2a1d; color: var(--hud); box-shadow: 0 0 0 transparent; } }
+@media (max-width: 480px) { .seq li { font-size: 13px; } .seq li span { width: 42px; height: 42px; } .seq::before { top: 19px; } }
+
+/* Accordion: briefing pages */
+.brief { width: 100%; display: grid; gap: 8px; }
+.brief details { background: var(--pl-1); border: 1px solid var(--seam); }
+.brief summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto minmax(0, 1fr) 18px; align-items: center; gap: 14px; min-height: 58px; padding: 0 16px; font: 700 16.5px/1.4 var(--font-kr); }
+.brief summary::-webkit-details-marker { display: none; }
+.brief summary b { font: 700 13px/1 var(--font-n); color: var(--hud); padding: 4px 6px; border: 1.5px solid var(--hud-dim); }
+.brief summary::after { content: ""; width: 10px; height: 10px; border-right: 2px solid var(--hud); border-bottom: 2px solid var(--hud); transform: rotate(45deg) translate(-3px, -3px); transition: transform .2s var(--lock); }
+.brief details[open] summary::after { transform: rotate(-135deg); }
+.brief details[open] { border-color: var(--hud-dim); }
+.brief details[open] summary { color: var(--hud); }
+.brief summary:focus-visible { outline-offset: -3px; }
+.brief details > div { padding: 0 18px 18px 70px; color: var(--tx-2); font-size: 15.5px; }
+@media (max-width: 480px) { .brief details > div { padding-left: 18px; } }
+
+/* Table */
+.tablewrap { width: 100%; overflow-x: auto; background: var(--scr); border: 1px solid #0f2a26; }
+table { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 15px; }
+caption { padding: 14px 16px 10px; text-align: left; font: 700 13px/1 var(--font-c); letter-spacing: .2em; color: var(--hud); }
+th { text-align: left; padding: 11px 16px; font: 700 13.5px/1.2 var(--font-kr); color: var(--tx-2); background: #0f1a24; border-bottom: 1.5px solid var(--hud-dim); white-space: nowrap; }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; min-height: 28px; }
+th button:focus-visible { outline: 2px solid var(--amb); outline-offset: 3px; }
+th button::after { content: "◇"; font-size: 10px; color: var(--tx-3); }
+th[aria-sort="ascending"] button::after { content: "▲"; color: var(--hud); } th[aria-sort="descending"] button::after { content: "▼"; color: var(--hud); }
+td { padding: 12px 16px; border-bottom: 1px solid #10202a; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--hud-wash); }
+td.n, th.n { text-align: right; } td.n { font: 600 16px/1 var(--font-n); }
+td.cs { font: 700 16px/1 var(--font-n); color: var(--ally); }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; font: 600 14px/1 var(--font-n); color: var(--tx-3); }
+.pager ol { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.pager button { width: 44px; height: 44px; border: 1px solid #05080f; border-radius: 3px; cursor: pointer; font: 700 15px/1 var(--font-n); color: var(--tx-2); background: linear-gradient(#2b3850, #1a2336); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 3px 0 #05080f; }
+.pager button:hover:not(:disabled) { color: var(--tx); }
+.pager button[aria-current="page"] { color: var(--hud); transform: translateY(2px); box-shadow: inset 0 0 0 1px var(--hud-dim), 0 1px 0 #05080f; text-shadow: 0 0 6px var(--hud-glow); }
+.pager button:disabled { opacity: .4; cursor: not-allowed; }
+
+.empty { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 18px; }
+.empty svg { width: 130px; height: 130px; }
+.empty b { font: 900 20px/1.3 var(--font-kr); }
+.empty p { color: var(--tx-2); font-size: 15px; max-width: 34ch; }
+
+/* ---------- Overlays ---------- */
+dialog { padding: 0; border: 0; background: transparent; color: var(--tx); width: 100%; max-width: min(500px, calc(100vw - 32px)); overflow: visible; }
+dialog::backdrop { background: rgba(4,7,14,.72); backdrop-filter: blur(3px); }
+dialog.red::backdrop { background: radial-gradient(ellipse at center, rgba(120,10,20,.35), rgba(4,7,14,.82)); }
+dialog[open] { animation: lockin .28s var(--lock); }
+@keyframes lockin { from { opacity: 0; transform: scale(1.08); } }
+.dlg { position: relative; background: #0b111d; border: 1.5px solid var(--hud); --bc: var(--hud); --bi: -8px; --bl: 18px; --bw: 3px; }
+.dlg__strip { height: 14px; background: var(--hazard); }
+.dlg__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 22px; background: rgba(108,245,160,.08); font: 700 13px/1 var(--font-c); letter-spacing: .22em; color: var(--hud); border-bottom: 1px solid var(--hud-dim); }
+.dlg__body { padding: 24px 24px 22px; display: grid; gap: 10px; }
+.dlg h3 { font: 900 26px/1.3 var(--font-kr); }
+.dlg p { color: var(--tx-2); font-size: 15.5px; }
+.dlg__data { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 6px; }
+.dlg__data div { padding: 8px 10px; background: rgba(0,0,0,.35); border: 1px solid var(--seam); }
+.dlg__data dt { font: 600 11px/1 var(--font-c); letter-spacing: .14em; color: var(--tx-3); }
+.dlg__data dd { margin: 5px 0 0; font: 700 18px/1 var(--font-n); }
+.dlg__foot { display: flex; justify-content: flex-end; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+.dlg--red { border-color: var(--red); --bc: var(--red); }
+.dlg--red .dlg__strip { background: repeating-linear-gradient(-45deg, var(--red) 0 10px, #1a0306 10px 20px); }
+.dlg--red .dlg__head { background: rgba(255,70,85,.14); color: #ff8f98; border-color: #5a1d27; }
+.dlg--red .dlg__head b { color: #fff; background: var(--red); padding: 4px 8px; animation: blink .7s steps(1) infinite; }
+.dlg--red dd { color: #ff8f98; }
+.dlg--haz { border-color: var(--haz); --bc: var(--haz); }
+.dlg--haz .dlg__head { background: rgba(245,196,0,.1); color: var(--haz); border-color: #5a4a10; }
+
+/* Side panel: the auxiliary monitor slides in on a rail and locks */
+.side { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(430px, 100vw); display: grid; grid-template-rows: auto 1fr auto; background: #0b111d; border-left: 2px solid var(--hud);
+  box-shadow: -20px 0 50px rgba(0,0,0,.6); transform: translateX(105%); visibility: hidden; transition: transform .32s var(--slide), visibility 0s .32s; }
+.side.open { transform: none; visibility: visible; transition: transform .32s var(--slide); }
+.side::before { content: ""; position: absolute; left: -12px; top: 0; bottom: 0; width: 10px; background: repeating-linear-gradient(var(--hud) 0 2px, transparent 2px 24px); opacity: .7; }
+.side__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px 16px; border-bottom: 1px solid var(--hud-dim); background: rgba(108,245,160,.06); }
+.side__head small { font: 700 12px/1 var(--font-c); color: var(--hud); letter-spacing: .2em; }
+.side__head h3 { font: 900 23px/1.3 var(--font-kr); margin-top: 4px; }
+.side__body { padding: 22px 20px; overflow: auto; display: grid; gap: 20px; align-content: start; }
+.side__foot { padding: 16px 20px 20px; display: flex; gap: 14px; justify-content: flex-end; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--seam); }
+.scrim { position: fixed; inset: 0; z-index: 59; background: rgba(4,7,14,.66); opacity: 0; pointer-events: none; transition: opacity .25s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+/* Toasts: comms traffic slides in from the right edge */
+.comms { position: fixed; z-index: 70; top: 76px; right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 10px; width: min(360px, calc(100vw - 32px)); }
+.toast { --c: var(--ally); position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 10px 12px 14px; background: rgba(9,14,24,.97); border: 1px solid color-mix(in srgb, var(--c) 50%, transparent); border-left: 4px solid var(--c); box-shadow: 0 16px 30px -10px rgba(0,0,0,.8); animation: slidein .26s var(--lock); }
+@keyframes slidein { from { transform: translateX(110%); } }
+.toast.out { animation: slideout .22s var(--slide) forwards; }
+@keyframes slideout { to { transform: translateX(110%); opacity: 0; } }
+.toast .toast__c { padding: 4px 6px; background: var(--c); color: #060a12; font: 700 11.5px/1 var(--font-c); letter-spacing: .12em; margin-top: 2px; }
+.toast small { display: block; font: 600 12px/1.3 var(--font-n); color: var(--tx-3); letter-spacing: .06em; }
+.toast b { display: block; font: 700 16px/1.4 var(--font-kr); color: var(--tx); }
+.toast span { font-size: 14px; color: var(--tx-2); }
+.toast .x { width: 36px; height: 36px; border: 0; background: none; cursor: pointer; color: var(--tx-3); font-size: 20px; line-height: 1; }
+.toast .x:hover { color: var(--tx); background: var(--pl-3); }
+.toast--amb { --c: var(--amb); } .toast--red { --c: var(--red); } .toast--ok { --c: var(--hud); }
+.toast--red { background: linear-gradient(rgba(255,70,85,.12), rgba(255,70,85,.04)), rgba(9,14,24,.97); }
+
+/* ---------- Code ---------- */
+pre.code { margin: 0; padding: 22px; overflow: auto; max-height: 520px; background: #04080d; color: #cfe0d6; font: 500 13px/1.75 ui-monospace, Menlo, Consolas, monospace; border: 1px solid #0f2a26; border-top: 3px solid var(--hud); }
+pre.code .c { color: #7d8ea8; } pre.code .p { color: var(--amb); } pre.code .v { color: var(--hud); }
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; }
+
+.foot { position: relative; z-index: 1; margin-top: 110px; background: linear-gradient(#141d30, #0a0f1a); border-top: 1px solid var(--seam-2); }
+.foot::before { content: ""; display: block; height: 10px; background: var(--hazard); opacity: .85; }
+.foot .wrap { padding-block: 34px 90px; display: grid; gap: 10px; justify-items: center; text-align: center; color: var(--tx-2); font-size: 14.5px; }
+.foot b { font: 800 26px/1 var(--font-c); letter-spacing: .3em; color: var(--tx); }
+.foot nav { display: flex; flex-wrap: wrap; gap: 4px 16px; justify-content: center; }
+.foot nav a { display: inline-grid; place-items: center; min-height: 44px; padding: 0 4px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Cockpit 처음으로"><i aria-hidden="true"></i><b>COCKPIT</b><span>MF-07 조종석</span></a>
+    <nav aria-label="섹션" id="nav"><a href="#base"><small>CH1</small>기초</a><a href="#press"><small>CH2</small>누르기</a><a href="#toggle"><small>CH3</small>켜고 끄기</a><a href="#choose"><small>CH4</small>고르기</a><a href="#type-in"><small>CH5</small>입력</a><a href="#show"><small>CH6</small>보여 주기</a><a href="#float"><small>CH7</small>띄우기</a><a href="#code"><small>CH8</small>코드</a></nav>
+    <span class="top__sys" aria-hidden="true">SYS ▸ 정상</span>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="mon" id="mon">
+    <svg class="mon__sky" id="sky" viewBox="0 0 1600 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="space" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#02040a"/><stop offset=".62" stop-color="#071226"/><stop offset=".8" stop-color="#0d2448"/></linearGradient>
+        <radialGradient id="planet" cx=".5" cy="0" r=".7"><stop offset="0" stop-color="#2f6fb5"/><stop offset=".25" stop-color="#17457f"/><stop offset="1" stop-color="#061630"/></radialGradient>
+        <linearGradient id="cyl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ea6c8"/><stop offset=".35" stop-color="#4b6188"/><stop offset=".7" stop-color="#22304b"/><stop offset="1" stop-color="#3b4f72"/></linearGradient>
+        <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fb6ff" stop-opacity="0"/><stop offset="1" stop-color="#6fb6ff" stop-opacity=".45"/></linearGradient>
+      </defs>
+      <rect width="1600" height="800" fill="url(#space)"/>
+      <g id="stars"></g>
+      <rect x="0" y="560" width="1600" height="110" fill="url(#glow)"/>
+      <circle cx="800" cy="2080" r="1420" fill="url(#planet)"/>
+      <circle cx="800" cy="2080" r="1420" fill="none" stroke="#9fd2ff" stroke-width="3" opacity=".7"/>
+      <circle cx="800" cy="2080" r="1432" fill="none" stroke="#6fb6ff" stroke-width="14" opacity=".14"/>
+      <g fill="none" stroke="#bfe0ff" opacity=".13" stroke-width="10"><path d="M180 760 Q600 690 1100 705 T1600 760"/><path d="M0 790 Q500 735 900 745 T1600 790"/></g>
+      <!-- an open-type colony cylinder with its three mirrors -->
+      <g transform="translate(150 300) rotate(-9)">
+        <path d="M30 -40 L560 -40 L536 -118 L64 -104Z" fill="#9fb7d8" opacity=".16" stroke="#9fb7d8" stroke-opacity=".35"/>
+        <path d="M30 40 L560 40 L540 106 L60 92Z" fill="#9fb7d8" opacity=".12" stroke="#9fb7d8" stroke-opacity=".3"/>
+        <rect x="0" y="-36" width="590" height="72" rx="36" fill="url(#cyl)"/>
+        <g fill="#cfe3ff" opacity=".55"><rect x="44" y="-10" width="500" height="3"/><rect x="44" y="10" width="500" height="2"/></g>
+        <g stroke="#141d30" stroke-width="3"><path d="M150 -36v72M300 -36v72M450 -36v72"/></g>
+        <ellipse cx="588" cy="0" rx="12" ry="36" fill="#a8bedf"/>
+        <path d="M600 0h54M640 -8v16" stroke="#a8bedf" stroke-width="4"/>
+        <circle cx="20" cy="0" r="56" fill="none" stroke="#5d7396" stroke-width="5" opacity=".7"/>
+      </g>
+      <!-- distant mothership -->
+      <g transform="translate(1180 190)" fill="#4f6a93"><path d="M0 10 L120 4 L150 10 L120 16Z"/><rect x="40" y="-4" width="26" height="9"/><rect x="88" y="14" width="40" height="5"/><circle cx="148" cy="10" r="2" fill="#8cd2ff"/></g>
+      <g fill="#33435f"><path d="M1380 430l18-6 12 10-6 14-20 2-10-10z"/><path d="M1460 390l8-2 5 6-4 6-9-1z"/><path d="M300 520l10-3 7 6-3 8-11 1z"/></g>
+    </svg>
+    <div class="mon__tiles" aria-hidden="true"><span style="left:10%">MON-01</span><span style="left:30%">MON-02</span><span style="left:50%">MON-03</span><span style="left:70%">MON-04</span><span style="left:90%">MON-05</span></div>
+
+    <div class="mon__hud" aria-hidden="true">
+      <div class="htape"><div class="htape__in" id="htape"></div></div>
+      <div class="hcaret num" id="hdg">042</div>
+      <div class="vtape vtape--l"><div class="vtape__in" id="spd"></div></div>
+      <div class="vtape vtape--r"><div class="vtape__in" id="alt"></div></div>
+      <div class="vbox vbox--l"><small>속도 m/s</small><span id="spdV">412</span></div>
+      <div class="vbox vbox--r"><small>상대고도 m</small><span id="altV">1280</span></div>
+      <svg class="ladder" id="ladder" viewBox="0 0 360 280">
+        <path d="M20 140H140M220 140H340"/>
+        <g><path d="M70 100H150M210 100H290M70 100v8M290 100v8"/><text x="42" y="104">10</text><text x="298" y="104">10</text></g>
+        <g><path d="M90 60H155M205 60H270M90 60v8M270 60v8"/><text x="62" y="64">20</text><text x="278" y="64">20</text></g>
+        <g><path class="neg" d="M70 180H150M210 180H290"/><path d="M70 180v-8M290 180v-8"/><text x="38" y="184">-10</text><text x="298" y="184">-10</text></g>
+        <g><path class="neg" d="M90 220H155M205 220H270"/><path d="M90 220v-8M270 220v-8"/><text x="58" y="224">-20</text><text x="278" y="224">-20</text></g>
+      </svg>
+      <svg class="fpm" viewBox="0 0 60 30"><circle cx="30" cy="15" r="7"/><path d="M4 15h19M37 15h19M30 8V1"/></svg>
+    </div>
+
+    <div class="tgt tgt--e1" data-enemy><svg viewBox="0 0 64 64"><path d="M2 18V2h16M46 2h16v16M62 46v16H46M18 62H2V46"/><path d="M32 22l10 10-10 10-10-10z"/></svg><span><b>미확인 기체 Λ-2</b>2.4km · 접근</span></div>
+    <div class="tgt tgt--e2" data-enemy><svg viewBox="0 0 64 64"><path d="M2 18V2h16M46 2h16v16M62 46v16H46M18 62H2V46"/><path d="M32 22l10 10-10 10-10-10z"/></svg><span><b>적 포대 K-9</b>5.1km · 고정</span></div>
+    <div class="tgt tgt--ally tgt--a1"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="12"/><path d="M32 8v10M32 46v10M8 32h10M46 32h10"/></svg><span><b>칼새-2 · 참매</b>아군 · 0.6km</span></div>
+
+    <div class="ret" id="ret" aria-hidden="true">
+      <svg viewBox="0 0 132 132">
+        <g class="snapg">
+          <g class="spin" stroke-width="2"><path d="M66 8a58 58 0 0 1 50 29M124 66a58 58 0 0 1-29 50M66 124a58 58 0 0 1-50-29M8 66a58 58 0 0 1 29-50"/></g>
+          <g data-w="rifle" stroke-width="1.6"><circle cx="66" cy="66" r="28"/><path d="M66 30v18M66 84v18M30 66h18M84 66h18"/><path d="M60 98h12M62 104h8M64 110h4"/></g>
+          <g data-w="shield" stroke-width="1.8"><path d="M30 46a44 44 0 0 1 72 0M30 86a44 44 0 0 0 72 0"/><path d="M66 50l14 6v12c0 9-6 15-14 18-8-3-14-9-14-18V56z"/></g>
+          <g data-w="blade" stroke-width="2"><path d="M40 52l14 14-14 14M92 52L78 66l14 14"/><path d="M66 40v14M66 78v14"/></g>
+          <circle cx="66" cy="66" r="2.4" fill="currentColor"/>
+        </g>
+      </svg>
+      <span class="ret__t" id="retT">SEARCH</span>
+    </div>
+
+    <div class="radar__l" aria-hidden="true"><span>RADAR</span><span>R 8km</span></div>
+    <div class="radar" aria-hidden="true"><i style="left:66%;top:30%"></i><i style="left:78%;top:58%"></i><i class="a" style="left:44%;top:62%"></i><i class="a" style="left:58%;top:20%"></i><i class="me" style="left:50%;top:50%"></i></div>
+    <div class="ro ro--tr" aria-hidden="true">COMMS ◂ <b>관제 한누리</b><br>모함 거리 <b>12.4km</b><br>임무 시간 <b id="clock">T+00:14:22</b></div>
+    <div class="ro ro--bl" aria-hidden="true"><span>무장 <b id="wpnName">빔 라이플</b></span><span class="w">실드 68%</span><span>편대 3/4</span></div>
+
+    <div class="mon__copy">
+      <div class="k">MF-07 하늘매 · Design System</div>
+      <h1>조종석<span>COCKPIT</span></h1>
+      <p>거대 로봇의 조종석에 앉으면 보이는 것들. 둘러싼 360도 모니터 위로 녹색 HUD 선이 겹치고, 손 닿는 곳마다 장갑 키와 노브, 덮개 달린 스위치가 있습니다. 움직임은 딸깍, 스르륵, 철컥.</p>
+      <div class="mon__cta"><a class="key" href="#press"><span class="key__c">A1</span>출격 준비</a><a class="hb" href="#code">토큰 받기</a></div>
+    </div>
+  </div>
+
+  <div class="dash">
+    <div class="wrap">
+      <div class="dash__c"><span class="lat">Pilot · 파일럿</span><span class="v num">칼새-1</span><span class="s">한서윤 소위 · MF-07 하늘매</span></div>
+      <div class="dash__c"><span class="lat">Reactor · 반응로</span><span class="v num"><span id="dashR">87</span><small>%</small></span><div class="minibar" id="dashRB" aria-hidden="true"></div></div>
+      <div class="dash__c"><span class="lat">Shield · 실드</span><span class="v num">68<small>%</small></span><span class="s">재충전 중 · 12초</span></div>
+      <div class="dash__c"><div class="dash__mini"><span id="dashMech"></span><div><span class="lat">Frame · 기체</span><div class="v num">82<small>%</small></div><span class="s">왼다리 위험</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="main">
+
+<!-- 기초 -->
+<section class="ch" id="base">
+  <div class="ch__head"><div class="ch__code"><b>CH-01</b>FOUNDATION<em>CAUTION · READ FIRST</em></div><h2>기초<span>BASE</span></h2><div class="ruler" aria-hidden="true"></div><p>조종석 안은 어둡습니다. 바탕은 짙은 남색과 흑연 금속, 정보는 녹색 인광 한 가지 선으로 그립니다. 아군은 차가운 하늘색, 주의는 호박색, 위협은 신호 빨강. 색이 곧 상태입니다.</p></div>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 1-A · 색 토큰</span><span>12 VAR</span></div><div class="unit__body"><div class="deck col" style="grid-column:1/-1;padding:44px 28px 36px"><div class="swatches" id="swatches"></div></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 1-B · 선 언어</span><span>HUD LINE</span></div><div class="unit__body"><div class="spec"><h3>하나의 HUD 선 <small>LINE</small></h3><p>모든 화면 요소는 1.5–2px 녹색 선으로. 모서리 브래킷, 눈금 사다리, 다이아몬드 표적. 굵기와 각도를 섞지 않습니다.</p><ul><li>브래킷: 화면, 카드, 포커스</li><li>눈금: 판 가장자리, 테이프, 슬라이더</li><li>위험 줄무늬: 물리적으로 위험한 것에만</li></ul></div>
+    <div class="deck deck--scr col bk"><div class="lines">
+      <figure><div class="bk" style="--bi:14px 30px"><span class="lat" style="color:var(--hud)">BRACKET</span></div><b>모서리 브래킷</b><span>화면과 카드 틀. 포커스 때 안쪽으로 조여 듭니다.</span></figure>
+      <figure><div><svg viewBox="0 0 160 40" width="160" height="40" aria-hidden="true"><path d="M0 30H160" stroke="#6cf5a0" stroke-width="1.5"/><path d="M0 30V10M40 30V10M80 30V10M120 30V10M160 30V10M10 30v-8M20 30v-8M30 30v-8M50 30v-8M60 30v-8M70 30v-8M90 30v-8M100 30v-8M110 30v-8M130 30v-8M140 30v-8M150 30v-8" stroke="#6cf5a0" stroke-width="1.5"/></svg></div><b>눈금 사다리</b><span>속도, 고도, 추력. 10칸마다 긴 눈금.</span></figure>
+      <figure><div style="background:var(--hazard)"><span style="background:#121212;color:var(--haz);padding:4px 10px;font:700 13px/1 var(--font-c);letter-spacing:.2em">DANGER</span></div><b>위험 줄무늬</b><span>탈출 손잡이, 카타풀트처럼 몸이 다칠 수 있는 곳만.</span></figure>
+    </div></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 1-C · 글자</span><span>TYPE</span></div><div class="unit__body"><div class="spec"><h3>글자 <small>TYPE</small></h3><p>한글 제목은 본고딕 Black으로 굵고 단단하게. 라틴 라벨은 사이라 컨덴스드, 숫자는 옥사늄으로 계기처럼.</p></div><div class="deck col" id="typescale" style="display:block;padding:40px 28px 30px"></div></div></article>
+
+  <ol class="rules">
+    <li class="bk"><b>색이 곧 상태</b><span>녹색은 내 것과 정상, 하늘색은 아군, 호박색은 주의, 빨강은 위협. 장식으로 색을 쓰지 않습니다.</span></li>
+    <li class="bk"><b>선은 하나</b><span>HUD는 1.5px 녹색 선 한 가지. 브래킷과 눈금으로 묶고, 그림자나 그라데이션으로 꾸미지 않습니다.</span></li>
+    <li class="bk"><b>딸깍, 철컥</b><span>움직임은 기계처럼 짧고 정확하게. 스냅하고 미끄러지고 잠깁니다. 떠다니거나 출렁이지 않습니다.</span></li>
+    <li class="bk"><b>장갑 낀 손으로</b><span>누르는 곳 44px 이상, 본문 16.5px, 대비 4.5:1 이상. 움직임 줄이기 설정이면 흔들림과 회전을 멈춥니다.</span></li>
+  </ol>
+</section>
+
+<!-- 누르기 -->
+<section class="ch" id="press">
+  <div class="ch__head"><div class="ch__code"><b>CH-02</b>PRESS<em>ARMOURED KEYS</em></div><h2>누르기<span>PRESS</span></h2><div class="ruler" aria-hidden="true"></div><p>버튼은 장갑 콘솔의 키. 두꺼운 캡 안에서 글자가 빛나고, 누르면 베젤 안으로 철컥 들어갑니다. 가장 큰 행동은 출격, 가장 위험한 행동은 탈출 손잡이.</p></div>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 2-A · 장갑 키</span><span>KEY</span></div><div class="unit__body"><div class="spec"><h3>장갑 키와 브래킷 <small>KEY · BRACKET</small></h3><p>주요 동작은 녹색 백라이트 키, 아군 관련은 하늘색, 위험은 붉은 캡. 보조 동작은 빛만 있는 HUD 브래킷 버튼.</p><ul><li>레이블은 짧은 동사: "무장 확인".</li><li>키 코드(A1)는 장식이며 읽히지 않아도 됩니다.</li></ul></div>
+    <div class="deck"><button class="key"><span class="key__c" aria-hidden="true">A1</span>무장 확인</button><button class="key key--ally"><span class="key__c" aria-hidden="true">B2</span>편대 호출</button><button class="key key--red"><span class="key__c" aria-hidden="true">C3</span>교전 개시</button><button class="hb">경로 보기</button><button class="hb hb--ally">아군 표시</button><button class="tb">나중에</button></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 2-B · 크기와 상태</span><span>STATE</span></div><div class="unit__body"><div class="spec"><h3>크기와 상태</h3><p>비활성 키는 백라이트가 꺼집니다. 기다리는 동안에는 작은 스캔 막대가 좌우로 오갑니다.</p></div>
+    <div class="deck"><button class="key key--sm">작은 키</button><button class="hb hb--sm">작은 브래킷</button><button class="key" disabled>탄약 없음</button><button class="key" id="busyBtn"><span>데이터 동기화</span></button></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 2-C · 출격</span><span>CATAPULT 3</span></div><div class="unit__body"><div class="spec"><h3>출격 <small>LAUNCH</small></h3><p>한 화면에 하나뿐인 가장 큰 행동. 누르면 카타풀트 레일의 화살표가 차례로 켜지고, 3·2·1 뒤 화면이 짧게 흔들리며 발진합니다.</p><ul><li>움직임 줄이기 설정이면 흔들림 없이 숫자만 셉니다.</li></ul></div>
+    <div class="deck col" style="align-items:center"><button class="launch" id="launch" aria-describedby="launchSt"><span class="launch__in"><span class="launch__n" id="launchN">출격</span><span class="launch__t"><b>LAUNCH · 카타풀트 3번</b><small>칼새-1, 하늘매. 발진 허가 받음</small><span class="rail" id="rail" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span></span></button><p class="launch-st" id="launchSt" role="status">카타풀트 대기 중</p></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 2-D · 노브와 탈출</span><span>DANGER</span></div><div class="unit__body"><div class="spec"><h3>노브와 탈출 손잡이 <small>KNOB · EJECT</small></h3><p>아이콘만 있는 버튼은 둥근 콘솔 노브. 올리면 한 칸 딸깍 돌고, 이름 말풍선이 뜹니다. 되돌릴 수 없는 일은 노랑·검정 손잡이를 1.5초 동안 당겨야 합니다.</p><ul><li>손을 떼면 진행이 처음으로 돌아갑니다.</li><li>키보드: Space를 누르고 있기.</li></ul></div>
+    <div class="deck" style="gap:44px">
+      <div class="knobs">
+        <span class="tip"><button class="knob" aria-label="조명"><i aria-hidden="true"></i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></button><span class="tip__b" role="tooltip">조종석 조명</span></span>
+        <span class="tip"><button class="knob" aria-label="통신"><i aria-hidden="true"></i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 16 0M7 12a5 5 0 0 1 10 0"/><circle cx="12" cy="13" r="1.5"/><path d="M12 15v6"/></svg></button><span class="tip__b" role="tooltip">관제 통신</span></span>
+        <span class="tip"><button class="knob" aria-label="카메라 전환"><i aria-hidden="true"></i><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="13" height="10"/><path d="M16 10l5-3v10l-5-3"/></svg></button><span class="tip__b" role="tooltip">카메라 전환</span></span>
+      </div>
+      <button class="eject" id="eject" aria-describedby="ejectHelp">
+        <svg viewBox="0 0 112 112" aria-hidden="true">
+          <circle cx="56" cy="56" r="52" fill="none" stroke="#2a3448" stroke-width="5"/>
+          <circle class="prog" id="ejectProg" cx="56" cy="56" r="52" fill="none" stroke="#f5c400" stroke-width="5" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 56 56)"/>
+          <circle cx="56" cy="56" r="42" fill="#0b111d" stroke="#3a4a66"/>
+          <defs><pattern id="hzp" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="8" fill="#f5c400"/><rect x="4" width="4" height="8" fill="#121212"/></pattern></defs><g class="handle"><rect x="50" y="22" width="12" height="20" fill="#3a4a66" stroke="#05080f"/><path d="M32 42h48v10c0 13-10 24-24 24S32 65 32 52z" fill="none" stroke="#05080f" stroke-width="15" stroke-linejoin="round"/><path d="M32 42h48v10c0 13-10 24-24 24S32 65 32 52z" fill="none" stroke="url(#hzp)" stroke-width="11" stroke-linejoin="round"/></g>
+        </svg>
+        <span class="eject__t"><em>EJECT</em><b>비상 탈출</b><small id="ejectHelp">1.5초 동안 누르고 있기</small></span>
+      </button>
+    </div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 2-E · 더보기</span><span>MENU</span></div><div class="unit__body"><div class="spec"><h3>더보기 메뉴</h3><p>자주 쓰지 않는 동작은 노브 뒤에 접어 둡니다. ↑↓로 이동, Esc로 닫기, 고르면 노브로 포커스가 돌아갑니다.</p></div>
+    <div class="deck" style="min-height:320px;align-content:start;padding-top:52px"><div class="row"><div><b>MF-07 하늘매</b><span>칼새-1 · 격납고 3번</span></div>
+      <div class="menu"><button class="knob knob--sm" aria-label="더보기" aria-haspopup="menu" aria-expanded="false" aria-controls="menuList" id="menuBtn"><i aria-hidden="true"></i><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+        <ul class="menu__list" role="menu" id="menuList" aria-label="기체 메뉴" hidden><li role="none"><button role="menuitem" tabindex="-1">무장 교체 <kbd>W</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">정비 기록 <kbd>L</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">편대 배치 <kbd>F</kbd></button></li><li role="none" class="menu__sep"></li><li role="none"><button role="menuitem" tabindex="-1" class="danger" data-eject>비상 탈출…</button></li></ul></div></div></div></div></article>
+</section>
+
+<!-- 켜고 끄기 -->
+<section class="ch" id="toggle">
+  <div class="ch__head"><div class="ch__code"><b>CH-03</b>TOGGLE<em>GUARDED</em></div><h2>켜고 끄기<span>TOGGLE</span></h2><div class="ruler" aria-hidden="true"></div><p>위험한 스위치에는 덮개가 있습니다. 반응로는 돌려서 깨우고, 작은 계통은 로커 스위치로. 자가 점검 목록은 램프가 녹색으로 들어와야 출격할 수 있습니다.</p></div>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 3-A · 덮개 스위치</span><span>MASTER ARM</span></div><div class="unit__body"><div class="spec"><h3>덮개 달린 스위치 <small>GUARD</small></h3><p>실수로 켜면 안 되는 것. 붉은 덮개를 먼저 올려야 레버가 풀립니다. 켜짐은 빨간 ARM 램프와 글자로 함께 알립니다.</p><ul><li>덮개와 레버는 각각 따로 포커스됩니다.</li></ul></div>
+    <div class="deck"><div class="guard" id="guard" data-on="false">
+      <div class="guard__box"><div class="guard__lamps" aria-hidden="true"><span class="s">SAFE</span><span class="a">ARM</span></div>
+        <button class="lever" id="lever" role="switch" aria-checked="false" aria-labelledby="guardT" disabled></button>
+        <button class="cover" id="cover" aria-pressed="false" aria-label="보호 덮개 열기"></button></div>
+      <div class="guard__t"><em id="guardS">SAFE · 안전</em><b id="guardT">주 무장 마스터 스위치</b><small>덮개를 올린 뒤 레버를 올리세요</small></div>
+    </div></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 3-B · 반응로</span><span>REACTOR</span></div><div class="unit__body"><div class="spec"><h3>반응로 노브 <small>SPIN-UP</small></h3><p>가장 큰 설정. 켜면 바깥 고리가 한 칸씩 차오르고, 다 차면 회전자가 돌기 시작합니다.</p></div>
+    <div class="deck"><button class="reactor" id="reactor" role="switch" aria-checked="false"><svg viewBox="0 0 128 128" aria-hidden="true" id="reactorSvg"></svg><span class="reactor__t"><em id="reactorS">정지 · OFFLINE</em><b>주 반응로</b><small>켜면 출력 87%까지 올라갑니다</small></span></button></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 3-C · 로커</span><span>SUB SYS</span></div><div class="unit__body"><div class="spec"><h3>로커 스위치</h3><p>작은 계통 설정. 눌린 쪽이 켜진 쪽이고, 켜진 칸은 녹색으로 빛납니다.</p></div>
+    <div class="deck col" style="align-items:flex-start">
+      <button class="rocker" role="switch" aria-checked="true"><span class="rocker__s" aria-hidden="true"><span>OFF</span><span>ON</span></span><span class="rocker__t"><b>자동 조준 보정</b><small>움직이는 표적의 앞을 겨눕니다</small></span></button>
+      <button class="rocker" role="switch" aria-checked="false"><span class="rocker__s" aria-hidden="true"><span>OFF</span><span>ON</span></span><span class="rocker__t"><b>통신 암호화</b><small>편대 밖으로 나가는 교신을 잠급니다</small></span></button>
+    </div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 3-D · 자가 점검</span><span>SELF-CHECK</span></div><div class="unit__body"><div class="spec"><h3>체크박스 · 자가 점검</h3><p>하나씩 확인하면 램프가 녹색 OK로. 일부만 되면 "전부"가 호박색으로 바뀝니다.</p></div>
+    <div class="deck deck--scr col bk"><fieldset class="stack"><legend>출격 전 점검</legend>
+      <label class="chk"><input type="checkbox" id="chkAll"><span class="chk__lamp" aria-hidden="true"></span><span class="chk__t"><b>전부</b></span><span class="chk__st" aria-hidden="true"></span></label>
+      <div class="stack" style="padding-left:24px">
+        <label class="chk"><input type="checkbox" class="ci" checked><span class="chk__lamp" aria-hidden="true"></span><span class="chk__t"><b>유압 계통</b><small>관절 압력 정상 범위</small></span><span class="chk__st" aria-hidden="true"></span></label>
+        <label class="chk"><input type="checkbox" class="ci"><span class="chk__lamp" aria-hidden="true"></span><span class="chk__t"><b>센서 마스트</b></span><span class="chk__st" aria-hidden="true"></span></label>
+        <label class="chk"><input type="checkbox" class="ci" checked><span class="chk__lamp" aria-hidden="true"></span><span class="chk__t"><b>자세 제어 추진기</b></span><span class="chk__st" aria-hidden="true"></span></label>
+        <label class="chk"><input type="checkbox" disabled><span class="chk__lamp" aria-hidden="true"></span><span class="chk__t"><b>무장 연동</b><small>정비반 작업 중</small></span><span class="chk__st" aria-hidden="true"></span></label>
+      </div></fieldset></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 3-E · 무장 선택</span><span>WEAPON</span></div><div class="unit__body"><div class="spec"><h3>라디오 · 무장 선택 <small>WPN</small></h3><p>하나만 고를 때. 무장을 바꾸면 옆 화면과 위쪽 모니터의 조준선 모양이 함께 바뀝니다.</p></div>
+    <div class="deck"><div class="wpns"><fieldset class="stack"><legend>주 무장</legend>
+      <label class="wpn bk"><input type="radio" name="wpn" value="rifle" checked><span class="wpn__ico" aria-hidden="true"><svg viewBox="0 0 52 34"><path d="M2 14h34l6-4h8v8h-8l-4 2H24l-4 10h-8l3-10H2z"/><path d="M26 14v-5h6v5"/></svg></span><span class="wpn__t"><b>빔 라이플</b><small>사거리 3.2km · 잔탄 24</small></span></label>
+      <label class="wpn bk"><input type="radio" name="wpn" value="shield"><span class="wpn__ico" aria-hidden="true"><svg viewBox="0 0 52 34"><path d="M14 2h24l6 8-4 18-14 4-14-4-4-18z"/><path d="M26 6v24M16 12h20"/></svg></span><span class="wpn__t"><b>실드</b><small>전면 방어 · 내구 68%</small></span></label>
+      <label class="wpn bk"><input type="radio" name="wpn" value="blade"><span class="wpn__ico" aria-hidden="true"><svg viewBox="0 0 52 34"><path d="M4 30l6-6M8 22l6 6M11 25L44 4l4 2-26 26z"/></svg></span><span class="wpn__t"><b>근접 블레이드</b><small>사거리 40m · 출력 소모</small></span></label>
+    </fieldset>
+    <div class="wpnview bk" id="wpnview" data-show="rifle"><svg viewBox="0 0 132 132" aria-hidden="true">
+      <circle cx="66" cy="66" r="58" stroke-width="1" stroke-dasharray="3 6" opacity=".6"/>
+      <g data-w="rifle" stroke-width="1.6"><circle cx="66" cy="66" r="28"/><path d="M66 30v18M66 84v18M30 66h18M84 66h18"/><path d="M60 98h12M62 104h8M64 110h4"/></g>
+      <g data-w="shield" stroke-width="1.8"><path d="M30 46a44 44 0 0 1 72 0M30 86a44 44 0 0 0 72 0"/><path d="M66 50l14 6v12c0 9-6 15-14 18-8-3-14-9-14-18V56z"/></g>
+      <g data-w="blade" stroke-width="2"><path d="M40 52l14 14-14 14M92 52L78 66l14 14"/><path d="M66 40v14M66 78v14"/></g>
+      <circle cx="66" cy="66" r="2.4" fill="#6cf5a0"/></svg><output id="wpnOut" aria-live="polite">조준선: 빔 라이플</output></div></div></div></div></article>
+</section>
+
+<!-- 고르기 -->
+<section class="ch" id="choose">
+  <div class="ch__head"><div class="ch__code"><b>CH-04</b>SELECT<em>DETENT</em></div><h2>고르기<span>SELECT</span></h2><div class="ruler" aria-hidden="true"></div><p>고르는 것은 딸깍 걸리는 멈춤쇠처럼. 고른 칸에 불이 들어오고, 그 자리에 잠깁니다.</p></div>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 4-A · 비행 모드</span><span>MODE</span></div><div class="unit__body"><div class="spec"><h3>세그먼트 · 비행 모드</h3><p>셋 중 하나를 바로 바꿀 때. 빛나는 블록이 멈춤쇠를 따라 미끄러져 잠깁니다.</p><ul><li>←→ 키로 바꿉니다.</li></ul></div>
+    <div class="deck col" style="align-items:center"><div class="mode" id="mode" role="radiogroup" aria-label="비행 모드"><button role="radio" aria-checked="true" data-d="추진제를 아끼며 편대 속도에 맞춥니다. 최대 추력 <b>60%</b>"><small>CRUISE</small>순항</button><button role="radio" aria-checked="false" data-d="자세 제어 추진기를 모두 열고 회피를 우선합니다. 최대 추력 <b>100%</b>"><small>COMBAT</small>전투</button><button role="radio" aria-checked="false" data-d="움직임을 줄이고 사격 안정화를 켭니다. 최대 추력 <b>35%</b>"><small>PRECISE</small>정밀</button></div><p class="mode-d" id="modeD" aria-live="polite"></p></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 4-B · 모니터 채널</span><span>MFD</span></div><div class="unit__body"><div class="spec"><h3>탭 · 모니터 채널 <small>CH</small></h3><p>탭은 다기능 화면 위의 베젤 키. 고른 키는 눌린 채로 램프가 켜지고, 아래 화면이 그 채널로 바뀝니다.</p><ul><li>←→, Home, End 키로 넘깁니다.</li></ul></div>
+    <div class="deck col"><div class="mfd">
+      <div class="mfd__keys" role="tablist" aria-label="모니터 채널" id="tabs">
+        <button class="mfd__key" role="tab" aria-selected="true" aria-controls="tp1" id="t1">전방<small>FWD</small></button><button class="mfd__key" role="tab" aria-selected="false" aria-controls="tp2" id="t2" tabindex="-1">후방<small>AFT</small></button><button class="mfd__key" role="tab" aria-selected="false" aria-controls="tp3" id="t3" tabindex="-1">레이더<small>RDR</small></button><button class="mfd__key" role="tab" aria-selected="false" aria-controls="tp4" id="t4" tabindex="-1">통신<small>COM</small></button></div>
+      <div class="mfd__scr bk" role="tabpanel" id="tp1" aria-labelledby="t1" tabindex="0"><h4>FORWARD · 전방 카메라</h4><div class="mfd__split"><svg viewBox="0 0 140 140" aria-hidden="true"><g stroke="#6cf5a0" fill="none" stroke-width="1.5"><path d="M10 78L130 62"/><path d="M40 52l60-8M30 104l80-10" stroke-dasharray="5 4"/><path d="M58 70h24M70 58v24"/><circle cx="70" cy="70" r="6"/></g></svg><p>콜로니 외벽까지 4.1km. 진로에 잔해 둘. 기수를 2도 올리면 그대로 통과할 수 있습니다.</p></div></div>
+      <div class="mfd__scr bk" role="tabpanel" id="tp2" aria-labelledby="t2" tabindex="0" hidden><h4>AFT · 후방 카메라</h4><p>후방 5시 방향에 열원 하나. 거리 1.8km, 같은 속도로 따라오고 있습니다. 아직 록온 신호는 없습니다.</p></div>
+      <div class="mfd__scr bk" role="tabpanel" id="tp3" aria-labelledby="t3" tabindex="0" hidden><h4>RADAR · 광역 레이더</h4><div class="mfd__split"><div class="radar" style="position:relative;right:auto;bottom:auto;width:130px;height:130px" aria-hidden="true"><i style="left:70%;top:28%"></i><i style="left:30%;top:66%"></i><i class="a" style="left:46%;top:38%"></i><i class="me" style="left:50%;top:50%"></i></div><p>적 둘, 아군 셋. 가장 가까운 적은 북동쪽 2.4km에서 다가오는 중입니다.</p></div></div>
+      <div class="mfd__scr bk" role="tabpanel" id="tp4" aria-labelledby="t4" tabindex="0" hidden><h4>COMMS · 편대 교신</h4><ol class="log"><li class="c"><span>14:21:08</span>관제: 칼새 편대, 항로 개방</li><li><span>14:21:30</span>칼새-2: 좌측 붙었습니다</li><li><span>14:21:52</span>칼새-3: 연료 72, 이상 없음</li><li class="c"><span>14:22:10</span>관제: 미확인 기체 접근 중, 주의</li></ol></div>
+    </div></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 4-C · 표적 필터</span><span>FILTER</span></div><div class="unit__body"><div class="spec"><h3>필터 칩 · 표적 분류</h3><p>여러 개를 켜고 끄는 필터. 켜진 분류는 다이아몬드가 차오르고, 레이더에 그 종류만 남습니다.</p></div>
+    <div class="deck"><div class="chips"><button class="chip chip--e" aria-pressed="true"><i aria-hidden="true"></i>적기<span class="n">2</span></button><button class="chip chip--s" aria-pressed="true"><i aria-hidden="true"></i>함선<span class="n">1</span></button><button class="chip chip--m" aria-pressed="false"><i aria-hidden="true"></i>미사일<span class="n">0</span></button><button class="chip chip--a" aria-pressed="true"><i aria-hidden="true"></i>아군<span class="n">3</span></button><button class="chip chip--d" aria-pressed="false"><i aria-hidden="true"></i>잔해<span class="n">14</span></button></div></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 4-D · 선택과 추력</span><span>THROTTLE</span></div><div class="unit__body"><div class="spec"><h3>드롭다운과 스로틀 <small>THR</small></h3><p>목록이 길면 드롭다운. 추력은 스로틀 손잡이로. 80%의 관문을 넘으면 줄무늬 애프터버너 구역으로 들어가고, 숫자가 호박색으로 바뀝니다.</p></div>
+    <div class="deck col">
+      <div class="field"><label for="sel1">편대 대형 <small>4기 기준</small></label><div class="select"><select id="sel1"><option>쐐기 대형</option><option selected>사다리 대형</option><option>일렬 횡대</option><option>상자 대형</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+      <div class="thr" id="thr"><div class="thr__top"><label class="flabel" for="rg">주 추진기 스로틀</label><span style="display:flex;gap:12px;align-items:flex-end"><span class="thr__mode" id="thrMode">MIL</span><output id="rgOut" for="rg">55<small>%</small></output></span></div><input type="range" id="rg" min="0" max="100" step="1" value="55" aria-describedby="thrMode"><div class="thr__scale" aria-hidden="true"><span style="left:0">0</span><span style="left:50%">50</span><span class="gate" style="left:80%">AB 80</span><span style="left:100%">100</span></div></div>
+    </div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 4-E · 부위별 상태</span><span>FRAME</span></div><div class="unit__body"><div class="spec"><h3>사이드 메뉴 · 기체 부위</h3><p>기체를 부위별로 살펴보는 메뉴. 지금 보는 부위는 왼쪽에 색 띠가 붙고, 옆 그림에서 흰 선으로 떠오릅니다.</p></div>
+    <div class="deck"><div class="parts-wrap"><nav aria-label="기체 부위"><ul class="parts" id="parts"></ul></nav><span id="partsMech"></span></div></div></div></article>
+</section>
+
+<!-- 입력 -->
+<section class="ch" id="type-in">
+  <div class="ch__head"><div class="ch__code"><b>CH-05</b>INPUT<em>RECESSED SCREEN</em></div><h2>입력<span>INPUT</span></h2><div class="ruler" aria-hidden="true"></div><p>입력 칸은 콘솔에 파묻힌 작은 화면. 포커스가 들어오면 바깥에서 브래킷이 조여 들고, 커서는 녹색으로 깜박입니다.</p></div>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 5-A · 글자 입력</span><span>FIELD</span></div><div class="unit__body"><div class="spec"><h3>글자 입력</h3><p>이름은 칸 위에. 틀리면 테두리가 빨강으로, 무엇을 어떻게 고칠지 한 문장으로 알립니다.</p></div>
+    <div class="deck deck--scr col bk"><div class="grid2">
+      <div class="field"><label for="i1">콜사인</label><div class="in bk"><input id="i1" placeholder="예: 칼새-1" autocomplete="off"></div></div>
+      <div class="field"><label for="i2">교신 주소</label><div class="in bk is-err"><input id="i2" type="email" value="kalsae1@hannuri" aria-invalid="true" aria-describedby="i2e" autocomplete="email"></div><span class="help err" id="i2e">주소 끝이 빠졌어요. kalsae1@hannuri.net처럼 적어 주세요.</span></div>
+      <div class="field"><label for="i3">표적 검색</label><div class="in bk"><span class="in__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></span><input id="i3" type="search" placeholder="식별 코드, 기종"></div></div>
+      <div class="field"><label for="i4">기동 코드</label><div class="in bk is-ok"><input id="i4" type="password" value="HAWK-0721-ALPHA" autocomplete="new-password" aria-describedby="i4h"><button class="in__btn" type="button" id="pwBtn" aria-pressed="false" aria-controls="i4">보기</button></div><span class="help ok" id="i4h">코드 길이 충분</span></div>
+      <div class="field"><label for="i5">예비 탄창</label><div class="in bk"><input id="i5" class="numi" type="number" value="3" min="0" max="6"><span class="in__aff">개</span></div></div>
+      <div class="field"><label for="i6">기체 번호 <small>LOCKED</small></label><div class="in is-off"><input id="i6" value="MF-07-0042" disabled></div></div>
+    </div></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 5-B · 시각과 메모</span><span>LOG</span></div><div class="unit__body"><div class="spec"><h3>날짜와 긴 글</h3><p>날짜와 시각은 기본 달력으로. 작전 메모는 남은 글자 수를 아래에 숫자로.</p></div>
+    <div class="deck deck--scr col bk">
+      <div class="grid2"><div class="field"><label for="d1">출격 일자</label><div class="in bk"><input id="d1" type="date" value="2026-11-22"></div></div><div class="field"><label for="d2">발진 시각</label><div class="in bk"><input id="d2" type="time" value="14:20"></div></div></div>
+      <div class="field"><label for="ta">작전 메모</label><div class="in bk"><textarea id="ta" maxlength="200" placeholder="예: 편대 후미 엄호">왼다리 무릎 관절 경고등. 착지할 때 오른발부터 디딜 것.</textarea></div><div class="count" id="taCount" aria-live="polite"></div></div>
+    </div></div></article>
+</section>
+
+<!-- 보여 주기 -->
+<section class="ch" id="show">
+  <div class="ch__head"><div class="ch__code"><b>CH-06</b>DISPLAY<em>STATUS</em></div><h2>보여 주기<span>DISPLAY</span></h2><div class="ruler" aria-hidden="true"></div><p>상태 태그, 편대원 카드와 표적 카드, 반응로 계기와 잔탄, 실드, 기체 손상도. 숫자는 늘 계기 글꼴로.</p></div>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 6-A · 상태 태그</span><span>BADGE</span></div><div class="unit__body"><div class="spec"><h3>상태 태그</h3><p>왼쪽 색 띠와 램프가 종류를 알리고, 글자로도 적습니다. 피격은 램프가 깜박입니다.</p></div>
+    <div class="deck"><div class="tags"><span class="tag">대기</span><span class="tag tag--ok">출격 중</span><span class="tag tag--red">교전</span><span class="tag tag--ally">귀환</span><span class="tag tag--amb">피격 · 경미</span><span class="tag tag--ally">아군</span></div></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 6-B · 카드</span><span>SQUAD · TARGET</span></div><div class="unit__body"><div class="spec"><h3>편대원 카드와 표적 카드</h3><p>편대원은 하늘색 브래킷의 신분판. 내 카드만 녹색. 표적 카드는 빨간 브래킷에 거리, 속도, 위협 단계.</p></div>
+    <div class="deck col"><div class="cards" id="cards">
+      <div class="tc bk"><div class="tc__h"><small>TARGET · 표적 정보</small><b>TGT-04</b></div><h4>미확인 기체 Λ-2</h4><dl><div><dt>거리</dt><dd>2.4km</dd></div><div><dt>속도</dt><dd>380</dd></div><div><dt>방위</dt><dd>042°</dd></div></dl><div class="threat">위협 단계<span aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>3 / 5</div><div><button class="hb hb--red hb--sm" data-toast="track">추적 지정</button></div></div></div>
+    </div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 6-C · 계기</span><span>GAUGE</span></div><div class="unit__body"><div class="spec"><h3>반응로 · 잔탄 · 실드 <small>PROGRESS</small></h3><p>출력은 270도 원호 계기, 잔탄은 탄창 속 한 발 한 발, 실드는 스무 칸 막대. 실드가 40% 아래면 호박색, 20% 아래면 빨강.</p></div>
+    <div class="deck deck--scr col bk"><div class="gauges">
+      <div class="gbox bk"><div class="rgauge" id="rgauge" role="progressbar" aria-label="반응로 출력" aria-valuemin="0" aria-valuemax="100" aria-valuenow="87"></div><b>반응로 출력</b><span>정격 범위 70–95%</span></div>
+      <div class="gbox bk"><div class="ammo" id="ammo" role="progressbar" aria-label="빔 라이플 잔탄" aria-valuemin="0" aria-valuemax="30" aria-valuenow="24"></div><div class="ammo-n" id="ammoN">24<small> / 30</small></div><div class="row2"><button class="hb hb--amb hb--sm" id="fire">사격</button><button class="hb hb--sm" id="reload">재장전</button></div></div>
+    </div>
+      <div class="shield" id="shield"><div class="shield__top"><b>실드 내구</b><output id="shieldOut">68%</output></div><div class="shield__bar" id="shieldBar" role="progressbar" aria-label="실드 내구" aria-valuemin="0" aria-valuemax="100" aria-valuenow="68"></div><div class="row2" style="display:flex;gap:10px;flex-wrap:wrap"><button class="hb hb--red hb--sm" id="hit">피격 시험</button><button class="hb hb--ally hb--sm" id="recharge">재충전</button></div></div>
+    </div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 6-D · 손상도</span><span>DAMAGE</span></div><div class="unit__body"><div class="spec"><h3>기체 손상도 <small>FRAME</small></h3><p>기체 그림의 부위마다 상태 색을 칠합니다. 위험한 부위는 깜박이고, 옆 목록에서 숫자로 확인합니다.</p></div>
+    <div class="deck deck--scr bk"><div class="dmg"><span id="dmgMech"></span><div><ul id="dmgList"></ul><div class="legend"><span style="--c:var(--hud)">정상 70+</span><span style="--c:var(--amb)">주의 35+</span><span style="--c:var(--red)">위험</span></div></div></div></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 6-E · 출격 순서</span><span>SEQUENCE</span></div><div class="unit__body"><div class="spec"><h3>단계 · 출격 순서</h3><p>카타풀트 레일 위의 마름모 표지. 지난 단계는 어두운 녹색, 지금 단계는 켜져서 깜박입니다.</p></div>
+    <div class="deck"><ol class="seq" aria-label="출격 순서"><li class="done"><span><b>01</b></span>기동<small>BOOT</small></li><li class="done"><span><b>02</b></span>카타풀트<small>CATAPULT</small></li><li class="now" aria-current="step"><span><b>03</b></span>발진<small>LAUNCH</small></li><li><span><b>04</b></span>편대 합류<small>FORM UP</small></li></ol></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 6-F · 브리핑</span><span>BRIEF</span></div><div class="unit__body"><div class="spec"><h3>아코디언 · 작전 브리핑</h3><p>긴 설명은 한 장씩 접어 둡니다. 펼친 장은 녹색으로 켜지고 화살표가 위로 돕니다.</p></div>
+    <div class="deck"><div class="brief">
+      <details open><summary><b>Q-01</b>작전 목표는 무엇인가요?</summary><div>콜로니 3번 항구까지 수송선을 호위합니다. 교전은 피하고, 수송선이 입항하면 바로 귀환합니다.</div></details>
+      <details><summary><b>Q-02</b>적과 마주치면 어떻게 하나요?</summary><div>편대장의 지시 전에는 먼저 쏘지 않습니다. 록온 경고가 뜨면 회피 기동부터.</div></details>
+      <details><summary><b>Q-03</b>모함과 교신이 끊기면요?</summary><div>예비 주파수로 바꾸고, 30분 뒤에도 끊겨 있으면 마지막 집결 지점으로 돌아갑니다.</div></details>
+    </div></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 6-G · 편대 목록</span><span>ROSTER</span></div><div class="unit__body"><div class="spec"><h3>표 · 편대 기체 목록</h3><p>머리글을 누르면 정렬되고, 정렬 방향이 화살표로 보입니다. 콜사인은 아군 하늘색.</p></div>
+    <div class="deck col">
+      <div class="tablewrap"><table id="tbl"><caption>칼새 편대 · 1쪽</caption><thead><tr><th scope="col" aria-sort="ascending"><button data-k="0">콜사인</button></th><th scope="col">기체</th><th scope="col">상태</th><th scope="col" class="n" aria-sort="none"><button data-k="3">반응로</button></th><th scope="col" class="n" aria-sort="none"><button data-k="4">격추</button></th></tr></thead>
+      <tbody>
+        <tr><td class="cs">칼새-1</td><td>MF-07 하늘매</td><td><span class="tag tag--ok">출격 중</span></td><td class="n">87%</td><td class="n">12</td></tr>
+        <tr><td class="cs">칼새-2</td><td>MF-05 참매</td><td><span class="tag tag--ok">출격 중</span></td><td class="n">91%</td><td class="n">7</td></tr>
+        <tr><td class="cs">칼새-3</td><td>MF-05 황조롱이</td><td><span class="tag tag--amb">피격 · 경미</span></td><td class="n">64%</td><td class="n">9</td></tr>
+        <tr><td class="cs">칼새-4</td><td>RF-02 올빼미</td><td><span class="tag">대기</span></td><td class="n">40%</td><td class="n">1</td></tr>
+      </tbody></table></div>
+      <div class="pager"><span id="pgInfo">기체 12기 중 1–4</span><nav aria-label="쪽"><ol><li><button aria-label="이전 쪽" disabled>‹</button></li><li><button aria-current="page">1</button></li><li><button>2</button></li><li><button>3</button></li><li><button aria-label="다음 쪽">›</button></li></ol></nav></div>
+    </div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 6-H · 비어 있음</span><span>NO SIGNAL</span></div><div class="unit__body"><div class="spec"><h3>비어 있음</h3><p>빈 화면에는 빈 레이더 하나와 할 일 하나.</p></div>
+    <div class="deck deck--scr bk"><div class="empty"><svg viewBox="0 0 130 130" aria-hidden="true"><g fill="none" stroke="#2b6d4c" stroke-width="1.5"><circle cx="65" cy="65" r="60"/><circle cx="65" cy="65" r="40"/><circle cx="65" cy="65" r="20"/><path d="M5 65h120M65 5v120"/></g><path d="M65 65L107 22" stroke="#6cf5a0" stroke-width="2"/><path d="M65 65L107 22A60 60 0 0 1 125 65z" fill="rgba(108,245,160,.15)"/><path d="M59 72l6-12 6 12" fill="none" stroke="#6cf5a0" stroke-width="2"/></svg><b>레이더에 반응 없음</b><p>반경 8km 안에 잡히는 것이 없습니다. 범위를 넓혀 다시 훑어보세요.</p><button class="key key--sm" data-toast="scan">광역 탐색</button></div></div></div></article>
+</section>
+
+<!-- 띄우기 -->
+<section class="ch" id="float">
+  <div class="ch__head"><div class="ch__code"><b>CH-07</b>OVERLAY<em>ALERT</em></div><h2>띄우기<span>OVERLAY</span></h2><div class="ruler" aria-hidden="true"></div><p>경고 창은 화면 가운데로 철컥 잠겨 들어오고, 보조 모니터는 레일을 따라 오른쪽에서 밀려옵니다. 교신은 화면 오른쪽 끝에서 들어와 5초 뒤 빠집니다.</p></div>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 7-A · 경고 창</span><span>DIALOG</span></div><div class="unit__body"><div class="spec"><h3>경고 창</h3><p>당장 판단해야 할 때. 뒤는 붉게 어두워지고, 버튼은 할 행동을 말합니다. Esc로 닫힙니다.</p></div>
+    <div class="deck"><button class="key key--red" id="dlgOpen">록온 경고 시험</button><button class="hb hb--amb" data-eject>탈출 확인 창</button></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 7-B · 보조 모니터</span><span>AUX</span></div><div class="unit__body"><div class="spec"><h3>보조 모니터</h3><p>지금 화면을 떠나지 않고 설정할 때. 오른쪽 레일에서 미끄러져 들어와 잠깁니다. 포커스는 안에 갇히고 Esc나 바깥을 누르면 닫힙니다.</p></div>
+    <div class="deck"><button class="key key--ally" id="sideOpen">편대 설정 열기</button></div></div></article>
+
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 7-C · 교신</span><span>TOAST</span></div><div class="unit__body"><div class="spec"><h3>교신 알림</h3><p>모함 관제는 하늘색, 주의는 호박색, 위협은 빨강. 위협만 바로 읽어 주고(alert), 나머지는 조용히(status).</p></div>
+    <div class="deck"><button class="key key--ally" data-toast="comms">관제 교신</button><button class="hb hb--amb" data-toast="caution">주의 알림</button><button class="key key--red" data-toast="warn">위협 경고</button></div></div></article>
+</section>
+
+<!-- 코드 -->
+<section class="ch" id="code">
+  <div class="ch__head"><div class="ch__code"><b>CH-08</b>CODE<em>TAILWIND V4</em></div><h2>코드<span>CODE</span></h2><div class="ruler" aria-hidden="true"></div><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 색 토큰과 브래킷, 장갑 키를 유틸리티로 씁니다.</p></div>
+  <article class="unit"><div class="unit__bar"><i></i><span>PNL 8-A · globals.css</span><span>COPY</span></div><div class="unit__body"><div class="deck col" style="grid-column:1/-1;padding:40px 24px 28px"><div class="codebar"><span class="flabel">app/globals.css</span><button class="hb hb--sm" id="copyBtn">복사하기</button></div><pre class="code" id="codeBlock"></pre></div></div></article>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap"><b>COCKPIT</b><span>Saira Condensed · Oxanium · Noto Sans KR</span><span>MF-07 하늘매와 칼새 편대, 모함 한누리는 모두 지어낸 이름입니다.</span>
+    <nav aria-label="다른 시스템"><a href="../">Oat</a><a href="../riso/">Riso</a><a href="../arcology/">Arcology</a><a href="../dal/">Dal</a><a href="../canopy/">Canopy</a><a href="../sansa/">Sansa</a><a href="../abyss/">Abyss</a><a href="../atomic/">Atomic</a><a href="../riad/">Riad</a><a href="../zoo/">Zoo Orbit</a></nav></div>
+</footer>
+
+<dialog id="dlg" class="red" aria-labelledby="dlgT" aria-describedby="dlgD">
+  <div class="dlg dlg--red bk"><div class="dlg__strip" aria-hidden="true"></div><div class="dlg__head"><span>WARNING · 경고</span><b>LOCK-ON</b></div>
+    <div class="dlg__body"><h3 id="dlgT">경고: 적 록온</h3><p id="dlgD">후방 5시 방향의 기체가 하늘매를 조준했습니다. 미사일이 날아올 수 있습니다.</p>
+      <dl class="dlg__data"><div><dt>방위</dt><dd>5시</dd></div><div><dt>거리</dt><dd>1.8km</dd></div><div><dt>접근</dt><dd>+42</dd></div></dl>
+      <div class="dlg__foot"><button class="hb hb--red" data-close data-after="flare">플레어 사출</button><button class="key key--red" data-close data-after="evade">회피 기동</button></div></div></div>
+</dialog>
+
+<dialog id="dlgEject" aria-labelledby="ejT" aria-describedby="ejD">
+  <div class="dlg dlg--haz bk"><div class="dlg__strip" aria-hidden="true"></div><div class="dlg__head"><span>EJECT · 비상 탈출</span><span>CONFIRM</span></div>
+    <div class="dlg__body"><h3 id="ejT">기체를 버리고 탈출할까요?</h3><p id="ejD">조종석 블록만 떼어 내 사출합니다. 하늘매는 그 자리에 남고, 되돌릴 수 없습니다.</p>
+      <div class="dlg__foot"><button class="hb" data-close>계속 조종</button><button class="key key--red" data-close data-after="eject">탈출</button></div></div></div>
+</dialog>
+
+<div class="scrim" id="scrim"></div>
+<aside class="side" id="side" role="dialog" aria-modal="true" aria-labelledby="sideT" aria-hidden="true">
+  <div class="side__head"><div><small>AUX-2 · 보조 모니터</small><h3 id="sideT">편대 설정</h3></div><button class="knob knob--sm" aria-label="닫기" data-sclose><i aria-hidden="true"></i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="side__body">
+    <div class="field"><label for="s1">편대장 콜사인</label><div class="in bk"><input id="s1" value="칼새-1"></div></div>
+    <div class="field"><label for="s2">대형</label><div class="select"><select id="s2"><option>쐐기 대형</option><option selected>사다리 대형</option><option>일렬 횡대</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+    <div class="field"><label for="s3">간격</label><div class="in bk"><input id="s3" class="numi" type="number" value="120" step="10"><span class="in__aff">m</span></div></div>
+    <button class="rocker" role="switch" aria-checked="true"><span class="rocker__s" aria-hidden="true"><span>OFF</span><span>ON</span></span><span class="rocker__t"><b>자동 추종</b><small>편대장의 기동을 따라갑니다</small></span></button>
+  </div>
+  <div class="side__foot"><button class="tb" data-sclose>닫기</button><button class="key" data-sclose data-after="saved">적용</button></div>
+</aside>
+<div class="comms" id="comms"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  document.documentElement.dataset.weapon = 'rifle';
+
+  // Seeded stars so the sky is the same every load
+  let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  let st = ''; for (let i = 0; i < 170; i++) { const x = rnd() * 1600, y = rnd() * 620, r = rnd() < .9 ? rnd() * 1.1 + .3 : rnd() * 1.4 + 1; st += `<circle${rnd() < .12 ? ' class="tw"' : ''} cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(2)}" fill="${rnd() < .2 ? '#bcd8ff' : '#fff'}" opacity="${(rnd() * .6 + .3).toFixed(2)}" style="animation-delay:${(rnd() * -3).toFixed(1)}s"/>`; }
+  $('#stars').innerHTML = st;
+
+  // ---------- Mecha frame (original design): polygons per part, right side mirrored ----------
+  const P = {
+    thr: [[[52, 50], [60, 20], [68, 24], [68, 54]]],
+    head: [[[86, 16], [114, 16], [120, 28], [116, 46], [84, 46], [80, 28]]],
+    torso: [[[70, 52], [130, 52], [138, 72], [128, 118], [112, 128], [88, 128], [72, 118], [62, 72]], [[86, 130], [114, 130], [118, 142], [82, 142]]],
+    armL: [[[36, 54], [64, 52], [68, 76], [44, 82], [32, 70]], [[42, 84], [60, 80], [62, 118], [46, 120]], [[40, 122], [62, 120], [64, 160], [44, 164], [38, 150]], [[44, 166], [60, 164], [60, 180], [46, 182]]],
+    legL: [[[78, 144], [96, 144], [96, 184], [80, 186]], [[76, 188], [97, 186], [98, 200], [78, 202]], [[78, 204], [97, 202], [99, 238], [74, 242]], [[66, 244], [97, 242], [98, 254], [62, 256]]],
+  };
+  const mir = ps => ps.map(poly => poly.map(([x, y]) => [200 - x, y]));
+  P.armR = mir(P.armL); P.legR = mir(P.legL);
+  const thrBoth = [...P.thr, ...mir(P.thr)];
+  const PARTS = [['head', '머리', 100], ['torso', '몸통', 82], ['armL', '왼팔', 45], ['armR', '오른팔', 100], ['legL', '왼다리', 18], ['legR', '오른다리', 90], ['thr', '추진기', 70]];
+  const lvl = v => v >= 70 ? 'ok' : v >= 35 ? 'warn' : 'crit';
+  const poly = ps => ps.map(p => `<polygon points="${p.map(q => q.join(',')).join(' ')}"/>`).join('');
+  const mech = (sel, label) => {
+    const g = (k, ps) => { const v = PARTS.find(p => p[0] === k)[2]; return `<g class="p p--${lvl(v)}${sel === k ? ' is-sel' : ''}" data-part="${k}">${poly(ps)}</g>`; };
+    return `<svg class="mech" viewBox="0 0 200 262" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}>${g('thr', thrBoth)}${g('armL', P.armL)}${g('armR', P.armR)}${g('legL', P.legL)}${g('legR', P.legR)}${g('torso', P.torso)}${g('head', P.head)}
+      <rect class="vis" x="88" y="28" width="24" height="5"/><path class="det" d="M86 70h28l-6 22H92zM100 52v18M84 130l-4 12M116 130l4 12"/></svg>`;
+  };
+  $('#dashMech').innerHTML = mech();
+  $('#dmgMech').innerHTML = mech(null, '기체 손상도: ' + PARTS.map(p => `${p[1]} ${p[2]}%`).join(', '));
+  const colr = v => ({ ok: 'var(--hud)', warn: 'var(--amb)', crit: 'var(--red)' })[lvl(v)];
+  $('#dmgList').innerHTML = PARTS.map(([, n, v]) => `<li style="--c:${colr(v)};--v:${v}%"><span style="text-align:left;color:var(--tx);font-family:var(--font-kr)">${n}</span><i></i><span>${v}%</span></li>`).join('');
+
+  // Side menu: body parts
+  let curPart = 'legL';
+  const drawParts = () => {
+    $('#parts').innerHTML = PARTS.map(([k, n, v]) => `<li><a href="#show" data-k="${k}" class="${lvl(v) === 'ok' ? '' : lvl(v)}"${k === curPart ? ' aria-current="page"' : ''}><i aria-hidden="true"></i>${n}<em>${v}%</em></a></li>`).join('');
+    $('#partsMech').innerHTML = mech(curPart);
+  };
+  drawParts();
+  $('#parts').addEventListener('click', e => { const a = e.target.closest('a'); if (!a) return; e.preventDefault(); curPart = a.dataset.k; drawParts(); $(`#parts a[data-k="${curPart}"]`).focus(); });
+
+  // Dashboard reactor bar
+  $('#dashRB').innerHTML = Array.from({ length: 12 }, (_, i) => `<i class="${i < 10 ? 'on' : ''}"></i>`).join('');
+
+  // ---------- Hero HUD: tapes, ladder, reticle that snaps onto targets ----------
+  const tapeH = h => { let s = ''; for (let d = -60; d <= 60; d += 5) { const deg = Math.round(h / 5) * 5 + d, x = (deg - h) * 4; const n = ((deg % 360) + 360) % 360; s += `<i class="${n % 15 === 0 ? 'l' : ''}" style="left:${x}px"></i>${n % 15 === 0 ? `<b style="left:${x}px">${String(n).padStart(3, '0')}</b>` : ''}`; } $('#htape').innerHTML = s; $('#hdg').textContent = String(Math.round(((h % 360) + 360) % 360)).padStart(3, '0'); };
+  const tapeV = (el, v, step, side) => { let s = ''; const base = Math.round(v / step) * step; for (let k = -7; k <= 7; k++) { const val = base + k * step, y = (v - val) * (20 / step); s += `<i class="${k % 2 === 0 ? 'l' : ''}" style="top:${y}px"></i>${k % 2 === 0 ? `<b style="top:${y}px">${val}</b>` : ''}`; } el.innerHTML = s; };
+  let hdg = 42, spd = 412, alt = 1280;
+  const drawTapes = () => { tapeH(hdg); tapeV($('#spd'), spd, 10); tapeV($('#alt'), alt, 50); $('#spdV').textContent = Math.round(spd); $('#altV').textContent = Math.round(alt); };
+  drawTapes();
+  let t0 = Date.now(); setInterval(() => { const s = 862 + Math.floor((Date.now() - t0) / 1000); $('#clock').textContent = `T+00:${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }, 1000);
+
+  const mon = $('#mon'), ret = $('#ret'), retT = $('#retT'), lad = $('#ladder'), tg = $$('[data-enemy]', mon);
+  let W = 0, H = 0, cx = 0, cy = 0, tx = 0, ty = 0, x = 0, y = 0, inside = false, live = true, locked = null;
+  const measure = () => { const r = mon.getBoundingClientRect(), cs = getComputedStyle(mon); W = r.width; H = r.height; cx = parseFloat(cs.getPropertyValue('--hx')) / 100 * W; cy = parseFloat(cs.getPropertyValue('--hy')) / 100 * H; if (!inside) { tx = cx; ty = cy; } };
+  const place = () => { ret.style.transform = `translate(${x}px, ${y}px)`; };
+  measure(); x = tx; y = ty; place();
+  addEventListener('resize', () => { measure(); if (reduce.matches) { x = cx; y = cy; place(); } });
+  mon.addEventListener('pointermove', e => { if (reduce.matches) return; const r = mon.getBoundingClientRect(); tx = e.clientX - r.left; ty = e.clientY - r.top; inside = true; });
+  mon.addEventListener('pointerleave', () => { inside = false; tx = cx; ty = cy; });
+  new IntersectionObserver(([e]) => { live = e.isIntersecting; }).observe(mon);
+  let tick = 0;
+  const loop = () => {
+    requestAnimationFrame(loop);
+    if (!live || reduce.matches) return;
+    tick++;
+    // enemies drift a little
+    const ctr = tg.map((el, i) => { const dx = Math.sin(tick / (90 + i * 30)) * 26, dy = Math.cos(tick / (120 + i * 20)) * 14; el.style.transform = `translate(${dx}px, ${dy}px)`; return [el.offsetLeft + dx, el.offsetTop + dy, el]; });
+    let best = null, bd = 74;
+    ctr.forEach(c => { const d = Math.hypot(c[0] - tx, c[1] - ty); if (d < bd) { bd = d; best = c; } });
+    if (best) { x = best[0]; y = best[1]; } else { x += (tx - x) * .22; y += (ty - y) * .22; }
+    const el = best && best[2];
+    if (el !== locked) { if (locked) locked.classList.remove('locked'); if (el) el.classList.add('locked'); locked = el; ret.classList.toggle('locked', !!el); retT.textContent = el ? 'LOCK' : 'SEARCH'; }
+    place();
+    const roll = Math.max(-8, Math.min(8, (tx - cx) / W * 18)), pitch = Math.max(-40, Math.min(40, (ty - cy) * .12));
+    lad.style.transform = `translateY(${pitch}px) rotate(${roll}deg)`;
+    if (tick % 4 === 0) { hdg += (tx - cx) / W * 1.2; spd += Math.sin(tick / 80) * .8; alt += Math.cos(tick / 110) * 2.2; drawTapes(); }
+  };
+  requestAnimationFrame(loop);
+
+  // ---------- Nav ----------
+  const links = $$('#nav a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute('aria-current', a.hash === '#' + e.target.id ? 'true' : 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.ch').forEach(s => io.observe(s));
+
+  // ---------- Swatches + type ----------
+  const G = [
+    ['조종석', 'Cabin', [['선실 남색', '#0D1422', '--pl-1', '페이지 바탕'], ['콘솔 흑연', '#1C273D', '--pl-3', '판, 키 캡'], ['판 이음매', '#44567A', '--seam-2', '패널 선, 눈금'], ['화면', '#050D13', '--scr', 'MFD, 입력 칸']]],
+    ['HUD', 'Phosphor', [['인광 녹색', '#6CF5A0', '--hud', '내 것, 정상, 주요 동작'], ['짙은 녹색', '#2B6D4C', '--hud-dim', '꺼진 눈금, 보조 선'], ['계기 흰색', '#E3EBF7', '--tx', '본문, 숫자']]],
+    ['신호', 'Signal', [['아군 하늘', '#8CD2FF', '--ally', '아군, 관제, 실드'], ['주의 호박', '#FFB21E', '--amb', '주의, 애프터버너'], ['신호 빨강', '#FF4655', '--red', '위협, 록온, 손상'], ['위험 노랑', '#F5C400', '--haz', '탈출, 카타풀트 줄무늬']]],
+  ];
+  $('#swatches').innerHTML = G.map(([g, s, it]) => `<div class="swhead">${g}<span>${s}</span></div>` + it.map(([n, hex, v, u]) => `<div class="sw"><i style="background:${hex}"></i><b>${n}</b><code>${v} · ${hex}</code><span>${u}</span></div>`).join('')).join('');
+  $('#typescale').innerHTML = [
+    ['제목', 'Noto Sans KR 900 · 38–104', '<span style="font:900 46px/1.1 var(--font-kr)">출격 준비 완료</span>'],
+    ['라벨', 'Saira Condensed 700 · 12–30', '<span style="font:700 24px/1 var(--font-c);letter-spacing:.24em;color:var(--hud)">MASTER ARM · LAUNCH</span>'],
+    ['본문', 'Noto Sans KR 400 · 16.5/1.75', '<span>콜로니 외벽까지 4.1km. 진로의 잔해를 피해 기수를 2도 올립니다.</span>'],
+    ['계기 숫자', 'Oxanium 700 · tabular', '<span style="font:700 34px/1 var(--font-n);color:var(--hud)">412 · 1280 · 87%</span>'],
+  ].map(([k, s, ex]) => `<div class="typerow"><div class="k"><b>${k}</b><span>${s}</span></div><div>${ex}</div></div>`).join('');
+
+  // ---------- Toasts: comms ----------
+  const T = {
+    comms: ['관제', 'COMMS', '관제: 칼새 편대, 항로 개방', '모함 한누리 · 3번 게이트로 진입하세요', 'ally'],
+    caution: ['주의', 'CAUTION', '왼다리 관절 온도 상승', '착지 충격을 줄이세요 · 현재 82℃', 'amb'],
+    warn: ['경고', 'WARNING', '경고: 미사일 접근', '후방 5시 · 1.8km · 회피 기동', 'red'],
+    launch: ['관제', 'COMMS', '관제: 하늘매, 발진 확인', '칼새-1, 좋은 비행 되길', 'ally'],
+    eject: ['경고', 'EJECT', '비상 탈출 장치 작동', '훈련 모드라 실제로 사출되지 않았습니다', 'red'],
+    done: ['시스템', 'SYS', '데이터 동기화 완료', '모함 전술 데이터 1.2GB 수신', 'ok'],
+    flare: ['시스템', 'SYS', '플레어 6발 사출', '열원 유도 미사일을 흩뜨립니다', 'amb'],
+    evade: ['시스템', 'SYS', '회피 기동 실행', '좌측 하강 선회 · 6G', 'ok'],
+    saved: ['관제', 'COMMS', '편대 설정 적용', '사다리 대형 · 간격 120m', 'ally'],
+    track: ['시스템', 'TGT', '추적 지정: Λ-2', '레이더가 이 표적을 계속 따라갑니다', 'red'],
+    scan: ['시스템', 'RDR', '광역 탐색 시작', '반경 24km · 약 12초', 'ok'],
+    arm: ['주의', 'CAUTION', '마스터 암 켜짐', '모든 무장이 발사 가능 상태입니다', 'amb'],
+  };
+  function toast(k) {
+    const [code, lat, t, s, c] = T[k]; const el = document.createElement('div');
+    el.className = 'toast toast--' + c; el.setAttribute('role', c === 'red' ? 'alert' : 'status');
+    el.innerHTML = `<span class="toast__c" aria-hidden="true">${code}</span><div><small>${lat} · ${new Date().toTimeString().slice(0, 8)}</small><b>${t}</b><span>${s}</span></div><button class="x" aria-label="알림 닫기">×</button>`;
+    const kill = () => { if (el.dataset.out) return; el.dataset.out = 1; el.classList.add('out'); setTimeout(() => el.remove(), reduce.matches ? 0 : 220); }; $('.x', el).onclick = kill;
+    const box = $('#comms'); box.prepend(el); while (box.children.length > 3) box.lastChild.remove(); setTimeout(kill, 5000);
+  }
+  document.addEventListener('click', e => { const b = e.target.closest('[data-toast]'); if (b) toast(b.dataset.toast); });
+
+  // Busy key
+  $('#busyBtn').addEventListener('click', e => { const b = e.currentTarget; if (b.dataset.busy) return; b.dataset.busy = 1; b.setAttribute('aria-disabled', 'true');
+    b.innerHTML = '<span class="scan" aria-hidden="true"></span><span>동기화 중</span>'; setTimeout(() => { b.innerHTML = '<span>수신 완료</span>'; toast('done'); }, 1800); setTimeout(() => { delete b.dataset.busy; b.removeAttribute('aria-disabled'); b.innerHTML = '<span>데이터 동기화</span>'; }, 3400); });
+
+  // ---------- Launch: catapult countdown ----------
+  const L = $('#launch'), LN = $('#launchN'), LS = $('#launchSt'), rail = $$('#rail i');
+  L.addEventListener('click', () => {
+    if (L.getAttribute('aria-disabled') === 'true') return; L.setAttribute('aria-disabled', 'true');
+    const steps = [['3', 2, '카타풀트 접속 · 3'], ['2', 4, '추진기 점화 · 2'], ['1', 6, '사출 압력 최대 · 1'], ['발진', 8, '발진!']];
+    LS.textContent = '카타풀트 접속';
+    steps.forEach(([n, on, msg], i) => setTimeout(() => {
+      LN.textContent = n; LS.textContent = msg; rail.forEach((r, j) => r.classList.toggle('on', j < on));
+      if (i === 3) { L.classList.add('go'); $$('.hero, main').forEach(el => { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }); toast('launch'); }
+    }, 300 + i * 900));
+    setTimeout(() => { L.classList.remove('go'); LN.textContent = '출격'; LS.textContent = '카타풀트 대기 중'; rail.forEach(r => r.classList.remove('on')); L.removeAttribute('aria-disabled'); $$('.shake').forEach(el => el.classList.remove('shake')); }, 300 + 3 * 900 + 2400);
+  });
+
+  // ---------- Eject: hold to pull ----------
+  const ej = $('#eject'), prog = $('#ejectProg'), C = 326.7, HOLD = 1500; let hs = 0, hr = 0, done = false;
+  const setP = p => prog.style.strokeDashoffset = C * (1 - p);
+  const step = now => { const p = Math.min(1, (now - hs) / HOLD); setP(p); if (p < 1) hr = requestAnimationFrame(step); else { done = true; ej.classList.remove('holding'); ej.classList.add('pulled'); $('#ejectHelp').textContent = '작동함'; toast('eject'); setTimeout(() => { ej.classList.remove('pulled'); setP(0); $('#ejectHelp').textContent = '1.5초 동안 누르고 있기'; done = false; }, 2600); } };
+  const start = () => { if (hs || done) return; hs = performance.now(); ej.classList.add('holding'); hr = requestAnimationFrame(step); };
+  const stop = () => { if (!hs) return; cancelAnimationFrame(hr); hs = 0; ej.classList.remove('holding'); if (!done) setP(0); };
+  ej.addEventListener('pointerdown', e => { if (e.button === 0) { ej.setPointerCapture(e.pointerId); start(); } });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => ej.addEventListener(t, stop));
+  ej.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); start(); } });
+  ej.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') stop(); });
+  ej.addEventListener('blur', stop); ej.addEventListener('contextmenu', e => e.preventDefault());
+
+  // ---------- Menu ----------
+  const mb = $('#menuBtn'), ml = $('#menuList'), mi = $$('[role=menuitem]', ml);
+  const closeM = f => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); if (f) mb.focus(); };
+  const openM = (i = 0) => { ml.hidden = false; mb.setAttribute('aria-expanded', 'true'); mi[i].focus(); };
+  mb.addEventListener('click', () => ml.hidden ? openM() : closeM());
+  mb.addEventListener('keydown', e => { if (e.key === 'ArrowDown') { e.preventDefault(); openM(0); } if (e.key === 'ArrowUp') { e.preventDefault(); openM(mi.length - 1); } });
+  ml.addEventListener('keydown', e => { const i = mi.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); mi[(i + 1) % mi.length].focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); mi[(i - 1 + mi.length) % mi.length].focus(); }
+    if (e.key === 'Home') { e.preventDefault(); mi[0].focus(); } if (e.key === 'End') { e.preventDefault(); mi.at(-1).focus(); }
+    if (e.key === 'Escape') closeM(true); if (e.key === 'Tab') closeM(); });
+  mi.forEach(m => m.addEventListener('click', () => closeM(true)));
+  document.addEventListener('click', e => { if (!ml.hidden && !e.target.closest('.menu')) closeM(); });
+
+  // ---------- Guarded switch ----------
+  const gd = $('#guard'), cv = $('#cover'), lv = $('#lever');
+  cv.addEventListener('click', () => { const open = cv.getAttribute('aria-pressed') !== 'true'; cv.setAttribute('aria-pressed', open); cv.setAttribute('aria-label', open ? '보호 덮개 닫기' : '보호 덮개 열기');
+    if (open) { lv.disabled = false; lv.focus(); } else { lv.disabled = true; lv.setAttribute('aria-checked', 'false'); gd.dataset.on = 'false'; $('#guardS').textContent = 'SAFE · 안전'; } });
+  lv.addEventListener('click', () => { const on = lv.getAttribute('aria-checked') !== 'true'; lv.setAttribute('aria-checked', on); gd.dataset.on = on; $('#guardS').textContent = on ? 'ARM · 무장 가능' : 'SAFE · 안전'; if (on) toast('arm'); });
+
+  // ---------- Reactor knob ----------
+  let rs = ''; for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2 - Math.PI / 2, a2 = a + Math.PI * 2 / 24 * .62; rs += `<path class="seg" style="--i:${i}" d="M${64 + Math.cos(a) * 58} ${64 + Math.sin(a) * 58}A58 58 0 0 1 ${64 + Math.cos(a2) * 58} ${64 + Math.sin(a2) * 58}" fill="none" stroke-width="7"/>`; }
+  $('#reactorSvg').innerHTML = rs + `<circle cx="64" cy="64" r="48" fill="#0b111d" stroke="#3a4a66" stroke-width="2"/><circle cx="64" cy="64" r="46" fill="none" stroke="#1d2639" stroke-width="5" stroke-dasharray="3 3"/><g class="rotor"><path d="M64 26l8 28-8 10-8-10zM102 64l-28 8-10-8 10-8zM64 102l-8-28 8-10 8 10zM26 64l28-8 10 8-10 8z" fill="#2b3850" stroke="#5a6a88"/></g><circle class="core" cx="64" cy="64" r="9"/>`;
+  $('#reactor').addEventListener('click', e => { const b = e.currentTarget, on = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', on); $('#reactorS').textContent = on ? '가동 · ONLINE 87%' : '정지 · OFFLINE'; });
+
+  // Rockers + chips
+  document.addEventListener('click', e => {
+    const r = e.target.closest('.rocker'); if (r) r.setAttribute('aria-checked', r.getAttribute('aria-checked') !== 'true');
+    const c = e.target.closest('.chip'); if (c) c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+  });
+
+  // Checkbox group
+  const all = $('#chkAll'), ci = $$('.ci'); const sync = () => { const n = ci.filter(c => c.checked).length; all.checked = n === ci.length; all.indeterminate = n > 0 && n < ci.length; };
+  ci.forEach(c => c.addEventListener('change', sync)); all.addEventListener('change', () => { ci.forEach(c => c.checked = all.checked); sync(); }); sync();
+
+  // Weapon radios drive both reticles
+  const WN = { rifle: '빔 라이플', shield: '실드', blade: '근접 블레이드' };
+  $$('input[name=wpn]').forEach(r => r.addEventListener('change', () => { const w = r.value; document.documentElement.dataset.weapon = w; $('#wpnview').dataset.show = w; $('#wpnOut').textContent = '조준선: ' + WN[w]; $('#wpnName').textContent = WN[w]; }));
+
+  // Segmented flight mode
+  const md = $('#mode'), mbs = $$('button', md);
+  const pickM = (b, f) => { mbs.forEach((x, i) => { const on = x === b; x.setAttribute('aria-checked', on); x.tabIndex = on ? 0 : -1; if (on) md.style.setProperty('--i', i); }); $('#modeD').innerHTML = b.dataset.d; if (f) b.focus(); };
+  mbs.forEach(b => b.addEventListener('click', () => pickM(b, true)));
+  md.addEventListener('keydown', e => { const i = mbs.indexOf(document.activeElement); if (i < 0) return;
+    if (['ArrowRight', 'ArrowDown'].includes(e.key)) { e.preventDefault(); pickM(mbs[(i + 1) % mbs.length], true); }
+    if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); pickM(mbs[(i - 1 + mbs.length) % mbs.length], true); } });
+  pickM(mbs[0]);
+
+  // Tabs
+  const tabs = $$('#tabs [role=tab]'); const sel = t => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); };
+  tabs.forEach(t => t.addEventListener('click', () => sel(t)));
+  $('#tabs').addEventListener('keydown', e => { const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+    const k = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key]; if (k !== undefined) { e.preventDefault(); sel(tabs[k]); } });
+
+  // Throttle
+  const rg = $('#rg'), ro = $('#rgOut'), thr = $('#thr'), tm = $('#thrMode');
+  const upd = () => { const v = +rg.value; rg.style.setProperty('--p', v + '%'); ro.innerHTML = `${v}<small>%</small>`; const ab = v > 80; thr.classList.toggle('ab', ab); tm.textContent = ab ? 'AB · 애프터버너' : v < 30 ? 'IDLE · 저속' : 'MIL · 군용 추력'; };
+  rg.addEventListener('input', upd); upd();
+
+  // Inputs
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; e.currentTarget.textContent = on ? '숨기기' : '보기'; e.currentTarget.setAttribute('aria-pressed', on); });
+  $('#i2').addEventListener('input', e => { const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.target.value.trim()); const w = e.target.closest('.in'); w.classList.toggle('is-err', !ok); w.classList.toggle('is-ok', ok); e.target.setAttribute('aria-invalid', !ok); $('#i2e').hidden = ok; });
+  const ta = $('#ta'), tc = $('#taCount'); const cnt = () => tc.textContent = `${ta.value.length} / 200`; ta.addEventListener('input', cnt); cnt();
+
+  // Squad cards
+  const SQ = [['칼새-1', 'LEAD', '한서윤 소위', 'MF-07 하늘매 · 범용 전투형', 87, 68, 'ok', '출격 중', true], ['칼새-2', 'WING', '도윤재 소위', 'MF-05 참매 · 고기동형', 91, 80, 'ok', '출격 중'], ['칼새-3', 'WING', '마하린 중사', 'MF-05 황조롱이 · 저격형', 64, 35, 'amb', '피격 · 경미']];
+  $('#cards').insertAdjacentHTML('afterbegin', SQ.map(([cs, role, nm, unit, r, s, tg, tt, me]) => `<article class="pc bk${me ? ' pc--me' : ''}"><div class="pc__head"><b>${cs}</b><span>${role}${me ? ' · 나' : ''}</span></div>
+    <div class="pc__body">${mech()}<div><h4>${nm}</h4><p>${unit}</p></div></div>
+    <div class="pc__stat"><div><span>반응로</span><i style="--v:${r}%"></i><span>${r}%</span></div><div><span>실드</span><i style="--v:${s}%;--c:${s < 40 ? 'var(--amb)' : 'var(--ally)'}"></i><span>${s}%</span></div></div>
+    <div class="pc__foot"><span class="tag tag--${tg}">${tt}</span><button class="hb hb--ally hb--sm" data-toast="comms" aria-label="${cs} 교신">교신</button></div></article>`).join(''));
+
+  // Reactor gauge (270° arc)
+  const RA = 2 * Math.PI * 62 * .75;
+  const rgauge = $('#rgauge');
+  const drawG = v => { rgauge.setAttribute('aria-valuenow', v); rgauge.innerHTML = `<svg viewBox="0 0 170 150" aria-hidden="true"><g transform="rotate(135 85 80)"><circle cx="85" cy="80" r="62" fill="none" stroke="#14262a" stroke-width="12" stroke-dasharray="${RA} 999"/><circle class="arc" cx="85" cy="80" r="62" fill="none" stroke="${v > 95 ? '#ff4655' : '#6cf5a0'}" stroke-width="12" stroke-dasharray="${RA} 999" stroke-dashoffset="${RA * (1 - v / 100)}"/><circle cx="85" cy="80" r="62" fill="none" stroke="#ff4655" stroke-width="12" stroke-dasharray="0 ${RA * .95} ${RA * .05} 999" opacity=".55"/></g>
+    <g stroke="#2b6d4c" stroke-width="1.5">${Array.from({ length: 11 }, (_, i) => { const a = (135 + i * 27) * Math.PI / 180; return `<path d="M${85 + Math.cos(a) * 46} ${80 + Math.sin(a) * 46}L${85 + Math.cos(a) * 52} ${80 + Math.sin(a) * 52}"/>`; }).join('')}</g>
+    <text x="85" y="86" text-anchor="middle" font-family="Oxanium" font-weight="700" font-size="34" fill="#e3ebf7">${v}</text><text x="85" y="106" text-anchor="middle" font-family="Saira Condensed" font-weight="700" font-size="12" letter-spacing="2" fill="#6cf5a0">OUTPUT %</text></svg>`; };
+  let rv = 87; drawG(rv);
+  setInterval(() => { if (document.hidden) return; rv = Math.max(80, Math.min(93, rv + Math.round((Math.random() - .5) * 4))); drawG(rv); $('#dashR').textContent = rv; }, 2200);
+
+  // Ammo
+  let ammo = 24; const am = $('#ammo');
+  const drawA = () => { am.innerHTML = Array.from({ length: 30 }, (_, i) => `<i class="${i >= ammo ? 'spent' : ''}"></i>`).join(''); am.setAttribute('aria-valuenow', ammo); $('#ammoN').innerHTML = `${ammo}<small> / 30</small>`; };
+  drawA(); $('#fire').addEventListener('click', () => { if (ammo > 0) { ammo--; drawA(); } }); $('#reload').addEventListener('click', () => { ammo = 30; drawA(); });
+
+  // Shield
+  let sh = 68; const sb = $('#shieldBar'), sw = $('#shield');
+  const drawS = () => { sb.innerHTML = Array.from({ length: 20 }, (_, i) => `<i class="${i < Math.round(sh / 5) ? 'on' : ''}"></i>`).join(''); sb.setAttribute('aria-valuenow', sh); $('#shieldOut').textContent = sh + '%'; sw.classList.toggle('low', sh < 40 && sh >= 20); sw.classList.toggle('crit', sh < 20); };
+  drawS(); $('#hit').addEventListener('click', () => { sh = Math.max(0, sh - 15); drawS(); if (sh < 20) toast('warn'); }); $('#recharge').addEventListener('click', () => { sh = 100; drawS(); });
+
+  // Table + pager
+  const tb = $('#tbl tbody');
+  $$('#tbl th button').forEach(b => b.addEventListener('click', () => { const th = b.parentElement, k = +b.dataset.k, dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    $$('#tbl th[aria-sort]').forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', dir);
+    $$('tr', tb).sort((a, c) => { const x = a.cells[k].textContent, y = c.cells[k].textContent; const q = k >= 3 ? parseInt(x) - parseInt(y) : x.localeCompare(y, 'ko', { numeric: true }); return dir === 'ascending' ? q : -q; }).forEach(r => tb.appendChild(r)); }));
+  const pb = $$('.pager li button'), pages = pb.slice(1, -1); let cur = 1;
+  const go = n => { cur = n; pages.forEach((b, i) => i + 1 === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')); pb[0].disabled = n === 1; pb.at(-1).disabled = n === pages.length; $('#pgInfo').textContent = `기체 12기 중 ${(n - 1) * 4 + 1}–${n * 4}`; $('#tbl caption').textContent = `칼새 편대 · ${n}쪽`; };
+  pages.forEach((b, i) => b.addEventListener('click', () => go(i + 1))); pb[0].addEventListener('click', () => go(Math.max(1, cur - 1))); pb.at(-1).addEventListener('click', () => go(Math.min(pages.length, cur + 1)));
+
+  // Dialogs
+  $$('dialog').forEach(d => { $$('[data-close]', d).forEach(b => b.addEventListener('click', () => { d.close(); if (b.dataset.after) toast(b.dataset.after); })); d.addEventListener('click', e => { if (e.target === d) d.close(); }); });
+  $('#dlgOpen').addEventListener('click', () => $('#dlg').showModal());
+  document.addEventListener('click', e => { if (e.target.closest('[data-eject]')) $('#dlgEject').showModal(); });
+
+  // Side panel: focus trap, Esc, scrim
+  const sd = $('#side'), sc = $('#scrim'); let opener;
+  const openS = () => { opener = document.activeElement; sd.classList.add('open'); sc.classList.add('open'); sd.setAttribute('aria-hidden', 'false'); setTimeout(() => $('#s1').focus(), 80); };
+  const closeS = () => { sd.classList.remove('open'); sc.classList.remove('open'); sd.setAttribute('aria-hidden', 'true'); opener && opener.focus(); };
+  $('#sideOpen').addEventListener('click', openS); sc.addEventListener('click', closeS);
+  $$('[data-sclose]', sd).forEach(b => b.addEventListener('click', () => { closeS(); if (b.dataset.after) toast(b.dataset.after); }));
+  sd.addEventListener('keydown', e => { if (e.key === 'Escape') closeS();
+    if (e.key === 'Tab') { const f = $$('button, input, select', sd).filter(x => !x.disabled), a = f[0], z = f.at(-1);
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } } });
+
+  // Code
+  $('#codeBlock').innerHTML = `<span class="c">/* Cockpit — 거대 로봇 조종석 · Tailwind v4 + shadcn */</span>
+@import "tailwindcss";
+
+<span class="p">:root</span> {
+  <span class="v">--background</span>: #0d1422;  <span class="v">--foreground</span>: #e3ebf7;       <span class="c">/* 선실 남색, 계기 흰색 */</span>
+  <span class="v">--card</span>: #141d30;  <span class="v">--card-foreground</span>: #e3ebf7;
+  <span class="v">--popover</span>: #060c14;  <span class="v">--popover-foreground</span>: #e3ebf7;
+  <span class="v">--primary</span>: #6cf5a0;  <span class="v">--primary-foreground</span>: #04150c;    <span class="c">/* 인광 녹색 */</span>
+  <span class="v">--secondary</span>: #1c273d;  <span class="v">--secondary-foreground</span>: #e3ebf7;  <span class="c">/* 콘솔 흑연 */</span>
+  <span class="v">--muted</span>: #141d30;  <span class="v">--muted-foreground</span>: #8b9cb6;
+  <span class="v">--accent</span>: #8cd2ff;  <span class="v">--accent-foreground</span>: #060a12;      <span class="c">/* 아군 하늘 */</span>
+  <span class="v">--destructive</span>: #ff4655;                                     <span class="c">/* 신호 빨강 */</span>
+  <span class="v">--border</span>: #2c3a55;  <span class="v">--input</span>: #44567a;  <span class="v">--ring</span>: #ffb21e;
+  <span class="v">--radius</span>: 0.25rem;
+
+  <span class="v">--caution</span>: #ffb21e;  <span class="v">--hazard</span>: #f5c400;  <span class="v">--screen</span>: #050d13;
+  <span class="v">--snap</span>: cubic-bezier(.2,1.3,.4,1);    <span class="c">/* 딸깍 */</span>
+  <span class="v">--lock</span>: cubic-bezier(.5,0,.2,1.4);    <span class="c">/* 철컥 */</span>
+}
+
+@theme inline {
+  <span class="v">--color-background</span>: var(--background);
+  <span class="v">--color-foreground</span>: var(--foreground);
+  <span class="v">--color-primary</span>: var(--primary);
+  <span class="v">--color-accent</span>: var(--accent);
+  <span class="v">--color-destructive</span>: var(--destructive);
+  <span class="v">--color-caution</span>: var(--caution);
+  <span class="v">--font-sans</span>: "Noto Sans KR", system-ui, sans-serif;
+  <span class="v">--font-label</span>: "Saira Condensed", sans-serif;
+  <span class="v">--font-gauge</span>: "Oxanium", monospace;
+}
+
+<span class="c">/* HUD 브래킷: 네 모서리만 녹색 L자 */</span>
+@utility <span class="p">hud-bracket</span> {
+  --c: var(--primary);
+  background:
+    linear-gradient(var(--c) 0 0) 0 0/14px 2px no-repeat, linear-gradient(var(--c) 0 0) 0 0/2px 14px no-repeat,
+    linear-gradient(var(--c) 0 0) 100% 0/14px 2px no-repeat, linear-gradient(var(--c) 0 0) 100% 0/2px 14px no-repeat,
+    linear-gradient(var(--c) 0 0) 0 100%/14px 2px no-repeat, linear-gradient(var(--c) 0 0) 0 100%/2px 14px no-repeat,
+    linear-gradient(var(--c) 0 0) 100% 100%/14px 2px no-repeat, linear-gradient(var(--c) 0 0) 100% 100%/2px 14px no-repeat;
+}
+
+<span class="c">/* 장갑 키: 백라이트 글자 + 베젤 + 누르면 4px 들어감 */</span>
+@utility <span class="p">armour-key</span> {
+  background: linear-gradient(#2b3850, #1a2336); color: var(--primary);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--primary) 55%, transparent);
+  box-shadow: inset 0 1px 0 #ffffff29, 0 0 0 3px #0a0f1a, 0 0 0 4px #3a4a66, 0 6px 0 3px #05080f;
+  transition: transform .09s var(--snap);
+  &:active { transform: translateY(4px); box-shadow: 0 0 0 3px #0a0f1a, 0 0 0 4px #3a4a66, 0 2px 0 3px #05080f; }
+}
+
+<span class="c">/* 위험 줄무늬: 몸이 다칠 수 있는 곳에만 */</span>
+@utility <span class="p">hazard</span> { background: repeating-linear-gradient(-45deg, var(--hazard) 0 10px, #121212 10px 20px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}`;
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget; try { await navigator.clipboard.writeText($('#codeBlock').textContent); b.textContent = '복사했습니다'; } catch { b.textContent = '직접 선택해 주세요'; } setTimeout(() => b.textContent = '복사하기', 1800); });
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

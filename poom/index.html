@@ -638,21 +638,30 @@ body.holding .clock { filter: blur(.6px); }
     const rC = childBaseR * S.growthShown * (1 + .03 * bC + (.03 + .03 * h) * pC) * (1 - .04 * sq);
     // as the warmth rises she turns a little rosier than you, so she stays herself inside the apricot
     const ccol = mix([244, 196, 172], [250, 168, 160], w);
-    const ang = Math.atan2(ky - cy, kx - cx);
-    // her small arms around your neck: two soft, rounded strokes curling over your shoulder
+    // her small arms around your neck: two soft, rounded strokes reaching from her over the top of you
     const ar = S.arms * (.35 + .65 * h);
     if (ar > .01) {
       ctx.save();
       ctx.lineCap = 'round';
-      for (const [rad, span, lw, a] of [[.93, .62, .2, .5], [.8, .44, .17, .4]]) {
-        const rr = rP * rad, sp = span * (.25 + .75 * ar);
-        const a0 = ang - .1, a1 = ang - .1 - sp;
-        ctx.strokeStyle = `rgba(${mix([238, 170, 150], [236, 140, 128], w)},${a * ar})`;
+      const reach = .3 + .7 * ar;
+      const acol = mix([238, 172, 154], [238, 142, 132], w);
+      for (const [sx, sy, ex, ey, bend, lw, a] of [
+        [-.5, -.5, -.3, -.62, -.32, .21, .5],
+        [-.82, -.04, -.3, -.3, -.28, .18, .38],
+      ]) {
+        const x0 = kx + rC * sx, y0 = ky + rC * sy;
+        const x1 = lerp(x0, cx + R * ex, reach), y1 = lerp(y0, cy + R * ey, reach);
+        const mx = (x0 + x1) / 2, my = (y0 + y1) / 2, dx = x1 - x0, dy = y1 - y0;
+        const qx = mx + dy * bend, qy = my - dx * bend;   // bowed over you, like an arm curving round
+        ctx.strokeStyle = `rgba(${acol},${.3 * a * ar})`;   // feathered edge, so they stay soft
+        ctx.lineWidth = rC * lw * 1.7;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(qx, qy, x1, y1); ctx.stroke();
+        ctx.strokeStyle = `rgba(${acol},${.8 * a * ar})`;
         ctx.lineWidth = rC * lw;
-        ctx.beginPath(); ctx.arc(cx, cy, rr, a0, a1, true); ctx.stroke();
-        ctx.strokeStyle = `rgba(255,236,226,${.32 * a * ar})`;
-        ctx.lineWidth = rC * lw * .38;
-        ctx.beginPath(); ctx.arc(cx, cy, rr - rC * lw * .12, a0, a1 + .03, true); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(qx, qy, x1, y1); ctx.stroke();
+        ctx.strokeStyle = `rgba(255,238,228,${.3 * a * ar})`;
+        ctx.lineWidth = rC * lw * .35;
+        ctx.beginPath(); ctx.moveTo(x0, y0 - rC * lw * .12); ctx.quadraticCurveTo(qx, qy - rC * lw * .14, x1, y1 - rC * lw * .1); ctx.stroke();
       }
       ctx.restore();
     }
@@ -670,12 +679,12 @@ body.holding .clock { filter: blur(.6px); }
     if (w > .01) {
       const rim = ctx.createRadialGradient(kx, ky, rC * .78, kx, ky, rC * 1.22);
       rim.addColorStop(0, 'rgba(255,240,230,0)');
-      rim.addColorStop(.48, `rgba(255,240,230,${.5 * w})`);
-      rim.addColorStop(.7, `rgba(255,232,220,${.16 * w})`);
+      rim.addColorStop(.48, `rgba(255,240,230,${.38 * w})`);
+      rim.addColorStop(.7, `rgba(255,232,220,${.13 * w})`);
       rim.addColorStop(1, 'rgba(255,232,220,0)');
       ctx.fillStyle = rim; ctx.beginPath(); ctx.arc(kx, ky, rC * 1.22, 0, 6.2832); ctx.fill();
       const body = ctx.createRadialGradient(kx, ky - rC * .1, 0, kx, ky, rC * .86);
-      body.addColorStop(0, `rgba(${mix([246, 178, 166], [244, 150, 142], w)},${.55 * w})`);
+      body.addColorStop(0, `rgba(${mix([246, 178, 166], [244, 150, 142], w)},${.45 * w})`);
       body.addColorStop(1, `rgba(${mix([246, 178, 166], [244, 150, 142], w)},0)`);
       ctx.fillStyle = body; ctx.beginPath(); ctx.arc(kx, ky, rC * .86, 0, 6.2832); ctx.fill();
       const hr = rC * (.3 + .1 * pC);
@@ -717,6 +726,6 @@ body.holding .clock { filter: blur(.6px); }
   requestAnimationFrame(t => { S.last = t; requestAnimationFrame(frame); });
 })();
 </script>
-<script src="../systems-nav.js" defer></script>
+<script src="../systems-nav.js?v=20261101" defer></script>
 </body>
 </html>

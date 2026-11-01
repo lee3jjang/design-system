@@ -1,0 +1,1420 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clay 디자인 시스템</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Fredoka:wght@500;600;700&family=Gaegu:wght@400;700&family=Gothic+A1:wght@400;600;800&display=swap">
+<style>
+/* Clay: a tabletop stop-motion set. Two clumsy neighbours, 뚝이 and 딱이, fix things around their house.
+   Every control is modelled from plasticine and shot one frame at a time.
+   One studio light (top-left), one clay thickness (6px), one frame rate (12fps). Matte, never glossy. */
+:root {
+  color-scheme: light;
+  --set: #ecdcc0; --set-2: #e3cfae; --set-3: #cdb08a;
+  --paper: #f7ecd8; --cream: #f3e3c3; --cream-d: #d6bd95; --cream-l: #fbf4e6;
+  --tomato: #c23e2a; --tomato-d: #8c2b1b; --tomato-l: #e8826a;
+  --mustard: #e2a72e; --mustard-d: #a8730f; --mustard-l: #f5cf72;
+  --sky: #5b9fcf; --sky-d: #2f6a95; --sky-l: #a6cfea;
+  --mint: #79c2a0; --mint-d: #3e8a69; --mint-l: #b8e3cd;
+  --terra: #b9633f; --terra-d: #84401f; --terra-l: #dd9a76;
+  --wood: #a87348; --wood-d: #74482a; --wood-l: #cc9a6c;
+  --card: #c9a376; --card-d: #9c7a50; --card-l: #dcbd92;
+  --steel: #8b9196;
+  --skin: #eeb489; --skin-d: #df9468;
+  --ink: #33241b; --ink-2: #57402f; --ink-3: #6c5242;
+  --th: 6px;                                   /* the one clay thickness */
+  --frame: 83ms;                               /* one frame at 12fps */
+  --ds: drop-shadow(0 8px 7px rgba(84,50,22,.30));
+  --font-d: "Do Hyeon", "Fredoka", sans-serif;
+  --font-l: "Fredoka", "Do Hyeon", sans-serif;
+  --font-h: "Gaegu", "Do Hyeon", cursive;
+  --font: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .33 0 0 0 0 .2 0 0 0 0 .09 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --print: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 50'%3E%3Cg fill='none' stroke='%23501a0c' stroke-opacity='.5' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M17 25a3 4 0 1 1 6 0'/%3E%3Cpath d='M13 27c0-6 3-9 7-9s7 3 7 9'/%3E%3Cpath d='M10 30c0-10 4-15 10-15s10 5 10 13'/%3E%3Cpath d='M7 31c0-13 5-19 13-19s13 6 13 17'/%3E%3Cpath d='M6 24c1-10 7-15 14-15 6 0 11 4 13 10'/%3E%3Cpath d='M9 14c3-4 7-6 11-6s8 2 10 5'/%3E%3Cpath d='M15 34c1 4 3 7 5 8M20 31v6M24 29c0 5-1 8-3 11'/%3E%3C/g%3E%3C/svg%3E");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--set); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
+body { margin: 0; color: var(--ink); font: 400 16.5px/1.75 var(--font); word-break: keep-all; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  background: var(--grain), radial-gradient(circle at 41px 22px, rgba(194,62,42,.16) 0 2.5px, transparent 3.5px) 0 0/56px 56px, repeating-linear-gradient(90deg, rgba(255,250,236,.34) 0 26px, transparent 26px 56px), var(--set); }
+/* studio light: one soft lamp, top-left */
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; background: radial-gradient(ellipse 80% 70% at 12% 0%, rgba(255,246,222,.45), transparent 60%), radial-gradient(ellipse 70% 60% at 100% 100%, rgba(110,70,35,.12), transparent 70%); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--tomato-d); text-underline-offset: 3px; }
+code { font: .85em ui-monospace, Menlo, Consolas, monospace; background: rgba(214,189,149,.45); padding: 1px 6px; border-radius: 6px; }
+.wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--sky-d); outline-offset: 5px; border-radius: 14px; }
+.svgdefs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* ---------- The clay material ----------
+   .cl paints its body on ::before: a lumpy fill + a 6px side (the thickness), then an SVG filter lights it
+   from the top-left and presses in a little grain. Text sits above it, unfiltered and crisp. */
+.cl { --c: var(--cream); --cd: var(--cream-d); --blob: 46% 54% 48% 52% / 55% 45% 55% 45%; --f: url(#cf1); position: relative; isolation: isolate; }
+.cl::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: var(--blob); pointer-events: none;
+  background: radial-gradient(110% 90% at 24% 14%, rgba(255,248,232,.2), transparent 52%), var(--c);
+  box-shadow: 0 var(--th) 0 var(--cd); filter: var(--f) var(--ds); }
+/* boiling: on hover the outline is re-sculpted every other frame (3 drawings, on twos) */
+@keyframes boil {
+  0% { filter: url(#cf2) var(--ds); transform: translate(.6px, -.4px) rotate(-.5deg); }
+  33% { filter: url(#cf3) var(--ds); transform: translate(-.5px, .5px) rotate(.4deg); }
+  66% { filter: url(#cf1) var(--ds); transform: translate(.3px, .6px) rotate(-.2deg); }
+}
+/* squash & stretch, three frames held at 12fps */
+@keyframes boing { 0% { transform: scale(1.1, .84); } 25% { transform: scale(.93, 1.09); } 50% { transform: scale(1.04, .97); } 75%, 100% { transform: none; } }
+.boing { animation: boing calc(var(--frame) * 4) steps(1); }
+@keyframes plop { 0% { opacity: 0; transform: scale(.3, .2); } 20% { opacity: 1; transform: scale(1.16, .82); } 45% { transform: scale(.92, 1.08); } 70% { transform: scale(1.03, .98); } 100% { opacity: 1; transform: none; } }
+
+/* ---------- Top: a strip of cardboard taped to the set ---------- */
+.top { position: sticky; top: 0; z-index: 40; background: var(--grain), repeating-linear-gradient(90deg, rgba(120,85,45,.09) 0 2px, transparent 2px 7px), linear-gradient(var(--card-l), var(--card) 70%, #bf9868); box-shadow: 0 3px 0 var(--card-d), 0 10px 18px -8px rgba(84,50,22,.45); }
+.top__in { display: flex; align-items: center; gap: 16px; min-height: 66px; }
+.brand { flex: none; display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; min-height: 44px; }
+.brand svg { width: 44px; height: 40px; overflow: visible; }
+.brand b { font: 700 26px/1 var(--font-l); letter-spacing: .01em; }
+.brand span { font: 400 16px/1 var(--font-d); color: var(--ink-2); }
+.top nav { margin-left: auto; display: flex; gap: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; padding: 6px 4px 10px; }
+.top nav::-webkit-scrollbar { display: none; }
+.top nav a { --c: var(--mustard); --cd: var(--mustard-d); --th: 4px; --blob: 22px 18px 24px 16px / 18px 24px 16px 22px; flex: none; display: grid; place-items: center; min-height: 44px; padding: 0 14px; color: var(--ink); text-decoration: none; font: 400 17px/1 var(--font-d); }
+.top nav a::before { opacity: 0; }
+.top nav a:hover { background: rgba(255,248,232,.35); border-radius: 18px 22px 16px 20px; }
+.top nav a[aria-current="true"]::before { opacity: 1; }
+.top nav a[aria-current="true"] { background: none; }
+@media (max-width: 640px) { .brand span { display: none; } .top__in { gap: 8px; } }
+
+/* ---------- Hero ---------- */
+.hero { overflow-x: clip; padding-block: 44px 20px; display: grid; gap: 34px; }
+.hero__title { display: grid; justify-items: center; text-align: center; gap: 10px; }
+.kicker { font: 600 14px/1.2 var(--font-l); letter-spacing: .18em; color: var(--ink-3); text-transform: uppercase; }
+.claytitle { display: flex; gap: .02em; font: 700 clamp(88px, 17vw, 176px)/.95 var(--font-l); letter-spacing: -.01em; filter: url(#cft) drop-shadow(0 14px 10px rgba(84,50,22,.28)); padding: 0 .1em .12em; }
+.claytitle span { display: inline-block; color: var(--tomato); text-shadow: 0 7px 0 var(--tomato-d); }
+.claytitle span:nth-child(1) { transform: rotate(-6deg) translateY(4px); }
+.claytitle span:nth-child(2) { color: var(--mustard); text-shadow: 0 7px 0 var(--mustard-d); transform: rotate(4deg) translateY(-6px); }
+.claytitle span:nth-child(3) { color: var(--sky); text-shadow: 0 7px 0 var(--sky-d); transform: rotate(-3deg) translateY(6px); }
+.claytitle span:nth-child(4) { color: var(--mint); text-shadow: 0 7px 0 var(--mint-d); transform: rotate(7deg); }
+.hero__sub { font: 400 clamp(24px, 4vw, 32px)/1.25 var(--font-d); }
+.hero__sub em { font-style: normal; color: var(--tomato-d); }
+.hero__p { max-width: 50ch; color: var(--ink-2); }
+.hero__cta { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 22px; margin-top: 18px; }
+
+.stage { position: relative; padding: 0 0 40px; }
+.set { position: relative; border-radius: 30px 34px 28px 36px; overflow: hidden; background: #f2ddb0;
+  border: 10px solid var(--card); box-shadow: inset 0 0 0 2px rgba(120,85,45,.25), 0 3px 0 var(--card-d), 0 34px 40px -22px rgba(70,40,15,.55), 0 14px 18px -10px rgba(70,40,15,.3); }
+.set svg { display: block; width: 100%; height: auto; }
+.rec { position: absolute; top: 14px; right: 16px; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 12px 14px 11px 15px; background: rgba(51,36,27,.82); color: #fbf4e6; font: 600 13px/1 var(--font-l); letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.rec i { width: 10px; height: 10px; border-radius: 50%; background: #ff6a52; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.cast { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px 30px; margin-top: 26px; }
+.cast__i { --blob: 18px 26px 20px 24px / 22px 18px 26px 20px; display: flex; align-items: center; gap: 12px; padding: 10px 20px 10px 12px; }
+.cast__i .face { width: 46px; height: 46px; flex: none; }
+.cast__i b { display: block; font: 400 21px/1.15 var(--font-d); }
+.cast__i span { font-size: 14.5px; color: var(--ink-2); }
+.crumbs { position: absolute; pointer-events: none; }
+
+/* scene animation: everything stepped, nothing tweened */
+.s-pop, .s-dust { transform-box: fill-box; transform-origin: 50% 50%; opacity: 0; }
+.s-ham, .s-fall, .s-squash, .s-wob, .s-leg, .s-seat, .s-roll { transform-box: view-box; }
+.lamp { transform-box: view-box; transform-origin: 500px 0; animation: sway calc(var(--frame) * 20) steps(1) infinite; }
+@keyframes sway { 0% { transform: rotate(-1.6deg); } 25% { transform: rotate(-.4deg); } 50% { transform: rotate(1.6deg); } 75% { transform: rotate(.4deg); } }
+.idle { transform-box: fill-box; transform-origin: 50% 100%; animation: breathe calc(var(--frame) * 16) steps(1) infinite; }
+.idle.b { animation-delay: calc(var(--frame) * -7); }
+@keyframes breathe { 0%, 100% { transform: none; } 50% { transform: scale(1.012, 1.02); } }
+.go .s-ham { animation: ham calc(var(--frame) * 14) steps(1) both; }
+@keyframes ham { 0% { transform: rotate(-8deg); } 14% { transform: rotate(-20deg); } 28% { transform: rotate(-26deg); } 42% { transform: rotate(12deg); } 50% { transform: rotate(46deg); } 57% { transform: rotate(64deg); } 78% { transform: rotate(60deg); } 90% { transform: rotate(30deg); } 100% { transform: none; } }
+.go .s-wob { animation: wob calc(var(--frame) * 6) steps(1) calc(var(--frame) * 8); }
+@keyframes wob { 0% { transform: rotate(-1.5deg); } 33% { transform: rotate(1.2deg); } 66% { transform: rotate(-.5deg); } }
+.go .s-pop1 { animation: pop calc(var(--frame) * 12) steps(1) calc(var(--frame) * 8) both; }
+.go .s-pop2 { animation: pop calc(var(--frame) * 12) steps(1) calc(var(--frame) * 19) both; }
+@keyframes pop { 0% { opacity: 1; transform: scale(.3) rotate(-10deg); } 9% { opacity: 1; transform: scale(1.25, .85) rotate(-4deg); } 18% { opacity: 1; transform: scale(.92, 1.08) rotate(3deg); } 27% { opacity: 1; transform: scale(1.03) rotate(-2deg); } 36%, 82% { opacity: 1; transform: none; } 91% { opacity: 1; transform: scale(.85) translateY(-6px); } 100% { opacity: 0; } }
+.go .s-fall { animation: fall calc(var(--frame) * 22) steps(1) calc(var(--frame) * 10) both; }
+@keyframes fall { 0% { transform: rotate(-7deg); } 10% { transform: rotate(9deg); } 20% { transform: translate(3px, 22px) rotate(14deg); } 28% { transform: translate(8px, 58px) rotate(18deg); } 36% { transform: translate(14px, 100px) rotate(22deg); } 42% { transform: translate(18px, 128px) rotate(24deg); } 46%, 100% { transform: translate(18px, 122px) rotate(22deg); } }
+.go .s-squash { animation: squash calc(var(--frame) * 8) steps(1) calc(var(--frame) * 19) both; }
+@keyframes squash { 0% { transform: scale(1.12, .84); } 25% { transform: scale(.94, 1.06); } 50% { transform: scale(1.03, .97); } 75%, 100% { transform: none; } }
+.go .s-dust { animation: dust calc(var(--frame) * 8) steps(1) calc(var(--frame) * 19) both; }
+@keyframes dust { 0% { opacity: 1; transform: scale(.4); } 25% { opacity: 1; transform: translate(var(--dx), -6px) scale(1); } 50% { opacity: 1; transform: translate(calc(var(--dx) * 2), -10px) scale(.8); } 75% { opacity: .6; transform: translate(calc(var(--dx) * 2.6), -8px) scale(.5); } 100% { opacity: 0; } }
+/* the little workbench scene */
+.go .s-ham2 { animation: ham2 calc(var(--frame) * 12) steps(1) both; }
+@keyframes ham2 { 0% { transform: rotate(6deg); } 16% { transform: rotate(12deg); } 33% { transform: rotate(-14deg); } 42% { transform: rotate(-30deg); } 66% { transform: rotate(-30deg); } 84% { transform: rotate(-10deg); } 100% { transform: none; } }
+.go .s-leg { animation: leg calc(var(--frame) * 14) steps(1) calc(var(--frame) * 6) both; }
+@keyframes leg { 0% { transform: translate(-3px, 2px) rotate(-8deg); } 14% { transform: translate(-10px, 4px) rotate(-22deg); } 28% { transform: translate(-22px, 10px) rotate(-48deg); } 42%, 100% { transform: translate(-34px, 18px) rotate(-78deg); } }
+.go .s-seat { animation: seat calc(var(--frame) * 14) steps(1) calc(var(--frame) * 8) both; }
+@keyframes seat { 0% { transform: rotate(-4deg); } 20% { transform: rotate(-9deg) translateY(4px); } 40%, 100% { transform: rotate(-14deg) translateY(10px); } }
+.go .s-roll { animation: roll calc(var(--frame) * 12) steps(1) calc(var(--frame) * 12) both; }
+@keyframes roll { 0% { transform: translateX(-10px); } 25% { transform: translateX(-26px); } 50% { transform: translateX(-38px); } 75%, 100% { transform: translateX(-44px); } }
+
+/* ---------- Sections ---------- */
+section.scene { padding-block: 90px 10px; scroll-margin-top: 76px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 30px; }
+.scene__head { display: grid; justify-items: center; text-align: center; gap: 14px; }
+.plaque { --c: var(--mustard); --cd: var(--mustard-d); --blob: 26px 40px 30px 44px / 36px 28px 40px 30px; display: inline-flex; align-items: center; gap: 14px; padding: 12px 30px 14px 14px; margin-bottom: var(--th); }
+.plaque .ico { width: 52px; height: 52px; }
+.plaque small { display: block; font: 600 12.5px/1 var(--font-l); letter-spacing: .16em; opacity: .8; text-align: left; }
+.plaque h2 { font: 400 clamp(32px, 5vw, 42px)/1.1 var(--font-d); text-align: left; }
+.plaque--tomato { --c: var(--tomato); --cd: var(--tomato-d); color: #fff7ea; }
+.plaque--mint { --c: var(--mint); --cd: var(--mint-d); }
+.plaque--sky { --c: var(--sky-l); --cd: var(--sky); }
+.plaque--terra { --c: var(--terra); --cd: var(--terra-d); color: #fff7ea; }
+.plaque--cream { --c: var(--cream-l); --cd: var(--cream-d); }
+.scene__head > p { max-width: 58ch; color: var(--ink-2); }
+
+/* Pancake: a flattened slab of cream clay, the panel everything sits on */
+.pan { --c: var(--paper); --cd: var(--cream-d); --f: url(#cfp); --blob: 34px 46px 38px 30px / 30px 40px 34px 46px; margin: 6px 4px calc(var(--th) + 14px); }
+.pan:nth-of-type(2n) { --blob: 44px 32px 42px 36px / 38px 46px 30px 40px; }
+.spec { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); }
+.spec__note { position: relative; padding: 34px 28px 30px 32px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.spec__note::after { content: ""; position: absolute; right: -4px; top: 30px; bottom: 30px; width: 9px; border-radius: 5px 4px 6px 4px; background: linear-gradient(90deg, var(--terra-l), var(--terra) 45%, var(--terra-d)); box-shadow: 1px 3px 3px rgba(84,50,22,.25); }
+.spec__note h3 { font: 400 25px/1.3 var(--font-d); }
+.spec__note p { color: var(--ink-2); font-size: 16px; }
+.spec__note ul { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 15px; color: var(--ink-2); }
+.spec__note li { position: relative; padding-left: 22px; }
+.spec__note li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 11px; height: 11px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, var(--mustard-l), var(--mustard) 60%, var(--mustard-d)); box-shadow: 0 2px 2px rgba(84,50,22,.3); }
+/* Bench: a pressed-in hollow in the slab where the pieces are shown */
+.bench { position: relative; min-width: 0; margin: 18px 18px 22px 14px; padding: 40px 26px 36px; display: flex; flex-wrap: wrap; gap: 22px; align-items: center; justify-content: center; align-content: center; min-height: 170px;
+  border-radius: 28px 34px 26px 38px / 32px 26px 36px 28px; background: var(--grain), #efdfc2; box-shadow: inset 5px 7px 12px rgba(130,90,45,.26), inset -4px -4px 8px rgba(255,252,242,.7); }
+.bench.col { flex-direction: column; align-items: stretch; }
+.bench > * { min-width: 0; max-width: 100%; }
+@media (max-width: 820px) { .spec { grid-template-columns: minmax(0, 1fr); } .spec__note { padding: 30px 22px 18px; } .spec__note::after { right: 26px; left: 26px; top: auto; bottom: -2px; width: auto; height: 9px; background: linear-gradient(var(--terra-l), var(--terra) 45%, var(--terra-d)); }
+  .bench { margin: 18px 12px 18px; padding: 34px 14px 30px; } }
+
+/* ---------- Foundations ---------- */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 42%), 1fr)); gap: 22px 18px; padding: 34px clamp(16px, 4vw, 30px) 34px; }
+.swhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; font: 400 23px/1 var(--font-d); margin-top: 8px; }
+.swhead:first-child { margin-top: 0; }
+.swhead::after { content: ""; flex: 1; height: 9px; border-radius: 5px; background: linear-gradient(var(--terra-l), var(--terra) 45%, var(--terra-d)); box-shadow: 0 2px 2px rgba(84,50,22,.2); }
+.swhead span { font: 400 14.5px/1 var(--font); color: var(--ink-3); }
+.sw { display: grid; gap: 4px; }
+.sw i { height: 78px; margin-bottom: calc(var(--th) + 6px); }
+.sw:nth-child(3n) i { --blob: 54% 46% 52% 48% / 45% 55% 45% 55%; }
+.sw:nth-child(3n+1) i { --blob: 48% 52% 44% 56% / 52% 46% 54% 48%; }
+.sw b { font: 400 19px/1.2 var(--font-d); }
+.sw code { background: none; padding: 0; font-size: 13px; color: var(--ink-3); }
+.sw span { font-size: 14.5px; color: var(--ink-2); line-height: 1.45; }
+.typerow { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 18px; align-items: baseline; padding: 14px 0; border-top: 2px dashed var(--cream-d); }
+.typerow:first-child { border-top: 0; }
+.typerow .k { display: grid; gap: 2px; } .typerow .k b { font: 400 18px/1.2 var(--font-d); } .typerow .k span { font-size: 14px; color: var(--ink-3); }
+@media (max-width: 560px) { .typerow { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 34px 20px; margin: 0; padding: 0; list-style: none; counter-reset: r; }
+.rules li { --c: var(--cream-l); --blob: 30px 38px 26px 34px / 34px 26px 38px 30px; counter-increment: r; padding: 34px 20px 24px; display: grid; gap: 4px; align-content: start; margin-bottom: var(--th); }
+.rules li:nth-child(2n) { --blob: 38px 28px 36px 30px / 28px 36px 30px 38px; }
+.rules li::after { content: counter(r); position: absolute; top: -18px; left: 18px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 48% 52% 46% 54% / 54% 46% 52% 48%; color: #fff7ea; font: 600 20px/1 var(--font-l);
+  background: radial-gradient(circle at 34% 28%, var(--tomato-l), var(--tomato) 55%, var(--tomato-d)); box-shadow: 0 4px 0 var(--tomato-d), 0 8px 8px -2px rgba(84,50,22,.35); }
+.rules b { font: 400 21px/1.3 var(--font-d); }
+.rules span { font-size: 15px; color: var(--ink-2); }
+.rules .demo { display: flex; gap: 8px; align-items: flex-end; height: 34px; margin-top: 8px; }
+
+/* ---------- Buttons ---------- */
+.btn { --c: var(--cream-l); --cd: var(--cream-d); --t: var(--ink); --blob: 30px 26px 32px 28px / 28px 32px 26px 30px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 30px; margin-bottom: var(--th); border: 0; background: none; cursor: pointer; text-decoration: none;
+  font: 400 20px/1 var(--font-d); color: var(--t); transition: transform calc(var(--frame) * 2) steps(2); }
+.btn > * { position: relative; z-index: 1; }
+.btn svg { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.btn:hover::before, .ball:hover::before, .pebble:hover::before, .lsw:hover .lsw__plate::before, .ep:hover .ep__tape { animation: boil calc(var(--frame) * 6) steps(1) infinite; }
+.btn:active { --th: 2px; transform: translateY(4px) scale(1.05, .9); transition-duration: 0s; }
+.btn--primary { --c: var(--tomato); --cd: var(--tomato-d); --t: #fff7ea; text-shadow: 0 1px 1px rgba(80,20,10,.35); }
+.btn--mustard { --c: var(--mustard); --cd: var(--mustard-d); }
+.btn--mint { --c: var(--mint); --cd: var(--mint-d); }
+.btn--sky { --c: var(--sky-l); --cd: var(--sky); }
+/* Snake: a cream slab with a rolled clay snake pressed round its edge */
+.btn--snake { --c: var(--cream-l); }
+.btn--snake::after { content: ""; position: absolute; inset: -1px; z-index: -1; border: 7px solid var(--sky); border-radius: var(--blob); filter: url(#cf2); pointer-events: none; }
+.btn--snake:hover::after { animation: boil calc(var(--frame) * 6) steps(1) infinite reverse; }
+/* Danger: red clay with a hairline crack and a little "끝" tag */
+.btn--danger { --c: #a8301f; --cd: #6e1d11; --t: #fff7ea; text-shadow: 0 1px 1px rgba(60,10,5,.4); }
+.btn--danger .crack { position: absolute; z-index: 0; left: 10px; top: 6px; width: 46px; height: 44px; pointer-events: none; }
+.btn--danger .end { position: absolute; z-index: 2; top: -14px; right: -10px; width: 34px; height: 34px; display: grid; place-items: center; font: 400 16px/1 var(--font-d); color: var(--tomato-d); text-shadow: none;
+  border-radius: 52% 48% 55% 45% / 48% 55% 45% 52%; background: radial-gradient(circle at 34% 28%, #fffaf0, var(--cream) 60%, var(--cream-d)); box-shadow: 0 3px 0 var(--cream-d), 0 6px 6px -2px rgba(84,50,22,.35); transform: rotate(10deg); }
+.btn--danger .end::after { content: ""; position: absolute; left: 6px; top: 14px; width: 22px; height: 2px; background: var(--tomato-d); transform: rotate(-35deg); border-radius: 2px; opacity: .55; }
+.btn--ghost { --c: transparent; --cd: transparent; padding: 0 10px; color: var(--ink-2); text-decoration: underline wavy var(--terra); text-underline-offset: 8px; text-decoration-thickness: 2px; }
+.btn--ghost::before { display: none; }
+.btn--ghost:hover { color: var(--ink); }
+.btn--ghost:active { transform: none; }
+.btn--sm { min-height: 46px; padding: 0 22px; font-size: 17px; --th: 5px; }
+.btn--lg { min-height: 70px; padding: 0 40px; font-size: 26px; --th: 7px; }
+.btn--lg svg { width: 28px; height: 28px; }
+.btn:disabled, .btn[aria-disabled="true"] { cursor: not-allowed; }
+.btn:disabled { --c: #ddd2bf; --cd: #b8aa92; --t: #6c5d4e; text-shadow: none; transform: none; }
+.btn:disabled::before { background: repeating-linear-gradient(115deg, transparent 0 22px, rgba(150,130,100,.35) 22px 23px, transparent 23px 41px), radial-gradient(110% 90% at 24% 14%, rgba(255,255,255,.3), transparent 52%), var(--c); animation: none !important; }
+.btn:disabled::after { display: none; }
+.btn .loadballs { display: inline-flex; gap: 5px; }
+.btn .loadballs i { width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #fff7ea 60%, #e9cdb8); animation: knead calc(var(--frame) * 8) steps(1) infinite; }
+.btn .loadballs i:nth-child(2) { animation-delay: calc(var(--frame) * 2); } .btn .loadballs i:nth-child(3) { animation-delay: calc(var(--frame) * 4); }
+@keyframes knead { 0% { transform: none; } 25% { transform: translateY(-5px) scale(.9, 1.15); } 50% { transform: scale(1.3, .7) translateY(2px); } }
+.prints { position: absolute; inset: 0; z-index: 0; border-radius: var(--blob); overflow: hidden; pointer-events: none; }
+.thumb { position: absolute; width: 30px; height: 38px; margin: -19px 0 0 -15px; border-radius: 50% 50% 46% 54% / 56% 56% 44% 44%; mix-blend-mode: multiply;
+  background: var(--print) center/100% 100% no-repeat, radial-gradient(ellipse at 62% 70%, rgba(255,240,230,.35), transparent 60%), radial-gradient(ellipse at 40% 34%, rgba(60,15,5,.28), transparent 70%);
+  animation: thumbfade 4s steps(5) forwards; }
+@keyframes thumbfade { 0%, 40% { opacity: .9; } 100% { opacity: 0; } }
+.count-badge { position: absolute; top: -12px; right: -12px; z-index: 3; min-width: 32px; height: 32px; padding: 0 8px; display: grid; place-items: center; border-radius: 50% 48% 52% 46%; font: 600 16px/1 var(--font-l); color: var(--ink);
+  background: radial-gradient(circle at 34% 28%, var(--mustard-l), var(--mustard) 58%, var(--mustard-d)); box-shadow: 0 3px 0 var(--mustard-d), 0 6px 6px -2px rgba(84,50,22,.35); }
+
+/* Ball: icon buttons are clay balls with a tool pressed into them */
+.ball { --c: var(--mustard); --cd: var(--mustard-d); --blob: 50% 48% 52% 46% / 52% 50% 48% 50%; width: 62px; height: 62px; margin-bottom: var(--th); border: 0; background: none; cursor: pointer; display: grid; place-items: center; transition: transform calc(var(--frame) * 2) steps(2); }
+.ball:nth-child(odd) { --blob: 47% 53% 50% 50% / 50% 47% 53% 50%; }
+.ball svg { width: 30px; height: 30px; fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.ball svg .lit { stroke: rgba(255,250,236,.6); transform: translate(1px, 1.4px); }
+.ball svg .dent { stroke: var(--cd); }
+.ball:active { --th: 2px; transform: translateY(4px) scale(1.08, .88); transition-duration: 0s; }
+.ball--tomato { --c: var(--tomato-l); --cd: var(--tomato-d); }
+.ball--sky { --c: var(--sky-l); --cd: var(--sky-d); }
+.ball--mint { --c: var(--mint-l); --cd: var(--mint-d); }
+.ball--cream { --c: var(--cream-l); --cd: var(--cream-d); }
+.ball--sm { width: 48px; height: 48px; --th: 4px; }
+.ball--sm svg { width: 24px; height: 24px; }
+.ball:focus-visible { border-radius: 50%; }
+
+.tip { position: relative; display: inline-flex; }
+.tip__b { --c: var(--cream-l); --blob: 18px 22px 16px 20px / 20px 16px 22px 18px; --th: 4px; position: absolute; bottom: calc(100% + 18px); left: 50%; z-index: 10; padding: 8px 16px; font: 400 17px/1.3 var(--font-d); white-space: nowrap; pointer-events: none; opacity: 0; transform: translateX(-50%); }
+.tip__b::after { content: ""; position: absolute; top: calc(100% + 1px); left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 0 0 9px 0; background: var(--cream-l); transform: rotate(45deg) translate(-4px, -4px); box-shadow: 3px 3px 0 var(--cream-d); }
+.tip:hover .tip__b, .tip:focus-within .tip__b { opacity: 1; animation: plop calc(var(--frame) * 4) steps(1); transform-origin: 0 100%; transform: translateX(-50%); }
+@keyframes tipin { from { opacity: 0; } }
+
+/* Workbench: the biggest call to action */
+.workbench { width: 100%; max-width: 560px; display: grid; justify-items: center; }
+.workbench svg { width: 100%; height: auto; display: block; overflow: visible; margin-bottom: -6px; position: relative; z-index: 1; }
+.workbench__front { --c: var(--wood); --cd: var(--wood-d); --blob: 22px 26px 24px 20px / 20px 24px 22px 26px; width: 100%; display: grid; justify-items: center; padding: 26px 16px 22px; margin-bottom: var(--th); }
+.workbench__front::after { content: ""; position: absolute; inset: 10px 18px; border-radius: 14px; background: repeating-linear-gradient(0deg, transparent 0 13px, rgba(80,45,20,.16) 13px 15px); pointer-events: none; z-index: -1; }
+.workbench__front .btn--lg { --c: var(--mustard); --cd: var(--mustard-d); --t: var(--ink); min-width: min(280px, 100%); }
+
+/* More menu */
+.menu { position: relative; }
+.menu__list { --c: var(--cream-l); --blob: 22px 28px 20px 26px / 26px 20px 28px 22px; position: absolute; right: -6px; top: calc(100% + 16px); z-index: 15; min-width: 230px; padding: 10px; margin: 0; list-style: none; }
+.menu__list[hidden] { display: none; }
+.menu__list:not([hidden]) { animation: plop calc(var(--frame) * 4) steps(1); transform-origin: 90% 0; }
+.menu__list [role="menuitem"] { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; min-height: 46px; padding: 0 14px; border: 0; border-radius: 16px 20px 14px 18px; background: none; cursor: pointer; text-align: left; font: 400 18px/1 var(--font-d); color: var(--ink); }
+.menu__list [role="menuitem"]:hover, .menu__list [role="menuitem"]:focus { background: var(--mustard-l); outline: none; box-shadow: inset 2px 3px 5px rgba(168,115,15,.3); }
+.menu__list .danger { color: var(--tomato-d); }
+.menu__list .danger:hover, .menu__list .danger:focus { background: #f6c9bc; }
+.menu__list kbd { font: 600 13px/1 var(--font-l); color: var(--ink-3); }
+.menu__sep { height: 8px; margin: 8px 6px; border-radius: 4px; background: linear-gradient(var(--terra-l), var(--terra) 50%, var(--terra-d)); }
+.row { --blob: 24px 30px 22px 28px / 28px 22px 30px 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; max-width: 460px; padding: 14px 14px 14px 16px; margin-bottom: var(--th); }
+.row > div:first-child { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.row svg.item { width: 54px; height: 54px; flex: none; overflow: visible; }
+.row b { display: block; font: 400 21px/1.3 var(--font-d); }
+.row span { font-size: 14.5px; color: var(--ink-3); }
+
+/* ---------- Toggles ---------- */
+/* Light switch on a lumpy wall plate */
+.lsw { display: inline-flex; align-items: center; gap: 18px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; min-height: 44px; }
+.lsw__plate { --blob: 16px 20px 15px 19px / 18px 15px 20px 16px; --th: 5px; width: 62px; height: 88px; flex: none; display: grid; place-items: center; margin-bottom: var(--th); }
+.lsw__plate > i { position: absolute; left: 50%; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #d9dde0, var(--steel)); box-shadow: inset 0 0 0 1px rgba(60,60,60,.25); }
+.lsw__plate > i:first-child { top: 8px; } .lsw__plate > i:nth-child(2) { bottom: 8px; }
+.lsw__slot { position: relative; width: 26px; height: 46px; border-radius: 10px 12px 11px 9px; background: #e6d3ae; box-shadow: inset 3px 4px 6px rgba(120,80,40,.35), inset -2px -2px 3px rgba(255,255,255,.6); }
+.lsw__tog { position: absolute; left: 3px; right: 3px; top: 21px; height: 22px; border-radius: 9px 10px 8px 11px; background: radial-gradient(circle at 35% 25%, #fffaf0, var(--cream) 60%, var(--cream-d)); box-shadow: 0 3px 0 var(--cream-d), 0 4px 5px rgba(84,50,22,.35); transition: top calc(var(--frame) * 3) steps(3), background 0s; }
+.lsw[aria-checked="true"] .lsw__tog { top: 3px; background: radial-gradient(circle at 35% 25%, var(--mustard-l), var(--mustard) 60%, var(--mustard-d)); box-shadow: 0 3px 0 var(--mustard-d), 0 4px 5px rgba(84,50,22,.35); }
+.lsw.wob .lsw__plate { animation: wobble calc(var(--frame) * 6) steps(1); }
+@keyframes wobble { 0% { transform: rotate(-5deg); } 33% { transform: rotate(4deg); } 66% { transform: rotate(-2deg); } 100% { transform: none; } }
+.lsw__t { display: grid; line-height: 1.45; }
+.lsw__t em { display: inline-flex; align-items: center; gap: 6px; font: 400 15px/1.2 var(--font-d); font-style: normal; color: var(--ink-3); }
+.lsw__t em::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e6dccb, #b9ab94); box-shadow: inset -1px -2px 2px rgba(0,0,0,.15); }
+.lsw[aria-checked="true"] .lsw__t em { color: var(--mustard-d); }
+.lsw[aria-checked="true"] .lsw__t em::before { background: radial-gradient(circle at 35% 30%, #fffbe6, var(--mustard-l) 50%, var(--mustard)); box-shadow: 0 0 0 4px rgba(245,207,114,.45), 0 0 14px 6px rgba(245,207,114,.5); }
+.lsw__t b { font: 400 21px/1.3 var(--font-d); }
+.lsw__t small { font-size: 14.5px; color: var(--ink-2); }
+
+/* Lever: a clay ball rolled along a pressed groove */
+.lev { display: inline-flex; align-items: center; gap: 16px; min-height: 52px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.lev__t { position: relative; width: 90px; height: 44px; flex: none; border-radius: 22px 24px 21px 25px; background: #e6d3ae; box-shadow: inset 4px 5px 8px rgba(120,80,40,.35), inset -3px -3px 4px rgba(255,255,255,.65); transition: background 0s calc(var(--frame) * 2); }
+.lev__k { position: absolute; top: 4px; left: 4px; width: 36px; height: 36px; border-radius: 50% 47% 52% 49% / 48% 52% 47% 51%; background: radial-gradient(circle at 34% 28%, #fffaf0, var(--cream) 50%, var(--cream-d)); box-shadow: 0 3px 0 var(--cream-d), 0 6px 6px -2px rgba(84,50,22,.4); transition: transform calc(var(--frame) * 3) steps(3); }
+.lev[aria-checked="true"] .lev__t { background: var(--mint-l); box-shadow: inset 4px 5px 8px rgba(62,138,105,.45), inset -3px -3px 4px rgba(255,255,255,.55); }
+.lev[aria-checked="true"] .lev__k { transform: translateX(46px) rotate(120deg); background: radial-gradient(circle at 34% 28%, #b9eed4, var(--mint) 55%, var(--mint-d)); box-shadow: 0 3px 0 var(--mint-d), 0 6px 6px -2px rgba(84,50,22,.4); }
+.lev__l { display: grid; line-height: 1.45; } .lev__l b { font: 400 20px/1.3 var(--font-d); } .lev__l small { font-size: 14.5px; color: var(--ink-2); }
+
+/* Checkbox: a clay square, a clay snake pressed in for the tick */
+.ck { position: relative; display: flex; align-items: center; gap: 14px; cursor: pointer; min-height: 46px; }
+.ck input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.ck__box { --blob: 10px 13px 9px 12px / 12px 9px 13px 10px; --th: 4px; width: 34px; height: 34px; flex: none; margin-bottom: 4px; }
+.ck__box svg { position: absolute; left: -2px; top: -8px; width: 40px; height: 40px; overflow: visible; }
+.ck__box .tick { fill: none; stroke: var(--tomato); stroke-width: 6.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 46; stroke-dashoffset: 46; transition: stroke-dashoffset calc(var(--frame) * 3) steps(3); }
+.ck__box .dash { fill: none; stroke: var(--tomato); stroke-width: 6.5; stroke-linecap: round; opacity: 0; }
+.ck input:checked + .ck__box .tick { stroke-dashoffset: 0; }
+.ck input:indeterminate + .ck__box .tick { stroke-dashoffset: 46; }
+.ck input:indeterminate + .ck__box .dash { opacity: 1; }
+.ck input:focus-visible + .ck__box, .rd input:focus-visible + .dent { outline: 3px solid var(--sky-d); outline-offset: 5px; border-radius: 12px; }
+.ck input:disabled + .ck__box { opacity: .5; }
+.ck input:disabled ~ .ck__t { color: var(--ink-3); }
+.ck input:disabled ~ .ck__t, .ck:has(input:disabled) { cursor: not-allowed; }
+.ck__t { display: grid; line-height: 1.4; } .ck__t b { font: 400 20px/1.3 var(--font-d); } .ck__t small { font-size: 14.5px; color: var(--ink-2); }
+.stack { display: grid; gap: 10px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 12px; font: 400 17px/1.3 var(--font-d); color: var(--ink-3); }
+
+/* Radio: clay balls resting in a dented tray */
+.tray { --c: var(--terra-l); --cd: var(--terra); --blob: 30px 36px 28px 40px / 36px 28px 40px 30px; display: grid; gap: 4px; padding: 16px 18px 18px; margin-bottom: var(--th); width: 100%; max-width: 420px; }
+.tray legend { float: left; width: 100%; color: #4a2512; margin-bottom: 6px; }
+.rd { position: relative; display: flex; align-items: center; gap: 14px; cursor: pointer; min-height: 52px; clear: both; }
+.rd input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.dent { position: relative; width: 38px; height: 38px; flex: none; border-radius: 50% 47% 52% 49%; background: #c97d58; box-shadow: inset 4px 5px 7px rgba(90,35,12,.45), inset -2px -3px 4px rgba(255,220,195,.45); }
+.dent i { position: absolute; inset: 4px; border-radius: 50% 48% 52% 47% / 49% 52% 47% 50%; transform: scale(0) translateY(-20px); background: radial-gradient(circle at 34% 28%, #fdeac2, var(--mustard) 52%, var(--mustard-d)); box-shadow: 0 3px 0 var(--mustard-d), 0 5px 5px rgba(60,25,8,.4); transition: transform calc(var(--frame) * 3) steps(3); }
+.rd input:checked + .dent i { transform: none; }
+.rd__t { display: grid; line-height: 1.35; } .rd__t b { font: 400 20px/1.3 var(--font-d); color: #2b160c; } .rd__t small { font-size: 14.5px; color: #4a2512; }
+
+/* ---------- Choosing ---------- */
+.seg { display: inline-flex; gap: 4px; padding: 7px; max-width: 100%; overflow-x: auto; border-radius: 24px 28px 22px 26px; background: #e6d3ae; box-shadow: inset 4px 5px 8px rgba(120,80,40,.3), inset -3px -3px 4px rgba(255,255,255,.6); }
+.seg button { --c: var(--mustard); --cd: var(--mustard-d); --th: 4px; --blob: 18px 22px 16px 20px / 20px 16px 22px 18px; flex: none; min-width: 76px; min-height: 48px; padding: 0 16px; border: 0; background: none; cursor: pointer; font: 400 18px/1 var(--font-d); color: var(--ink-2); white-space: nowrap; }
+.seg button::before { opacity: 0; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-checked="true"] { color: var(--ink); margin-bottom: 4px; }
+.seg button[aria-checked="true"]::before { opacity: 1; }
+
+/* Tabs: cardboard signs on toothpicks, stuck into a clay log */
+.signs { position: relative; display: flex; gap: 16px; align-items: flex-end; padding: 18px 14px 0; min-height: 128px; overflow-x: auto; scrollbar-width: thin; }
+.signs__log { height: 22px; margin: -14px 0 0; border-radius: 11px 14px 12px 10px; background: linear-gradient(var(--terra-l), var(--terra) 45%, var(--terra-d)); box-shadow: 0 6px 6px -2px rgba(84,50,22,.3); position: relative; z-index: 2; }
+.tabsign { position: relative; flex: none; min-height: 50px; padding: 0 22px; margin-bottom: 40px; border: 0; cursor: pointer; font: 400 19px/1 var(--font-d); color: var(--ink);
+  border-radius: 6px 9px 5px 8px; background: var(--grain), repeating-linear-gradient(90deg, rgba(120,85,45,.12) 0 2px, transparent 2px 6px), var(--card-l); box-shadow: 2px 3px 0 var(--card-d), 0 8px 8px -4px rgba(84,50,22,.35); transform: rotate(-2deg); transition: margin calc(var(--frame) * 2) steps(2); }
+.tabsign:nth-child(2n) { transform: rotate(2.5deg); }
+.tabsign::after { content: ""; position: absolute; left: 50%; top: calc(100% + 3px); width: 8px; height: 60px; margin-left: -4px; border-radius: 3px; background: linear-gradient(90deg, #f6e2b6, #ddb97e 55%, #b8915a); z-index: -1; }
+.tabsign:hover { margin-bottom: 46px; }
+.tabsign[aria-selected="true"] { margin-bottom: 58px; background: var(--grain), radial-gradient(110% 90% at 24% 14%, rgba(255,255,255,.3), transparent 52%), var(--mustard-l); box-shadow: 2px 3px 0 var(--mustard-d), 0 10px 10px -4px rgba(84,50,22,.35); }
+.tabpanel { margin-top: 18px; padding: 18px 20px; border-radius: 10px 14px 9px 13px; background: var(--grain), repeating-linear-gradient(90deg, rgba(120,85,45,.07) 0 2px, transparent 2px 6px), #e9d3ad; box-shadow: 2px 4px 0 var(--card-d), 0 10px 12px -6px rgba(84,50,22,.35); font-size: 16px; color: var(--ink); }
+.tabpanel b { font: 400 19px/1.3 var(--font-d); }
+
+/* Chips: clay pebbles */
+.pebbles { display: flex; flex-wrap: wrap; gap: 14px 12px; }
+.pebble { --c: var(--cream-l); --th: 5px; --blob: 22px 26px 20px 24px / 24px 20px 26px 22px; min-height: 46px; padding: 0 20px; margin-bottom: var(--th); border: 0; background: none; cursor: pointer; font: 400 18px/1 var(--font-d); color: var(--ink); display: inline-flex; align-items: center; gap: 8px; transition: transform calc(var(--frame) * 2) steps(2); }
+.pebble:nth-child(2n) { --blob: 26px 20px 24px 22px / 20px 26px 22px 24px; }
+.pebble[aria-pressed="true"] { --c: var(--mint); --cd: var(--mint-d); --th: 3px; transform: translateY(2px); }
+.pebble svg { width: 18px; height: 18px; fill: none; stroke: var(--mint-d); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; display: none; position: relative; }
+.pebble[aria-pressed="true"] svg { display: block; stroke: #1f5a41; }
+
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; width: 100%; }
+.field > label, .flabel { font: 400 19px/1.3 var(--font-d); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.field > label small, .flabel small { font: 400 14px/1.3 var(--font); color: var(--ink-3); }
+.help { font-size: 15px; color: var(--ink-2); }
+.help.err { color: #8c2b1b; font-weight: 600; display: flex; gap: 8px; align-items: flex-start; }
+.help.err svg { flex: none; width: 22px; height: 22px; margin-top: 1px; }
+.help.ok { color: #2f6e52; font-weight: 600; }
+
+/* Inputs: a groove pressed into a clay rim */
+.inp { --c: var(--cream-l); --cd: var(--cream-d); --th: 5px; --blob: 22px 26px 20px 24px / 24px 20px 26px 22px; display: flex; align-items: stretch; min-height: 58px; padding: 6px; margin-bottom: var(--th); }
+.inp > .in { flex: 1; display: flex; align-items: stretch; min-width: 0; border-radius: 16px 19px 15px 18px; background: #efe2c9; box-shadow: inset 4px 5px 8px rgba(130,90,45,.3), inset -2px -2px 3px rgba(255,255,255,.7); }
+.inp input, .inp textarea { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; padding: 0 16px; font: 400 16.5px/1.4 var(--font); }
+.inp textarea { padding: 12px 16px; min-height: 120px; resize: vertical; line-height: 1.75; }
+.inp input::placeholder, .inp textarea::placeholder { color: var(--ink-3); opacity: .8; }
+.inp input[type="date"], .inp input[type="time"] { font-family: var(--font-l); font-weight: 500; }
+.inp:focus-within { --c: var(--mustard); --cd: var(--mustard-d); }
+.inp:has(:focus-visible) { outline: 3px solid var(--sky-d); outline-offset: 4px; border-radius: 22px; }
+.inp__ico { display: grid; place-items: center; padding-left: 14px; }
+.inp__ico svg { width: 21px; height: 21px; stroke: var(--ink-2); fill: none; stroke-width: 2.4; stroke-linecap: round; }
+.inp__aff { display: grid; place-items: center; padding: 0 12px 0 14px; font: 400 19px/1 var(--font-d); color: var(--ink-2); }
+.inp__btn { --c: var(--sky-l); --cd: var(--sky); --th: 3px; --blob: 14px 16px 13px 15px; margin: 5px 6px 8px; min-width: 64px; padding: 0 12px; border: 0; background: none; cursor: pointer; font: 400 16px/1 var(--font-d); }
+.inp.is-err { --c: var(--tomato-l); --cd: var(--tomato); }
+.inp.is-err .in { background: #fbe3da; }
+.inp.is-ok { --c: var(--mint); --cd: var(--mint-d); }
+.inp.is-off { --c: #e3d9c8; --cd: #c3b49b; }
+.inp.is-off .in { background: repeating-linear-gradient(115deg, transparent 0 18px, rgba(150,130,100,.25) 18px 19px), #eae2d3; box-shadow: none; }
+.inp.is-off input { color: var(--ink-3); cursor: not-allowed; }
+.inp .num { text-align: right; font: 500 20px/1 var(--font-l); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 22px 20px; width: 100%; }
+.count { text-align: right; font: 500 15px/1 var(--font-l); color: var(--ink-3); }
+
+.select { position: relative; }
+.select select { appearance: none; width: 100%; min-height: 58px; padding: 0 66px 0 20px; border: 0; cursor: pointer; font: 400 19px/1 var(--font-d); color: var(--ink); background: transparent; border-radius: 22px; position: relative; z-index: 1; }
+.select .inp { padding: 0; }
+.select .knob { position: absolute; z-index: 0; right: 9px; top: 50%; width: 42px; height: 42px; margin-top: -24px; display: grid; place-items: center; border-radius: 50% 47% 52% 48%; background: radial-gradient(circle at 34% 28%, var(--mustard-l), var(--mustard) 55%, var(--mustard-d)); box-shadow: 0 4px 0 var(--mustard-d), 0 6px 6px -2px rgba(84,50,22,.35); pointer-events: none; }
+.select .knob svg { width: 18px; height: 18px; stroke: var(--ink); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.select:focus-within .knob { transform: rotate(180deg); }
+
+/* Range: a clay ball rolling along a wooden ruler */
+.range { display: grid; gap: 6px; width: 100%; }
+.range__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.range__top output { font: 600 34px/1 var(--font-l); color: var(--tomato-d); }
+.range__top output small { font: 400 17px/1 var(--font-d); color: var(--ink-3); margin-left: 4px; }
+.range input { -webkit-appearance: none; appearance: none; width: 100%; height: 54px; margin: 0; background: transparent; cursor: pointer; }
+.range input::-webkit-slider-runnable-track { height: 26px; border-radius: 6px 8px 5px 7px; box-shadow: 0 4px 0 var(--wood-d), 0 8px 8px -3px rgba(84,50,22,.35);
+  background: linear-gradient(90deg, transparent 0 1px, rgba(51,36,27,.6) 1px 3px, transparent 3px) 9px 0/calc((100% - 18px) / 10) 11px repeat-x, linear-gradient(90deg, transparent 0 1px, rgba(51,36,27,.35) 1px 2px, transparent 2px) 9px 0/calc((100% - 18px) / 20) 7px repeat-x, linear-gradient(rgba(255,240,215,.45), transparent 40%), var(--wood-l); }
+.range input::-moz-range-track { height: 22px; border-radius: 6px; background: var(--wood-l); box-shadow: 0 4px 0 var(--wood-d); }
+.range input::-webkit-slider-thumb { -webkit-appearance: none; width: 40px; height: 40px; margin-top: -16px; border-radius: 50% 47% 52% 48%; background: radial-gradient(circle at 34% 28%, #f6b39f, var(--tomato-l) 30%, var(--tomato) 62%, var(--tomato-d)); box-shadow: 0 4px 0 var(--tomato-d), 0 8px 8px -2px rgba(84,50,22,.45); }
+.range input::-moz-range-thumb { width: 36px; height: 36px; border: 0; border-radius: 50%; background: radial-gradient(circle at 34% 28%, #f6b39f, var(--tomato) 62%, var(--tomato-d)); }
+.range input:focus-visible { outline: 3px solid var(--sky-d); outline-offset: 6px; border-radius: 10px; }
+.range__scale { display: flex; justify-content: space-between; padding: 0 6px; font: 500 15px/1 var(--font-l); color: var(--ink-3); }
+
+/* Side menu: rooms of the house, each behind a clay door */
+.rooms { display: grid; gap: 8px; width: 100%; max-width: 320px; }
+.rooms a { --c: var(--cream-l); --th: 4px; --blob: 20px 24px 18px 22px / 22px 18px 24px 20px; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 14px; min-height: 66px; padding: 6px 16px 6px 10px; color: var(--ink); text-decoration: none; }
+.rooms a::before { opacity: 0; }
+.rooms a:hover::before { opacity: .55; }
+.rooms a[aria-current="page"]::before { opacity: 1; }
+.rooms a[aria-current="page"] { margin-bottom: 4px; }
+.rooms b { font: 400 20px/1.2 var(--font-d); }
+.rooms em { font: 500 15px/1 var(--font-l); font-style: normal; color: var(--ink-3); }
+.rooms em.new { padding: 5px 9px; border-radius: 12px 14px 11px 13px; background: radial-gradient(circle at 34% 28%, var(--tomato-l), var(--tomato) 62%); color: #fff7ea; box-shadow: 0 2px 0 var(--tomato-d); }
+.door { position: relative; width: 38px; height: 52px; border-radius: 12px 12px 3px 3px; perspective: 140px;
+  background: radial-gradient(circle at 70% 60%, #ffe6a6, #e8a94b 55%, #8a5a26); box-shadow: inset 2px 3px 5px rgba(60,30,10,.5); }
+.door i { position: absolute; inset: 0; border-radius: 12px 12px 3px 3px; transform-origin: 0 50%; transition: transform calc(var(--frame) * 3) steps(3);
+  background: radial-gradient(90% 70% at 30% 20%, rgba(255,255,255,.35), transparent 60%), radial-gradient(70% 60% at 85% 95%, rgba(0,0,0,.18), transparent 70%), var(--dc, var(--sky)); box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.door i::before { content: ""; position: absolute; inset: 7px 7px 20px; border-radius: 6px 6px 2px 2px; box-shadow: inset 1px 2px 3px rgba(0,0,0,.22), inset -1px -1px 2px rgba(255,255,255,.3); }
+.door i::after { content: ""; position: absolute; right: 5px; top: 28px; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, var(--mustard-l), var(--mustard-d)); }
+.rooms a:hover .door i { transform: rotateY(-18deg); }
+.rooms a[aria-current="page"] .door i { transform: rotateY(-64deg); }
+.rooms a:focus-visible { outline-offset: 3px; border-radius: 22px; }
+
+/* ---------- Display ---------- */
+.bdg { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 14px; border-radius: 16px 18px 15px 17px / 17px 15px 18px 16px; font: 400 16px/1 var(--font-d); color: var(--ink);
+  background: radial-gradient(110% 90% at 26% 18%, rgba(255,255,255,.45), transparent 55%), var(--b, var(--cream)); box-shadow: 0 3px 0 var(--bd, var(--cream-d)), 0 6px 6px -3px rgba(84,50,22,.35); }
+.bdg::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--bd, var(--cream-d)); box-shadow: inset 1px 1px 1px rgba(0,0,0,.25); }
+.bdg--mint { --b: var(--mint-l); --bd: var(--mint-d); } .bdg--mustard { --b: var(--mustard-l); --bd: var(--mustard-d); } .bdg--sky { --b: var(--sky-l); --bd: var(--sky-d); }
+.bdg--tomato { --b: #f2a593; --bd: var(--tomato-d); } .bdg--terra { --b: var(--terra-l); --bd: var(--terra-d); }
+
+/* Episode cards: Polaroids of jobs gone wrong, taped to the wall */
+.eps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 34px 26px; width: 100%; padding-top: 10px; }
+.ep { position: relative; display: grid; gap: 10px; padding: 12px 12px 14px; border: 0; border-radius: 4px 5px 3px 6px; background: var(--grain), #fdf8ee; color: var(--ink); text-align: left; cursor: pointer;
+  box-shadow: 0 1px 0 #e3d6bf, 0 14px 16px -8px rgba(84,50,22,.4), 0 3px 4px rgba(84,50,22,.15); transform: rotate(-2deg); transition: transform calc(var(--frame) * 2) steps(2); }
+.ep:nth-child(2n) { transform: rotate(1.8deg); }
+.ep:nth-child(3n) { transform: rotate(-.8deg); }
+.ep:hover { transform: rotate(0) translateY(-6px); }
+.ep:active { transform: rotate(0) translateY(2px) scale(.98); transition-duration: 0s; }
+.ep__tape { position: absolute; top: -12px; left: 50%; width: 86px; height: 26px; margin-left: -43px; transform: rotate(-4deg); background: rgba(245,207,114,.72); clip-path: polygon(0 8%, 6% 0, 12% 10%, 20% 2%, 100% 0, 96% 50%, 100% 100%, 8% 96%, 3% 100%, 0 70%, 4% 45%); }
+.ep__pic { position: relative; display: block; border-radius: 2px; overflow: hidden; background: #e6d3ae; box-shadow: inset 0 0 0 1px rgba(84,50,22,.12); }
+.ep__pic svg { display: block; width: 100%; height: auto; }
+.ep__pic .epn { position: absolute; left: 8px; top: 8px; padding: 3px 9px; border-radius: 9px 11px 8px 10px; background: rgba(51,36,27,.82); color: #fbf4e6; font: 600 12.5px/1.2 var(--font-l); letter-spacing: .08em; }
+.ep b { font: 700 24px/1.1 var(--font-h); color: var(--ink); }
+.ep small { display: block; font: 400 19px/1.2 var(--font-h); color: var(--ink-2); }
+.ep:focus-visible { outline-offset: 6px; border-radius: 8px; }
+
+/* Progress: a jar of clay balls + a measuring tape */
+.gauges { display: flex; flex-wrap: wrap; gap: 26px 34px; align-items: center; justify-content: center; width: 100%; }
+.jar { display: grid; justify-items: center; gap: 8px; }
+.jar svg { width: 140px; height: 170px; overflow: visible; }
+.jar b { font: 400 20px/1.2 var(--font-d); }
+.jar span { font-size: 14.5px; color: var(--ink-2); }
+.jar .drop { animation: drop calc(var(--frame) * 5) steps(1); }
+@keyframes drop { 0% { transform: translateY(-120px); } 20% { transform: translateY(-80px); } 40% { transform: translateY(-36px); } 60% { transform: translateY(3px) scale(1.12, .86); } 80% { transform: translateY(-3px); } }
+.tape { flex: 1; min-width: min(260px, 100%); display: grid; gap: 10px; }
+.tape__top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.tape__top b { font: 400 20px/1.2 var(--font-d); }
+.tape__top output { font: 600 24px/1 var(--font-l); color: var(--mustard-d); }
+.tape__body { position: relative; display: flex; align-items: center; height: 76px; }
+.tape__case { --c: var(--mustard); --cd: var(--mustard-d); --blob: 26px 30px 24px 28px / 28px 24px 30px 26px; position: relative; z-index: 2; width: 74px; height: 70px; flex: none; display: grid; place-items: center; margin-bottom: var(--th); }
+.tape__case i { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ececec, var(--steel) 60%, #5f666b); box-shadow: inset 0 0 0 4px rgba(255,255,255,.25); position: relative; }
+.tape__case i::after { content: ""; position: absolute; left: 6px; right: 6px; top: 11px; height: 3px; background: #4b5357; border-radius: 2px; transform: rotate(-30deg); }
+.tape__track { position: relative; flex: 1; height: 28px; margin-left: -6px; }
+.tape__strip { position: absolute; left: 0; top: 0; bottom: 0; width: 40%; border-radius: 0 3px 3px 0; transition: width calc(var(--frame) * 3) steps(3);
+  background: linear-gradient(90deg, transparent 0 1px, rgba(51,36,27,.75) 1px 3px, transparent 3px) 0 0/40px 13px repeat-x, linear-gradient(90deg, transparent 0 1px, rgba(51,36,27,.45) 1px 2px, transparent 2px) 0 0/8px 7px repeat-x, linear-gradient(rgba(255,255,255,.35), transparent 50%, rgba(140,95,10,.15)), #f3cf55;
+  box-shadow: 0 3px 0 #b98e1c, 0 6px 6px -2px rgba(84,50,22,.3); }
+.tape__strip::after { content: ""; position: absolute; right: -6px; top: -4px; width: 8px; height: 36px; border-radius: 2px 3px 3px 2px; background: linear-gradient(90deg, #d6dadc, var(--steel)); box-shadow: 1px 2px 2px rgba(0,0,0,.3); }
+.tape__scale { display: flex; justify-content: space-between; padding-left: 74px; font: 500 14px/1 var(--font-l); color: var(--ink-3); }
+
+/* Steps: clay balls threaded on a toothpick */
+.job { position: relative; display: flex; width: 100%; margin: 0; padding: 4px 0 6px; list-style: none; overflow-x: auto; }
+.job::before { content: ""; position: absolute; left: 30px; right: 30px; top: 30px; height: 7px; border-radius: 4px; background: linear-gradient(#f6e2b6, #ddb97e 55%, #b8915a); box-shadow: 0 3px 3px rgba(84,50,22,.25); }
+.job li { position: relative; flex: 1; min-width: 96px; display: grid; justify-items: center; gap: 10px; text-align: center; font: 400 17px/1.25 var(--font-d); color: var(--ink-3); }
+.job li > span { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50% 47% 52% 48% / 48% 52% 47% 51%; font: 600 19px/1 var(--font-l); color: var(--ink-2);
+  background: radial-gradient(circle at 34% 28%, #fffaf0, var(--cream) 50%, var(--cream-d)); box-shadow: 0 4px 0 var(--cream-d), 0 7px 7px -2px rgba(84,50,22,.35); }
+.job li.done { color: var(--ink-2); }
+.job li.done > span { color: #1f5a41; background: radial-gradient(circle at 34% 28%, #d9f3e5, var(--mint) 55%, var(--mint-d)); box-shadow: 0 4px 0 var(--mint-d), 0 7px 7px -2px rgba(84,50,22,.35); }
+.job li.done > span svg { width: 22px; height: 22px; fill: none; stroke: #1f5a41; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+.job li.now { color: var(--ink); }
+.job li.now > span { color: var(--ink); background: radial-gradient(circle at 34% 28%, #fff1c8, var(--mustard) 55%, var(--mustard-d)); box-shadow: 0 4px 0 var(--mustard-d), 0 7px 7px -2px rgba(84,50,22,.35); animation: bob calc(var(--frame) * 12) steps(1) infinite; }
+@keyframes bob { 0%, 100% { transform: none; } 33% { transform: translateY(-4px) scale(.97, 1.04); } 66% { transform: translateY(-2px); } }
+
+/* Accordion: clay slabs with a ball for a handle */
+.slabs { width: 100%; display: grid; gap: 16px; }
+.slabs details { --blob: 24px 30px 22px 28px / 28px 22px 30px 24px; --th: 5px; margin-bottom: var(--th); }
+.slabs summary { position: relative; list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px; min-height: 62px; padding: 0 18px 0 62px; font: 400 20px/1.3 var(--font-d); border-radius: 24px; }
+.slabs summary::-webkit-details-marker { display: none; }
+.slabs summary::before { content: ""; position: absolute; left: 16px; top: 50%; width: 30px; height: 30px; margin-top: -15px; border-radius: 50% 46% 52% 48%; background: radial-gradient(circle at 34% 28%, var(--sky-l), var(--sky) 60%, var(--sky-d)); box-shadow: 0 3px 0 var(--sky-d), 0 5px 5px -2px rgba(84,50,22,.35); transition: transform calc(var(--frame) * 2) steps(2); }
+.slabs details[open] summary::before { transform: scale(1.2, .7) translateY(5px); background: radial-gradient(circle at 34% 28%, #fff1c8, var(--mustard) 60%, var(--mustard-d)); box-shadow: 0 2px 0 var(--mustard-d); }
+.slabs summary::after { content: ""; margin-left: auto; width: 14px; height: 14px; border-right: 4px solid var(--terra); border-bottom: 4px solid var(--terra); border-radius: 2px 2px 4px 2px; transform: rotate(45deg) translate(-3px, -3px); transition: transform calc(var(--frame) * 2) steps(2); flex: none; }
+.slabs details[open] summary::after { transform: rotate(225deg) translate(-3px, -3px); }
+.slabs summary:hover { color: var(--tomato-d); }
+.slabs summary:focus-visible { outline-offset: -4px; }
+.slabs details > div { margin: 0 18px 18px 62px; padding-top: 12px; color: var(--ink-2); font-size: 16px; border-top: 2px dashed var(--cream-d); }
+@media (max-width: 480px) { .slabs details > div { margin-left: 18px; } }
+
+/* Table: the repair log on cardboard */
+.board { width: 100%; overflow-x: auto; border-radius: 12px 16px 11px 15px; background: var(--grain), #fbf4e6; box-shadow: 0 5px 0 var(--cream-d), 0 14px 16px -8px rgba(84,50,22,.35); }
+table { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 16px; }
+th { text-align: left; padding: 13px 16px; background: var(--grain), repeating-linear-gradient(90deg, rgba(120,85,45,.12) 0 2px, transparent 2px 6px), var(--card-l); font: 400 18px/1.2 var(--font-d); color: var(--ink); white-space: nowrap; border-bottom: 3px solid var(--card-d); }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; min-height: 30px; }
+th button:focus-visible { outline: 3px solid var(--sky-d); outline-offset: 3px; border-radius: 6px; }
+th button::after { content: ""; width: 0; height: 0; border: 6px solid transparent; border-top-color: rgba(51,36,27,.3); margin-top: 6px; }
+th[aria-sort="ascending"] button::after { border-top-color: transparent; border-bottom-color: var(--tomato-d); margin-top: -6px; }
+th[aria-sort="descending"] button::after { border-top-color: var(--tomato-d); }
+td { padding: 12px 16px; border-bottom: 2px dashed var(--cream-d); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: rgba(245,207,114,.18); }
+td.num, th.num { text-align: right; }
+td.num { font: 600 18px/1 var(--font-l); }
+td .nm { display: inline-flex; align-items: center; gap: 10px; font: 400 19px/1.2 var(--font-d); }
+td .nm i { width: 22px; height: 22px; flex: none; border-radius: 50% 46% 52% 48%; background: radial-gradient(circle at 34% 28%, rgba(255,255,255,.6), var(--b) 55%); box-shadow: 0 2px 0 rgba(0,0,0,.2); }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; font: 400 17px/1 var(--font-d); color: var(--ink-2); }
+.pager ol { display: flex; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.pager button { width: 46px; height: 46px; border: 0; cursor: pointer; font: 600 17px/1 var(--font-l); color: var(--ink); border-radius: 50% 47% 52% 48%; background: radial-gradient(circle at 34% 28%, #fffaf0, var(--cream) 52%, var(--cream-d)); box-shadow: 0 4px 0 var(--cream-d), 0 7px 7px -2px rgba(84,50,22,.35); transition: transform calc(var(--frame) * 2) steps(2); }
+.pager button:hover:not(:disabled) { transform: translateY(-2px); }
+.pager button[aria-current="page"] { color: #fff7ea; background: radial-gradient(circle at 34% 28%, var(--tomato-l), var(--tomato) 55%, var(--tomato-d)); box-shadow: 0 3px 0 var(--tomato-d), 0 6px 6px -2px rgba(84,50,22,.35); transform: translateY(1px); }
+.pager button:disabled { opacity: .45; cursor: not-allowed; }
+.pager button:focus-visible { border-radius: 50%; }
+
+.empty { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 10px; }
+.empty svg { width: 170px; height: 120px; overflow: visible; }
+.empty b { font: 400 25px/1.3 var(--font-d); }
+.empty p { color: var(--ink-2); font-size: 16px; max-width: 34ch; }
+
+/* ---------- Overlays ---------- */
+dialog { padding: 0; border: 0; background: transparent; color: var(--ink); width: 100%; max-width: min(500px, calc(100vw - 32px)); overflow: visible; }
+dialog::backdrop { background: rgba(51,36,27,.58); }
+dialog[open] { animation: plop calc(var(--frame) * 5) steps(1); }
+.dlg { --c: var(--mustard-l); --cd: var(--mustard-d); --f: url(#cfp); --blob: 40px 48px 36px 44px / 44px 36px 48px 40px; margin: 40px 6px 14px; padding: 54px 26px 30px; display: grid; justify-items: center; gap: 12px; text-align: center; }
+.dlg::after { content: ""; position: absolute; inset: 12px; z-index: -1; border: 8px solid var(--tomato); border-radius: 32px 40px 28px 36px / 36px 28px 40px 32px; filter: url(#cf3); pointer-events: none; }
+.dlg__icon { position: absolute; top: -40px; left: 50%; margin-left: -40px; width: 80px; height: 80px; display: grid; place-items: center; border-radius: 50% 47% 52% 48%; background: radial-gradient(circle at 34% 28%, var(--tomato-l), var(--tomato) 55%, var(--tomato-d)); box-shadow: 0 6px 0 var(--tomato-d), 0 10px 10px -2px rgba(84,50,22,.4); }
+.dlg__icon svg { width: 42px; height: 42px; fill: none; stroke: #fff7ea; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.dlg h3 { font: 400 32px/1.25 var(--font-d); }
+.dlg p { color: var(--ink); font-size: 16px; max-width: 34ch; }
+.dlg__loss { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.dlg__loss .bdg { --b: #fbe3da; --bd: var(--tomato); }
+.dlg__foot { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 12px; }
+
+/* Side panel: a cardboard drawer pulled out of the set */
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(430px, 100vw); display: grid; grid-template-rows: auto 1fr auto;
+  background: var(--grain), repeating-linear-gradient(90deg, rgba(120,85,45,.1) 0 2px, transparent 2px 7px), var(--card-l); box-shadow: -4px 0 0 var(--card-d), -18px 0 30px -10px rgba(51,36,27,.5);
+  transform: translateX(105%); visibility: hidden; transition: transform calc(var(--frame) * 4) steps(4), visibility 0s calc(var(--frame) * 4); }
+.drawer.open { transform: none; visibility: visible; transition: transform calc(var(--frame) * 4) steps(4); }
+.drawer::before { content: ""; position: absolute; left: -26px; top: 50%; width: 30px; height: 70px; margin-top: -35px; border-radius: 16px 4px 4px 18px; background: radial-gradient(circle at 40% 30%, var(--tomato-l), var(--tomato) 60%, var(--tomato-d)); box-shadow: -2px 4px 0 var(--tomato-d), -4px 8px 8px rgba(51,36,27,.35); }
+.drawer__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 26px 22px 18px; border-bottom: 3px dashed var(--card-d); }
+.drawer__head h3 { font: 400 28px/1.2 var(--font-d); }
+.drawer__head small { font: 400 15px/1 var(--font-d); color: var(--ink-2); }
+.drawer__body { padding: 22px; overflow: auto; display: grid; gap: 22px; align-content: start; }
+.drawer__body .inp { --c: var(--cream-l); }
+.drawer__body .inp:focus-within { --c: var(--mustard); }
+.drawer__foot { padding: 16px 22px 24px; display: flex; gap: 16px; justify-content: flex-end; align-items: center; flex-wrap: wrap; border-top: 3px dashed var(--card-d); }
+.scrim { position: fixed; inset: 0; z-index: 59; background: rgba(51,36,27,.5); opacity: 0; pointer-events: none; transition: opacity calc(var(--frame) * 3) steps(3); }
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+/* Toasts: clay speech bubbles that plop onto the set */
+.bubbles { position: fixed; z-index: 70; top: 82px; right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px; width: min(360px, calc(100vw - 32px)); }
+.bub { --c: var(--cream-l); --blob: 30px 36px 28px 34px / 34px 28px 36px 30px; --th: 5px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 12px 12px 14px; margin-bottom: 10px; animation: plop calc(var(--frame) * 5) steps(1); transform-origin: 85% 100%; }
+.bub__tail { position: absolute; right: 38px; bottom: -14px; width: 22px; height: 22px; border-radius: 0 0 14px 0; background: var(--c); transform: rotate(35deg) skewX(10deg); box-shadow: 3px 4px 0 var(--cd); z-index: -2; }
+.bub.out { animation: unplop calc(var(--frame) * 3) steps(1) forwards; }
+@keyframes unplop { 0% { transform: scale(1.08, .9); } 33% { transform: scale(.7); opacity: .7; } 66%, 100% { transform: scale(.3, .2); opacity: 0; } }
+.bub__ico { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50% 46% 52% 48%; background: radial-gradient(circle at 34% 28%, rgba(255,255,255,.55), var(--n, var(--mint)) 55%, color-mix(in oklab, var(--n, var(--mint)), black 25%)); box-shadow: 0 3px 0 color-mix(in oklab, var(--n, var(--mint)), black 35%); }
+.bub__ico svg { width: 26px; height: 26px; fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.bub small { display: block; font: 600 13px/1.2 var(--font-l); letter-spacing: .1em; color: var(--ink-3); }
+.bub b { display: block; font: 400 20px/1.25 var(--font-d); }
+.bub span { font-size: 14.5px; color: var(--ink-2); }
+.bub .x { width: 44px; height: 44px; border: 0; border-radius: 50% 46% 52% 48%; cursor: pointer; font: 600 18px/1 var(--font-l); color: var(--ink-2); background: radial-gradient(circle at 34% 28%, #fffaf0, var(--cream) 55%, var(--cream-d)); box-shadow: 0 3px 0 var(--cream-d); }
+.bub .x:hover { color: var(--ink); }
+.bub .x:focus-visible { border-radius: 50%; }
+.bub--tomato { --n: var(--tomato-l); } .bub--sky { --n: var(--sky-l); } .bub--mustard { --n: var(--mustard-l); }
+.bub--tomato.cl { --c: #fbe3da; --cd: #e3b3a3; }
+
+/* ---------- Code ---------- */
+.codepan { --c: #3a2a20; --cd: #1f150f; }
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 30px 28px 0; color: #fbf4e6; }
+.codebar .flabel { color: #fbf4e6; }
+.codewrap { padding: 16px 22px 30px; }
+pre.code { margin: 0; padding: 22px; overflow: auto; max-height: 540px; border-radius: 18px 22px 16px 20px; background: #2a1e17; color: #f1e6d2; font: 400 13.5px/1.7 ui-monospace, Menlo, Consolas, monospace; box-shadow: inset 4px 5px 10px rgba(0,0,0,.45), inset -2px -2px 4px rgba(255,255,255,.05); }
+pre.code .c { color: #b9a58c; } pre.code .p { color: var(--mustard-l); } pre.code .v { color: #a7dcc2; }
+
+.foot { position: relative; z-index: 1; margin-top: 110px; padding-block: 0 70px; overflow-x: clip; }
+.floor { height: 64px; margin: 0 -16px; border-radius: 20px 24px 0 0; background: repeating-linear-gradient(90deg, transparent 0 180px, rgba(70,40,18,.4) 180px 182px, transparent 182px 240px), linear-gradient(var(--wood-l) 0 12px, rgba(70,40,18,.35) 12px 14px, var(--wood) 14px 34px, rgba(70,40,18,.35) 34px 36px, var(--wood-l) 36px 52px, var(--wood-d) 52px); box-shadow: inset 0 3px 0 rgba(255,235,205,.35); }
+.foot__in { display: grid; justify-items: center; gap: 8px; padding-top: 34px; text-align: center; color: var(--ink-2); font-size: 15.5px; }
+.foot__in b { font: 700 40px/1 var(--font-l); color: var(--tomato); text-shadow: 0 4px 0 var(--tomato-d); filter: url(#cft); padding: 4px 8px 8px; }
+.foot__in nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; max-width: 640px; }
+.foot__in nav a { display: inline-grid; place-items: center; min-height: 44px; padding: 0 4px; color: var(--tomato-d); font: 400 18px/1 var(--font-d); }
+</style>
+</head>
+<body>
+
+<svg class="svgdefs" aria-hidden="true" focusable="false"><defs>
+  <!-- Clay filters. Lumps (displacement) + height from blurred alpha + grain + one light from the top-left. -->
+  <filter id="cf1" x="-25%" y="-30%" width="150%" height="170%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="1" result="lump"/>
+    <feDisplacementMap in="SourceGraphic" in2="lump" scale="5" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feGaussianBlur in="shape" stdDeviation="3" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="1" seed="4" result="grain"/>
+    <feColorMatrix in="grain" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .06 0 0 0 .94" result="g"/>
+    <feColorMatrix in="lump" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 .16 0 .84" result="dent"/>
+    <feComposite in="g" in2="dent" operator="arithmetic" k1="1" result="tex"/>
+    <feComposite in="soft" in2="tex" operator="arithmetic" k1="1" result="h"/>
+    <feDiffuseLighting in="h" surfaceScale="5" diffuseConstant="1" lighting-color="#fff" result="light"><feDistantLight azimuth="225" elevation="56"/></feDiffuseLighting>
+    <feComposite in="shape" in2="light" operator="arithmetic" k1="1.2" result="lit"/>
+    <feComposite in="lit" in2="shape" operator="in"/>
+  </filter>
+  <filter id="cf2" x="-25%" y="-30%" width="150%" height="170%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="7" result="lump"/>
+    <feDisplacementMap in="SourceGraphic" in2="lump" scale="5" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feGaussianBlur in="shape" stdDeviation="3" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="1" seed="9" result="grain"/>
+    <feColorMatrix in="grain" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .06 0 0 0 .94" result="g"/>
+    <feColorMatrix in="lump" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 .16 0 .84" result="dent"/>
+    <feComposite in="g" in2="dent" operator="arithmetic" k1="1" result="tex"/>
+    <feComposite in="soft" in2="tex" operator="arithmetic" k1="1" result="h"/>
+    <feDiffuseLighting in="h" surfaceScale="5" diffuseConstant="1" lighting-color="#fff" result="light"><feDistantLight azimuth="225" elevation="56"/></feDiffuseLighting>
+    <feComposite in="shape" in2="light" operator="arithmetic" k1="1.2" result="lit"/>
+    <feComposite in="lit" in2="shape" operator="in"/>
+  </filter>
+  <filter id="cf3" x="-25%" y="-30%" width="150%" height="170%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="13" result="lump"/>
+    <feDisplacementMap in="SourceGraphic" in2="lump" scale="5" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feGaussianBlur in="shape" stdDeviation="3" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="1" seed="15" result="grain"/>
+    <feColorMatrix in="grain" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .06 0 0 0 .94" result="g"/>
+    <feColorMatrix in="lump" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 .16 0 .84" result="dent"/>
+    <feComposite in="g" in2="dent" operator="arithmetic" k1="1" result="tex"/>
+    <feComposite in="soft" in2="tex" operator="arithmetic" k1="1" result="h"/>
+    <feDiffuseLighting in="h" surfaceScale="5" diffuseConstant="1" lighting-color="#fff" result="light"><feDistantLight azimuth="225" elevation="56"/></feDiffuseLighting>
+    <feComposite in="shape" in2="light" operator="arithmetic" k1="1.2" result="lit"/>
+    <feComposite in="lit" in2="shape" operator="in"/>
+  </filter>
+  <!-- panels: thicker, softer edges, wider lumps -->
+  <filter id="cfp" x="-6%" y="-8%" width="112%" height="120%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency=".022" numOctaves="2" seed="3" result="lump"/>
+    <feDisplacementMap in="SourceGraphic" in2="lump" scale="9" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feGaussianBlur in="shape" stdDeviation="6" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="1" seed="5" result="grain"/>
+    <feColorMatrix in="grain" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .05 0 0 0 .95" result="g"/>
+    <feColorMatrix in="lump" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 .22 0 .78" result="dent"/>
+    <feComposite in="g" in2="dent" operator="arithmetic" k1="1" result="tex"/>
+    <feComposite in="soft" in2="tex" operator="arithmetic" k1="1" result="h"/>
+    <feDiffuseLighting in="h" surfaceScale="7" diffuseConstant="1" lighting-color="#fff" result="light"><feDistantLight azimuth="225" elevation="58"/></feDiffuseLighting>
+    <feComposite in="shape" in2="light" operator="arithmetic" k1="1.17" result="lit"/>
+    <feComposite in="lit" in2="shape" operator="in"/>
+  </filter>
+  <!-- title letters -->
+  <filter id="cft" x="-10%" y="-15%" width="120%" height="140%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="21" result="lump"/>
+    <feDisplacementMap in="SourceGraphic" in2="lump" scale="4" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feGaussianBlur in="shape" stdDeviation="3" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="1" seed="2" result="grain"/>
+    <feColorMatrix in="grain" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .06 0 0 0 .94" result="g"/>
+    <feComposite in="soft" in2="g" operator="arithmetic" k1="1" result="h"/>
+    <feDiffuseLighting in="h" surfaceScale="6" diffuseConstant="1" lighting-color="#fff" result="light"><feDistantLight azimuth="225" elevation="54"/></feDiffuseLighting>
+    <feComposite in="shape" in2="light" operator="arithmetic" k1="1.22" result="lit"/>
+    <feComposite in="lit" in2="shape" operator="in"/>
+  </filter>
+  <!-- scene filters, in SVG user units -->
+  <filter id="cfh" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="2" seed="5" result="lump"/>
+    <feDisplacementMap in="SourceGraphic" in2="lump" scale="5" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feGaussianBlur in="shape" stdDeviation="4" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="1" seed="8" result="grain"/>
+    <feColorMatrix in="grain" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .06 0 0 0 .94" result="g"/>
+    <feColorMatrix in="lump" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 .14 0 .86" result="dent"/>
+    <feComposite in="g" in2="dent" operator="arithmetic" k1="1" result="tex"/>
+    <feComposite in="soft" in2="tex" operator="arithmetic" k1="1" result="h"/>
+    <feDiffuseLighting in="h" surfaceScale="6" diffuseConstant="1" lighting-color="#fff" result="light"><feDistantLight azimuth="225" elevation="54"/></feDiffuseLighting>
+    <feComposite in="shape" in2="light" operator="arithmetic" k1="1.22" result="lit"/>
+    <feComposite in="lit" in2="shape" operator="in"/>
+  </filter>
+  <filter id="cfs" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency=".08" numOctaves="1" seed="11" result="lump"/>
+    <feDisplacementMap in="SourceGraphic" in2="lump" scale="2" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feGaussianBlur in="shape" stdDeviation="1.8" result="h"/>
+    <feDiffuseLighting in="h" surfaceScale="3" diffuseConstant="1" lighting-color="#fff" result="light"><feDistantLight azimuth="225" elevation="54"/></feDiffuseLighting>
+    <feComposite in="shape" in2="light" operator="arithmetic" k1="1.22" result="lit"/>
+    <feComposite in="lit" in2="shape" operator="in"/>
+  </filter>
+  <filter id="soft6" x="-30%" y="-200%" width="160%" height="500%"><feGaussianBlur stdDeviation="6"/></filter>
+  <filter id="soft3" x="-30%" y="-200%" width="160%" height="500%"><feGaussianBlur stdDeviation="3"/></filter>
+  <filter id="felt" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .33  0 0 0 0 .2  0 0 0 0 .08  0 0 0 .16 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+  <pattern id="wallp" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#f2ddb0"/><rect width="26" height="60" fill="#edd4a2"/><circle cx="43" cy="16" r="3.2" fill="#e08b6f"/><circle cx="39.5" cy="19" r="2.4" fill="#e9a08a"/><circle cx="46.5" cy="19" r="2.4" fill="#e9a08a"/><circle cx="43" cy="46" r="2.6" fill="#9fcfb5"/></pattern>
+  <radialGradient id="vign" cx=".22" cy=".1" r="1"><stop offset="0" stop-color="#fff6de" stop-opacity=".35"/><stop offset=".45" stop-color="#fff6de" stop-opacity="0"/><stop offset="1" stop-color="#5a3010" stop-opacity=".28"/></radialGradient>
+  <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2c4" stop-opacity=".55"/><stop offset="1" stop-color="#fff2c4" stop-opacity="0"/></linearGradient>
+  <linearGradient id="pane" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3e0f2"/><stop offset="1" stop-color="#8fc0e2"/></linearGradient>
+
+  <!-- tool icons (stroke) -->
+  <symbol id="i-hammer" viewBox="0 0 24 24"><path d="M4.5 19.5l8.2-8.2"/><path d="M10.6 7.4l3.6-3.4 5.8 5.8-3.4 3.6-1.8-1.8-1.6 1.4-3-3 1.4-1.6z"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></symbol>
+  <symbol id="i-saw" viewBox="0 0 24 24"><path d="M3 18.5L14.5 7l3.5 3.5L6.5 22H3z"/><path d="M6.5 15l1.3 1.3M9 12.5l1.3 1.3M11.5 10l1.3 1.3"/><path d="M14.5 7l2.8-2.8a2.2 2.2 0 0 1 3.2 3.2L18 10.5"/></symbol>
+  <symbol id="i-tape" viewBox="0 0 24 24"><circle cx="10" cy="11" r="7"/><circle cx="10" cy="11" r="2.2"/><path d="M17 15h5v3.5H10"/></symbol>
+  <symbol id="i-brush" viewBox="0 0 24 24"><path d="M14.5 4.5l5 5-6.5 6.5-5-5z"/><path d="M8 11c-3 0-4.5 2-4.5 4.5 0 2-1 3-1.5 3.5 4 .5 9-1 9-5"/></symbol>
+  <symbol id="i-screw" viewBox="0 0 24 24"><path d="M15 9l5.5-5.5"/><path d="M13.5 6.5l4 4-2 2-4-4z"/><path d="M11.5 12.5l-7 7a1.4 1.4 0 0 0 2 2l7-7"/></symbol>
+  <symbol id="i-nail" viewBox="0 0 24 24"><path d="M6 4.5h12"/><path d="M12 4.5v12.5l-1 3.5"/><path d="M9 9l6-1M9 12.5l6-1"/></symbol>
+  <symbol id="i-house" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c1 1 1 2 1 2.5h6c0-.5 0-1.5 1-2.5A6 6 0 0 0 12 3z"/></symbol>
+  <symbol id="i-ladder" viewBox="0 0 24 24"><path d="M7 3v18M17 3v18M7 7.5h10M7 12h10M7 16.5h10"/></symbol>
+  <symbol id="i-sledge" viewBox="0 0 24 24"><path d="M5 20l8-8"/><path d="M10.5 6.5l4-4 7 7-4 4z"/><path d="M14 15l2 2M17 12l1.5 1.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-crack" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#c23e2a" stroke="none"/><path d="M12 5l-2 4 3 2-2 3 2 2-1 3" stroke="#fff7ea" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<header class="top">
+  <div class="wrap top__in">
+    <a class="brand" href="#top" aria-label="Clay, 맨 위로"><svg viewBox="0 0 44 40" aria-hidden="true"><circle cx="14" cy="22" r="11" fill="#c23e2a" filter="url(#cfs)"/><circle cx="30" cy="15" r="9" fill="#e2a72e" filter="url(#cfs)"/><circle cx="31" cy="30" r="7" fill="#5b9fcf" filter="url(#cfs)"/></svg><b>Clay</b><span>클레이</span></a>
+    <nav aria-label="섹션" id="nav"><a class="cl" href="#base">기초</a><a class="cl" href="#press">누르기</a><a class="cl" href="#toggle">켜고 끄기</a><a class="cl" href="#choose">고르기</a><a class="cl" href="#type-in">입력</a><a class="cl" href="#show">보여 주기</a><a class="cl" href="#float">띄우기</a><a class="cl" href="#code">코드</a></nav>
+  </div>
+</header>
+
+<div class="wrap hero" id="top">
+  <div class="hero__title">
+    <p class="kicker">Design system · 삐걱골목 3번지 작업실</p>
+    <h1 class="claytitle" aria-label="Clay 클레이 디자인 시스템"><span aria-hidden="true">C</span><span aria-hidden="true">l</span><span aria-hidden="true">a</span><span aria-hidden="true">y</span></h1>
+    <p class="hero__sub">뚝이와 딱이의 <em>고쳐 보자</em> 디자인 시스템</p>
+    <p class="hero__p">손으로 빚은 찰흙 인형극 세트. 버튼은 엄지로 누른 찰흙, 스위치는 벽 스위치, 알림은 말풍선입니다. 모두 왼쪽 위 조명 하나 아래에서 같은 두께로 빚고, 1초에 12장씩 덜컥덜컥 찍습니다.</p>
+    <div class="hero__cta">
+      <button class="btn btn--primary btn--lg cl" data-fix="#heroScene"><svg aria-hidden="true"><use href="#i-hammer"/></svg><span>고쳐 보자!</span></button>
+      <a class="btn btn--snake cl" href="#base"><span>부품 상자 열기</span></a>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="set" id="heroScene">
+      <svg viewBox="0 0 1000 560" role="img" aria-labelledby="setT">
+        <title id="setT">작업실 세트. 키다리 뚝이가 망치를 들고 작업대 위 새집을 고치고, 땅딸보 딱이가 판자를 붙잡고 있다. 딱이 머리 위 벽에는 비뚤어진 액자가 걸려 있다.</title>
+        <!-- wall -->
+        <rect width="1000" height="440" fill="url(#wallp)"/>
+        <rect width="1000" height="440" filter="url(#felt)" fill="#000"/>
+        <!-- window -->
+        <rect x="88" y="66" width="176" height="176" rx="18" fill="#f4e6c8" filter="url(#cfh)"/>
+        <rect x="106" y="84" width="140" height="140" rx="9" fill="url(#pane)"/>
+        <circle cx="214" cy="116" r="15" fill="#f5cf72" filter="url(#cfs)"/>
+        <g filter="url(#cfs)" fill="#fbf4e6"><circle cx="142" cy="136" r="15"/><circle cx="162" cy="128" r="18"/><circle cx="182" cy="138" r="13"/><rect x="130" y="136" width="62" height="16" rx="8"/></g>
+        <rect x="171" y="84" width="10" height="140" rx="4" fill="#efdcb8" filter="url(#cfs)"/>
+        <rect x="106" y="149" width="140" height="10" rx="4" fill="#efdcb8" filter="url(#cfs)"/>
+        <rect x="76" y="236" width="200" height="18" rx="9" fill="#dd9a76" filter="url(#cfh)"/>
+        <path d="M120 206h34l-5 32h-24z" fill="#b9633f" filter="url(#cfs)"/>
+        <g filter="url(#cfs)" fill="#79c2a0"><circle cx="128" cy="196" r="10"/><circle cx="144" cy="188" r="12"/><circle cx="138" cy="176" r="9"/></g>
+        <!-- shelf -->
+        <path d="M842 248l18 22h-18z" fill="#74482a" filter="url(#cfs)"/><path d="M958 248l-18 22h18z" fill="#74482a" filter="url(#cfs)"/>
+        <rect x="826" y="234" width="156" height="16" rx="8" fill="#cc9a6c" filter="url(#cfh)"/>
+        <rect x="846" y="188" width="38" height="46" rx="10" fill="#79c2a0" filter="url(#cfh)"/><rect x="842" y="180" width="46" height="12" rx="6" fill="#3e8a69" filter="url(#cfs)"/>
+        <rect x="898" y="200" width="32" height="34" rx="8" fill="#e2a72e" filter="url(#cfh)"/>
+        <circle cx="954" cy="220" r="13" fill="#c23e2a" filter="url(#cfs)"/>
+        <!-- lamp light -->
+        <path d="M452 118L336 432h330L548 118z" fill="url(#cone)"/>
+        <!-- skirting + floor -->
+        <rect x="-20" y="420" width="1040" height="26" rx="10" fill="#b9633f" filter="url(#cfh)"/>
+        <rect x="-20" y="440" width="1040" height="130" fill="#74482a"/>
+        <rect x="-20" y="446" width="1040" height="34" rx="14" fill="#b07a4c" filter="url(#cfh)"/>
+        <rect x="-20" y="484" width="1040" height="36" rx="14" fill="#9d6840" filter="url(#cfh)"/>
+        <rect x="-20" y="524" width="1040" height="44" rx="14" fill="#b58050" filter="url(#cfh)"/>
+        <path d="M180 448q2 15 0 30M612 487q2 16 0 31M396 527q2 16 0 30M860 448q-2 15 0 30M800 527q2 16 0 30" stroke="#6b3f22" stroke-width="3" stroke-linecap="round" fill="none" opacity=".55"/>
+        <rect width="1000" height="560" fill="url(#vign)"/>
+        <!-- contact shadows -->
+        <ellipse cx="515" cy="506" rx="150" ry="11" fill="#3b1f0c" opacity=".3" filter="url(#soft6)"/>
+        <ellipse cx="294" cy="514" rx="62" ry="9" fill="#3b1f0c" opacity=".35" filter="url(#soft6)"/>
+        <ellipse cx="740" cy="514" rx="66" ry="9" fill="#3b1f0c" opacity=".35" filter="url(#soft6)"/>
+        <!-- crooked picture (falls) -->
+        <g class="s-fall" style="transform-origin:710px 70px;transform:rotate(-7deg)">
+          <path d="M710 70L668 104M710 70L752 104" stroke="#57402f" stroke-width="2.5" fill="none"/>
+          <rect x="660" y="100" width="100" height="84" rx="12" fill="#b9633f" filter="url(#cfh)"/>
+          <rect x="674" y="113" width="72" height="58" rx="5" fill="#fbf1dc"/>
+          <path d="M690 162v-22h24v22z" fill="#79c2a0"/><path d="M684 142l18-15 18 15z" fill="#c23e2a"/><circle cx="732" cy="128" r="6" fill="#e2a72e"/>
+          <circle cx="710" cy="70" r="5" fill="#8b9196" filter="url(#cfs)"/>
+        </g>
+        <!-- lamp -->
+        <g class="lamp">
+          <path d="M500 -4V82" stroke="#57402f" stroke-width="3"/>
+          <circle cx="500" cy="124" r="13" fill="#fff4cf"/>
+          <path d="M442 122C442 76 558 76 558 122Z" fill="#e2a72e" filter="url(#cfh)"/>
+          <rect x="488" y="72" width="24" height="16" rx="6" fill="#a8730f" filter="url(#cfs)"/>
+        </g>
+        <!-- workbench -->
+        <g class="s-wob" style="transform-origin:515px 500px">
+          <rect x="400" y="376" width="22" height="130" rx="9" fill="#a87348" filter="url(#cfh)"/>
+          <rect x="606" y="376" width="22" height="108" rx="9" fill="#a87348" filter="url(#cfh)"/>
+          <rect x="586" y="480" width="60" height="13" rx="5" fill="#5b9fcf" filter="url(#cfs)"/>
+          <rect x="590" y="492" width="54" height="13" rx="5" fill="#c23e2a" filter="url(#cfs)"/>
+          <rect x="378" y="356" width="274" height="24" rx="11" fill="#cc9a6c" filter="url(#cfh)"/>
+          <!-- birdhouse -->
+          <rect x="478" y="294" width="74" height="64" rx="9" fill="#79c2a0" filter="url(#cfh)"/>
+          <circle cx="515" cy="320" r="10" fill="#3a2a22"/>
+          <rect x="509" y="336" width="12" height="6" rx="3" fill="#a87348" filter="url(#cfs)"/>
+          <path d="M470 302L515 262 560 302Z" fill="#c23e2a" stroke="#c23e2a" stroke-width="10" stroke-linejoin="round" filter="url(#cfh)"/>
+          <!-- toothpicks, a match, a nail -->
+          <path d="M582 352l26-7" stroke="#8b9196" stroke-width="4" stroke-linecap="round" filter="url(#cfs)"/>
+          <path d="M432 352l30-5" stroke="#f0d9a0" stroke-width="4.5" stroke-linecap="round"/><circle cx="463" cy="347" r="4.5" fill="#c23e2a" filter="url(#cfs)"/>
+          <circle cx="628" cy="348" r="7" fill="#e2a72e" filter="url(#cfs)"/>
+        </g>
+        <!-- 뚝이 -->
+        <g class="idle">
+          <ellipse cx="276" cy="508" rx="23" ry="12" fill="#4a3328" filter="url(#cfs)"/><ellipse cx="314" cy="508" rx="23" ry="12" fill="#4a3328" filter="url(#cfs)"/>
+          <rect x="266" y="430" width="20" height="80" rx="9" fill="#2f6a95" filter="url(#cfh)"/><rect x="302" y="430" width="20" height="80" rx="9" fill="#2f6a95" filter="url(#cfh)"/>
+          <path d="M258 352Q236 390 241 424" stroke="#c23e2a" stroke-width="22" stroke-linecap="round" fill="none" filter="url(#cfh)"/>
+          <circle cx="241" cy="430" r="11" fill="#eeb489" filter="url(#cfs)"/>
+          <path d="M252 448C240 400 246 352 266 338C280 328 306 328 320 338C338 352 344 400 334 448C310 458 276 458 252 448Z" fill="#c23e2a" filter="url(#cfh)"/>
+          <path d="M254 440C278 451 310 451 333 440" stroke="#8c2b1b" stroke-width="7" stroke-linecap="round" fill="none" opacity=".7"/>
+          <circle cx="252" cy="298" r="10" fill="#df9468" filter="url(#cfs)"/><circle cx="330" cy="298" r="10" fill="#df9468" filter="url(#cfs)"/>
+          <circle cx="291" cy="292" r="40" fill="#eeb489" filter="url(#cfh)"/>
+          <path d="M249 282C249 232 333 232 333 282Z" fill="#e2a72e" filter="url(#cfh)"/>
+          <rect x="245" y="270" width="92" height="18" rx="9" fill="#a8730f" filter="url(#cfs)"/>
+          <circle cx="291" cy="236" r="12" fill="#c23e2a" filter="url(#cfs)"/>
+          <circle cx="282" cy="296" r="10" fill="#fbf6ec" filter="url(#cfs)"/><circle cx="304" cy="294" r="10" fill="#fbf6ec" filter="url(#cfs)"/>
+          <circle cx="286" cy="298" r="4.5" fill="#241812"/><circle cx="308" cy="296" r="4.5" fill="#241812"/><circle cx="287.5" cy="296.5" r="1.4" fill="#fff"/><circle cx="309.5" cy="294.5" r="1.4" fill="#fff"/>
+          <ellipse cx="303" cy="311" rx="15" ry="12" fill="#df9468" filter="url(#cfs)"/>
+          <path d="M284 328q12 8 24-2" stroke="#5a2d22" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <g class="s-ham" style="transform-origin:322px 345px">
+            <path d="M320 346Q346 330 360 304" stroke="#c23e2a" stroke-width="22" stroke-linecap="round" fill="none" filter="url(#cfh)"/>
+            <path d="M364 300L388 234" stroke="#cc9a6c" stroke-width="9" stroke-linecap="round" filter="url(#cfs)"/>
+            <rect x="368" y="214" width="46" height="22" rx="7" fill="#8b9196" filter="url(#cfh)" transform="rotate(19 391 225)"/>
+            <circle cx="364" cy="300" r="12" fill="#eeb489" filter="url(#cfs)"/>
+          </g>
+        </g>
+        <!-- 딱이 -->
+        <g class="s-squash" style="transform-origin:740px 515px"><g class="idle b">
+          <ellipse cx="719" cy="508" rx="23" ry="12" fill="#4a3328" filter="url(#cfs)"/><ellipse cx="762" cy="508" rx="23" ry="12" fill="#4a3328" filter="url(#cfs)"/>
+          <rect x="708" y="466" width="22" height="44" rx="10" fill="#3e8a69" filter="url(#cfh)"/><rect x="750" y="466" width="22" height="44" rx="10" fill="#3e8a69" filter="url(#cfh)"/>
+          <ellipse cx="740" cy="404" rx="46" ry="22" fill="#e2a72e" filter="url(#cfh)"/>
+          <path d="M780 410Q800 440 788 462" stroke="#e2a72e" stroke-width="20" stroke-linecap="round" fill="none" filter="url(#cfh)"/>
+          <circle cx="788" cy="466" r="11" fill="#eeb489" filter="url(#cfs)"/>
+          <ellipse cx="740" cy="440" rx="54" ry="48" fill="#79c2a0" filter="url(#cfh)"/>
+          <rect x="722" y="440" width="36" height="24" rx="7" fill="#3e8a69" opacity=".55"/>
+          <circle cx="722" cy="424" r="4.5" fill="#e2a72e" filter="url(#cfs)"/><circle cx="758" cy="424" r="4.5" fill="#e2a72e" filter="url(#cfs)"/>
+          <g transform="rotate(-14 660 370)"><rect x="650" y="288" width="22" height="168" rx="6" fill="#cc9a6c" filter="url(#cfh)"/><path d="M657 310q5 30 0 60M664 380q4 30-1 60" stroke="#a87348" stroke-width="2" fill="none"/></g>
+          <path d="M704 410Q684 424 668 410" stroke="#e2a72e" stroke-width="20" stroke-linecap="round" fill="none" filter="url(#cfh)"/>
+          <circle cx="666" cy="408" r="12" fill="#eeb489" filter="url(#cfs)"/>
+          <circle cx="698" cy="358" r="10" fill="#df9468" filter="url(#cfs)"/><circle cx="782" cy="358" r="10" fill="#df9468" filter="url(#cfs)"/>
+          <circle cx="740" cy="352" r="42" fill="#eeb489" filter="url(#cfh)"/>
+          <path d="M698 344C698 296 782 296 782 344Z" fill="#c23e2a" filter="url(#cfh)"/>
+          <ellipse cx="694" cy="344" rx="30" ry="8" fill="#8c2b1b" filter="url(#cfs)"/>
+          <circle cx="740" cy="302" r="6" fill="#8c2b1b" filter="url(#cfs)"/>
+          <circle cx="726" cy="355" r="10" fill="#fbf6ec" filter="url(#cfs)"/><circle cx="749" cy="355" r="10" fill="#fbf6ec" filter="url(#cfs)"/>
+          <circle cx="722" cy="357" r="4.5" fill="#241812"/><circle cx="745" cy="357" r="4.5" fill="#241812"/><circle cx="723.5" cy="355.5" r="1.4" fill="#fff"/><circle cx="746.5" cy="355.5" r="1.4" fill="#fff"/>
+          <circle cx="734" cy="373" r="12" fill="#df9468" filter="url(#cfs)"/>
+          <path d="M712 386q10-10 22-4q12-6 22 4q-10 9-22 3q-12 6-22-3z" fill="#6b4a34" filter="url(#cfs)"/>
+          <path d="M729 397q6 4 12 0" stroke="#5a2d22" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        </g></g>
+        <!-- pops -->
+        <g class="s-dust" style="--dx:-8px"><circle cx="700" cy="300" r="7" fill="#f4e6c8" filter="url(#cfs)"/></g>
+        <g class="s-dust" style="--dx:9px"><circle cx="782" cy="296" r="6" fill="#f4e6c8" filter="url(#cfs)"/></g>
+        <g class="s-dust" style="--dx:4px"><circle cx="760" cy="286" r="5" fill="#f4e6c8" filter="url(#cfs)"/></g>
+        <text class="s-pop s-pop1" x="410" y="250" font-family="Do Hyeon, sans-serif" font-size="56" fill="#e2a72e" stroke="#a8730f" stroke-width="3" paint-order="stroke" filter="url(#cfh)">뚝딱!</text>
+        <text class="s-pop s-pop2" x="800" y="270" font-family="Do Hyeon, sans-serif" font-size="70" fill="#c23e2a" stroke="#8c2b1b" stroke-width="3" paint-order="stroke" filter="url(#cfh)">쿵!</text>
+      </svg>
+      <div class="rec" aria-hidden="true"><i></i><span>REC</span><span id="frame">FRAME 0001</span></div>
+    </div>
+    <div class="cast">
+      <div class="cast__i cl"><svg class="face" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="26" r="17" fill="#eeb489" filter="url(#cfs)"/><path d="M6 22C6 2 40 2 40 22Z" fill="#e2a72e" filter="url(#cfs)"/><circle cx="19" cy="25" r="4" fill="#fbf6ec"/><circle cx="28" cy="24" r="4" fill="#fbf6ec"/><circle cx="20" cy="26" r="2" fill="#241812"/><circle cx="29" cy="25" r="2" fill="#241812"/><ellipse cx="27" cy="31" rx="6" ry="5" fill="#df9468"/></svg><div><b>뚝이</b><span>키다리 · 망치부터 드는 쪽</span></div></div>
+      <div class="cast__i cl"><svg class="face" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="26" r="17" fill="#eeb489" filter="url(#cfs)"/><path d="M6 23C6 4 40 4 40 23Z" fill="#c23e2a" filter="url(#cfs)"/><circle cx="18" cy="26" r="4" fill="#fbf6ec"/><circle cx="27" cy="26" r="4" fill="#fbf6ec"/><circle cx="17" cy="27" r="2" fill="#241812"/><circle cx="26" cy="27" r="2" fill="#241812"/><path d="M13 35q5-5 10-2q5-3 10 2q-5 4-10 1q-5 3-10-1z" fill="#6b4a34"/></svg><div><b>딱이</b><span>땅딸보 · 재지 않고 붙이는 쪽</span></div></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- 기초 -->
+<section class="scene" id="base">
+  <div class="scene__head"><div class="plaque cl"><span class="ball ball--cream ico" aria-hidden="true" style="margin:0;cursor:default"><svg viewBox="0 0 24 24"><use class="lit" href="#i-tape"/><use class="dent" href="#i-tape"/></svg></span><div><small>SCENE 01</small><h2>기초</h2></div></div>
+    <p>찰흙 색 여섯, 세트 색 넷. 같은 조명, 같은 두께, 같은 프레임. 한 사람이 같은 책상에서 빚은 것처럼 보이게 합니다.</p></div>
+
+  <div class="pan cl"><div class="swatches" id="swatches"></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>글자</h3><p>한글 제목과 버튼은 도현체, 로고와 숫자는 둥근 Fredoka, 손으로 쓴 메모는 개구체. 본문은 읽기 편한 고딕 A1.</p><ul><li>개구체는 20px 이상, 짧게만.</li><li>숫자는 Fredoka로 또박또박.</li></ul></div>
+    <div class="bench col" id="typescale" style="display:block;padding:26px 28px"></div></div></div>
+
+  <ol class="rules">
+    <li class="cl"><b>빛은 하나, 왼쪽 위에서</b><span>모든 덩어리는 왼쪽 위 조명으로 밝고 오른쪽 아래로 그늘집니다. 반짝임은 없습니다. 찰흙은 무광.</span></li>
+    <li class="cl"><b>두께는 6px</b><span>판, 버튼, 공 모두 같은 두께로 빚습니다. 누르면 2px로 납작해지고, 놓으면 통통 튀며 돌아옵니다.</span></li>
+    <li class="cl"><b>1초에 12장</b><span>매끈한 이징 대신 <code>steps()</code>. 한 장씩 덜컥 넘어가고, 올리면 외곽선이 두 장마다 다시 빚어집니다.</span></li>
+    <li class="cl"><b>손자국은 조금만</b><span>지문과 눌린 자국은 가까이서 보일 만큼만. 더러워 보이면 너무 많은 것입니다.</span></li>
+    <li class="cl"><b>읽히게</b><span>본문 16.5px, 누르는 곳 44px 이상, 글자 대비 4.5:1. 움직임 줄이기 설정이면 모든 컷을 멈춥니다.</span></li>
+  </ol>
+</section>
+
+<!-- 누르기 -->
+<section class="scene" id="press">
+  <div class="scene__head"><div class="plaque plaque--tomato cl"><span class="ball ico" aria-hidden="true" style="margin:0;cursor:default"><svg viewBox="0 0 24 24"><use class="lit" href="#i-hammer"/><use class="dent" href="#i-hammer"/></svg></span><div><small>SCENE 02</small><h2>누르기</h2></div></div>
+    <p>누르면 납작해지고 엄지 자국이 남습니다. 손을 떼면 세 장에 걸쳐 통, 통, 통.</p></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>찰흙 버튼</h3><p>토마토색 버튼은 한 화면에 하나. 크림 바탕에 뱀처럼 굴린 테두리는 보조, 겨자와 민트는 가벼운 동작, 금 간 빨강은 되돌릴 수 없는 일.</p><ul><li>레이블은 짧은 동사: "붙이기".</li><li>주요 버튼을 눌러 보세요. 지문이 남습니다.</li></ul></div>
+    <div class="bench"><button class="btn btn--primary cl" data-print><span>붙이기</span></button><a class="btn btn--snake cl" href="#press"><span>설명서 보기</span></a><span style="position:relative;display:inline-flex"><button class="btn btn--mustard cl"><span>공구함</span></button><span class="count-badge" aria-label="새 공구 3개">3</span></span><button class="btn btn--mint cl"><span>재보기</span></button><button class="btn btn--danger cl"><svg class="crack" viewBox="0 0 46 44" aria-hidden="true"><path d="M4 6l9 7-3 8 10 4-2 9 7 6" fill="none" stroke="#5e140a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/><path d="M5 7.5l8.5 6.5-3 8 10 4-2 9" fill="none" stroke="#ffb7a3" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/></svg><span>벽 허물기</span><span class="end" aria-hidden="true">끝</span></button><button class="btn btn--ghost"><span>나중에</span></button></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>크기와 상태</h3><p>작게 46px, 보통 56px, 크게 70px. 쓸 수 없을 때는 마른 찰흙처럼 빛이 바래고 잔금이 갑니다. 일하는 중에는 작은 공이 주물러집니다.</p></div>
+    <div class="bench"><button class="btn btn--sm btn--mustard cl"><span>작게</span></button><button class="btn btn--mint cl"><span>보통</span></button><button class="btn btn--lg btn--sky cl"><span>크게</span></button><button class="btn cl" disabled><span>본드가 말랐어요</span></button><button class="btn btn--primary cl" id="busyBtn"><span>못 박기</span></button></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>공구 공</h3><p>아이콘만 있는 버튼은 동그란 찰흙 공. 공구를 눌러 찍은 자국이 아이콘입니다. 올리면 말풍선으로 이름을 알려 줍니다.</p><ul><li>이름(aria-label)과 말풍선을 꼭 붙입니다.</li></ul></div>
+    <div class="bench" style="gap:24px;padding-top:70px">
+      <span class="tip"><button class="ball cl" aria-label="망치"><svg viewBox="0 0 24 24" aria-hidden="true"><use class="lit" href="#i-hammer"/><use class="dent" href="#i-hammer"/></svg></button><span class="tip__b cl" role="tooltip">망치</span></span>
+      <span class="tip"><button class="ball ball--sky cl" aria-label="스패너"><svg viewBox="0 0 24 24" aria-hidden="true"><use class="lit" href="#i-wrench"/><use class="dent" href="#i-wrench"/></svg></button><span class="tip__b cl" role="tooltip">스패너</span></span>
+      <span class="tip"><button class="ball ball--mint cl" aria-label="톱"><svg viewBox="0 0 24 24" aria-hidden="true"><use class="lit" href="#i-saw"/><use class="dent" href="#i-saw"/></svg></button><span class="tip__b cl" role="tooltip">톱</span></span>
+      <span class="tip"><button class="ball ball--tomato cl" aria-label="붓"><svg viewBox="0 0 24 24" aria-hidden="true"><use class="lit" href="#i-brush"/><use class="dent" href="#i-brush"/></svg></button><span class="tip__b cl" role="tooltip">페인트 붓</span></span>
+      <span class="tip"><button class="ball ball--cream cl" aria-label="드라이버"><svg viewBox="0 0 24 24" aria-hidden="true"><use class="lit" href="#i-screw"/><use class="dent" href="#i-screw"/></svg></button><span class="tip__b cl" role="tooltip">드라이버</span></span>
+    </div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>작업대 위 큰 버튼</h3><p>한 화면에 하나뿐인 가장 큰 행동. 작업대 앞판에 박힌 커다란 찰흙 버튼을 누르면, 망치가 내려오고, 의자 다리가 빠지고, "쿵!".</p><ul><li>결과는 알림 말풍선으로도 알려 줍니다.</li><li>움직임 줄이기면 결과만 바로.</li></ul></div>
+    <div class="bench"><div class="workbench" id="benchScene">
+      <svg viewBox="0 0 480 190" aria-hidden="true">
+        <ellipse cx="180" cy="170" rx="90" ry="7" fill="#3b1f0c" opacity=".25" filter="url(#soft3)"/>
+        <g class="s-leg" style="transform-origin:124px 172px"><path d="M138 104L124 172" stroke="#a87348" stroke-width="11" stroke-linecap="round" filter="url(#cfs)"/></g>
+        <path d="M206 104L218 172" stroke="#a87348" stroke-width="11" stroke-linecap="round" filter="url(#cfs)"/>
+        <g class="s-seat" style="transform-origin:206px 104px">
+          <path d="M172 108L172 168" stroke="#a87348" stroke-width="11" stroke-linecap="round" filter="url(#cfs)"/>
+          <ellipse cx="172" cy="100" rx="56" ry="16" fill="#e2a72e" filter="url(#cfh)"/>
+        </g>
+        <g class="s-roll" style="transform-origin:90px 160px"><circle cx="86" cy="161" r="11" fill="#5b9fcf" filter="url(#cfs)"/></g>
+        <path d="M314 172V150" stroke="#8b9196" stroke-width="5" stroke-linecap="round" filter="url(#cfs)"/><ellipse cx="314" cy="149" rx="7" ry="3" fill="#8b9196" filter="url(#cfs)"/>
+        <g class="s-ham2" style="transform-origin:500px 40px">
+          <path d="M500 46Q420 30 346 42" stroke="#c23e2a" stroke-width="24" stroke-linecap="round" fill="none" filter="url(#cfh)"/>
+          <path d="M338 42L302 10" stroke="#cc9a6c" stroke-width="9" stroke-linecap="round" filter="url(#cfs)"/>
+          <rect x="278" y="-4" width="44" height="22" rx="7" fill="#8b9196" filter="url(#cfh)" transform="rotate(-48 300 7)"/>
+          <circle cx="338" cy="42" r="13" fill="#eeb489" filter="url(#cfs)"/>
+        </g>
+        <text class="s-pop s-pop1" x="330" y="128" font-family="Do Hyeon, sans-serif" font-size="34" fill="#e2a72e" stroke="#a8730f" stroke-width="2" paint-order="stroke" filter="url(#cfs)">뚝딱!</text>
+        <text class="s-pop s-pop2" x="40" y="72" font-family="Do Hyeon, sans-serif" font-size="44" fill="#c23e2a" stroke="#8c2b1b" stroke-width="2" paint-order="stroke" filter="url(#cfs)">쿵!</text>
+        <rect x="6" y="168" width="468" height="20" rx="9" fill="#cc9a6c" filter="url(#cfh)"/>
+      </svg>
+      <div class="workbench__front cl"><button class="btn btn--lg cl" data-fix="#benchScene"><svg aria-hidden="true"><use href="#i-hammer"/></svg><span>고쳐 보자!</span></button></div>
+    </div></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>더보기 메뉴</h3><p>자주 쓰지 않는 동작은 접어 둡니다. ↑↓로 이동, Home/End로 처음과 끝, Esc로 닫기.</p></div>
+    <div class="bench" style="min-height:340px;align-content:start;padding-top:48px"><div class="row cl"><div><svg class="item" viewBox="0 0 54 54" aria-hidden="true"><path d="M14 30l-2 20M40 30l2 20M27 32v18" stroke="#a87348" stroke-width="5" stroke-linecap="round" filter="url(#cfs)"/><ellipse cx="27" cy="27" rx="22" ry="8" fill="#e2a72e" filter="url(#cfs)"/><path d="M12 22V6h30v16" stroke="#a87348" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#cfs)"/></svg><div><b>흔들리는 의자</b><span>다리 하나가 짧아요 · 시도 5번</span></div></div>
+      <div class="menu"><button class="ball ball--sm ball--cream cl" aria-label="더보기" aria-haspopup="menu" aria-expanded="false" aria-controls="menuList" id="menuBtn"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--ink-2);stroke:var(--ink-2);stroke-width:2"><use href="#i-dots"/></svg></button>
+        <ul class="menu__list cl" role="menu" id="menuList" aria-labelledby="menuBtn" hidden><li role="none"><button role="menuitem" tabindex="-1">다시 고치기 <kbd>R</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">사진 찍기 <kbd>P</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">이웃에게 빌려주기 <kbd>L</kbd></button></li><li role="none" class="menu__sep"></li><li role="none"><button role="menuitem" tabindex="-1" class="danger">부숴 버리기…</button></li></ul></div></div></div></div></div>
+</section>
+
+<!-- 켜고 끄기 -->
+<section class="scene" id="toggle">
+  <div class="scene__head"><div class="plaque plaque--mint cl"><span class="ball ball--cream ico" aria-hidden="true" style="margin:0;cursor:default"><svg viewBox="0 0 24 24"><use class="lit" href="#i-bulb"/><use class="dent" href="#i-bulb"/></svg></span><div><small>SCENE 03</small><h2>켜고 끄기</h2></div></div>
+    <p>큰 설정은 벽 스위치, 작은 설정은 홈을 굴러가는 찰흙 공. 여럿 고를 때는 찰흙 상자, 하나만 고를 때는 쟁반 홈에 공을 놓습니다.</p></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>벽 스위치</h3><p>방 전체에 영향을 주는 설정. 딸깍 올리면 위에 붙은 전구가 켜지고, 판이 살짝 흔들립니다. 켜짐/꺼짐을 글자로도 적습니다.</p></div>
+    <div class="bench col" style="align-items:flex-start;gap:26px">
+      <button class="lsw" role="switch" aria-checked="true"><span class="lsw__plate cl" aria-hidden="true"><i></i><i></i><span class="lsw__slot"><span class="lsw__tog"></span></span></span><span class="lsw__t"><em>켜짐</em><b>작업실 전등</b><small>뚝이가 세 번 고친 스위치</small></span></button>
+      <button class="lsw" role="switch" aria-checked="false"><span class="lsw__plate cl" aria-hidden="true"><i></i><i></i><span class="lsw__slot"><span class="lsw__tog"></span></span></span><span class="lsw__t"><em>꺼짐</em><b>지붕 환풍기</b><small>켜면 먼지가 날아갑니다</small></span></button>
+    </div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>굴리는 공 스위치</h3><p>작은 설정. 눌린 홈을 따라 찰흙 공이 세 장에 걸쳐 굴러가고, 켜지면 홈이 민트색으로 물듭니다.</p></div>
+    <div class="bench col" style="align-items:flex-start">
+      <button class="lev" role="switch" aria-checked="true"><span class="lev__t" aria-hidden="true"><span class="lev__k"></span></span><span class="lev__l"><b>망치 소리</b><small>못을 박을 때 "뚝딱" 소리를 냅니다</small></span></button>
+      <button class="lev" role="switch" aria-checked="false"><span class="lev__t" aria-hidden="true"><span class="lev__k"></span></span><span class="lev__l"><b>이웃에게 알리기</b><small>시끄러운 일을 하기 전에 문자를 보냅니다</small></span></button>
+    </div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>찰흙 상자 체크</h3><p>여러 개를 고를 때. 체크는 가늘게 굴린 찰흙 뱀을 상자에 눌러 붙인 것. 일부만 고르면 "전부"에 납작한 뱀 하나.</p></div>
+    <div class="bench col" style="align-items:flex-start"><fieldset class="stack"><legend>오늘 챙길 공구</legend>
+      <label class="ck"><input type="checkbox" id="chkAll"><span class="ck__box cl"><svg viewBox="0 0 40 40" aria-hidden="true"><path class="tick" d="M9 22l8 8L33 11" filter="url(#cfs)"/><path class="dash" d="M10 21h20" filter="url(#cfs)"/></svg></span><span class="ck__t"><b>전부</b></span></label>
+      <div class="stack" style="padding-left:48px">
+        <label class="ck"><input type="checkbox" class="ci" checked><span class="ck__box cl"><svg viewBox="0 0 40 40" aria-hidden="true"><path class="tick" d="M9 22l8 8L33 11" filter="url(#cfs)"/><path class="dash" d="M10 21h20"/></svg></span><span class="ck__t"><b>망치</b><small>뚝이 것, 손잡이에 테이프</small></span></label>
+        <label class="ck"><input type="checkbox" class="ci"><span class="ck__box cl"><svg viewBox="0 0 40 40" aria-hidden="true"><path class="tick" d="M9 22l8 8L33 11" filter="url(#cfs)"/><path class="dash" d="M10 21h20"/></svg></span><span class="ck__t"><b>줄자</b><small>먼저 재고 자르기</small></span></label>
+        <label class="ck"><input type="checkbox" class="ci" checked><span class="ck__box cl"><svg viewBox="0 0 40 40" aria-hidden="true"><path class="tick" d="M9 22l8 8L33 11" filter="url(#cfs)"/><path class="dash" d="M10 21h20"/></svg></span><span class="ck__t"><b>나무 판자</b><small>딱이가 들고 있는 그 판자</small></span></label>
+        <label class="ck"><input type="checkbox" disabled><span class="ck__box cl"><svg viewBox="0 0 40 40" aria-hidden="true"><path class="tick" d="M9 22l8 8L33 11"/><path class="dash" d="M10 21h20"/></svg></span><span class="ck__t"><b>강력 본드</b><small>다 썼어요. 손에 붙은 게 마지막</small></span></label>
+      </div></fieldset></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>쟁반 라디오</h3><p>하나만 고를 때. 테라코타 쟁반에 오목한 홈이 있고, 고른 홈에 찰흙 공이 툭 떨어집니다.</p></div>
+    <div class="bench col" style="align-items:flex-start"><fieldset class="tray cl"><legend>오늘 고칠 것</legend>
+      <label class="rd"><input type="radio" name="fix" checked><span class="dent"><i></i></span><span class="rd__t"><b>삐걱이는 문</b><small>경첩에 기름 한 방울 · 10분</small></span></label>
+      <label class="rd"><input type="radio" name="fix"><span class="dent"><i></i></span><span class="rd__t"><b>새는 수도꼭지</b><small>고무 패킹 교체 · 30분</small></span></label>
+      <label class="rd"><input type="radio" name="fix"><span class="dent"><i></i></span><span class="rd__t"><b>흔들리는 의자</b><small>다리 길이 맞추기 · 하루 종일</small></span></label>
+    </fieldset></div></div></div>
+</section>
+
+<!-- 고르기 -->
+<section class="scene" id="choose">
+  <div class="scene__head"><div class="plaque plaque--sky cl"><span class="ball ball--cream ico" aria-hidden="true" style="margin:0;cursor:default"><svg viewBox="0 0 24 24"><use class="lit" href="#i-wrench"/><use class="dent" href="#i-wrench"/></svg></span><div><small>SCENE 04</small><h2>고르기</h2></div></div>
+    <p>고른 것은 찰흙이 덧붙고 한 겹 도톰해집니다. 키보드로는 화살표로 옮겨 다닙니다.</p></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>눌린 홈 세그먼트</h3><p>둘에서 다섯 중 하나를 바로 바꿀 때. 오목한 홈 안에 고른 칸만 겨자색 찰흙 덩이가 올라앉습니다.</p><ul><li>←→ 또는 ↑↓로 옮깁니다.</li></ul></div>
+    <div class="bench"><div class="seg" role="radiogroup" aria-label="작업 속도"><button class="cl" role="radio" aria-checked="false">천천히</button><button class="cl" role="radio" aria-checked="true">보통</button><button class="cl" role="radio" aria-checked="false">빨리</button><button class="cl" role="radio" aria-checked="false">대충</button></div></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>이쑤시개 팻말 탭</h3><p>찰흙 통나무에 꽂은 골판지 팻말. 고른 팻말이 쑥 올라오고 겨자색으로 칠해집니다.</p><ul><li>←→ 키로 넘기고, Home/End로 처음과 끝.</li></ul></div>
+    <div class="bench col"><div>
+      <div class="signs" role="tablist" aria-label="작업 노트"><button class="tabsign" role="tab" aria-selected="true" aria-controls="tp1" id="t1">재료</button><button class="tabsign" role="tab" aria-selected="false" aria-controls="tp2" id="t2" tabindex="-1">순서</button><button class="tabsign" role="tab" aria-selected="false" aria-controls="tp3" id="t3" tabindex="-1">주의</button></div>
+      <div class="signs__log" aria-hidden="true"></div>
+      <div class="tabpanel" role="tabpanel" id="tp1" aria-labelledby="t1" tabindex="0"><b>새집 재료</b><br>판자 4장, 못 12개, 지붕용 빨간 찰흙 한 덩이. 딱이가 판자 한 장을 이미 반으로 잘랐습니다.</div>
+      <div class="tabpanel" role="tabpanel" id="tp2" aria-labelledby="t2" tabindex="0" hidden><b>순서</b><br>재보기, 자르기, 붙이기, 망치질. 뚝이는 이 순서를 거꾸로 외웁니다.</div>
+      <div class="tabpanel" role="tabpanel" id="tp3" aria-labelledby="t3" tabindex="0" hidden><b>주의</b><br>망치를 든 사람 근처에 손가락을 두지 마세요. 특히 딱이.</div>
+    </div></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>찰흙 조약돌 필터</h3><p>여러 개를 켜고 끄는 필터. 켠 조약돌은 민트색으로 납작 눌리고 체크 자국이 찍힙니다.</p></div>
+    <div class="bench"><div class="pebbles" role="group" aria-label="고칠 곳 필터"><button class="pebble cl" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg>문</button><button class="pebble cl" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg>창문</button><button class="pebble cl" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg>수도</button><button class="pebble cl" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg>지붕</button><button class="pebble cl" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg>전기</button></div></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>드롭다운과 자</h3><p>목록이 길면 드롭다운. 값을 끌어서 맞출 때는 나무 자 위로 찰흙 공을 굴립니다. 숫자는 위에 바로바로.</p></div>
+    <div class="bench col" style="gap:26px">
+      <div class="field"><label for="sel1">고칠 방 <small>열쇠가 있는 곳만</small></label><div class="select"><div class="inp cl"><div class="in"><select id="sel1"><option>작업실</option><option>거실</option><option>부엌</option><option>지붕</option><option>다락방</option></select></div></div><span class="knob" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-chev"/></svg></span></div></div>
+      <div class="range"><div class="range__top"><label class="flabel" for="rg">망치질 힘</label><output id="rgOut" for="rg">6<small>단</small></output></div><input type="range" id="rg" min="0" max="10" step="1" value="6"><div class="range__scale" aria-hidden="true"><span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span></div></div>
+    </div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>방문 사이드 메뉴</h3><p>집 안의 방마다 찰흙 문이 하나. 지금 있는 방은 문이 활짝 열리고 안에서 불빛이 새어 나옵니다.</p></div>
+    <div class="bench"><nav class="rooms" aria-label="집 안" id="rooms">
+      <a class="cl" href="#choose" style="--dc:var(--sky)"><span class="door" aria-hidden="true"><i></i></span><b>거실</b><em>3</em></a>
+      <a class="cl" href="#choose" style="--dc:var(--tomato)" aria-current="page"><span class="door" aria-hidden="true"><i></i></span><b>작업실</b><em>12</em></a>
+      <a class="cl" href="#choose" style="--dc:var(--mint)"><span class="door" aria-hidden="true"><i></i></span><b>부엌</b><em class="new">새 2</em></a>
+      <a class="cl" href="#choose" style="--dc:var(--mustard)"><span class="door" aria-hidden="true"><i></i></span><b>지붕</b><em>1</em></a>
+    </nav></div></div></div>
+</section>
+
+<!-- 입력 -->
+<section class="scene" id="type-in">
+  <div class="scene__head"><div class="plaque plaque--terra cl"><span class="ball ball--cream ico" aria-hidden="true" style="margin:0;cursor:default"><svg viewBox="0 0 24 24"><use class="lit" href="#i-nail"/><use class="dent" href="#i-nail"/></svg></span><div><small>SCENE 05</small><h2>입력</h2></div></div>
+    <p>입력 칸은 찰흙 테두리에 엄지로 눌러 판 홈. 쓰는 동안 테두리가 겨자색으로 바뀌고, 틀리면 토마토색.</p></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>글자 입력</h3><p>이름은 칸 위에. 틀리면 무엇을 어떻게 고칠지 한 문장으로. 고치면 테두리가 바로 민트색이 됩니다.</p></div>
+    <div class="bench col"><div class="grid2">
+      <div class="field"><label for="i1">작업자 이름</label><div class="inp cl"><div class="in"><input id="i1" placeholder="예: 딱이" autocomplete="nickname"></div></div></div>
+      <div class="field"><label for="i2">이메일</label><div class="inp is-err cl"><div class="in"><input id="i2" type="email" value="ttuk@gochim" aria-invalid="true" aria-describedby="i2e" autocomplete="email"></div></div><span class="help err" id="i2e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-crack"/></svg>주소 끝에 .com 같은 도메인이 빠졌어요. 예: ttuk@gochim.com</span></div>
+      <div class="field"><label for="i3">공구 찾기</label><div class="inp cl"><div class="in"><span class="inp__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-search"/></svg></span><input id="i3" type="search" placeholder="망치, 줄자, 본드"></div></div></div>
+      <div class="field"><label for="i4">창고 비밀번호</label><div class="inp is-ok cl"><div class="in"><input id="i4" type="password" value="ttukttak12" autocomplete="new-password" aria-describedby="i4h"><button class="inp__btn cl" type="button" id="pwBtn" aria-pressed="false" aria-label="비밀번호 보기">보기</button></div></div><span class="help ok" id="i4h">튼튼해요. 망치로도 안 깨져요</span></div>
+      <div class="field"><label for="i5">필요한 못</label><div class="inp cl"><div class="in"><input id="i5" class="num" type="number" value="12" min="0" max="99"></div><span class="inp__aff">개</span></div></div>
+      <div class="field"><label for="i6">집 주소 <small>바꿀 수 없음</small></label><div class="inp is-off cl"><div class="in"><input id="i6" value="삐걱골목 3번지" disabled></div></div></div>
+      <div class="field"><label for="i7">작업 날짜</label><div class="inp cl"><div class="in"><input id="i7" type="date" value="2026-11-07"></div></div></div>
+      <div class="field"><label for="i8">시작 시각</label><div class="inp cl"><div class="in"><input id="i8" type="time" value="09:30"></div></div></div>
+    </div></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>긴 글</h3><p>여러 줄 입력. 남은 글자 수는 오른쪽 아래에 숫자로.</p></div>
+    <div class="bench col"><div class="field"><label for="ta">작업 일지</label><div class="inp cl"><div class="in"><textarea id="ta" maxlength="140" placeholder="예: 선반을 달았다. 잠깐 동안.">새집 지붕을 박다가 액자가 떨어졌다. 딱이 모자 덕분에 아무도 안 다쳤다.</textarea></div></div><div class="count" id="taCount" aria-live="polite"></div></div></div></div></div>
+</section>
+
+<!-- 보여 주기 -->
+<section class="scene" id="show">
+  <div class="scene__head"><div class="plaque cl"><span class="ball ball--tomato ico" aria-hidden="true" style="margin:0;cursor:default"><svg viewBox="0 0 24 24"><use class="lit" href="#i-ladder"/><use class="dent" href="#i-ladder"/></svg></span><div><small>SCENE 06</small><h2>보여 주기</h2></div></div>
+    <p>에피소드 사진, 찰흙 공 단지, 줄자, 이쑤시개 꼬치. 한눈에 알아보게, 손으로 만든 것처럼.</p></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>찰흙 딱지</h3><p>상태 표시는 손톱만 한 찰흙 딱지. 색과 글자를 함께 씁니다.</p></div>
+    <div class="bench"><span class="bdg">보류</span><span class="bdg bdg--mustard">고치는 중</span><span class="bdg bdg--mint">완성</span><span class="bdg bdg--sky">부품 대기</span><span class="bdg bdg--tomato">더 망가짐</span><span class="bdg bdg--terra">새 에피소드</span></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>에피소드 카드</h3><p>벽에 테이프로 붙인 즉석 사진. 한 장에 한 번의 작업, 그리고 그 결과. 누르면 작업 노트 서랍이 열립니다.</p></div>
+    <div class="bench"><div class="eps" id="eps"></div></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>단지와 줄자</h3><p>모은 양은 단지에 쌓이는 찰흙 공으로, 오래 걸리는 일은 늘어나는 줄자로, 여러 단계는 이쑤시개에 꿴 공으로.</p></div>
+    <div class="bench col" style="gap:34px">
+      <div class="gauges">
+        <div class="jar"><div id="jar" role="progressbar" aria-label="찰흙 공 단지" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60"></div><b id="jarB">단지 60%</b><span id="jarS">공 10개 중 6개</span><button class="btn btn--sm btn--mustard cl" id="jarBtn"><span>공 하나 넣기</span></button></div>
+        <div class="tape"><div class="tape__top"><b>벽 길이 재는 중</b><output id="tapeOut">160 / 400cm</output></div>
+          <div class="tape__body"><span class="tape__case cl" aria-hidden="true"><i></i></span><div class="tape__track" role="progressbar" aria-label="벽 길이 재기" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" id="tape"><span class="tape__strip" style="width:40%"></span></div></div>
+          <div class="tape__scale" aria-hidden="true"><span>0</span><span>100</span><span>200</span><span>300</span><span>400</span></div></div>
+      </div>
+      <ol class="job" aria-label="새집 만들기 단계"><li class="done"><span><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg></span>재보기</li><li class="done"><span><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg></span>자르기</li><li class="now" aria-current="step"><span>3</span>붙이기</li><li><span>4</span>망치질</li><li><span>5</span>완성…?</li></ol>
+    </div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>찰흙 판 아코디언</h3><p>긴 설명은 판 아래에 접어 둡니다. 열면 손잡이 공이 납작 눌립니다.</p></div>
+    <div class="bench"><div class="slabs">
+      <details class="cl" open><summary>왜 자꾸 망가지나요?</summary><div>뚝이는 재지 않고 자르고, 딱이는 붙이기 전에 망치부터 듭니다. 이 시스템은 반대 순서를 권합니다: 재고, 자르고, 붙이고, 그다음 망치.</div></details>
+      <details class="cl"><summary>찰흙은 어떻게 그리나요?</summary><div>모양마다 SVG 필터 하나. 가장자리를 살짝 울퉁불퉁하게 밀고, 흐린 알파를 높이로 써서 왼쪽 위 빛으로 비춥니다. 글자는 필터 밖에 두어 또렷하게.</div></details>
+      <details class="cl"><summary>움직임을 끄면 어떻게 되나요?</summary><div>움직임 줄이기 설정이면 모든 컷, 끓는 외곽선, 프레임 카운터가 멈추고 결과만 바로 보여 줍니다.</div></details>
+    </div></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>수리 대장</h3><p>골판지 머리, 점선 줄. 머리글을 누르면 정렬됩니다.</p><ul><li>숫자는 오른쪽 정렬, Fredoka.</li></ul></div>
+    <div class="bench col">
+      <div class="board"><table id="tbl"><caption class="sr">수리 대장, 시도 횟수 순</caption><thead><tr><th scope="col" aria-sort="none"><button data-k="0">물건</button></th><th scope="col">맡은 사람</th><th scope="col" class="num" aria-sort="descending"><button data-k="2">시도</button></th><th scope="col">결과</th></tr></thead>
+      <tbody>
+        <tr><td><span class="nm"><i style="--b:var(--sky)"></i>새는 수도꼭지</span></td><td>딱이</td><td class="num">7</td><td><span class="bdg bdg--tomato">더 망가짐</span></td></tr>
+        <tr><td><span class="nm"><i style="--b:var(--mustard)"></i>흔들리는 의자</span></td><td>둘이 같이</td><td class="num">5</td><td><span class="bdg bdg--mustard">고치는 중</span></td></tr>
+        <tr><td><span class="nm"><i style="--b:var(--mint)"></i>삐걱이는 문</span></td><td>뚝이</td><td class="num">3</td><td><span class="bdg bdg--mint">완성</span></td></tr>
+        <tr><td><span class="nm"><i style="--b:var(--tomato)"></i>지붕 구멍</span></td><td>뚝이</td><td class="num">2</td><td><span class="bdg bdg--sky">부품 대기</span></td></tr>
+      </tbody></table></div>
+      <div class="pager"><span id="pgInfo">기록 12건 중 1–4</span><nav aria-label="쪽"><ol><li><button aria-label="이전 쪽" disabled>‹</button></li><li><button aria-current="page" aria-label="1쪽">1</button></li><li><button aria-label="2쪽">2</button></li><li><button aria-label="3쪽">3</button></li><li><button aria-label="다음 쪽">›</button></li></ol></nav></div>
+    </div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>비어 있음</h3><p>빈 곳에는 빈 공구함 하나와 할 일 하나.</p></div>
+    <div class="bench"><div class="empty"><svg viewBox="0 0 170 120" aria-hidden="true"><ellipse cx="85" cy="112" rx="70" ry="7" fill="#3b1f0c" opacity=".25" filter="url(#soft3)"/><path d="M58 42q0-18 27-18t27 18" stroke="#a8730f" stroke-width="9" fill="none" stroke-linecap="round" filter="url(#cfs)"/><rect x="22" y="42" width="126" height="66" rx="14" fill="#c23e2a" filter="url(#cfh)"/><rect x="22" y="40" width="126" height="18" rx="9" fill="#8c2b1b" filter="url(#cfs)"/><rect x="72" y="60" width="26" height="12" rx="5" fill="#e2a72e" filter="url(#cfs)"/><path d="M40 20l8 10M128 16l-6 12M84 6v12" stroke="#a8730f" stroke-width="3.5" stroke-linecap="round" opacity=".55"/></svg><b>공구함이 비었어요</b><p>뚝이가 망치를 이웃집에 두고 왔습니다. 빌린 공구는 여기에 모입니다.</p><button class="btn btn--sm btn--primary cl" data-bub="parts"><span>공구 빌리러 가기</span></button></div></div></div></div>
+</section>
+
+<!-- 띄우기 -->
+<section class="scene" id="float">
+  <div class="scene__head"><div class="plaque plaque--tomato cl"><span class="ball ball--mustard ico" aria-hidden="true" style="margin:0;cursor:default"><svg viewBox="0 0 24 24"><use class="lit" href="#i-sledge"/><use class="dent" href="#i-sledge"/></svg></span><div><small>SCENE 07</small><h2>띄우기</h2></div></div>
+    <p>확인 창은 찰흙 뱀으로 테를 두른 팻말, 옆 판은 세트 옆에서 끌어낸 골판지 서랍, 알림은 툭 떨어지는 말풍선.</p></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>"정말 부술까요?"</h3><p>되돌릴 수 없는 일 앞에서. 무엇을 잃는지 딱지로 보여 주고, 버튼에는 결과를 적습니다.</p></div>
+    <div class="bench"><button class="btn btn--danger cl" id="dlgOpen"><span>거실 벽 허물기…</span><span class="end" aria-hidden="true">끝</span></button></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>골판지 서랍</h3><p>지금 화면을 떠나지 않고 자세히 볼 때. 세트 오른쪽에서 골판지 서랍이 네 장에 걸쳐 끌려 나옵니다. Esc나 바깥을 누르면 닫힙니다.</p></div>
+    <div class="bench"><button class="btn btn--snake cl" id="sideOpen"><span>작업 노트 열기</span></button></div></div></div>
+
+  <div class="pan cl"><div class="spec"><div class="spec__note"><h3>말풍선 알림</h3><p>일이 끝난 순간. 오른쪽 위에 찰흙 말풍선이 툭 떨어지고 5초 뒤 쏙 사라집니다. 다친 일은 role="alert"로 바로 읽어 줍니다.</p></div>
+    <div class="bench"><button class="btn btn--mint cl" data-bub="nail"><span>못 박기 성공</span></button><button class="btn btn--sky cl" data-bub="parts"><span>부품 도착</span></button><button class="btn btn--primary cl" data-bub="ouch"><span>손가락 찧음</span></button></div></div></div>
+</section>
+
+<!-- 코드 -->
+<section class="scene" id="code">
+  <div class="scene__head"><div class="plaque plaque--cream cl"><span class="ball ball--sky ico" aria-hidden="true" style="margin:0;cursor:default"><svg viewBox="0 0 24 24"><use class="lit" href="#i-screw"/><use class="dent" href="#i-screw"/></svg></span><div><small>SCENE 08</small><h2>코드</h2></div></div>
+    <p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. <code>clay</code>는 찰흙 덩어리, <code>stop-motion</code>은 12프레임 움직임입니다.</p></div>
+  <div class="pan codepan cl"><div class="codebar"><span class="flabel">app/globals.css</span><button class="btn btn--sm btn--mustard cl" id="copyBtn"><span>복사하기</span></button></div><div class="codewrap"><pre class="code" id="codeBlock" tabindex="0" aria-label="globals.css 코드"></pre></div></div>
+</section>
+</main>
+
+<footer class="wrap foot"><div class="floor" aria-hidden="true"></div><div class="foot__in"><b>Clay</b><span>Do Hyeon · Fredoka · Gaegu · Gothic A1</span><span>뚝이와 딱이는 다음 화에도 무언가를 고칩니다. 아마도.</span>
+  <nav aria-label="다른 디자인 시스템"><a href="../">Oat</a><a href="../riso/">Riso</a><a href="../arcology/">Arcology</a><a href="../dal/">Dal</a><a href="../canopy/">Canopy</a><a href="../sansa/">Sansa</a><a href="../abyss/">Abyss</a><a href="../atomic/">Atomic</a><a href="../riad/">Riad</a><a href="../zoo/">Zoo</a></nav></div></footer>
+
+<dialog id="dlg" aria-labelledby="dlgT" aria-describedby="dlgD">
+  <div class="dlg cl">
+    <div class="dlg__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sledge"/></svg></div>
+    <h3 id="dlgT">정말 부술까요?</h3>
+    <p id="dlgD">거실 벽을 허물면 거실과 부엌이 하나가 됩니다. 다시 세우려면 찰흙 세 상자가 필요해요.</p>
+    <div class="dlg__loss"><span class="bdg">벽 1개</span><span class="bdg">액자 3개</span><span class="bdg">딱이의 낮잠 자리</span></div>
+    <div class="dlg__foot"><button class="btn btn--snake cl" data-close autofocus><span>그만두기</span></button><button class="btn btn--danger cl" data-close data-after="broke"><span>부수기</span><span class="end" aria-hidden="true">끝</span></button></div>
+  </div>
+</dialog>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="side" role="dialog" aria-modal="true" aria-labelledby="sideT" aria-hidden="true">
+  <div class="drawer__head"><div><small>EP.01 · 작업 노트</small><h3 id="sideT">선반 달기</h3></div><button class="ball ball--sm ball--cream cl" aria-label="닫기" data-sclose><svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:var(--ink-2)"><use href="#i-x"/></svg></button></div>
+  <div class="drawer__body">
+    <div class="field"><label for="s1">작업 이름</label><div class="inp cl"><div class="in"><input id="s1" value="거실 선반 다시 달기"></div></div></div>
+    <div class="field"><label for="s2">선반 높이</label><div class="inp cl"><div class="in"><input id="s2" class="num" type="number" value="160"></div><span class="inp__aff">cm</span></div></div>
+    <button class="lev" role="switch" aria-checked="true"><span class="lev__t" aria-hidden="true"><span class="lev__k"></span></span><span class="lev__l"><b>수평계 쓰기</b><small>이번엔 꼭</small></span></button>
+    <div><span class="bdg bdg--tomato">더 망가짐</span> <span class="bdg">시도 4번</span></div>
+  </div>
+  <div class="drawer__foot"><button class="btn btn--ghost" data-sclose><span>닫기</span></button><button class="btn btn--primary cl" data-sclose data-after="saved"><span>저장</span></button></div>
+</aside>
+<div class="bubbles" id="bubbles"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Swatches: each colour is a lump of clay
+  const G = [
+    ['찰흙', '조명 아래 모든 덩어리', [['토마토', '#C23E2A', '--tomato', '주요 동작, 뚝이 스웨터'], ['겨자', '#E2A72E', '--mustard', '선택, 켜짐, 강조'], ['하늘', '#5B9FCF', '--sky', '보조, 테두리 뱀'], ['민트', '#79C2A0', '--mint', '완성, 켠 필터'], ['테라코타', '#B9633F', '--terra', '쟁반, 선 뱀'], ['크림', '#F3E3C3', '--cream', '버튼, 입력 테두리']]],
+    ['세트', '찰흙 아닌 것: 배경, 골판지, 나무, 글자', [['세트 바탕', '#ECDCC0', '--set', '페이지, 벽지'], ['골판지', '#C9A376', '--card', '탭 팻말, 서랍'], ['마룻바닥', '#A87348', '--wood', '작업대, 자'], ['코코아', '#33241B', '--ink', '본문, 눈동자']]],
+  ];
+  $('#swatches').innerHTML = G.map(([g, s, it]) => `<div class="swhead">${g}<span>${s}</span></div>` + it.map(([n, hex, v, u]) => `<div class="sw"><i class="cl" style="--c:${hex};--cd:color-mix(in oklab, ${hex}, black 26%)"></i><b>${n}</b><code>${v} · ${hex}</code><span>${u}</span></div>`).join('')).join('');
+  $('#typescale').innerHTML = [
+    ['제목', 'Do Hyeon · 24–42', '<span style="font:400 42px/1.15 var(--font-d)">고쳐 보자 공작소</span>'],
+    ['로고 · 숫자', 'Fredoka 600–700', '<span style="font:700 40px/1 var(--font-l);color:var(--tomato)">Clay 0123</span>'],
+    ['손글씨', 'Gaegu 700 · 20+', '<span style="font:700 26px/1.2 var(--font-h)">EP.03 페인트칠 — 구석까지 칠했다. 우리도.</span>'],
+    ['버튼 · 라벨', 'Do Hyeon · 17–26', '<span style="font:400 21px/1.3 var(--font-d)">못 박기 · 재보기 · 붙이기</span>'],
+    ['본문', 'Gothic A1 400 · 16.5/1.75', '<span>판자 네 장과 못 열두 개로 새집을 짓습니다. 먼저 재고, 그다음 자르세요. 망치는 맨 마지막에.</span>'],
+  ].map(([k, s, ex]) => `<div class="typerow"><div class="k"><b>${k}</b><span>${s}</span></div><div>${ex}</div></div>`).join('');
+
+  // Frame counter: the set is always "shooting"
+  const fr = $('#frame'); let f = 120;
+  if (!rm) setInterval(() => { f = (f + 1) % 10000; fr.textContent = 'FRAME ' + String(f).padStart(4, '0'); }, 83);
+  else fr.textContent = 'FRAME 0120';
+
+  // Nav highlight
+  const links = $$('#nav a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => { const on = a.hash === '#' + e.target.id; a.setAttribute('aria-current', on ? 'true' : 'false'); if (on) a.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.scene').forEach(s => io.observe(s));
+
+  // Speech-bubble toasts
+  const B = {
+    fix: ['i-hammer', '뚝딱', '새집 지붕을 박았어요', '그리고 액자가 떨어졌어요. 쿵!', 'mustard', 'status'],
+    nail: ['i-nail', '성공', '못을 박았어요', '조금 삐뚤지만 단단해요', '', 'status'],
+    parts: ['i-wrench', '도착', '부품이 왔어요', '경첩 2개 · 나사 8개 · 본드 1통', 'sky', 'status'],
+    ouch: ['i-hammer', '아야!', '망치에 손가락을 찧었어요', '딱이가 얼음을 가지러 갔어요', 'tomato', 'alert'],
+    broke: ['i-sledge', '쿵', '벽을 허물었어요', '거실과 부엌이 하나가 됐어요', 'tomato', 'status'],
+    saved: ['i-tape', '저장', '작업 노트를 저장했어요', '이번엔 수평계를 씁니다', 'sky', 'status'],
+    done: ['i-nail', '완료', '못 3개를 박았어요', '손가락은 무사해요', '', 'status'],
+    full: ['i-check', '가득', '단지가 가득 찼어요', '찰흙 공 10개, 새로 시작해요', 'mustard', 'status'],
+    menu: ['i-check', '좋아요', '메뉴를 골랐어요', '흔들리는 의자 · 시도 6번째', '', 'status'],
+  };
+  function bubble(key) {
+    const [ico, k, t, s, c, role] = B[key]; const el = document.createElement('div');
+    el.className = 'bub cl' + (c ? ' bub--' + c : ''); el.setAttribute('role', role);
+    el.innerHTML = `<span class="bub__tail"></span><span class="bub__ico"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#${ico}"/></svg></span><div><small>${k}</small><b>${t}</b><span>${s}</span></div><button class="x" aria-label="말풍선 닫기">×</button>`;
+    const kill = () => { if (el.dataset.gone) return; el.dataset.gone = 1; el.classList.add('out'); setTimeout(() => el.remove(), rm ? 0 : 260); };
+    $('.x', el).onclick = kill;
+    const box = $('#bubbles'); box.prepend(el); while (box.children.length > 3) box.lastChild.remove(); setTimeout(kill, 5000);
+  }
+  $$('[data-bub]').forEach(b => b.addEventListener('click', () => bubble(b.dataset.bub)));
+
+  // Squash & stretch on every clay press
+  document.addEventListener('click', e => {
+    const t = e.target.closest('.btn:not(:disabled):not(.btn--ghost), .ball, .pebble, .seg button, .lsw, .lev');
+    if (!t || rm) return; const el = t.matches('.lsw') ? $('.lsw__plate', t) : t.matches('.lev') ? $('.lev__k', t) : t;
+    if (t.matches('.lsw')) { t.classList.remove('wob'); void t.offsetWidth; t.classList.add('wob'); return; }
+    if (t.matches('.lev')) return;
+    el.classList.remove('boing'); void el.offsetWidth; el.classList.add('boing');
+  });
+  document.addEventListener('animationend', e => { if (e.animationName === 'boing') e.target.classList.remove('boing'); if (e.animationName === 'wobble') e.target.closest('.lsw')?.classList.remove('wob'); });
+
+  // Thumbprints on the primary button
+  $$('[data-print]').forEach(b => b.addEventListener('pointerdown', e => {
+    let p = $('.prints', b); if (!p) { p = document.createElement('span'); p.className = 'prints'; p.setAttribute('aria-hidden', 'true'); b.prepend(p); }
+    const r = b.getBoundingClientRect(), th = document.createElement('i'); th.className = 'thumb';
+    th.style.left = (e.clientX - r.left) + 'px'; th.style.top = (e.clientY - r.top) + 'px'; th.style.transform = `rotate(${Math.round(Math.random() * 60 - 30)}deg)`;
+    p.appendChild(th); while (p.children.length > 4) p.firstChild.remove(); setTimeout(() => th.remove(), 4000);
+  }));
+
+  // The clumsy fix-it scenes
+  $$('[data-fix]').forEach(b => b.addEventListener('click', () => {
+    const sc = $(b.dataset.fix); if (rm) { bubble('fix'); return; }
+    if (sc.dataset.busy) return; sc.dataset.busy = 1;
+    sc.classList.remove('go'); void sc.getBoundingClientRect(); sc.classList.add('go');
+    setTimeout(() => bubble('fix'), 1700);
+    setTimeout(() => { sc.classList.remove('go'); delete sc.dataset.busy; }, 3400);
+  }));
+
+  // Busy
+  $('#busyBtn').addEventListener('click', e => { const b = e.currentTarget; if (b.dataset.busy) return; b.dataset.busy = 1; b.setAttribute('aria-disabled', 'true');
+    b.innerHTML = '<span>박는 중</span><span class="loadballs" aria-hidden="true"><i></i><i></i><i></i></span>';
+    setTimeout(() => { b.innerHTML = '<span>뚝딱!</span>'; bubble('done'); }, 1500); setTimeout(() => { delete b.dataset.busy; b.removeAttribute('aria-disabled'); b.innerHTML = '<span>못 박기</span>'; }, 3000); });
+
+  // Menu
+  const mb = $('#menuBtn'), ml = $('#menuList'), mi = $$('[role=menuitem]', ml);
+  const openM = i => { ml.hidden = false; mb.setAttribute('aria-expanded', 'true'); mi[i].focus(); };
+  const closeM = f => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); if (f) mb.focus(); };
+  mb.addEventListener('click', () => ml.hidden ? openM(0) : closeM());
+  mb.addEventListener('keydown', e => { if (e.key === 'ArrowDown') { e.preventDefault(); openM(0); } if (e.key === 'ArrowUp') { e.preventDefault(); openM(mi.length - 1); } });
+  ml.addEventListener('keydown', e => { const i = mi.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); mi[(i + 1) % mi.length].focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); mi[(i - 1 + mi.length) % mi.length].focus(); }
+    if (e.key === 'Home') { e.preventDefault(); mi[0].focus(); } if (e.key === 'End') { e.preventDefault(); mi.at(-1).focus(); }
+    if (e.key === 'Escape') { e.preventDefault(); closeM(true); } if (e.key === 'Tab') closeM(); });
+  mi.forEach(m => m.addEventListener('click', () => { closeM(true); if (m.classList.contains('danger')) $('#dlg').showModal(); else bubble('menu'); }));
+  document.addEventListener('click', e => { if (!ml.hidden && !e.target.closest('.menu')) closeM(); });
+
+  // Switches + chips
+  document.addEventListener('click', e => {
+    const s = e.target.closest('.lsw, .lev'); if (s) { const on = s.getAttribute('aria-checked') !== 'true'; s.setAttribute('aria-checked', on); const em = $('.lsw__t em', s); if (em) em.textContent = on ? '켜짐' : '꺼짐'; }
+    const p = e.target.closest('.pebble'); if (p) p.setAttribute('aria-pressed', p.getAttribute('aria-pressed') !== 'true');
+  });
+
+  // Checkbox group with indeterminate "전부"
+  const all = $('#chkAll'), ci = $$('.ci'); const sync = () => { const n = ci.filter(c => c.checked).length; all.checked = n === ci.length; all.indeterminate = n > 0 && n < ci.length; };
+  ci.forEach(c => c.addEventListener('change', sync)); all.addEventListener('change', () => { ci.forEach(c => c.checked = all.checked); sync(); }); sync();
+
+  // Segmented radiogroup (roving tabindex)
+  $$('.seg').forEach(g => { const bs = $$('button', g);
+    const pick = b => { bs.forEach(x => { x.setAttribute('aria-checked', x === b); x.tabIndex = x === b ? 0 : -1; }); b.focus(); };
+    bs.forEach(b => { b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1; b.addEventListener('click', () => pick(b)); });
+    g.addEventListener('keydown', e => { const i = bs.indexOf(document.activeElement); if (i < 0) return;
+      if (['ArrowRight', 'ArrowDown'].includes(e.key)) { e.preventDefault(); pick(bs[(i + 1) % bs.length]); }
+      if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); pick(bs[(i - 1 + bs.length) % bs.length]); } });
+  });
+
+  // Tabs
+  const tabs = $$('[role=tab]'); const sel = t => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); };
+  tabs.forEach(t => t.addEventListener('click', () => sel(t)));
+  $('[role=tablist]').addEventListener('keydown', e => { const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+    const k = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
+    if (k !== undefined) { e.preventDefault(); sel(tabs[k]); } });
+
+  // Range
+  const rg = $('#rg'), ro = $('#rgOut'); const upd = () => { ro.innerHTML = `${rg.value}<small>단</small>`; }; rg.addEventListener('input', upd); upd();
+
+  // Rooms
+  $$('#rooms a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $$('#rooms a').forEach(x => x.removeAttribute('aria-current')); a.setAttribute('aria-current', 'page'); }));
+
+  // Inputs
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), b = e.currentTarget, on = i.type === 'password'; i.type = on ? 'text' : 'password'; b.textContent = on ? '숨기기' : '보기'; b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', on ? '비밀번호 숨기기' : '비밀번호 보기'); });
+  $('#i2').addEventListener('input', e => { const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.target.value.trim()); const w = e.target.closest('.inp'); w.classList.toggle('is-err', !ok); w.classList.toggle('is-ok', ok); e.target.setAttribute('aria-invalid', !ok); $('#i2e').hidden = ok; });
+  const ta = $('#ta'), tc = $('#taCount'); const cnt = () => tc.textContent = `${ta.value.length} / 140`; ta.addEventListener('input', cnt); cnt();
+
+  // Episode cards: little clay scenes of jobs gone wrong
+  const S = {
+    shelf: `<rect width="200" height="140" fill="#f2ddb0"/><rect width="200" height="140" fill="url(#wallp)" opacity=".6"/><rect y="112" width="200" height="28" fill="#a87348" filter="url(#cfs)"/><path d="M40 52l90 30" stroke="#cc9a6c" stroke-width="10" stroke-linecap="round" filter="url(#cfs)"/><circle cx="40" cy="50" r="4" fill="#8b9196"/><rect x="132" y="88" width="20" height="24" rx="5" fill="#79c2a0" filter="url(#cfs)" transform="rotate(25 142 100)"/><circle cx="160" cy="70" r="8" fill="#c23e2a" filter="url(#cfs)"/><circle cx="102" cy="104" r="7" fill="#e2a72e" filter="url(#cfs)"/><path d="M150 56l6-8M168 60l8-4M164 48l2-9" stroke="#57402f" stroke-width="2.5" stroke-linecap="round"/>`,
+    tap: `<rect width="200" height="140" fill="#cfe5f0"/><path d="M0 40h200M0 80h200M50 0v112M100 0v112M150 0v112" stroke="#b3d3e4" stroke-width="2"/><rect y="112" width="200" height="28" fill="#a87348" filter="url(#cfs)"/><path d="M60 40h40v14H74v10H60z" fill="#8b9196" filter="url(#cfs)"/><path d="M98 46q30-20 60 6M100 48q40 6 52 40M98 50q10 30-6 54M66 66q-20 10-30 36" stroke="#5b9fcf" stroke-width="5" fill="none" stroke-linecap="round" stroke-dasharray="2 9" filter="url(#cfs)"/><path d="M128 112h40l-4-26h-32z" fill="#c23e2a" filter="url(#cfs)"/><ellipse cx="148" cy="88" rx="16" ry="4" fill="#5b9fcf"/>`,
+    paint: `<rect width="200" height="140" fill="#f2ddb0"/><rect width="104" height="112" fill="#79c2a0" filter="url(#cfs)"/><path d="M104 30q4 18 0 30M98 60q4 14 0 22" stroke="#79c2a0" stroke-width="7" stroke-linecap="round" fill="none"/><rect y="112" width="200" height="28" fill="#a87348" filter="url(#cfs)"/><path d="M0 112h140q20 0 18 14t-30 14H0z" fill="#79c2a0" filter="url(#cfs)"/><path d="M150 96h28l-3 18h-22z" fill="#e2a72e" filter="url(#cfs)" transform="rotate(-70 164 105)"/><ellipse cx="170" cy="118" rx="12" ry="4" fill="#79c2a0"/><circle cx="118" cy="98" r="9" fill="#c23e2a" filter="url(#cfs)"/><circle cx="114" cy="96" r="2" fill="#fbf6ec"/><circle cx="121" cy="96" r="2" fill="#fbf6ec"/>`,
+    roof: `<rect width="200" height="140" fill="#a6cfea"/><g fill="#fbf4e6" filter="url(#cfs)"><circle cx="40" cy="26" r="11"/><circle cx="54" cy="22" r="13"/><circle cx="68" cy="28" r="9"/></g><path d="M40 40l3 8M54 42l3 8M66 40l3 8" stroke="#5b9fcf" stroke-width="3" stroke-linecap="round"/><path d="M20 98L110 50l80 48z" fill="#c23e2a" filter="url(#cfs)"/><circle cx="120" cy="72" r="9" fill="#33241b"/><rect x="30" y="98" width="150" height="42" fill="#f3e3c3" filter="url(#cfs)"/><g transform="rotate(64 160 120)"><path d="M148 70v90M168 70v90M148 86h20M148 106h20M148 126h20M148 146h20" stroke="#cc9a6c" stroke-width="5" stroke-linecap="round" filter="url(#cfs)"/></g>`,
+  };
+  const E = [['01', '선반 달기', '선반은 달렸다. 잠깐 동안.', 'shelf'], ['02', '수도꼭지', '물이 멈췄다. 위쪽만.', 'tap'], ['03', '페인트칠', '구석까지 칠했다. 우리도.', 'paint'], ['04', '지붕 고치기', '구멍은 막았다. 사다리는 못 막았다.', 'roof']];
+  $('#eps').innerHTML = E.map(([n, t, s, k]) => `<button class="ep" aria-label="에피소드 ${n}, ${t}. ${s}" data-ep="${n}|${t}"><span class="ep__tape" aria-hidden="true"></span><span class="ep__pic"><svg viewBox="0 0 200 140" aria-hidden="true">${S[k]}</svg><span class="epn" aria-hidden="true">EP.${n}</span></span><span aria-hidden="true"><b>${t}</b><small>${s}</small></span></button>`).join('');
+
+  // Jar of clay balls
+  const pos = [[50, 146], [76, 146], [102, 146], [63, 123], [89, 123], [50, 100], [76, 100], [102, 100], [63, 77], [89, 77]];
+  const cols = ['#c23e2a', '#e2a72e', '#5b9fcf', '#79c2a0', '#b9633f'];
+  let jn = 6;
+  const jar = drop => { const v = jn * 10;
+    $('#jar').innerHTML = `<svg viewBox="0 0 140 170" aria-hidden="true"><ellipse cx="76" cy="168" rx="52" ry="5" fill="#3b1f0c" opacity=".25" filter="url(#soft3)"/>
+      <path d="M30 42h80a10 10 0 0 1 10 10v88a24 24 0 0 1-24 24H44a24 24 0 0 1-24-24V52a10 10 0 0 1 10-10z" fill="rgba(214,232,238,.45)"/>
+      ${pos.slice(0, jn).map(([x, y], i) => `<circle class="${drop && i === jn - 1 ? 'drop' : ''}" cx="${x}" cy="${y}" r="12.5" fill="${cols[i % 5]}" filter="url(#cfs)"/>`).join('')}
+      <path d="M30 42h80a10 10 0 0 1 10 10v88a24 24 0 0 1-24 24H44a24 24 0 0 1-24-24V52a10 10 0 0 1 10-10z" fill="none" stroke="rgba(90,120,130,.55)" stroke-width="3"/>
+      <path d="M30 60v70" stroke="rgba(255,255,255,.75)" stroke-width="5" stroke-linecap="round"/>
+      <rect x="28" y="24" width="84" height="22" rx="9" fill="#e2a72e" filter="url(#cfh)"/></svg>`;
+    $('#jar').setAttribute('aria-valuenow', v); $('#jarB').textContent = `단지 ${v}%`; $('#jarS').textContent = `공 10개 중 ${jn}개`; };
+  jar(false);
+  $('#jarBtn').addEventListener('click', () => { if (jn >= 10) { jn = 0; jar(false); return; } jn++; jar(!rm); if (jn === 10) bubble('full'); });
+
+  // Measuring tape creeps out
+  let tp = 40; setInterval(() => { tp = tp >= 100 ? 10 : tp + 5; const t = $('#tape'); t.setAttribute('aria-valuenow', tp); $('.tape__strip', t).style.width = tp + '%'; $('#tapeOut').textContent = `${tp * 4} / 400cm`; }, 1200);
+
+  // Table
+  const tb = $('#tbl tbody');
+  $$('#tbl th button').forEach(b => b.addEventListener('click', () => { const th = b.parentElement, k = +b.dataset.k, dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    $$('#tbl th[aria-sort]').forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', dir);
+    $('#tbl caption').textContent = `수리 대장, ${k === 2 ? '시도 횟수' : '물건 이름'} ${dir === 'ascending' ? '오름차순' : '내림차순'}`;
+    $$('tr', tb).sort((a, c) => { const x = a.cells[k].textContent.trim(), y = c.cells[k].textContent.trim(); const q = k === 2 ? +x - +y : x.localeCompare(y, 'ko'); return dir === 'ascending' ? q : -q; }).forEach(r => tb.appendChild(r)); }));
+  const pb = $$('.pager li button'), pages = pb.slice(1, -1); let cur = 1;
+  const go = n => { cur = n; pages.forEach((b, i) => i + 1 === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')); pb[0].disabled = n === 1; pb.at(-1).disabled = n === pages.length; $('#pgInfo').textContent = `기록 12건 중 ${(n - 1) * 4 + 1}–${n * 4}`; };
+  pages.forEach((b, i) => b.addEventListener('click', () => go(i + 1))); pb[0].addEventListener('click', () => go(Math.max(1, cur - 1))); pb.at(-1).addEventListener('click', () => go(Math.min(pages.length, cur + 1)));
+
+  // Dialog
+  const dlg = $('#dlg'); $('#dlgOpen').addEventListener('click', () => dlg.showModal());
+  $$('[data-close]', dlg).forEach(b => b.addEventListener('click', () => { dlg.close(); if (b.dataset.after) bubble(b.dataset.after); }));
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Cardboard drawer: focus trap, Esc, scrim
+  const sd = $('#side'), sc = $('#scrim'); let opener;
+  const focusables = () => $$('button, input, select, textarea, a[href]', sd).filter(x => !x.disabled);
+  const openS = (t) => { opener = document.activeElement; if (t) { const [n, name] = t.split('|'); $('#sideT').textContent = name; $('small', sd).textContent = `EP.${n} · 작업 노트`; }
+    sd.classList.add('open'); sc.classList.add('open'); sd.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; setTimeout(() => $('#s1').focus(), rm ? 0 : 340); };
+  const closeS = () => { if (!sd.classList.contains('open')) return; sd.classList.remove('open'); sc.classList.remove('open'); sd.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; opener && opener.focus(); };
+  $('#sideOpen').addEventListener('click', () => openS()); sc.addEventListener('click', closeS);
+  $$('.ep').forEach(b => b.addEventListener('click', () => openS(b.dataset.ep)));
+  $$('[data-sclose]', sd).forEach(b => b.addEventListener('click', () => { closeS(); if (b.dataset.after) bubble(b.dataset.after); }));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && sd.classList.contains('open')) { e.preventDefault(); closeS(); } });
+  sd.addEventListener('keydown', e => { if (e.key !== 'Tab') return; const f = focusables(), a = f[0], z = f.at(-1);
+    if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } });
+
+  // Code
+  $('#codeBlock').innerHTML = `<span class="c">/* Clay — 클레이 애니메이션 세트 · Tailwind v4 + shadcn */</span>
+@import "tailwindcss";
+
+<span class="p">:root</span> {
+  <span class="v">--background</span>: #ecdcc0;  <span class="v">--foreground</span>: #33241b;      <span class="c">/* 세트 바탕, 코코아 */</span>
+  <span class="v">--card</span>: #f7ecd8;  <span class="v">--card-foreground</span>: #33241b;         <span class="c">/* 크림 찰흙 판 */</span>
+  <span class="v">--popover</span>: #fbf4e6;  <span class="v">--popover-foreground</span>: #33241b;
+  <span class="v">--primary</span>: #c23e2a;  <span class="v">--primary-foreground</span>: #fff7ea;     <span class="c">/* 토마토 */</span>
+  <span class="v">--secondary</span>: #f3e3c3;  <span class="v">--secondary-foreground</span>: #33241b; <span class="c">/* 크림 + 하늘 뱀 테두리 */</span>
+  <span class="v">--muted</span>: #e3cfae;  <span class="v">--muted-foreground</span>: #6c5242;
+  <span class="v">--accent</span>: #e2a72e;  <span class="v">--accent-foreground</span>: #33241b;      <span class="c">/* 겨자 */</span>
+  <span class="v">--destructive</span>: #a8301f;                                     <span class="c">/* 금 간 빨강 */</span>
+  <span class="v">--border</span>: #d6bd95;  <span class="v">--input</span>: #efe2c9;  <span class="v">--ring</span>: #2f6a95;
+  <span class="v">--radius</span>: 1.75rem;
+  <span class="v">--clay-thickness</span>: 6px;            <span class="c">/* 모든 덩어리의 두께 */</span>
+  <span class="v">--clay-light</span>: rgb(255 248 232 / .2); <span class="c">/* 왼쪽 위 조명 하나 */</span>
+  <span class="v">--clay-shade</span>: rgb(84 50 22 / .3);
+  <span class="v">--frame</span>: 83ms;                     <span class="c">/* 1초에 12장 */</span>
+}
+
+@theme inline {
+  <span class="v">--color-background</span>: var(--background);
+  <span class="v">--color-foreground</span>: var(--foreground);
+  <span class="v">--color-primary</span>: var(--primary);
+  <span class="v">--color-secondary</span>: var(--secondary);
+  <span class="v">--color-accent</span>: var(--accent);
+  <span class="v">--color-destructive</span>: var(--destructive);
+  <span class="v">--color-sky</span>: #5b9fcf;  <span class="v">--color-mint</span>: #79c2a0;  <span class="v">--color-terra</span>: #b9633f;
+  <span class="v">--font-display</span>: "Do Hyeon", "Fredoka", sans-serif;
+  <span class="v">--font-hand</span>: "Gaegu", cursive;
+  <span class="v">--font-sans</span>: "Gothic A1", system-ui, sans-serif;
+}
+
+<span class="c">/* 찰흙 덩어리: 울퉁불퉁한 모서리 + 왼쪽 위 빛 + 오른쪽 아래 그늘 + 두께 + 바닥 그림자.
+   더 진짜처럼: &lt;filter id="clay"&gt;(feTurbulence → feDisplacementMap → feDiffuseLighting)를
+   페이지에 넣고 ::before에 filter: url(#clay)를 거세요. 글자는 필터 밖에. */</span>
+@utility <span class="p">clay</span> {
+  position: relative; isolation: isolate;
+  border-radius: 30px 26px 32px 28px / 28px 32px 26px 30px;
+  background:
+    radial-gradient(110% 90% at 24% 14%, var(--clay-light), transparent 52%),
+    radial-gradient(90% 80% at 80% 90%, rgb(60 30 10 / .16), transparent 60%),
+    var(--primary);
+  box-shadow:
+    inset -5px -7px 10px rgb(60 30 10 / .22), inset 4px 5px 7px rgb(255 255 255 / .2),
+    0 var(--clay-thickness) 0 color-mix(in oklab, var(--primary), black 28%),
+    0 14px 16px -8px var(--clay-shade);
+}
+
+<span class="c">/* 눌린 홈: 입력 칸, 쟁반, 세그먼트 바탕 */</span>
+@utility <span class="p">clay-dent</span> {
+  box-shadow: inset 4px 5px 8px rgb(130 90 45 / .3), inset -2px -2px 3px rgb(255 255 255 / .7);
+}
+
+<span class="c">/* 스톱모션: 매끈한 이징 금지. 한 장씩 끊어서. */</span>
+@utility <span class="p">stop-motion</span> {
+  transition-timing-function: steps(2);
+  animation-timing-function: steps(1);
+  &amp;:active { transform: translateY(4px) scale(1.05, .9); }       <span class="c">/* 눌리면 납작 */</span>
+}
+@utility <span class="p">boing</span> { animation: boing calc(var(--frame) * 4) steps(1); }
+@utility <span class="p">boil</span>  { animation: boil calc(var(--frame) * 6) steps(1) infinite; }
+
+@keyframes boing {
+  0% { transform: scale(1.1, .84); }  25% { transform: scale(.93, 1.09); }
+  50% { transform: scale(1.04, .97); } 75%, 100% { transform: none; }
+}
+@keyframes boil {               <span class="c">/* 외곽선이 두 장마다 다시 빚어지는 느낌 */</span>
+  0%  { transform: translate(.6px, -.4px) rotate(-.5deg); }
+  33% { transform: translate(-.5px, .5px) rotate(.4deg); }
+  66% { transform: translate(.3px, .6px) rotate(-.2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}`;
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget, s = $('span', b); try { await navigator.clipboard.writeText($('#codeBlock').textContent); s.textContent = '복사했어요!'; } catch { s.textContent = '직접 골라 복사해 주세요'; } setTimeout(() => s.textContent = '복사하기', 1800); });
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

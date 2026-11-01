@@ -915,7 +915,7 @@ function draw() {
   ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(rx1, ry, 2.5, 0, 7); ctx.arc(rx2, ry, 2.5, 0, 7); ctx.fill();
   // dimension line 6.70 m below everything
   const [dx0, dyy] = toS(P0.x, 4.85), [dx1] = toS(RIM.x, 4.85);
-  if (K > 40) { ctx.strokeStyle = '#5c6370'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(dx0, dyy); ctx.lineTo(dx1, dyy); ctx.stroke(); ctx.setLineDash([]);
+  if (K > 60) { ctx.strokeStyle = "#5c6370"; ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(dx0, dyy); ctx.lineTo(dx1, dyy); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = C.num; ctx.font = `${fs}px "JetBrains Mono", monospace`; ctx.textAlign = 'center'; ctx.fillText('d = 6.70 m', (dx0 + dx1) / 2, dyy - 10); ctx.textAlign = 'left'; }
   // predicted parabola (dashed = pass)
   const t = st.th * Math.PI / 180, vx = st.v * Math.cos(t), vy = st.v * Math.sin(t);

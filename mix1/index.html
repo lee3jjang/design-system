@@ -60,6 +60,7 @@ code { box-shadow: inset 0 0 0 1px var(--hair); padding: 0 5px; border-radius: 6
 .beads i { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1.6px currentColor; background: transparent; transition: background .18s var(--ease); }
 .beads i:nth-child(2) { transition-delay: 50ms; } .beads i:nth-child(3) { transition-delay: 100ms; } .beads i:nth-child(4) { transition-delay: 150ms; } .beads i:nth-child(5) { transition-delay: 200ms; }
 .beads[data-n="1"] i:nth-child(-n+1), .beads[data-n="2"] i:nth-child(-n+2), .beads[data-n="3"] i:nth-child(-n+3), .beads[data-n="4"] i:nth-child(-n+4), .beads[data-n="5"] i { background: currentColor; }
+.beads[hidden] { display: none; }
 .beads--x i { position: relative; border-radius: 0; box-shadow: none; }
 .beads--x i::before, .beads--x i::after { content: ""; position: absolute; left: -1px; right: -1px; top: 50%; height: 2px; margin-top: -1px; background: currentColor; transform: rotate(45deg); }
 .beads--x i::after { transform: rotate(-45deg); }
@@ -123,7 +124,7 @@ section.zone { padding-block: var(--s5) 4px; scroll-margin-top: 72px; display: g
 .spec__note p { font-size: 15px; color: var(--ink-2); }
 .spec__note ul { margin: 2px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; font-size: 14.5px; color: var(--ink-2); }
 .spec__note li::before { content: "● "; font-size: 9px; vertical-align: 2px; }
-.ground { min-width: 0; padding: 22px 26px 22px; display: flex; flex-wrap: wrap; gap: 24px 28px; align-items: center; align-content: center; }
+.ground { min-width: 0; padding: 22px 26px 22px; display: flex; flex-wrap: wrap; gap: 34px 28px; align-items: center; align-content: center; }
 .ground.col { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
 @media (max-width: 760px) { .spec { grid-template-columns: minmax(0, 1fr); } .spec__note { box-shadow: 0 2px 0 var(--ink); padding: 14px 16px 12px; } .ground { padding: 22px 16px; } }
 
@@ -152,7 +153,7 @@ section.zone { padding-block: var(--s5) 4px; scroll-margin-top: 72px; display: g
 .xt td:nth-child(4) { color: var(--ink-2); }
 @media (max-width: 760px) {
   .xt thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .xt, .xt tbody, .xt tr, .xt th, .xt td { display: block; }
+  .xt, .xt caption, .xt tbody, .xt tr, .xt th, .xt td { display: block; }
   .xt tr { padding: 10px 0; border-bottom: 2px solid var(--ink); }
   .xt th, .xt td { border: 0; padding: 2px 0; }
   .xt td[data-l]::before { content: attr(data-l) " · "; font-weight: 700; color: var(--ink-3); font-size: 12.5px; }
@@ -280,7 +281,7 @@ fieldset.stack legend { padding: 0; margin-bottom: 6px; font: 700 15px/1.3 var(-
 .chip[aria-pressed="true"] { color: var(--ink); font-weight: 700; box-shadow: var(--ring-2); }
 .chip[aria-pressed="true"] .beads { color: var(--ink); }
 .chip:focus-visible { outline-offset: 8px; }
-.field { display: grid; gap: 6px; min-width: 0; }
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; min-width: 0; align-content: start; }
 .field > label, .flabel { font: 700 15px/1.3 var(--font); }
 .field > label small { font-weight: 400; color: var(--ink-3); margin-left: 6px; font-size: 13.5px; }
 .select { position: relative; }
@@ -303,7 +304,7 @@ fieldset.stack legend { padding: 0; margin-bottom: 6px; font: 700 15px/1.3 var(-
 .range__beads i { width: 14px; height: 14px; border-radius: 50%; background: var(--void); box-shadow: inset 0 0 0 2px var(--ink-3); transition: background .15s; }
 .range__beads i.on { background: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
 .range__fill { isolation: isolate; }
-.range__scale { display: flex; justify-content: space-between; font: 500 13px/1 var(--font); color: var(--ink-3); }
+.range__scale { display: flex; justify-content: space-between; padding-inline: 8px; font: 500 13px/1 var(--font); color: var(--ink-3); }
 .side { width: 100%; max-width: 320px; display: grid; gap: 10px; padding: 10px; border-radius: 22px 3px 22px 3px; box-shadow: var(--ring-2); }
 .side a { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 14px 2px 14px 2px; color: var(--ink-2); text-decoration: none; font: 500 15.5px/1 var(--font); }
 .side a:hover { box-shadow: var(--ring-1); }
@@ -359,8 +360,8 @@ fieldset.stack legend { padding: 0; margin-bottom: 6px; font: 700 15px/1.3 var(-
 .steps li .beads { color: var(--ink-4); }
 .steps li.done { color: var(--ink-2); } .steps li.done .beads { color: var(--ink-2); }
 .steps li.now { color: var(--ink); font-weight: 700; } .steps li.now .beads { color: var(--ink); }
-.steps li span { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 18px 2px 18px 2px; box-shadow: var(--ring-1); font: 700 15px/1 var(--font); }
-.steps li.now span { box-shadow: var(--ring-3); }
+.steps li > span:first-child { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 18px 2px 18px 2px; box-shadow: var(--ring-1); font: 700 15px/1 var(--font); }
+.steps li.now > span:first-child { box-shadow: var(--ring-3); }
 .acc { width: 100%; display: grid; gap: 16px; }
 .acc details { border-radius: 18px 3px 18px 3px; box-shadow: var(--ring-1); }
 .acc details[open] { box-shadow: var(--ring-2); }
@@ -411,7 +412,8 @@ dialog[open] { animation: rise .2s var(--ease); }
 .sheet__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; box-shadow: 0 2px 0 var(--ink); }
 .sheet__head small { font: 700 12.5px/1 var(--font); letter-spacing: .14em; color: var(--ink-3); }
 .sheet__head h3 { font: 900 22px/1.3 var(--font); }
-.sheet__body { padding: 20px 18px; display: grid; gap: 22px; align-content: start; overflow-y: auto; }
+.sheet__body { padding: 24px 22px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; align-content: start; overflow-y: auto; }
+.sheet .input:has(:focus-visible) { outline-offset: 4px; }
 .sheet__foot { isolation: isolate; display: flex; justify-content: flex-end; gap: 22px; padding: 16px 18px 20px; box-shadow: 0 -2px 0 var(--ink); }
 .toasts { position: fixed; top: 74px; right: 16px; z-index: 70; display: grid; gap: 20px; width: min(340px, calc(100vw - 32px)); pointer-events: none; }
 .toast { position: relative; pointer-events: auto; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 8px 12px 14px; background: var(--void); border-radius: 18px 3px 18px 3px; box-shadow: var(--ring-3); animation: rise .2s var(--ease); }
@@ -537,7 +539,7 @@ dialog[open] { animation: rise .2s var(--ease); }
   <div class="zone__head"><span class="bolt" aria-hidden="true"><svg><use href="#rivet"/></svg></span><div><small>02 · PRESS</small><h2 id="h-press">누르기</h2><p>버튼은 대각선만 둥근 알약. 굽이 오른쪽으로 밀려 있어, 누르면 몸이 오른쪽 아래로 미끄러져 내려앉습니다. 누른 뒤에는 1px 대기선이 0.6초 동안 줄어듭니다.</p></div></div>
 
   <div class="panel"><span class="rv rv--tr" aria-hidden="true"><svg><use href="#rivet"/></svg></span><div class="spec"><div class="spec__note"><h3>겹으로 나눈 버튼</h3><p>주요 4겹, 기본 2겹, 조용한 것 1겹, 위험은 붉은 3겹. 구석의 한 글자는 단축키입니다.</p><ul><li>입력 칸 밖에서 글자 키를 누르면 실행됩니다.</li></ul></div>
-    <div class="ground"><button class="btn btn--primary" data-hk="n" data-toast="saved">새로 만들기<kbd class="hk" aria-hidden="true">N</kbd></button><span style="position:relative;display:inline-flex"><button class="btn" data-hk="o">보관함 열기<kbd class="hk" aria-hidden="true">O</kbd></button><span class="count-badge" aria-label="새 항목 3개">3</span></span><button class="btn btn--quiet">나중에</button><button class="btn btn--danger" data-hk="x" data-open="dlg">지우기<kbd class="hk" aria-hidden="true">X</kbd></button><button class="btn btn--link">자세히</button></div></div></div>
+    <div class="ground"><button class="btn btn--primary" data-hk="n" data-toast="saved">새로 만들기<kbd class="hk" aria-hidden="true">N</kbd></button><span style="position:relative;display:inline-flex"><button class="btn">보관함 열기</button><span class="count-badge" aria-label="새 항목 3개">3</span></span><button class="btn btn--quiet">나중에</button><button class="btn btn--danger" data-hk="x" data-open="dlg">지우기<kbd class="hk" aria-hidden="true">X</kbd></button><button class="btn btn--link">자세히</button></div></div></div>
 
   <div class="panel"><div class="spec"><div class="spec__note"><h3>크기와 상태</h3><p>못 누를 때는 1겹 회색으로 줄이고 이유를 레이블에 적습니다. 일하는 중에는 알이 하나씩 찹니다.</p></div>
     <div class="ground"><button class="btn btn--sm">작게</button><button class="btn">보통</button><button class="btn btn--lg">크게</button><button class="btn" disabled>권한 없음</button><button class="btn btn--primary" id="busyBtn">보내기</button></div></div></div>
@@ -707,7 +709,7 @@ dialog[open] { animation: rise .2s var(--ease); }
 
 <!-- 코드 -->
 <section class="zone" id="code" aria-labelledby="h-code">
-  <div class="zone__head"><span class="bolt" aria-hidden="true"><svg><use href="#rivet"/></svg></span><div><small>08 · CODE</small><h2 id="h-code">코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 바탕 토큰은 흰색 하나, 테두리는 <code>ring-1</code>–<code>ring-4</code> 유틸리티로 겹을 셉니다.</p></div></div>
+  <div class="zone__head"><span class="bolt" aria-hidden="true"><svg><use href="#rivet"/></svg></span><div><small>08 · CODE</small><h2 id="h-code">코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 바탕 토큰은 흰색 하나, 테두리는 <code>rings-1</code>–<code>rings-4</code> 유틸리티로 겹을 셉니다.</p></div></div>
   <div class="panel"><div class="codebar"><span class="flabel">app/globals.css</span><button class="btn btn--sm" id="copyBtn">복사하기</button></div><pre class="code" id="codeBlock" tabindex="0"></pre></div>
 </section>
 </main>
@@ -900,11 +902,11 @@ dialog[open] { animation: rise .2s var(--ease); }
 }
 
 <span class="c">/* 겹테: 겹 수가 위계. 1 조용함 · 2 기본 · 3 고름 · 4 주요 */</span>
-@utility <span class="p">ring-1</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)); }
-@utility <span class="p">ring-2</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)); }
-@utility <span class="p">ring-3</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)),
+@utility <span class="p">rings-1</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)); }
+@utility <span class="p">rings-2</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)); }
+@utility <span class="p">rings-3</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)),
   0 0 0 7px var(--background), 0 0 0 8px var(--rc, var(--border)); }
-@utility <span class="p">ring-4</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)),
+@utility <span class="p">rings-4</span> { box-shadow: 0 0 0 2px var(--rc, var(--border)), 0 0 0 4px var(--background), 0 0 0 5px var(--rc, var(--border)),
   0 0 0 7px var(--background), 0 0 0 8px var(--rc, var(--border)), 0 0 0 10px var(--background), 0 0 0 11px var(--rc, var(--border)); }
 
 <span class="c">/* 어긋난 몸: 대각선만 둥글게, 굽은 오른쪽으로 */</span>

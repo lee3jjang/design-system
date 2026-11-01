@@ -16,6 +16,7 @@
     { id: 'tactical', path: 'tactical/index.html', name: 'Tactical', ko: '전술 작전 게임 UI', c: ['#141c28', '#7cc8f0', '#ffffff'] },
     { id: 'lagoon', path: 'lagoon/index.html', name: 'Lagoon', ko: '섬 다이빙 가게', c: ['#5fd3d8', '#3a2418', '#ff3d8b'] },
     { id: 'clay', path: 'clay/index.html', name: 'Clay', ko: '클레이 애니메이션', c: ['#efe2c8', '#e2553f', '#f2c14e'] },
+    { id: 'carte', path: 'carte/index.html', name: 'Carte', ko: '메뉴판', c: ['#e9d7b0', '#1b1b1b', '#1f8a55'] },
     { id: 'zoo', path: 'zoo/index.html', name: 'Zoo Orbit', ko: '동물 우주비행단', c: ['#101632', '#f2f0ea', '#ff7a2f'] },
     { id: 'sanctum', path: 'sanctum/index.html', name: 'Sanctum', ko: '천국과 지옥', c: ['#0f0c0b', '#c9a24a', '#d0401f'] },
     { id: 'reverie', path: 'reverie/index.html', name: 'Reverie', ko: '꿈속', c: ['#e9e2f6', '#b9a6e8', '#f7c6b4'] },
@@ -24,6 +25,11 @@
     { id: 'absurd', path: 'absurd/index.html', name: 'Absurd', ko: '포스트모던 × 실존', c: ['#f2f0eb', '#111111', '#e5322d'] },
     { id: 'inkstone', path: 'inkstone/index.html', name: 'Inkstone', ko: '크로스오버 · Sansa×Dal×Riso', c: ['#f3eee2', '#24418f', '#8e3b2a'], x: true },
     { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },
+    { id: 'mix1', path: 'mix1/index.html', name: 'Lacuna', ko: '추상 크로스오버 · 바탕 없는 겹테 장치', c: ['#ffffff', '#111111', '#2457d6'], m: true },
+    { id: 'mix2', path: 'mix2/index.html', name: 'Halide', ko: '추상 크로스오버 · 느리게 현상되는 회색 선체', c: ['#1a1a1a', '#f2f2f2', '#8a8a8a'], m: true },
+    { id: 'mix3', path: 'mix3/index.html', name: 'Plumb', ko: '추상 크로스오버 · 고르면 반듯해지는 귀리밭', c: ['#e4d3aa', '#902f3b', '#0a40c3'], m: true },
+    { id: 'mix4', path: 'mix4/index.html', name: 'Verso', ko: '추상 크로스오버 · 뒷면에서 본 새벽', c: ['#040915', '#d3b561', '#59d0c0'], m: true },
+    { id: 'mix5', path: 'mix5/index.html', name: 'Natrium', ko: '추상 크로스오버 · 꺼진 나트륨등', c: ['#ff8a1f', '#0d0e0f', '#00e5ff'], m: true },
   ];
 
   const me = document.currentScript;
@@ -77,9 +83,11 @@
   <div class="head"><div><b>디자인 시스템</b><small>${SYSTEMS.length}개 · 다른 시스템으로 이동</small></div><button class="x" type="button" aria-label="닫기">✕</button></div>
   <nav aria-label="디자인 시스템">
     <div class="group">시스템</div>
-    ${SYSTEMS.filter(s => !s.x).map(link).join('')}
+    ${SYSTEMS.filter(s => !s.x && !s.m).map(link).join('')}
     <div class="group">크로스오버</div>
     ${SYSTEMS.filter(s => s.x).map(link).join('')}
+    <div class="group">추상 크로스오버</div>
+    ${SYSTEMS.filter(s => s.m).map(link).join('')}
   </nav>
   <div class="foot"><kbd>Esc</kbd> 닫기 · <kbd>[</kbd> <kbd>]</kbd> 이전 / 다음 시스템</div>
 </aside>`;

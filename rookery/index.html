@@ -1,0 +1,1426 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rookery · 사람이 떠난 뒤, 북쪽으로 온 펭귄들의 물건</title>
+<meta name="description" content="Rookery: 인류가 사라진 뒤 그린란드까지 헤엄쳐 온 펭귄들이 사람의 남은 물건을 고쳐 쓰는 디자인 체계. 지느러미로 누르고, 배로 미끄러지고, 부리로 새긴다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;600;800&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Rookery — 사람이 떠난 뒤, 북쪽으로 온 펭귄들의 물건.
+   Penguins never lived in the Arctic. After us, they swam north for generations and landed on a
+   coast full of our leftovers: painted wooden houses, an ice-locked container ship, a radio mast,
+   satellite dishes, sled runners, tyres. They do not know what these were for. They use them anyway.
+   This page is their goods register, written as a quiet museum catalogue.
+   Rules come from the body:
+   · flipper, no fingers  → nothing to pinch or twist; every target ≥ 64px, pressed, pushed or slid
+   · short legs           → things sit low, on a ground line, and cast shadows; nothing dangles from above
+   · countershading       → the dark back is structure, the white belly is the surface you touch
+   · orientation reading  → marks mean by direction and pebble count, not by letters
+   · huddle               → warmth is shared and positions rotate; lists turn over
+   · voice                → every name carries its call signature
+   · midnight sun         → every object casts a long, low shadow away from the sun */
+:root {
+  color-scheme: dark;
+  --feather: #111518;
+  --feather-2: #181e22;
+  --feather-3: #232a30;
+  --belly: #f3f0e9;
+  --belly-2: #e4e1d9;
+  --snow: #dfe5ea;
+  --ink: #14181b;
+  --ink-dim: #454e55;
+  --text: #eceeea;
+  --dim: #b3bcc0;
+  --line: rgba(236, 238, 234, .16);
+  --glacier: #7fb0c2;
+  --ice: #c6dde4;
+  --ice-deep: #3d7186;
+  --shadow: #6d85a3;
+  --sun: #f4cf9c;
+  --aurora: #8fdcb8;
+  --red: #9e3a2f;
+  --ochre: #bf8f3a;
+  --blue: #2f5b80;
+  --green: #466b52;
+  --rust: #8a4528;
+  --acc: #eba73a;          /* emperor throat — on dark text ≈ 8.9:1 */
+  --acc-ink: #7a4510;      /* accent for text on belly ≈ 7.2:1 */
+  --serif: "Instrument Serif", "Hahmlet", serif;
+  --ko-display: "Hahmlet", "Instrument Serif", serif;
+  --sans: "IBM Plex Sans KR", system-ui, sans-serif;
+  --mono: "DM Mono", "IBM Plex Sans KR", ui-monospace, monospace;
+  --flip: 64px;            /* the smallest thing a flipper can press */
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--feather); color: var(--text);
+  font: 400 17px/1.75 var(--sans);
+  overflow-x: clip; -webkit-font-smoothing: antialiased;
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+img, svg { display: block; }
+a { color: var(--acc); text-underline-offset: 4px; }
+.belly a { color: var(--acc-ink); }
+:focus-visible { outline: 3px solid var(--acc); outline-offset: 4px; border-radius: 6px; }
+.belly :focus-visible { outline-color: var(--ink); }
+.sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 16px; top: -80px; z-index: 100; background: var(--belly); color: var(--ink); padding: 14px 20px; border-radius: 14px; font-weight: 600; }
+.skip:focus { top: 16px; }
+
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+@media (min-width: 1240px) { .wrap { padding: 0 64px; } }
+
+h1, h2, h3 { margin: 0; font-weight: 600; }
+h2 { font: 600 clamp(30px, 4.4vw, 46px)/1.2 var(--ko-display); letter-spacing: -.01em; }
+h2 .en { display: block; font: italic 400 clamp(20px, 2.4vw, 26px)/1.2 var(--serif); letter-spacing: .02em; color: var(--dim); margin-bottom: 6px; }
+.belly h2 .en { color: var(--ink-dim); }
+h3 { font: 600 21px/1.35 var(--ko-display); }
+p { margin: 0 0 1em; }
+.lede { font-size: 19px; max-width: 40em; color: var(--dim); }
+.belly .lede { color: var(--ink-dim); }
+.num { font-family: var(--mono); font-size: 15px; letter-spacing: .04em; }
+.mono { font-family: var(--mono); }
+
+/* ───── edge rails: footprints walking up the page, the sun that never sets ───── */
+.rail { position: fixed; top: 0; bottom: 96px; width: 40px; z-index: 30; pointer-events: none; display: none; }
+.rail.l { left: 0; bottom: 96px; }
+.rail.r { right: 0; bottom: 0; }
+@media (min-width: 1240px) { .rail { display: block; } .toasts { right: 56px; } }
+.rail svg { width: 40px; height: 100%; }
+.rail .bg { fill: var(--feather); }
+.rail .tick { stroke: var(--dim); stroke-width: 1; opacity: .5; }
+.rail .foot { fill: var(--belly); opacity: .12; transition: opacity .4s; }
+.rail .foot.on { opacity: .9; }
+.rail .label { font: 500 11px var(--mono); fill: var(--dim); letter-spacing: .2em; }
+.rail .sundot { fill: var(--sun); }
+.rail .horizon { stroke: var(--sun); stroke-width: 1.5; }
+
+/* ───── top bar ───── */
+.bar { position: absolute; top: 0; left: 0; right: 0; z-index: 20; }
+.bar .wrap { display: flex; align-items: center; gap: 16px; padding-top: 18px; padding-bottom: 18px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; color: var(--belly); text-decoration: none; font: 400 26px/1 var(--serif); }
+.brand svg { width: 30px; height: 46px; }
+.bar nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.bar nav a { color: var(--belly); text-decoration: none; padding: 10px 14px; min-height: 48px; display: inline-flex; align-items: center; border-radius: 24px; font-size: 16px; background: rgba(17,21,24,.35); }
+.bar nav a:hover { background: rgba(17,21,24,.7); }
+@media (max-width: 760px) { .bar nav { display: none; } }
+.sound { margin-left: auto; }
+@media (min-width: 761px) { .sound { margin-left: 0; } }
+
+/* ───── hero ───── */
+.hero { position: relative; height: max(680px, min(100svh, 940px)); overflow: hidden; background: #1f2a36; }
+.hero > svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero .title { position: relative; z-index: 2; padding-top: clamp(110px, 16vh, 170px); }
+.hero h1 { font: 400 clamp(76px, 13vw, 168px)/.86 var(--serif); color: #f6efe4; letter-spacing: -.02em; }
+.hero h1 i { font-style: italic; color: var(--sun); }
+.hero .sub { font: 600 clamp(20px, 2.6vw, 28px)/1.45 var(--ko-display); color: #f3ede2; margin-top: 18px; max-width: 22em; }
+.hero .meta { margin-top: 16px; display: flex; gap: 8px 18px; flex-wrap: wrap; color: #d7dbe0; font: 400 15px/1.6 var(--mono); letter-spacing: .06em; }
+.hero .marks { margin-top: 18px; }
+.hero .cap { position: absolute; z-index: 2; right: 24px; bottom: 22px; max-width: 300px; color: var(--ink); background: rgba(243,240,233,.9); padding: 12px 16px; border-radius: 4px 18px 18px 18px; font-size: 16px; line-height: 1.5; }
+.hero .cap b { font-family: var(--mono); font-weight: 500; font-size: 14px; letter-spacing: .08em; display: block; color: var(--ink-dim); }
+@media (max-width: 640px) { .hero .cap { left: 88px; right: 16px; max-width: none; bottom: 16px; font-size: 16px; } }
+
+/* ───── ice shelf edges between back and belly ───── */
+.shelf { position: relative; height: 74px; margin-top: -73px; z-index: 3; pointer-events: none; }
+.shelf svg { width: 100%; height: 100%; }
+.shelf.down { margin-top: 0; margin-bottom: -1px; }
+
+/* ───── sections ───── */
+section { position: relative; overflow-x: clip; }
+.brood > * { min-width: 0; }
+.back { background: var(--feather); color: var(--text); padding: 96px 0 120px; }
+.belly { background: var(--belly); color: var(--ink); padding: 96px 0 120px; }
+.belly .dim { color: var(--ink-dim); }
+.dim { color: var(--dim); }
+.head { display: grid; gap: 16px; margin-bottom: 48px; }
+.head .tagline { display: flex; align-items: center; gap: 14px; font: 500 14px/1 var(--mono); letter-spacing: .18em; color: var(--dim); text-transform: uppercase; }
+.belly .head .tagline { color: var(--ink-dim); }
+
+/* ───── mark system (beak-pressed) ───── */
+.mk { display: inline-flex; gap: 2px; vertical-align: middle; }
+.mk svg { width: var(--mk, 26px); height: var(--mk, 26px); overflow: visible; }
+.mk .lo { stroke: rgba(255,255,255,.55); }
+.mk .hi { stroke: currentColor; }
+.belly .mk .lo, .plate .mk .lo { stroke: rgba(255,255,255,.95); }
+.back .mk .lo, .hero .mk .lo { stroke: rgba(0,0,0,.55); }
+
+/* ───── body-rule cards ───── */
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 2px; background: var(--line); border: 1px solid var(--line); border-radius: 26px; overflow: hidden; }
+.rule { background: var(--feather); padding: 28px 26px 30px; display: grid; gap: 12px; align-content: start; }
+.rule .n { font: 500 15px var(--mono); color: var(--acc); letter-spacing: .1em; }
+.rule svg { width: 100%; height: 96px; }
+.rule p { margin: 0; color: var(--dim); }
+.rule .spec { font: 400 15px var(--mono); color: var(--text); border-top: 1px dashed var(--line); padding-top: 12px; }
+
+/* ───── migration steps ───── */
+.route { margin-top: 72px; display: grid; gap: 28px; }
+.route .map { border-radius: 26px; background: #0c1114; border: 1px solid var(--line); overflow: hidden; }
+.route .map svg { width: 100%; height: auto; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; counter-reset: s; }
+@media (max-width: 860px) { .steps { grid-template-columns: 1fr; } }
+.steps li { counter-increment: s; position: relative; padding: 16px 16px 18px; border-radius: 20px; background: var(--feather-2); border: 1px solid var(--line); color: var(--dim); }
+.steps li::before { content: counter(s, decimal-leading-zero); display: block; font: 500 14px var(--mono); letter-spacing: .1em; margin-bottom: 4px; }
+.steps li b { display: block; color: var(--text); font: 600 18px/1.35 var(--ko-display); }
+.steps li small { font-size: 16px; line-height: 1.5; display: block; margin-top: 4px; }
+.steps li[aria-current="step"] { background: var(--belly); color: var(--ink-dim); border-color: var(--belly); }
+.steps li[aria-current="step"] b { color: var(--ink); }
+.steps li.done { opacity: .78; }
+.steps li.done::after { content: "도착"; position: absolute; top: 14px; right: 14px; font: 500 13px var(--mono); color: var(--acc); }
+.route .ctl { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+
+/* ───── belly-press plates (buttons) ─────
+   A plate stands on the ice like a body: dark back rim on top, white belly face, a long low shadow. */
+.plate {
+  --face: var(--belly); --rim: #0d1013; --fg: var(--ink);
+  position: relative; isolation: isolate;
+  min-height: var(--flip); min-width: 120px; padding: 14px 28px 12px;
+  border: 0; border-radius: 34px 34px 22px 22px / 40px 40px 20px 20px;
+  background: var(--face); color: var(--fg);
+  box-shadow: inset 0 9px 0 var(--rim), inset 0 -5px 0 rgba(0,0,0,.14);
+  font: 600 18px/1.2 var(--sans); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  transform-origin: 50% 100%;
+  transition: transform .14s cubic-bezier(.3,1.6,.5,1), box-shadow .14s;
+}
+.plate::after { /* the long midnight-sun shadow */
+  content: ""; position: absolute; z-index: -1; left: 18%; right: -26%; bottom: -9px; height: 16px;
+  background: var(--shadow); opacity: .45; border-radius: 50%;
+  transform: skewX(-38deg); transform-origin: 0 0; transition: transform .14s, opacity .14s;
+}
+.belly .plate::after, .ex .plate::after { opacity: .3; }
+.back .plate::after, .night .plate::after { opacity: .28; right: -12%; }
+.plate:hover { transform: scale(1.02, .98); }
+.plate:active, .plate.pressed { transform: scale(1.05, .9); box-shadow: inset 0 5px 0 var(--rim), inset 0 -2px 0 rgba(0,0,0,.14); }
+.plate:active::after { transform: skewX(-38deg) scaleX(.86); }
+.plate.acc { --face: var(--acc); --rim: #141414; }
+.plate.dark { --face: #252c32; --rim: #000; --fg: var(--text); box-shadow: inset 0 9px 0 var(--rim), inset 0 0 0 2px rgba(255,255,255,.12); }
+.plate.alarm { --face: var(--red); --rim: #2a0f0b; --fg: #fff6ee; }
+.plate.big { min-height: 84px; padding: 18px 40px 14px; font-size: 20px; }
+.plate[disabled] { cursor: not-allowed; --face: #c9d2d8; --fg: #3b454c; box-shadow: inset 0 9px 0 #8e9aa3; }
+.plate[disabled]::after { opacity: .15; }
+.plate .mk { --mk: 22px; }
+.plates { display: flex; flex-wrap: wrap; gap: 26px 22px; align-items: flex-end; padding-bottom: 12px; }
+
+/* ───── exhibit cards: the catalogue ───── */
+.cat { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+.ex { grid-column: span 6; position: relative; background: var(--belly); color: var(--ink); border-radius: 28px 28px 24px 24px; padding: 30px 28px 30px; box-shadow: inset 0 12px 0 #050607; }
+.ex.wide { grid-column: span 12; }
+.ex.third { grid-column: span 4; }
+@media (max-width: 960px) { .ex, .ex.third { grid-column: span 12; } }
+.ex .tag { position: absolute; top: -14px; right: 26px; background: var(--acc); color: var(--ink); font: 500 14px/1 var(--mono); letter-spacing: .1em; padding: 10px 14px 9px; border-radius: 6px 6px 14px 14px; box-shadow: 0 2px 0 rgba(0,0,0,.4); }
+.ex .tag::before { content: ""; position: absolute; left: 50%; top: -18px; width: 2px; height: 20px; background: repeating-linear-gradient(#cfc4a8 0 3px, #8b7d5b 3px 6px); }
+.ex header { display: grid; gap: 4px; margin: 6px 0 18px; }
+.ex .was { font-size: 16px; color: var(--ink-dim); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.ex .was b { font-weight: 600; color: var(--ink); }
+.ex .spec { margin-top: 20px; padding-top: 14px; border-top: 1px dashed #b9b4a8; font: 400 15px/1.6 var(--mono); color: var(--ink-dim); }
+.ex .dim { color: var(--ink-dim); }
+.ex :focus-visible { outline-color: var(--ink); }
+.ex .row { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.ex .out { font: 500 16px var(--mono); color: var(--ink); }
+
+/* switch: slide-on-belly track (an old sled runner) */
+.slide { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.track {
+  position: relative; width: 156px; height: 72px; border: 0; padding: 0; cursor: pointer; flex: none;
+  border-radius: 36px; background: #cfd9df;
+  box-shadow: inset 0 6px 0 rgba(0,0,0,.18), inset 0 -3px 0 rgba(255,255,255,.7);
+}
+.track::before { /* the sled runner rails */
+  content: ""; position: absolute; left: 18px; right: 18px; top: 50%; height: 14px; margin-top: 4px;
+  border-top: 2px solid #8c949a; border-bottom: 2px solid #8c949a; border-radius: 4px;
+}
+.track::after { /* polished streak left behind by a belly */
+  content: ""; position: absolute; left: 22px; top: 50%; height: 8px; margin-top: 7px; width: 0; border-radius: 4px;
+  background: var(--ice-deep); transition: width .5s cubic-bezier(.2,.8,.3,1);
+}
+.track svg { position: absolute; left: 6px; top: 6px; width: 84px; height: 56px; transition: transform .5s cubic-bezier(.2,.9,.3,1.08); z-index: 1; }
+.track[aria-checked="true"] { background: #bfe0e9; }
+.track[aria-checked="true"]::after { width: 64px; }
+.track[aria-checked="true"] svg { transform: translateX(60px); }
+.slide .state { font: 500 16px var(--mono); min-width: 7em; }
+
+/* checkbox: a pebble placed in a nest (an upturned satellite dish) */
+.nests { display: flex; flex-wrap: wrap; gap: 14px; }
+.nest { position: relative; display: flex; align-items: center; gap: 14px; min-height: 84px; padding: 10px 20px 10px 12px; border-radius: 42px; cursor: pointer; background: var(--belly-2); }
+.nest input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.nest svg { width: 76px; height: 64px; flex: none; overflow: visible; }
+.nest .pebble { transform: translateY(-46px); opacity: 0; transition: transform .45s cubic-bezier(.4,1.8,.5,1), opacity .2s; }
+.nest input:checked + svg .pebble { transform: none; opacity: 1; }
+.nest input:checked + svg .pebble.p2 { transition-delay: .06s; }
+.nest input:checked + svg .pebble.p3 { transition-delay: .12s; }
+.nest input:focus-visible + svg { outline: 3px solid var(--ink); outline-offset: 4px; border-radius: 50%; }
+.nest:has(input:checked) { background: #d7e6ea; }
+.nest span { font-weight: 500; }
+
+/* radio: positions in the huddle */
+.huddle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; border: 0; margin: 0; padding: 0; }
+@media (max-width: 520px) { .huddle { grid-template-columns: 1fr; } }
+.huddle legend { font-weight: 600; margin-bottom: 12px; padding: 0; }
+.spot { position: relative; display: grid; gap: 6px; justify-items: center; text-align: center; min-height: 64px; padding: 14px 10px 16px; border-radius: 24px; background: var(--belly-2); cursor: pointer; }
+.spot input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.spot svg { width: 110px; height: 96px; }
+.spot svg .me { fill: #9aa3a9; transition: fill .2s; }
+.spot b { font-weight: 600; }
+.spot .t { font: 500 16px var(--mono); color: var(--ink-dim); }
+.spot:has(input:checked) { background: var(--ink); color: var(--belly); }
+.spot:has(input:checked) .t { color: var(--acc); }
+.spot:has(input:checked) svg .me { fill: var(--acc); }
+.spot:has(input:checked) svg .pg { fill: #2b3339; stroke: #4c5860; }
+.spot:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 4px; }
+
+/* segmented (ice floes) */
+.floes { display: inline-flex; flex-wrap: wrap; gap: 6px; padding: 6px; background: #c9d6dc; border-radius: 40px; }
+.floes [role="radio"] { min-height: var(--flip); min-width: 92px; padding: 8px 18px; border: 0; border-radius: 34px 30px 36px 28px; background: transparent; font: 600 17px var(--sans); color: var(--ink); cursor: pointer; display: inline-flex; gap: 10px; align-items: center; justify-content: center; }
+.floes [role="radio"][aria-checked="true"] { background: var(--ink); color: var(--belly); box-shadow: 0 6px 0 -2px var(--shadow); }
+.floes .mk { --mk: 20px; }
+
+/* chips: pebbles you can set down */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { min-height: 56px; padding: 8px 20px 8px 14px; border: 2px solid #2b3339; background: transparent; color: var(--ink); border-radius: 30px 26px 32px 24px / 28px 32px 24px 30px; font: 500 17px var(--sans); cursor: pointer; display: inline-flex; align-items: center; gap: 10px; }
+.chip svg { width: 28px; height: 18px; }
+.chip svg path { fill: none; stroke: currentColor; stroke-width: 2; }
+.chip[aria-pressed="true"] { background: #2b3339; color: var(--belly); }
+.chip[aria-pressed="true"] svg path { fill: var(--acc); stroke: var(--acc); }
+
+/* select: a buoy-crate label */
+.field { display: grid; gap: 8px; }
+.field label, .field .lab { font-weight: 600; }
+.field .hint { font-size: 16px; color: var(--ink-dim); }
+.crate { position: relative; }
+.crate select { appearance: none; -webkit-appearance: none; width: 100%; min-height: 68px; padding: 12px 70px 12px 20px; border-radius: 18px; border: 0; background: var(--ink); color: var(--belly); font: 500 18px var(--sans); cursor: pointer; box-shadow: inset 0 -6px 0 var(--ochre); }
+.crate::after { content: ""; position: absolute; right: 10px; top: 10px; width: 48px; height: 42px; border-radius: 12px; background: var(--ochre) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 7 6-7' fill='none' stroke='%2314181b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/24px no-repeat; pointer-events: none; }
+
+/* range: ice core and fish count */
+.core { display: grid; gap: 10px; }
+.core input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 64px; background: transparent; cursor: pointer; margin: 0; }
+.core input[type="range"]::-webkit-slider-runnable-track { height: 28px; border-radius: 14px; background: linear-gradient(90deg, var(--ice-deep) 0 var(--p, 30%), #d3dde2 var(--p, 30%)); box-shadow: inset 0 4px 0 rgba(0,0,0,.18); }
+.core input[type="range"]::-moz-range-track { height: 28px; border-radius: 14px; background: #d3dde2; box-shadow: inset 0 4px 0 rgba(0,0,0,.18); }
+.core input[type="range"]::-moz-range-progress { height: 28px; border-radius: 14px; background: var(--ice-deep); }
+.core input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 56px; height: 52px; margin-top: -12px; border-radius: 48% 52% 46% 54% / 56% 50% 50% 44%; background: #3b4247; border: 4px solid var(--belly); box-shadow: 10px 8px 0 -4px rgba(109,133,163,.5); }
+.core input[type="range"]::-moz-range-thumb { width: 50px; height: 46px; border-radius: 48% 52% 46% 54% / 56% 50% 50% 44%; background: #3b4247; border: 4px solid var(--belly); box-shadow: 10px 8px 0 -4px rgba(109,133,163,.5); }
+.core .scale { display: flex; justify-content: space-between; font: 400 14px var(--mono); color: var(--ink-dim); }
+.verdict { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; }
+.verdict i { width: 14px; height: 14px; border-radius: 50%; background: var(--red); }
+.verdict.ok i { background: var(--green); }
+.fishes { display: flex; flex-wrap: wrap; gap: 4px; min-height: 22px; }
+.fishes svg { width: 30px; height: 16px; }
+
+/* inputs: beak marks pressed into packed snow */
+.beak { display: grid; gap: 8px; }
+.beak input, .beak textarea { width: 100%; min-height: 64px; padding: 14px 18px; border-radius: 16px; border: 0; background: #e9eef0; color: var(--ink); font: 400 18px/1.5 var(--sans); box-shadow: inset 0 5px 0 rgba(20,24,27,.14), inset 0 -2px 0 #fff; }
+.beak textarea { min-height: 120px; resize: vertical; }
+.beak input:focus-visible, .beak textarea:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; background: #f7fafb; }
+.beak .print { min-height: 40px; padding: 8px 12px; border-radius: 12px; background: #dde6ea; color: #34505d; display: flex; flex-wrap: wrap; gap: 2px; }
+.beak[data-bad="true"] input { box-shadow: inset 0 5px 0 rgba(158,58,47,.4), 0 0 0 3px var(--red); }
+.beak .err { color: var(--red); font-weight: 600; min-height: 1.6em; margin: 0; }
+
+/* badges: flipper bands — researchers used to band penguins; now penguins band things */
+.bands { display: flex; flex-wrap: wrap; gap: 12px; }
+.band { display: inline-flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border-radius: 999px; background: #c7ced2; color: var(--ink); font: 500 16px var(--sans); }
+.band .no { font: 500 14px var(--mono); background: var(--ink); color: var(--belly); padding: 4px 10px; border-radius: 999px; letter-spacing: .06em; }
+.band.warm { background: #f0d9b0; }
+.band.sea { background: #bcd5de; }
+.band.molt { background: #e0dcd3; border: 2px dashed #6c665b; }
+.band.bear { background: var(--red); color: #fff6ee; }
+.band.bear .no { background: #2a0f0b; }
+
+/* progress: egg on the feet, under the belly fold */
+.brood { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; }
+@media (max-width: 520px) { .brood { grid-template-columns: 1fr; } }
+.brood svg { width: 150px; height: 150px; }
+.meter { display: grid; gap: 10px; }
+.meter .gauge { height: 30px; border-radius: 15px; background: #d3dde2; overflow: hidden; box-shadow: inset 0 4px 0 rgba(0,0,0,.15); }
+.meter .gauge span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #7fb0c2, var(--acc)); border-radius: 15px; transition: width .6s cubic-bezier(.2,.8,.3,1); }
+.sunring { width: 150px; height: 150px; }
+
+/* tabs: species (each sets the accent) */
+.tabs [role="tablist"] { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid #c9c4b8; }
+.tabs [role="tab"] { min-height: var(--flip); padding: 10px 20px; border: 0; background: transparent; font: 600 18px var(--ko-display); color: var(--ink-dim); cursor: pointer; border-radius: 20px 20px 0 0; display: inline-flex; align-items: center; gap: 10px; margin-bottom: -2px; border-bottom: 6px solid transparent; }
+.tabs [role="tab"] i { width: 16px; height: 16px; border-radius: 50%; background: var(--sw); }
+.tabs [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); background: var(--belly-2); }
+.tabs [role="tabpanel"] { padding: 22px 0 0; display: grid; grid-template-columns: 120px 1fr; gap: 22px; align-items: center; }
+@media (max-width: 520px) { .tabs [role="tabpanel"] { grid-template-columns: 1fr; } }
+.tabs [role="tabpanel"][hidden] { display: none; }
+.tabs [role="tabpanel"] svg { width: 110px; height: 200px; }
+
+/* accordion */
+.acc-list { border-top: 2px solid var(--ink); }
+.acc-item { border-bottom: 1px solid #c9c4b8; }
+.acc-item h3 { margin: 0; }
+.acc-item button { width: 100%; min-height: 72px; display: grid; grid-template-columns: 56px 1fr 44px; gap: 14px; align-items: center; text-align: left; background: transparent; border: 0; padding: 10px 4px; cursor: pointer; color: var(--ink); font: 600 19px/1.35 var(--ko-display); }
+.acc-item button svg.ico { width: 56px; height: 44px; }
+.acc-item .chev { width: 44px; height: 44px; border-radius: 50%; background: var(--belly-2); display: grid; place-items: center; transition: transform .25s; }
+.acc-item button[aria-expanded="true"] .chev { transform: rotate(180deg); background: var(--ink); color: var(--belly); }
+.acc-item .panel { padding: 0 4px 22px 74px; color: var(--ink-dim); }
+@media (max-width: 520px) { .acc-item .panel { padding-left: 4px; } }
+.acc-item .panel p { margin: 0 0 .6em; }
+.acc-item .panel b { color: var(--ink); }
+
+/* table: colony roster */
+.roster-wrap { overflow-x: auto; border-radius: 22px; border: 2px solid var(--ink); background: #fbfaf6; }
+table { width: 100%; border-collapse: collapse; min-width: 640px; }
+th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #d9d4c8; vertical-align: middle; }
+thead th { background: var(--ink); color: var(--belly); padding: 0; font-weight: 600; }
+thead th button { width: 100%; min-height: 60px; background: transparent; border: 0; color: inherit; font: 600 16px var(--sans); text-align: left; padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+thead th button::after { content: ""; width: 12px; height: 12px; border: 2px solid currentColor; border-radius: 50%; opacity: .35; margin-left: auto; }
+thead th[aria-sort="ascending"] button::after { opacity: 1; border-radius: 50% 50% 0 50%; transform: rotate(45deg); background: var(--acc); border-color: var(--acc); }
+thead th[aria-sort="descending"] button::after { opacity: 1; border-radius: 0 50% 50% 50%; transform: rotate(45deg); background: var(--acc); border-color: var(--acc); }
+thead th:not([aria-sort]) span.static { display: block; padding: 10px 14px; }
+td .call { width: 120px; height: 30px; }
+td .call path { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+td .call path + path { stroke: var(--ice-deep); }
+tbody tr:hover { background: #f1eee5; }
+td.n { font-family: var(--mono); }
+
+/* dialog */
+dialog { border: 0; padding: 0; border-radius: 30px 30px 24px 24px; max-width: min(560px, calc(100vw - 32px)); background: var(--belly); color: var(--ink); box-shadow: inset 0 14px 0 #050607, 30px 30px 0 -10px rgba(109,133,163,.35); }
+dialog::backdrop { background: rgba(8, 12, 16, .72); }
+dialog .in { padding: 40px 30px 28px; display: grid; gap: 16px; }
+dialog svg { width: 100%; height: 120px; }
+dialog .acts { display: flex; flex-wrap: wrap; gap: 18px; justify-content: flex-end; padding-bottom: 8px; }
+
+/* toasts */
+.toasts { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: grid; gap: 10px; justify-items: end; max-width: min(380px, calc(100vw - 112px)); pointer-events: none; }
+.toast { pointer-events: auto; background: var(--belly); color: var(--ink); border-radius: 22px 22px 18px 18px; padding: 16px 20px 14px; box-shadow: inset 0 8px 0 #050607, 14px 12px 0 -4px rgba(109,133,163,.45); display: grid; gap: 4px; animation: tin .35s cubic-bezier(.3,1.5,.5,1); font-size: 17px; line-height: 1.45; }
+.toast b { font: 600 18px var(--ko-display); }
+.toast.out { animation: tout .3s forwards; }
+@keyframes tin { from { transform: translateY(18px) scale(.96); opacity: 0; } }
+@keyframes tout { to { transform: translateY(10px); opacity: 0; } }
+
+/* specimen: type and colour */
+.spec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 24px; }
+.glyphs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.glyph { background: #e7ecee; border-radius: 18px; padding: 16px 14px 14px; display: grid; gap: 6px; box-shadow: inset 0 4px 0 rgba(20,24,27,.08); }
+.glyph .mk { --mk: 44px; color: #2d4a57; }
+.glyph b { font: 600 17px var(--ko-display); }
+.glyph span { font-size: 16px; color: var(--ink-dim); line-height: 1.4; }
+.boards { display: grid; gap: 8px; }
+.board { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 14px 18px; min-height: 64px; border-radius: 6px; color: #fff8ef; background: var(--c); background-image: repeating-linear-gradient(180deg, transparent 0 20px, rgba(0,0,0,.16) 20px 22px); }
+.board b { font: 600 18px var(--ko-display); }
+.board span { font: 400 15px var(--mono); }
+.board.light { color: var(--ink); }
+.feathers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
+.feather { border-radius: 60px 60px 20px 20px; overflow: hidden; display: grid; grid-template-rows: 72px auto; border: 2px solid var(--ink); }
+.feather .top { background: var(--c); }
+.feather .bot { background: var(--belly); padding: 10px 14px; font-size: 16px; line-height: 1.4; }
+.feather .bot span { font: 400 14px var(--mono); color: var(--ink-dim); display: block; }
+.type-row { border-top: 1px solid #c9c4b8; padding: 16px 0; display: grid; gap: 4px; }
+.type-row .lbl { font: 400 14px var(--mono); color: var(--ink-dim); letter-spacing: .08em; }
+
+/* product illustrations inside cards */
+.prod { width: 100%; height: 180px; margin-bottom: 8px; background: #e6eaec; border-radius: 18px; }
+
+/* night (closing) */
+.night { position: relative; background: #070b10; color: var(--text); padding: 120px 0 0; overflow: hidden; }
+.night > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.night .wrap { position: relative; z-index: 2; }
+.night h2 { color: #eef3ee; }
+.night .lede { color: #c5d2cc; }
+footer { position: relative; z-index: 2; border-top: 1px solid var(--line); margin-top: 200px; padding: 28px 0 40px; background: #0b1016; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: center; padding-left: 96px; }
+@media (max-width: 640px) { footer .wrap { padding-left: 24px; padding-bottom: 72px; } }
+footer a { min-height: 48px; display: inline-flex; align-items: center; }
+
+.sound-btn { min-height: 48px; min-width: 48px; padding: 8px 16px; border-radius: 24px; border: 2px solid rgba(243,240,233,.6); background: rgba(17,21,24,.45); color: var(--belly); font: 500 16px var(--sans); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.sound-btn[aria-pressed="true"] { background: var(--belly); color: var(--ink); }
+
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+@media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+.stack { display: grid; gap: 22px; align-content: start; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<!-- shared drawings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- emperor-type, side profile, facing right. 100×200 -->
+    <symbol id="pg-side" viewBox="0 0 100 200">
+      <path style="fill:var(--pg-back,#0d1114)" d="M50 6C62 5 70 12 72 22L95 31C86 33 79 34 72 36 68 42 66 48 68 58 76 78 80 112 76 148 73 172 66 188 58 193L73 197 54 198 40 196 21 197 34 186C28 160 28 110 32 74 34 56 34 40 36 26 38 14 43 7 50 6Z"/>
+      <path style="fill:var(--pg-belly,#e9ecef)" d="M71 37C66 45 65 54 67 62 74 82 77 114 73 148 70 170 63 184 56 190 51 170 51 120 54 90 56 66 60 48 71 37Z"/>
+      <path style="fill:var(--acc)" d="M57 25C62 29 67 35 69 44 64 46 59 41 55 34Z" />
+      <path style="fill:var(--acc);opacity:.45" d="M70 38C66 45 65 52 66 58 69 54 70 46 70 38Z"/>
+      <path style="fill:var(--pg-back,#0d1114)" d="M41 62C48 80 53 108 52 134 47 128 41 104 38 80Z"/>
+      <path style="fill:var(--pg-rim,#f4cf9c);opacity:.55" d="M36 26C38 14 43 7 50 6 45 9 41 15 39 26 37 40 37 58 34 74 32 100 31 140 34 186L32 187C28 160 28 110 32 74 34 56 34 40 36 26Z"/>
+      <path fill="#2a2a2a" d="M72 22L95 31 86 32 72 30Z" opacity=".6"/>
+    </symbol>
+    <!-- front view, 100×200 -->
+    <symbol id="pg-front" viewBox="0 0 100 200">
+      <path style="fill:var(--pg-back,#0d1114)" d="M50 8C60 8 66 16 66 26 66 30 65 33 63 36 74 46 80 72 80 112 80 158 72 186 58 192L64 197 50 196 36 197 42 192C28 186 20 158 20 112 20 72 26 46 37 36 35 33 34 30 34 26 34 16 40 8 50 8Z"/>
+      <path style="fill:var(--pg-belly,#e9ecef)" d="M50 40C62 44 70 74 70 112 70 158 62 182 50 186 38 182 30 158 30 112 30 74 38 44 50 40Z"/>
+      <path style="fill:var(--acc)" d="M37 34C40 40 44 44 50 46 56 44 60 40 63 34 60 42 56 48 50 50 44 48 40 42 37 34Z" opacity=".9"/>
+      <path style="fill:var(--pg-back,#0d1114)" d="M24 64C18 86 16 116 20 140 23 130 26 100 30 70Z M76 64C82 86 84 116 80 140 77 130 74 100 70 70Z"/>
+      <path fill="#3a3a3a" d="M47 28L50 38 53 28Z"/>
+    </symbol>
+    <!-- one footprint (three toes), pointing up, 20×24 -->
+    <symbol id="foot" viewBox="0 0 20 24">
+      <path d="M10 22C8 22 7 19 8 15L3 4C2.4 2.6 4 1.8 5 3L9 10 10 1C10 0 11 0 11 1L11.4 10 15 3C16 1.8 17.6 2.6 17 4L12 15C13 19 12 22 10 22Z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- edge rails -->
+<div class="rail l" aria-hidden="true"><svg id="railL" preserveAspectRatio="none"></svg></div>
+<div class="rail r" aria-hidden="true"><svg id="railR" preserveAspectRatio="none"></svg></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Rookery 처음으로">
+      <svg viewBox="0 0 100 200" aria-hidden="true"><use href="#pg-side" style="--pg-rim:transparent"/></svg>
+      Rookery
+    </a>
+    <nav aria-label="목차">
+      <a href="#body">몸의 규칙</a>
+      <a href="#marks">표기와 색</a>
+      <a href="#goods">물건 목록</a>
+      <a href="#roster">번식지 명부</a>
+    </nav>
+    <button class="sound-btn sound" type="button" id="soundBtn" aria-pressed="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z" fill="currentColor"/><path d="M16 8c1.5 1.2 2 2.5 2 4s-.5 2.8-2 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>바람 소리 꺼짐</span>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top" aria-labelledby="h1">
+  <svg class="scene" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMax slice" role="img" aria-label="자정의 해가 수평선에 걸린 그린란드 해안. 눈에 반쯤 묻힌 빨강, 황토, 파랑, 초록 나무집들과 무선 송신탑, 얼음에 갇힌 화물선, 그리고 해를 등지고 서 있는 펭귄 무리.">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#18222d"/>
+        <stop offset=".38" stop-color="#3b4a5e"/>
+        <stop offset=".66" stop-color="#8f8193"/>
+        <stop offset=".84" stop-color="#d9a48c"/>
+        <stop offset="1" stop-color="#f4d3a8"/>
+      </linearGradient>
+      <radialGradient id="halo" cx=".5" cy=".5" r=".5">
+        <stop offset="0" stop-color="#fff2d8" stop-opacity=".95"/>
+        <stop offset=".2" stop-color="#fbe0b5" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#f4c79a" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#d9d6dc"/>
+        <stop offset=".35" stop-color="#c8ced9"/>
+        <stop offset="1" stop-color="#9eabbe"/>
+      </linearGradient>
+      <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#4b5465"/>
+        <stop offset="1" stop-color="#262f3b"/>
+      </linearGradient>
+    </defs>
+    <rect width="1600" height="600" fill="url(#sky)"/>
+    <!-- thin high cloud -->
+    <g fill="#f3c6a8" opacity=".22">
+      <ellipse cx="420" cy="360" rx="380" ry="5"/><ellipse cx="1180" cy="330" rx="300" ry="4"/><ellipse cx="900" cy="410" rx="520" ry="6"/>
+    </g>
+    <circle cx="880" cy="540" r="280" fill="url(#halo)"/>
+    <circle cx="880" cy="546" r="24" fill="#fff4dc"/>
+    <!-- far fjord mountains -->
+    <path fill="#7f8299" d="M0 520L60 470 110 492 180 430 240 470 300 452 360 486 420 470 470 500 540 488 600 512 660 500 720 530 1040 530 1090 500 1150 470 1200 486 1260 440 1320 462 1380 420 1450 466 1510 450 1600 480V570H0Z"/>
+    <path fill="#a7a3b4" d="M180 430L200 452 186 458 214 470 240 470ZM1260 440L1282 462 1268 470 1300 474 1320 462ZM1380 420L1404 448 1392 452 1424 462 1450 466Z" opacity=".9"/>
+    <path fill="#e9c6b0" opacity=".6" d="M180 430L176 436 196 450ZM1380 420L1374 430 1398 446Z"/>
+    <path fill="#666a83" d="M0 548L120 520 240 534 380 516 520 540 680 548 1080 550 1200 528 1340 536 1480 520 1600 534V580H0Z"/>
+    <!-- sea + glitter road -->
+    <rect y="556" width="1600" height="90" fill="url(#sea)"/>
+    <g stroke="#f7d6a8" stroke-linecap="round" opacity=".7">
+      <path d="M866 562h28M858 570h44M870 578h20M852 588h56M874 598h12M846 610h70M862 624h36" stroke-width="2"/>
+    </g>
+    <!-- icebergs -->
+    <path fill="#e8e3e6" d="M1040 566L1052 532 1110 528 1124 520 1200 524 1216 560Z"/>
+    <path fill="#f6d9c4" d="M1052 532L1110 528 1124 520 1124 562 1046 566Z" opacity=".5"/>
+    <path fill="#9fb0c6" d="M1200 524L1216 560 1170 562Z" opacity=".8"/>
+    <path fill="#dcdde3" d="M380 572L396 552 444 550 458 574Z"/>
+    <!-- pack ice -->
+    <g fill="#d8dbe2" opacity=".85">
+      <path d="M0 620C80 604 170 610 260 612 330 614 420 600 500 610L520 640H0Z"/>
+      <path d="M1180 616C1260 600 1380 606 1460 608 1520 610 1570 600 1600 604V640H1170Z"/>
+    </g>
+    <!-- ice-locked container ship -->
+    <g transform="translate(1210 560) rotate(-2.5)">
+      <path fill="#4e2a20" d="M0 40L330 40 350 14 352 64 10 66Z"/>
+      <path fill="#7b3d24" d="M10 52h330v6H10z" opacity=".7"/>
+      <path fill="#86452a" d="M40 40v26M120 40v26M200 40v24M280 40v24" stroke="#86452a" stroke-width="5" opacity=".55"/>
+      <g>
+        <rect x="40" y="18" width="46" height="22" fill="#7c3a33"/><rect x="88" y="18" width="46" height="22" fill="#3d5874"/>
+        <rect x="136" y="18" width="46" height="22" fill="#9a7a42"/><rect x="88" y="-2" width="46" height="20" fill="#56705b"/>
+        <rect x="184" y="18" width="46" height="22" fill="#6c3a3a"/><rect x="40" y="-2" width="46" height="20" fill="#9a7a42"/>
+        <rect x="136" y="-2" width="46" height="20" fill="#3d5874" opacity=".9"/>
+      </g>
+      <path fill="#e9eaee" d="M38 -4h50v4H38zM86 -4h50v4H86zM134 -4h50v4h-50zM182 16h50v4h-50z" opacity=".9"/>
+      <rect x="260" y="-30" width="54" height="70" fill="#b9b3ae"/>
+      <rect x="266" y="-40" width="40" height="12" fill="#a39d98"/>
+      <g fill="#1e2125"><rect x="266" y="-20" width="42" height="6"/><rect x="266" y="-6" width="42" height="5"/></g>
+      <rect x="282" y="-66" width="6" height="28" fill="#6b3226"/>
+    </g>
+    <!-- shore + hill with the mast -->
+    <path fill="#cbd0db" d="M0 612C110 560 230 518 330 520 420 524 500 572 600 620L0 700Z"/>
+    <path fill="#e7d2c6" opacity=".55" d="M330 520C230 518 110 560 0 612V620C110 572 230 530 330 526Z"/>
+    <g transform="translate(1190 40)"><g stroke="#2a2f38" stroke-width="2.4" fill="none">
+      <path d="M300 522L312 250 324 522M304 440L320 440M306 380L318 380M308 320L316 320M302 480l20-40M304 440l14-60M306 380l10-60"/>
+      <path d="M312 250L200 560M312 250L430 560M312 330L240 556M312 330L380 556" stroke-width="1" opacity=".55"/>
+    </g>
+    <g fill="#8e3a30" opacity=".85"><rect x="308" y="270" width="8" height="18"/><rect x="306" y="320" width="12" height="16"/></g>
+    <circle cx="312" cy="248" r="3" fill="#c04030"/></g>
+    <!-- satellite dish, half full of snow -->
+    <g transform="translate(455 566) rotate(-24)">
+      <path d="M-40 0A40 16 0 0 0 40 0Z" fill="#9aa0ac"/>
+      <path d="M-40 0A40 16 0 0 1 40 0" fill="#e7e9ee"/>
+      <path d="M0 -1L6 -34" stroke="#3a3f47" stroke-width="2.5"/>
+    </g>
+    <path fill="#cbd0db" d="M436 580L476 572 486 592 430 596Z"/>
+    <!-- town land -->
+    <path fill="#d7d9e1" d="M0 690C160 650 340 640 520 640 700 640 820 628 980 640 1160 652 1320 626 1600 640V1000H0Z"/>
+    <!-- houses: built by JS-free markup, backlit (front faces in shade, roofs rim-lit) -->
+    <g id="town">
+      <g transform="translate(470 660)">
+        <rect x="0" y="-70" width="112" height="70" fill="#7e322b"/>
+        <path d="M-8 -68L56 -114 120 -68Z" fill="#26282c"/><path d="M-10 -66L56 -116 122 -66 112 -66 56 -106 0 -66Z" fill="#eef0f3"/>
+        <path d="M-10 -66L56 -116" stroke="#f6d7ae" stroke-width="2.5"/>
+        <g fill="#efe9df"><rect x="14" y="-52" width="22" height="24"/><rect x="76" y="-52" width="22" height="24"/></g>
+        <g fill="#2a2e35"><rect x="17" y="-49" width="7" height="8"/><rect x="26" y="-49" width="7" height="8"/><rect x="79" y="-49" width="7" height="8"/><rect x="88" y="-49" width="7" height="8"/></g>
+      </g>
+      <g transform="translate(608 652) rotate(-3)">
+        <rect x="0" y="-62" width="92" height="62" fill="#a07a34"/>
+        <path d="M-8 -60L46 -98 100 -60Z" fill="#2a2a2c"/><path d="M-9 -58L46 -100 101 -58 92 -58 46 -91 0 -58Z" fill="#eef0f3"/>
+        <path d="M-9 -58L46 -100" stroke="#f6d7ae" stroke-width="2.5"/>
+        <rect x="30" y="-46" width="30" height="26" fill="#efe9df"/><rect x="34" y="-42" width="22" height="18" fill="#2a2e35"/>
+      </g>
+      <g transform="translate(724 632)">
+        <rect x="0" y="-48" width="70" height="48" fill="#24272c"/>
+        <path d="M-6 -46L35 -76 76 -46Z" fill="#191b1f"/><path d="M-7 -44L35 -78 77 -44 70 -44 35 -70 0 -44Z" fill="#eef0f3"/>
+        <rect x="24" y="-34" width="20" height="18" fill="#d9d3c8"/>
+      </g>
+      <g transform="translate(846 630)">
+        <rect x="0" y="-42" width="60" height="42" fill="#3e5a48"/>
+        <path d="M-6 -40L30 -66 66 -40Z" fill="#232527"/><path d="M-7 -38L30 -68 67 -38 60 -38 30 -61 0 -38Z" fill="#eef0f3"/>
+        <rect x="20" y="-30" width="18" height="16" fill="#e5ded2"/>
+      </g>
+      <g transform="translate(1000 672)">
+        <rect x="0" y="-76" width="124" height="76" fill="#2b4b6a"/>
+        <path d="M-8 -74L62 -120 132 -74Z" fill="#25272b"/><path d="M-9 -72L62 -122 133 -72 124 -72 62 -113 0 -72Z" fill="#eef0f3"/>
+        <path d="M62 -122L133 -72" stroke="#f6d7ae" stroke-width="2.5"/>
+        <g fill="#efe9df"><rect x="14" y="-58" width="24" height="26"/><rect x="50" y="-58" width="24" height="26"/><rect x="86" y="-58" width="24" height="26"/></g>
+        <g fill="#2a2e35"><rect x="17" y="-55" width="18" height="9"/><rect x="53" y="-55" width="18" height="9"/><rect x="89" y="-55" width="18" height="9"/></g>
+      </g>
+      <g transform="translate(1160 688) rotate(2)">
+        <rect x="0" y="-64" width="98" height="64" fill="#7a332c"/>
+        <path d="M-8 -62L49 -98 106 -62Z" fill="#26282c"/><path d="M-9 -60L49 -100 107 -60 98 -60 49 -91 0 -60Z" fill="#eef0f3"/>
+        <rect x="36" y="-48" width="26" height="24" fill="#efe9df"/><rect x="40" y="-44" width="18" height="16" fill="#2a2e35"/>
+      </g>
+      <g transform="translate(1310 676)">
+        <rect x="0" y="-54" width="84" height="54" fill="#40634c"/>
+        <path d="M-6 -52L42 -84 90 -52Z" fill="#232527"/><path d="M-7 -50L42 -86 91 -50 84 -50 42 -78 0 -50Z" fill="#eef0f3"/>
+      </g>
+    </g>
+    <!-- drifts burying the houses -->
+    <g fill="#dfe0e7">
+      <path d="M420 676C470 640 520 628 560 640 600 626 650 616 700 630 760 610 800 618 860 616 920 612 960 640 990 640 1040 626 1090 640 1150 644 1200 650 1260 646 1320 640 1380 648 1420 660 1440 670L1440 700H400Z"/>
+    </g>
+    <path d="M440 668C500 646 560 640 600 642" stroke="#f6dcc0" stroke-width="2" fill="none" opacity=".7"/>
+    <!-- foreground field -->
+    <path fill="url(#field)" d="M0 700C240 676 520 680 800 684 1080 688 1340 672 1600 680V1000H0Z"/>
+    <g stroke="#eef0f4" stroke-width="2" fill="none" opacity=".55" stroke-linecap="round">
+      <path d="M80 760c80-8 160-6 240 0M1220 750c90-6 170-4 260 4M120 900c100-10 200-8 300 2M1180 930c110-12 220-10 330 0M300 820c60-4 120-2 180 4M1300 840c70-6 140-4 200 2"/>
+    </g>
+    <!-- a sled runner sticking out of the snow; a tyre -->
+    <g transform="translate(210 860) rotate(-14)">
+      <path d="M0 0C40 -6 120 -8 170 -4 186 -3 194 -14 190 -28" stroke="#3b3027" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M30 -2v-28M90 -4v-30M150 -4v-28" stroke="#5a4636" stroke-width="5"/>
+    </g>
+    <g transform="translate(1390 880)">
+      <ellipse cx="0" cy="0" rx="58" ry="20" fill="#1c1f23"/><ellipse cx="0" cy="-4" rx="34" ry="10" fill="#c6cdd8"/>
+      <ellipse cx="0" cy="-12" rx="12" ry="15" fill="#efe8db"/>
+    </g>
+    <path fill="#6d85a3" opacity=".35" d="M1340 892L1500 990 1560 990 1440 884Z"/>
+    <g id="colony"></g>
+  </svg>
+
+  <div class="wrap title">
+    <h1 id="h1">Rook<i>ery</i></h1>
+    <p class="sub">사람이 떠난 뒤, 북쪽으로 온 펭귄들의 물건</p>
+    <div class="marks" style="color:#f3ede2"><span class="mk" data-mark="0 0 6 8 5" style="--mk:30px" aria-hidden="true"></span></div>
+    <div class="meta"><span>물건 목록 제1권</span><span>북위 69°</span><span>해가 지지 않는 달</span></div>
+  </div>
+  <p class="cap"><b>표지 사진 · 0시 12분</b>붉은 지붕 항구. 해는 북쪽 수평선을 긁고 다시 오른다. 무리는 해를 등지고, 그림자는 우리 쪽으로 길다.</p>
+</section>
+
+<div class="shelf" aria-hidden="true"><svg viewBox="0 0 1600 74" preserveAspectRatio="none"><path fill="#111518" d="M0 44L60 30 92 46 160 22 214 38 260 18 330 40 372 28 430 44 500 16 548 34 610 26 660 46 740 20 800 36 860 24 912 44 990 18 1040 40 1100 28 1170 46 1230 22 1290 38 1350 20 1400 42 1470 26 1530 40 1600 24V74H0Z"/><path fill="none" stroke="#3d7186" stroke-width="2" opacity=".7" d="M0 52L60 38 92 54 160 30 214 46 260 26 330 48 372 36 430 52 500 24 548 42 610 34 660 54 740 28 800 44 860 32 912 52 990 26 1040 48 1100 36 1170 54 1230 30 1290 46 1350 28 1400 50 1470 34 1530 48 1600 32"/><path fill="none" stroke="#7fb0c2" stroke-width="1" opacity=".4" d="M0 60L60 48 92 62 160 40 214 54 260 36 330 56 372 46 430 60 500 34 548 50 610 44 660 62 740 38 800 52 860 42 912 60 990 36 1040 56 1100 46 1170 62 1230 40 1290 54 1350 38 1400 58 1470 44 1530 56 1600 42"/></svg></div>
+
+<!-- ───────── concept + body rules ───────── -->
+<section class="back" id="body" aria-labelledby="h-body">
+  <div class="wrap">
+    <div class="head">
+      <div class="tagline"><span class="mk" data-mark="2 5 2" aria-hidden="true"></span>들어가며</div>
+      <h2 id="h-body"><span class="en">After us, the long swim north</span>그들은 이 물건들이 무엇이었는지 모른다</h2>
+      <p class="lede">펭귄은 북극에 산 적이 없다. 우리가 사라지고 몇 세대에 걸쳐, 그들은 적도의 무풍대를 건너 북쪽으로 헤엄쳐 왔다. 도착한 해안에는 빛바랜 나무집과 얼음에 갇힌 배, 녹슨 송신탑이 남아 있었다. 그들은 손잡이를 돌릴 손가락이 없다. 그래서 누르고, 밀고, 배로 미끄러진다. 이 책은 그 물건들의 목록이다.</p>
+    </div>
+
+    <div class="rules">
+      <article class="rule">
+        <span class="n">규칙 01 · 지느러미</span>
+        <svg viewBox="0 0 300 96" aria-hidden="true"><path d="M70 10C90 30 110 60 120 90L100 90C88 64 74 36 62 16Z" fill="#e9ecef"/><rect x="150" y="26" width="64" height="64" rx="18" fill="none" stroke="#eba73a" stroke-width="3" stroke-dasharray="6 6"/><text x="182" y="64" text-anchor="middle" font-family="DM Mono" font-size="14" fill="#eba73a">64</text><path d="M240 40l30 30M270 40l-30 30" stroke="#6b757e" stroke-width="3"/></svg>
+        <h3>손가락이 없다</h3>
+        <p>집거나, 돌리거나, 두 번 누르는 조작은 없다. 모든 것은 지느러미 한 번으로 누르고 민다. 작은 단추는 부리로만 누를 수 있으니, 부리를 쓰게 하지 않는다.</p>
+        <p class="spec">최소 접점 64 × 64 · 권장 84</p>
+      </article>
+      <article class="rule">
+        <span class="n">규칙 02 · 짧은 다리</span>
+        <svg viewBox="0 0 300 96" aria-hidden="true"><path d="M0 84H300" stroke="#6b757e" stroke-width="2"/><rect x="40" y="44" width="80" height="40" rx="14" fill="#e9ecef"/><path d="M60 86L170 96H120Z" fill="#6d85a3" opacity=".5"/><rect x="170" y="8" width="80" height="26" rx="10" fill="none" stroke="#6b757e" stroke-width="2" stroke-dasharray="5 5"/><path d="M210 40v30" stroke="#9e3a2f" stroke-width="3"/><path d="M198 58l12 14 12-14" fill="none" stroke="#9e3a2f" stroke-width="3"/></svg>
+        <h3>모든 것은 땅 가까이</h3>
+        <p>위에서 내려오는 메뉴는 없다. 물건은 바닥선 위에 서고, 쌓일 때도 아래에서 위로 쌓인다. 알림도 위가 아니라 발치에서 올라온다.</p>
+        <p class="spec">눈높이 = 화면 아래 ⅓</p>
+      </article>
+      <article class="rule">
+        <span class="n">규칙 03 · 앞뒤 색</span>
+        <svg viewBox="0 0 300 96" aria-hidden="true"><rect x="40" y="10" width="220" height="76" rx="30" fill="#e9ecef"/><path d="M40 40C40 22 54 10 70 10H230C246 10 260 22 260 40V30H40Z" fill="#050607"/><rect x="40" y="10" width="220" height="14" rx="7" fill="#050607"/></svg>
+        <h3>등은 어둡고, 배는 희다</h3>
+        <p>어두운 면은 구조와 바탕이다. 만지는 면은 언제나 흰 배를 내민다. 누름판은 위쪽에 검은 테를 두르고 흰 얼굴로 선다.</p>
+        <p class="spec">등 #111518 · 배 #F3F0E9 · 대비 16.8 : 1</p>
+      </article>
+      <article class="rule">
+        <span class="n">규칙 04 · 방향으로 읽기</span>
+        <svg viewBox="0 0 300 96" aria-hidden="true"><g fill="#e9ecef"><use href="#foot" x="40" y="30" width="30" height="36"/><use href="#foot" x="110" y="30" width="30" height="36" transform="rotate(90 125 48)"/><use href="#foot" x="180" y="30" width="30" height="36" transform="rotate(180 195 48)"/></g><g fill="#eba73a"><circle cx="246" cy="34" r="6"/><circle cx="246" cy="52" r="6"/><circle cx="262" cy="52" r="6"/></g></svg>
+        <h3>글자보다 기울기와 점</h3>
+        <p>그들은 글자를 읽지 않는다. 발자국이 향한 쪽과 조약돌의 개수로 뜻을 만든다. 이 책은 사람을 위해 한국어를 함께 적는다.</p>
+        <p class="spec">표기 12자 · 방향 4 · 점 1–3</p>
+      </article>
+      <article class="rule">
+        <span class="n">규칙 05 · 허들</span>
+        <svg viewBox="0 0 300 96" aria-hidden="true"><g fill="#252c32" stroke="#6b757e" stroke-width="1.5"><circle cx="150" cy="48" r="11"/><circle cx="128" cy="40" r="11"/><circle cx="172" cy="40" r="11"/><circle cx="128" cy="62" r="11"/><circle cx="172" cy="62" r="11"/><circle cx="150" cy="26" r="11"/><circle cx="150" cy="70" r="11"/><circle cx="106" cy="50" r="11"/><circle cx="194" cy="50" r="11"/></g><circle cx="150" cy="48" r="11" fill="#eba73a"/><path d="M40 30h40M30 48h44M40 66h40" stroke="#7fb0c2" stroke-width="2" stroke-linecap="round"/><path d="M218 30a40 40 0 0 1 0 40" fill="none" stroke="#e9ecef" stroke-width="2" stroke-dasharray="4 5"/></svg>
+        <h3>따뜻함은 돌아간다</h3>
+        <p>바람을 맞는 자리는 아무도 오래 지키지 않는다. 목록, 순서, 당번은 언제나 천천히 돌아간다. 한가운데는 37°까지 오른다.</p>
+        <p class="spec">회전 주기 · 바깥 → 안쪽 약 50초</p>
+      </article>
+      <article class="rule">
+        <span class="n">규칙 06 · 목소리와 해</span>
+        <svg viewBox="0 0 300 96" aria-hidden="true"><path d="M20 48c8-24 14 24 22 0s14 24 22 0 12-18 20 0 12 18 20 0" fill="none" stroke="#e9ecef" stroke-width="2.4"/><path d="M20 52c8-14 14 14 22 0s14 14 22 0 12-10 20 0 12 10 20 0" fill="none" stroke="#7fb0c2" stroke-width="1.6"/><path d="M160 80H290" stroke="#6b757e" stroke-width="2"/><circle cx="270" cy="78" r="10" fill="#f4cf9c"/><rect x="190" y="50" width="16" height="30" rx="6" fill="#e9ecef"/><path d="M190 80L160 96H200Z" fill="#6d85a3" opacity=".6"/></svg>
+        <h3>이름엔 울음, 물건엔 긴 그림자</h3>
+        <p>짝은 얼굴이 아니라 두 음의 울음으로 서로를 찾는다. 그래서 명부의 이름 옆엔 늘 울음 무늬가 붙는다. 해는 지지 않고 낮게 돌아, 모든 물건은 길고 낮은 그림자를 끈다.</p>
+        <p class="spec">그림자 기울기 −38° · 길이 = 높이 × 1.3</p>
+      </article>
+    </div>
+
+    <!-- migration route (steps) -->
+    <div class="route" aria-labelledby="h-route">
+      <h3 id="h-route" style="font-size:26px">긴 헤엄 · 남쪽에서 여기까지</h3>
+      <div class="map">
+        <svg viewBox="0 0 1000 300" role="img" aria-label="남극에서 대서양을 따라 그린란드까지 이어지는 이주 경로 지도">
+          <g fill="#1d262c">
+            <path d="M120 20C170 10 210 30 220 70 230 110 200 150 180 190 160 230 150 270 160 300H60C60 260 70 220 80 180 90 140 80 100 90 60 96 40 104 26 120 20Z"/>
+            <path d="M700 0C760 10 820 40 860 80 900 120 900 170 870 210 840 250 790 280 760 300H660C690 270 720 230 720 190 720 150 690 110 680 70 676 40 680 14 700 0Z"/>
+            <path d="M880 40C920 30 960 40 980 60 1000 80 990 110 970 120 940 130 910 120 890 100 870 80 866 52 880 40Z" fill="#e7ecef" opacity=".85"/>
+          </g>
+          <rect x="0" y="282" width="1000" height="18" fill="#e7ecef" opacity=".85"/>
+          <path id="swim" d="M180 290C300 250 380 240 450 200 520 160 560 120 640 100 720 80 800 70 900 76" fill="none" stroke="#3d7186" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round"/>
+          <path id="swimDone" d="M180 290C300 250 380 240 450 200 520 160 560 120 640 100 720 80 800 70 900 76" fill="none" stroke="#eba73a" stroke-width="4" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/>
+          <g id="stepDots"></g>
+          <text x="20" y="276" font-family="DM Mono" font-size="14" fill="#b3bcc0">남극 반도</text>
+          <text x="910" y="34" font-family="DM Mono" font-size="14" fill="#b3bcc0" text-anchor="end">그린란드</text>
+        </svg>
+      </div>
+      <ol class="steps" id="steps">
+        <li><b>떠남</b><small>얼음이 너무 일찍 녹은 해. 마지막 조사선은 오지 않았다.</small></li>
+        <li><b>무풍대</b><small>적도. 물은 뜨겁고 물고기는 깊다. 많이 잃었다.</small></li>
+        <li><b>북대서양</b><small>차가운 물이 돌아왔다. 처음 보는 대구 떼.</small></li>
+        <li><b>표류빙</b><small>떠다니는 얼음 위에서 털갈이를 했다.</small></li>
+        <li><b>붉은 지붕 항구</b><small>빈 집, 접시 안테나, 지지 않는 해. 여기 머물기로 했다.</small></li>
+      </ol>
+      <div class="ctl">
+        <button class="plate dark" type="button" id="stepPrev"><span class="mk" data-mark="1" aria-hidden="true"></span>한 구간 뒤로</button>
+        <button class="plate" type="button" id="stepNext"><span class="mk" data-mark="0" aria-hidden="true"></span>다음 구간으로 헤엄</button>
+        <span class="num dim" id="stepOut" aria-live="polite"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="shelf down" aria-hidden="true" style="background:#111518"><svg viewBox="0 0 1600 74" preserveAspectRatio="none"><path fill="#f3f0e9" d="M0 30L70 44 120 26 190 48 250 30 320 52 380 34 440 50 520 28 580 46 640 36 700 54 780 30 840 46 900 32 980 52 1040 28 1110 44 1170 34 1240 52 1300 30 1360 48 1430 32 1500 50 1560 34 1600 44V74H0Z"/><path fill="none" stroke="#c6dde4" stroke-width="3" d="M0 30L70 44 120 26 190 48 250 30 320 52 380 34 440 50 520 28 580 46 640 36 700 54 780 30 840 46 900 32 980 52 1040 28 1110 44 1170 34 1240 52 1300 30 1360 48 1430 32 1500 50 1560 34 1600 44"/></svg></div>
+
+<!-- ───────── marks, colour, type ───────── -->
+<section class="belly" id="marks" aria-labelledby="h-marks">
+  <div class="wrap">
+    <div class="head">
+      <div class="tagline"><span class="mk" data-mark="10 0 9" aria-hidden="true"></span>표기 · 색 · 글자</div>
+      <h2 id="h-marks"><span class="en">Beak marks in packed snow</span>부리로 눌러 쓰는 열두 자</h2>
+      <p class="lede">발자국 하나가 어느 쪽을 향하는지, 조약돌이 몇 개 놓였는지, 꺾쇠가 위인지 아래인지. 눈에 부리를 눌러 만든 자국이라, 글자는 늘 오목하고 한쪽에 빛이 맺힌다. 아래 열두 자가 전부다.</p>
+    </div>
+    <div class="glyphs" id="glyphs"></div>
+
+    <div class="spec-grid" style="margin-top:64px">
+      <div class="stack">
+        <h3>남겨진 페인트 · 사람의 색</h3>
+        <p class="dim" style="margin:0">마을의 나무집은 칠이 바래 있다. 펭귄들은 이 색을 장소의 이름으로 쓴다. "빨간 집 앞"은 만나는 곳, "파란 집 그늘"은 알을 품는 곳.</p>
+        <div class="boards">
+          <div class="board" style="--c:#9e3a2f"><b>빨간 집 · 만나는 곳</b><span>#9E3A2F</span></div>
+          <div class="board light" style="--c:#c99a45"><b>황토 집 · 물고기 나누는 곳</b><span>#C99A45</span></div>
+          <div class="board" style="--c:#2f5b80"><b>파란 집 · 알 품는 그늘</b><span>#2F5B80</span></div>
+          <div class="board" style="--c:#466b52"><b>초록 집 · 털갈이 하는 곳</b><span>#466B52</span></div>
+          <div class="board" style="--c:#8a4528"><b>녹슨 배 · 곰을 보면 피하는 곳</b><span>#8A4528</span></div>
+        </div>
+      </div>
+      <div class="stack">
+        <h3>깃털의 색 · 몸의 색</h3>
+        <p class="dim" style="margin:0">강조색은 하나뿐이다. 누구의 목에서 왔느냐에 따라 바뀐다. 아래 물건 목록의 종 탭을 바꾸면 이 책 전체의 강조색이 그 종의 것으로 바뀐다.</p>
+        <div class="feathers">
+          <div class="feather" style="--c:#111518"><div class="top"></div><div class="bot">등 · 구조<span>#111518</span></div></div>
+          <div class="feather" style="--c:#f3f0e9"><div class="top" style="border-bottom:2px solid #14181b"></div><div class="bot">배 · 만지는 면<span>#F3F0E9</span></div></div>
+          <div class="feather" style="--c:#7fb0c2"><div class="top"></div><div class="bot">빙하 · 상태<span>#7FB0C2</span></div></div>
+          <div class="feather" style="--c:var(--acc)"><div class="top"></div><div class="bot">목 · 강조 하나<span id="accHex">#EBA73A</span></div></div>
+        </div>
+      </div>
+      <div class="stack">
+        <h3>글자 · 사람이 남긴 활자</h3>
+        <div class="type-row"><span class="lbl">제목 · Hahmlet 600</span><span style="font:600 32px/1.2 var(--ko-display)">얼음 두께 41cm</span></div>
+        <div class="type-row"><span class="lbl">표지 · Instrument Serif</span><span style="font:400 44px/1 var(--serif)">Rook<i>ery</i> No. 1</span></div>
+        <div class="type-row"><span class="lbl">본문 · IBM Plex Sans KR 17/1.75</span><span>바람이 바뀌면 바깥 자리부터 안으로 들어간다.</span></div>
+        <div class="type-row"><span class="lbl">목록 번호 · DM Mono</span><span class="mono" style="font-size:18px">RK-011 · 69°13′N · 00:12</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="shelf down" aria-hidden="true" style="background:#f3f0e9"><svg viewBox="0 0 1600 74" preserveAspectRatio="none"><path fill="#111518" d="M0 40L50 26 110 44 170 22 230 40 300 18 350 36 420 26 470 46 540 20 610 38 660 24 730 44 790 22 850 40 920 26 980 46 1040 20 1110 40 1160 26 1230 44 1290 20 1350 38 1420 24 1480 44 1550 26 1600 36V74H0Z"/><path fill="none" stroke="#3d7186" stroke-width="2" opacity=".8" d="M0 48L50 34 110 52 170 30 230 48 300 26 350 44 420 34 470 54 540 28 610 46 660 32 730 52 790 30 850 48 920 34 980 54 1040 28 1110 48 1160 34 1230 52 1290 28 1350 46 1420 32 1480 52 1550 34 1600 44"/></svg></div>
+
+<!-- ───────── the goods catalogue ───────── -->
+<section class="back" id="goods" aria-labelledby="h-goods">
+  <div class="wrap">
+    <div class="head">
+      <div class="tagline"><span class="mk" data-mark="3 4 5" aria-hidden="true"></span>물건 목록</div>
+      <h2 id="h-goods"><span class="en">Catalogue of repurposed goods</span>고쳐 쓴 물건들</h2>
+      <p class="lede">모든 물건에는 원래 사람이 쓰던 이름과, 지금 펭귄이 쓰는 이름이 함께 적혀 있다. 번호표는 사람의 조사선에서 떼어 온 끈으로 묶었다.</p>
+    </div>
+
+    <div class="cat">
+      <!-- species tabs -->
+      <article class="ex wide tabs" aria-labelledby="t-species">
+        <span class="tag">RK-001</span>
+        <header><h3 id="t-species">목의 색 · 종 고르기 (탭)</h3><p class="was"><span>원래 <b>조사선의 종 분류표</b></span><span>지금 <b>강조색 고르기</b></span></p></header>
+        <div role="tablist" aria-label="종" id="speciesTabs">
+          <button role="tab" id="tab-em" aria-controls="p-em" aria-selected="true" style="--sw:#eba73a"><i></i>황제</button>
+          <button role="tab" id="tab-ki" aria-controls="p-ki" aria-selected="false" tabindex="-1" style="--sw:#f2862b"><i></i>임금</button>
+          <button role="tab" id="tab-ge" aria-controls="p-ge" aria-selected="false" tabindex="-1" style="--sw:#f26b2b"><i></i>젠투</button>
+          <button role="tab" id="tab-ro" aria-controls="p-ro" aria-selected="false" tabindex="-1" style="--sw:#e6cf36"><i></i>바위뛰기</button>
+        </div>
+        <div role="tabpanel" id="p-em" aria-labelledby="tab-em" tabindex="0"><svg viewBox="0 0 100 200" aria-hidden="true"><use href="#pg-side" style="--pg-rim:transparent;--pg-belly:#fff"/></svg><div><h3>황제 · 가장 먼저 도착한 무리</h3><p class="dim">키가 가장 크고, 겨울을 가장 잘 견딘다. 허들의 규칙을 북쪽에 가져온 것이 이들이다. 노랑-주황 목빛은 "기다려" 와 "따뜻함"의 색.</p></div></div>
+        <div role="tabpanel" id="p-ki" aria-labelledby="tab-ki" tabindex="0" hidden><svg viewBox="0 0 100 200" aria-hidden="true"><use href="#pg-side" style="--pg-rim:transparent;--pg-belly:#fff"/></svg><div><h3>임금 · 둥지 없이 발 위에 알을 얹는 무리</h3><p class="dim">알을 발에 얹고 배 주름으로 덮는다. 그래서 알 받침 물건은 거의 이들이 만들었다. 진한 주황은 "물건이 내 것" 이라는 표시.</p></div></div>
+        <div role="tabpanel" id="p-ge" aria-labelledby="tab-ge" tabindex="0" hidden><svg viewBox="0 0 100 200" aria-hidden="true"><use href="#pg-side" style="--pg-rim:transparent;--pg-belly:#fff"/></svg><div><h3>젠투 · 조약돌을 주고받는 무리</h3><p class="dim">구애할 때 조약돌을 건넨다. 접시 안테나 둥지와 조약돌 표기는 이들의 버릇에서 왔다. 부리의 주황은 "선물".</p></div></div>
+        <div role="tabpanel" id="p-ro" aria-labelledby="tab-ro" tabindex="0" hidden><svg viewBox="0 0 100 200" aria-hidden="true"><use href="#pg-side" style="--pg-rim:transparent;--pg-belly:#fff"/></svg><div><h3>바위뛰기 · 계단을 좋아하는 무리</h3><p class="dim">두 발을 모아 뛴다. 무너진 부두 계단과 컨테이너 사이를 오르내린다. 노란 깃은 "조심, 높은 곳".</p></div></div>
+      </article>
+
+      <!-- buttons -->
+      <article class="ex wide" aria-labelledby="t-plates">
+        <span class="tag">RK-007</span>
+        <header><h3 id="t-plates">배로 누르는 판 (단추)</h3><p class="was"><span>원래 <b>엘리베이터 비상 단추, 냉동고 문</b></span><span>지금 <b>지느러미로, 혹은 배로 누르는 판</b></span></p></header>
+        <div class="plates">
+          <button class="plate acc big" type="button" data-toast="허들 신호를 보냈다|바깥 자리부터 천천히 안으로."><span class="mk" data-mark="5 2" aria-hidden="true"></span>허들 모으기</button>
+          <button class="plate" type="button" data-toast="물고기 하나를 나눴다|황토 집 앞에 놓아 두었다."><span class="mk" data-mark="3" aria-hidden="true"></span>물고기 나누기</button>
+          <button class="plate dark" type="button" data-toast="바다로 간다|돌아올 때 같은 울음으로 부를 것."><span class="mk" data-mark="7 8" aria-hidden="true"></span>바다로</button>
+          <button class="plate alarm" type="button" id="bearBtn"><span class="mk" data-mark="11 11" aria-hidden="true"></span>북극곰 경보</button>
+          <button class="plate" type="button" disabled><span class="mk" data-mark="10" aria-hidden="true"></span>얼음 아직 얇음</button>
+        </div>
+        <p class="spec">높이 64 · 큰 판 84 · 위쪽 검은 테 9 · 누르면 몸이 납작해진다 (가로 105%, 세로 90%) · 그림자 −38°</p>
+      </article>
+
+      <!-- switch -->
+      <article class="ex" aria-labelledby="t-slide">
+        <span class="tag">RK-027</span>
+        <header><h3 id="t-slide">배 미끄럼 길 (스위치)</h3><p class="was"><span>원래 <b>개썰매의 날</b></span><span>지금 <b>배로 미끄러지는 길</b></span></p></header>
+        <svg class="prod" viewBox="0 0 400 180" aria-hidden="true"><path d="M0 130H400V180H0Z" fill="#d1dae0"/><path d="M40 120C120 116 260 114 330 118 352 119 366 104 360 84" stroke="#3b3027" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M40 136C120 132 260 130 330 134" stroke="#3b3027" stroke-width="4" fill="none" opacity=".5"/><path d="M80 120v-30M180 118v-32M280 117v-30" stroke="#5a4636" stroke-width="5"/><path d="M60 140L330 140 380 176H120Z" fill="#6d85a3" opacity=".3"/></svg>
+        <div class="slide">
+          <button class="track" role="switch" aria-checked="false" id="slideSw" aria-labelledby="slideLbl">
+            <svg viewBox="0 0 84 56" aria-hidden="true"><ellipse cx="42" cy="34" rx="34" ry="14" fill="#0d1114"/><path d="M12 38C24 46 58 48 74 38 66 46 30 50 12 38Z" fill="#fff"/><circle cx="74" cy="28" r="9" fill="#0d1114"/><path d="M80 26L92 30 80 32Z" fill="#3a3a3a"/><path d="M70 24c3 2 5 5 4 8" stroke="var(--acc)" stroke-width="3" fill="none"/><path d="M30 26L14 18" stroke="#0d1114" stroke-width="6" stroke-linecap="round"/></svg>
+          </button>
+          <div><b id="slideLbl">바다까지 배로 미끄러지기</b><br><span class="state" id="slideState">걸어서 간다</span></div>
+        </div>
+        <p class="spec">트랙 156 × 72 · 배를 대고 오른쪽으로 · 지나간 자리는 빙하색으로 반들거린다</p>
+      </article>
+
+      <!-- checkbox -->
+      <article class="ex" aria-labelledby="t-nest">
+        <span class="tag">RK-011</span>
+        <header><h3 id="t-nest">접시 안테나 둥지 (체크)</h3><p class="was"><span>원래 <b>위성 수신 접시</b></span><span>지금 <b>조약돌을 놓는 둥지</b></span></p></header>
+        <svg class="prod" viewBox="0 0 400 180" aria-hidden="true"><path d="M0 140H400V180H0Z" fill="#d1dae0"/><path d="M110 120A90 30 0 0 0 290 120Z" fill="#8e96a1"/><path d="M110 120A90 30 0 0 1 290 120" fill="#c7ced6"/><path d="M200 150L200 128M170 150l12-24M230 150l-12-24" stroke="#4b525b" stroke-width="5"/><g fill="#3b4247"><ellipse cx="180" cy="114" rx="12" ry="8"/><ellipse cx="206" cy="110" rx="10" ry="7"/><ellipse cx="226" cy="116" rx="11" ry="7"/><ellipse cx="196" cy="122" rx="9" ry="6" fill="#6b5a48"/></g><path d="M140 150L300 150 370 178H200Z" fill="#6d85a3" opacity=".3"/></svg>
+        <div class="nests" role="group" aria-label="오늘 둥지에 놓은 것">
+          <label class="nest"><input type="checkbox" checked><svg viewBox="0 0 76 64" aria-hidden="true"><path d="M4 40A34 14 0 0 0 72 40Z" fill="#8e96a1"/><path d="M4 40A34 14 0 0 1 72 40" fill="#c7ced6"/><path d="M38 52v10M26 60l8-10M50 60l-8-10" stroke="#4b525b" stroke-width="3"/><ellipse class="pebble" cx="30" cy="36" rx="9" ry="6" fill="#2f363b"/><ellipse class="pebble p2" cx="46" cy="34" rx="8" ry="5.5" fill="#4a3f35"/><ellipse class="pebble p3" cx="40" cy="40" rx="7" ry="4.5" fill="#5b636a"/></svg><span>조약돌 세 개</span></label>
+          <label class="nest"><input type="checkbox"><svg viewBox="0 0 76 64" aria-hidden="true"><path d="M4 40A34 14 0 0 0 72 40Z" fill="#8e96a1"/><path d="M4 40A34 14 0 0 1 72 40" fill="#c7ced6"/><path d="M38 52v10M26 60l8-10M50 60l-8-10" stroke="#4b525b" stroke-width="3"/><ellipse class="pebble" cx="38" cy="34" rx="12" ry="9" fill="#efe8db" stroke="#b9b09f"/></svg><span>알 하나</span></label>
+          <label class="nest"><input type="checkbox"><svg viewBox="0 0 76 64" aria-hidden="true"><path d="M4 40A34 14 0 0 0 72 40Z" fill="#8e96a1"/><path d="M4 40A34 14 0 0 1 72 40" fill="#c7ced6"/><path d="M38 52v10M26 60l8-10M50 60l-8-10" stroke="#4b525b" stroke-width="3"/><path class="pebble" d="M20 34c6-6 14-4 18 0 4-4 12-6 18 0" fill="none" stroke="#7a6a4a" stroke-width="3"/><path class="pebble p2" d="M22 38c6-4 26-4 32 0" fill="none" stroke="#9a8a5a" stroke-width="3"/></svg><span>그물 조각</span></label>
+        </div>
+        <p class="spec">둥지 76 × 64 · 고르면 조약돌이 위에서 떨어져 앉는다</p>
+      </article>
+
+      <!-- radio: huddle -->
+      <article class="ex wide" aria-labelledby="t-huddle">
+        <span class="tag">RK-019</span>
+        <header><h3 id="t-huddle">허들 자리 (라디오)</h3><p class="was"><span>원래 <b>컨테이너 문짝으로 만든 방풍벽</b></span><span>지금 <b>오늘 내가 설 자리</b></span></p></header>
+        <fieldset class="huddle" id="huddle">
+          <legend>바람은 왼쪽에서 분다. 어디에 설까?</legend>
+        </fieldset>
+        <p class="spec">한 자리에 오래 머물 수 없다 · 고른 자리는 약 50초 뒤 한 칸 안으로 돈다</p>
+      </article>
+
+      <!-- segmented + chips -->
+      <article class="ex" aria-labelledby="t-move">
+        <span class="tag">RK-022</span>
+        <header><h3 id="t-move">가는 방법 (나눔 단추)</h3><p class="was"><span>원래 <b>부두의 얼음 조각들</b></span><span>지금 <b>오늘의 이동 방식</b></span></p></header>
+        <div class="floes" role="radiogroup" aria-label="가는 방법" id="floes">
+          <button role="radio" aria-checked="true" tabindex="0" data-v="걷기 — 하루 3km, 뒤뚱"><span class="mk" data-mark="0" aria-hidden="true"></span>걷기</button>
+          <button role="radio" aria-checked="false" tabindex="-1" data-v="배 미끄럼 — 하루 12km, 내리막만"><span class="mk" data-mark="2" aria-hidden="true"></span>미끄럼</button>
+          <button role="radio" aria-checked="false" tabindex="-1" data-v="헤엄 — 하루 40km, 곰 없음"><span class="mk" data-mark="7 8" aria-hidden="true"></span>헤엄</button>
+        </div>
+        <p class="out" id="floeOut" style="margin-top:16px">걷기 — 하루 3km, 뒤뚱</p>
+        <p class="spec">← → 로 얼음을 건넌다 · 고른 얼음만 진하게 떠 있다</p>
+      </article>
+
+      <article class="ex" aria-labelledby="t-chips">
+        <span class="tag">RK-041</span>
+        <header><h3 id="t-chips">그물 거름망 (고르기 조각)</h3><p class="was"><span>원래 <b>버려진 어망</b></span><span>지금 <b>오늘 먹고 싶은 것</b></span></p></header>
+        <div class="chips" id="chips">
+          <button class="chip" type="button" aria-pressed="true"><svg viewBox="0 0 28 18" aria-hidden="true"><path d="M2 9C6 3 14 2 20 9 14 16 6 15 2 9ZM20 9L26 4V14Z"/></svg>열빙어</button>
+          <button class="chip" type="button" aria-pressed="false"><svg viewBox="0 0 28 18" aria-hidden="true"><path d="M2 9C6 3 14 2 20 9 14 16 6 15 2 9ZM20 9L26 4V14Z"/></svg>북극대구</button>
+          <button class="chip" type="button" aria-pressed="true"><svg viewBox="0 0 28 18" aria-hidden="true"><path d="M4 9c4-4 8-4 10 0s6 4 10 0"/></svg>크릴</button>
+          <button class="chip" type="button" aria-pressed="false"><svg viewBox="0 0 28 18" aria-hidden="true"><path d="M2 9C6 3 14 2 20 9 14 16 6 15 2 9ZM20 9L26 4V14Z"/></svg>곤들매기</button>
+          <button class="chip" type="button" aria-pressed="false"><svg viewBox="0 0 28 18" aria-hidden="true"><path d="M6 4C10 2 16 4 16 9S10 16 6 14M16 9H26M16 6L24 3M16 12L24 15"/></svg>오징어</button>
+        </div>
+        <p class="out" id="chipOut" style="margin-top:16px"></p>
+        <p class="spec">조약돌 모양 조각 · 높이 56 · 눌린 것은 어둡게 차오른다</p>
+      </article>
+
+      <!-- inputs + select -->
+      <article class="ex" aria-labelledby="t-beak">
+        <span class="tag">RK-033</span>
+        <header><h3 id="t-beak">부리 자국 (입력)</h3><p class="was"><span>원래 <b>얼어붙은 눈 벽</b></span><span>지금 <b>짝에게 남기는 표시</b></span></p></header>
+        <form id="beakForm" class="stack" novalidate>
+          <div class="beak" id="beakName">
+            <label for="nm">내 울음 이름</label>
+            <input id="nm" name="nm" autocomplete="off" placeholder="예: 두 번 낮게 우는 자" aria-describedby="nmErr nmPrint">
+            <div class="print" id="nmPrint" aria-label="부리 자국으로 옮긴 모양"></div>
+            <p class="err" id="nmErr" aria-live="polite"></p>
+          </div>
+          <div class="beak">
+            <label for="msg">짝에게 남길 말</label>
+            <textarea id="msg" placeholder="바다에 다녀올게. 파란 집 그늘에서."></textarea>
+          </div>
+          <div class="field">
+            <label for="tide">돌아올 물때</label>
+            <div class="crate"><select id="tide"><option>첫 썰물</option><option selected>해가 가장 낮을 때</option><option>둘째 밀물</option><option>얼음이 다시 닫힐 때</option></select></div>
+            <span class="hint">물때는 해의 높이로 센다. 시계는 없다.</span>
+          </div>
+          <div><button class="plate acc" type="submit"><span class="mk" data-mark="4 0" aria-hidden="true"></span>눈 벽에 새기기</button></div>
+        </form>
+      </article>
+
+      <!-- ranges -->
+      <article class="ex" aria-labelledby="t-core">
+        <span class="tag">RK-038</span>
+        <header><h3 id="t-core">얼음 막대와 물고기 셈 (범위)</h3><p class="was"><span>원래 <b>연구소의 얼음 시추 막대</b></span><span>지금 <b>건너도 되는지 보는 자</b></span></p></header>
+        <div class="stack">
+          <div class="core">
+            <label for="ice"><b>얼음 두께</b> <span class="out" id="iceOut">32cm</span></label>
+            <input type="range" id="ice" min="0" max="120" value="32" step="1" aria-describedby="iceVerdict">
+            <div class="scale" aria-hidden="true"><span>0</span><span>30</span><span>60</span><span>90</span><span>120cm</span></div>
+            <span class="verdict" id="iceVerdict"><i></i><span>걸어서 건너도 된다</span></span>
+          </div>
+          <div class="core">
+            <label for="fish"><b>오늘 잡은 물고기</b> <span class="out" id="fishOut">7마리</span></label>
+            <input type="range" id="fish" min="0" max="24" value="7" step="1">
+            <div class="fishes" id="fishes" aria-hidden="true"></div>
+          </div>
+        </div>
+        <p class="spec">조약돌 손잡이 56 × 52 · 배로 밀어도 된다 · 30cm 아래는 빨간 집 색으로 경고</p>
+      </article>
+
+      <!-- progress -->
+      <article class="ex" aria-labelledby="t-egg">
+        <span class="tag">RK-045</span>
+        <header><h3 id="t-egg">알 데우기 (진행 막대)</h3><p class="was"><span>원래 <b>승용차 타이어</b></span><span>지금 <b>얼음에서 알을 띄우는 받침</b></span></p></header>
+        <div class="brood">
+          <svg viewBox="0 0 150 150" aria-hidden="true"><ellipse cx="75" cy="128" rx="64" ry="16" fill="#1c1f23"/><ellipse cx="75" cy="124" rx="38" ry="8" fill="#c6cdd8"/><path d="M40 122c6-6 14-8 20-4M90 118c6-4 14-2 20 4" stroke="#c46a2a" stroke-width="7" stroke-linecap="round" fill="none"/><ellipse id="egg" cx="75" cy="98" rx="20" ry="25" fill="#cfdde4"/><path d="M20 70C30 40 120 40 130 70 120 80 100 86 75 86 50 86 30 80 20 70Z" fill="#0d1114"/><path d="M28 72C40 62 110 62 122 72 110 78 96 80 75 80 54 80 40 78 28 72Z" fill="#f3f0e9"/></svg>
+          <div class="meter">
+            <span id="eggLbl"><b>알 온도</b></span>
+            <div class="gauge" role="progressbar" aria-labelledby="eggLbl" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="40%, 아직 차갑다" id="eggBar"><span></span></div>
+            <span class="out" id="eggOut">40% · 아직 차갑다</span>
+            <div class="row"><button class="plate" type="button" id="eggBtn"><span class="mk" data-mark="9" aria-hidden="true"></span>배 주름으로 덮기</button></div>
+          </div>
+        </div>
+        <p class="spec">채움은 빙하색에서 목빛으로 · 100%가 되면 품기 당번을 바꾼다</p>
+      </article>
+
+      <article class="ex" aria-labelledby="t-sun">
+        <span class="tag">RK-052</span>
+        <header><h3 id="t-sun">해 머무는 시간 (진행 고리)</h3><p class="was"><span>원래 <b>등대의 회전 렌즈</b></span><span>지금 <b>겨울까지 남은 낮을 세는 고리</b></span></p></header>
+        <div class="brood">
+          <svg class="sunring" viewBox="0 0 150 150" role="progressbar" aria-valuemin="0" aria-valuemax="24" aria-valuenow="24" aria-label="해가 떠 있는 시간" id="sunRing">
+            <circle cx="75" cy="75" r="58" fill="none" stroke="#d3dde2" stroke-width="16"/>
+            <circle id="sunArc" cx="75" cy="75" r="58" fill="none" stroke="#7fb0c2" stroke-width="16" pathLength="100" stroke-dasharray="100 100" transform="rotate(-90 75 75)" stroke-linecap="round"/>
+            <circle id="sunDot" cx="75" cy="17" r="10" fill="var(--acc)" stroke="#14181b" stroke-width="2"/>
+            <text x="75" y="82" text-anchor="middle" font-family="DM Mono" font-size="22" fill="#14181b" id="sunTxt">24h</text>
+          </svg>
+          <div class="meter">
+            <label for="week"><b>몇 번째 주</b> <span class="out" id="weekOut">6월 셋째 주</span></label>
+            <div class="core"><input type="range" id="week" min="0" max="26" value="0"></div>
+            <span class="dim" id="weekNote" style="color:var(--ink-dim)">해가 지지 않는다. 그림자가 원을 그린다.</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- badges -->
+      <article class="ex wide" aria-labelledby="t-bands">
+        <span class="tag">RK-060</span>
+        <header><h3 id="t-bands">날개 띠 (표시)</h3><p class="was"><span>원래 <b>사람이 펭귄 날개에 채우던 조사용 띠</b></span><span>지금 <b>펭귄이 물건과 서로에게 채우는 띠</b></span></p></header>
+        <div class="bands">
+          <span class="band warm"><span class="no">EG</span>알 품는 중</span>
+          <span class="band sea"><span class="no">SE</span>바다에 나감</span>
+          <span class="band molt"><span class="no">MO</span>털갈이 · 물에 못 들어감</span>
+          <span class="band"><span class="no">OU</span>허들 바깥 차례</span>
+          <span class="band bear"><span class="no">!!</span>곰 발자국 봄</span>
+        </div>
+        <p class="spec">사람이 남긴 띠는 아직도 몇몇 늙은 날개에 남아 있다. 숫자는 아무도 읽지 못한다.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="shelf down" aria-hidden="true" style="background:#111518"><svg viewBox="0 0 1600 74" preserveAspectRatio="none"><path fill="#f3f0e9" d="M0 36L60 50 130 28 190 46 260 24 320 44 390 30 450 52 520 26 580 42 650 30 710 50 780 24 850 44 900 32 970 52 1030 28 1100 46 1170 30 1230 50 1300 26 1370 44 1430 30 1500 48 1560 30 1600 42V74H0Z"/><path fill="none" stroke="#c6dde4" stroke-width="3" d="M0 36L60 50 130 28 190 46 260 24 320 44 390 30 450 52 520 26 580 42 650 30 710 50 780 24 850 44 900 32 970 52 1030 28 1100 46 1170 30 1230 50 1300 26 1370 44 1430 30 1500 48 1560 30 1600 42"/></svg></div>
+
+<!-- ───────── roster + interpretations ───────── -->
+<section class="belly" id="roster" aria-labelledby="h-roster">
+  <div class="wrap">
+    <div class="head">
+      <div class="tagline"><span class="mk" data-mark="4 8 4" aria-hidden="true"></span>번식지 명부</div>
+      <h2 id="h-roster"><span class="en">Colony roster, by call</span>얼굴이 아니라 울음으로 적은 명부</h2>
+      <p class="lede">이름은 사람이 붙인 것이 아니다. 각자의 두 음 울음을 적은 무늬가 이름이다. 아래 한국어는 그 울음을 사람의 말로 옮겨 본 것이다. 열 제목을 눌러 정렬한다.</p>
+    </div>
+    <div class="roster-wrap" tabindex="0" role="region" aria-labelledby="cap-roster">
+      <table id="rosterTbl">
+        <caption class="sr" id="cap-roster">번식지 명부. 열 제목 단추로 정렬할 수 있다.</caption>
+        <thead><tr>
+          <th scope="col" aria-sort="ascending"><button type="button" data-k="name">울음 이름</button></th>
+          <th scope="col"><span class="static">울음 무늬</span></th>
+          <th scope="col"><button type="button" data-k="sp">종</button></th>
+          <th scope="col"><button type="button" data-k="mate">짝</button></th>
+          <th scope="col"><button type="button" data-k="fish" data-num="1">물고기</button></th>
+          <th scope="col"><button type="button" data-k="turn" data-num="1">바깥 차례</button></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="two" style="margin-top:80px">
+      <div>
+        <h3 style="font-size:26px;margin-bottom:8px">사람 물건 해석집</h3>
+        <p class="dim">어른들이 새끼에게 들려주는, 사람 물건의 쓰임. 대부분 틀렸고, 대부분 잘 쓰인다.</p>
+        <div class="acc-list" id="accList"></div>
+      </div>
+      <div class="stack">
+        <h3 style="font-size:26px">한 줄 기록</h3>
+        <p class="dim" style="margin:0">명부 맨 끝 장에 누군가 부리로 새겨 둔 것.</p>
+        <blockquote style="margin:0;padding:28px 26px;border-radius:24px;background:#e7ecee;box-shadow:inset 0 5px 0 rgba(20,24,27,.1);font:600 22px/1.6 var(--ko-display)">
+          <span class="mk" data-mark="6 1 9 4" style="--mk:34px;color:#2d4a57;display:flex;margin-bottom:12px" aria-hidden="true"></span>
+          "집들은 따뜻하지 않다. 그래도 바람은 막아 준다. 이 물건을 만든 무리는 어디로 헤엄쳐 갔을까."
+        </blockquote>
+        <p class="num" style="color:var(--ink-dim)">명부 끝장 · 표기 6-1-9-4 · 해 위 · 돌아옴 · 알 · 짝</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── night: call the huddle ───────── -->
+<section class="night" aria-labelledby="h-night">
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="aurS" gradientUnits="userSpaceOnUse" x1="0" y1="460" x2="0" y2="120"><stop offset="0" stop-color="#9ff0c8" stop-opacity=".9"/><stop offset=".45" stop-color="#5fc49a" stop-opacity=".35"/><stop offset="1" stop-color="#7a6fc0" stop-opacity="0"/></linearGradient>
+    </defs>
+    <filter id="soft" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="3.5"/></filter>
+    <g filter="url(#soft)">
+      <path d="M-60 300C180 220 420 340 700 280 980 220 1220 320 1660 230" stroke="url(#aurS)" stroke-width="220" fill="none" stroke-dasharray="4 11" opacity="1"/>
+      <path d="M200 380C420 330 640 400 900 360 1160 320 1360 380 1660 330" stroke="url(#aurS)" stroke-width="160" fill="none" stroke-dasharray="3 14" opacity=".8"/>
+      <path d="M-60 420C200 380 480 440 760 400 1040 360 1300 420 1660 380" stroke="#8fdcb8" stroke-width="10" fill="none" opacity=".35"/>
+    </g>
+    <path fill="#0d141b" d="M0 640L120 610 240 636 380 596 520 630 680 606 860 640 1040 600 1200 630 1380 604 1600 636V900H0Z"/>
+    <path fill="#16202a" d="M0 700C300 684 600 690 900 692 1200 694 1400 684 1600 690V900H0Z"/><path d="M0 700C300 684 600 690 900 692 1200 694 1400 684 1600 690" stroke="#8fdcb8" stroke-opacity=".25" fill="none"/>
+    <g id="nightColony"></g>
+  </svg>
+  <div class="wrap">
+    <div class="head" style="max-width:640px">
+      <div class="tagline" style="color:#c5d2cc"><span class="mk" data-mark="5 9 5" aria-hidden="true" style="color:#c5d2cc"></span>겨울이 오면</div>
+      <h2 id="h-night"><span class="en" style="color:#c5d2cc">When the sun finally sets</span>해가 처음 지는 밤, 모두 모인다</h2>
+      <p class="lede">석 달 동안 지지 않던 해가 처음으로 수평선 아래로 내려가는 밤이 있다. 그날 밤엔 누구도 혼자 서 있지 않는다.</p>
+    </div>
+    <div class="plates" style="margin-top:12px">
+      <button class="plate acc big" type="button" id="openDlg"><span class="mk" data-mark="5 2 5" aria-hidden="true"></span>허들 부르기</button>
+      <button class="plate dark big" type="button" id="callBtn"><span class="mk" data-mark="4 8" aria-hidden="true"></span>짝 부르기 (울음)</button>
+    </div>
+  </div>
+  <footer>
+    <div class="wrap">
+      <span class="dim">Rookery · 사람이 떠난 뒤, 북쪽으로 온 펭귄들의 물건 · Hahmlet, Instrument Serif, IBM Plex Sans KR, DM Mono</span>
+      <a href="../">다른 체계들로</a>
+    </div>
+  </footer>
+</section>
+</main>
+
+<dialog id="dlg" aria-labelledby="dlgT">
+  <form method="dialog" class="in">
+    <svg viewBox="0 0 400 120" aria-hidden="true" id="dlgArt"></svg>
+    <h2 id="dlgT" style="font-size:30px">모두를 허들로 부를까요?</h2>
+    <p style="margin:0;color:var(--ink-dim)">바다에 나간 이들은 돌아오는 데 반나절이 걸린다. 알을 품은 이들은 발 위의 알을 그대로 얹은 채 천천히 걸어온다. 바깥 자리는 당신부터.</p>
+    <div class="acts">
+      <button class="plate" value="no" type="submit">조금 더 기다리기</button>
+      <button class="plate acc" value="yes" type="submit"><span class="mk" data-mark="5 2 5" aria-hidden="true"></span>모두 부르기</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const NS = 'http://www.w3.org/2000/svg';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let seed = 20261101;
+  const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+
+  /* ── the twelve beak marks (24×24, stroked; drawn twice for the pressed-in look) ── */
+  const G = [
+    'M12 21V10M12 13L6 5M12 13L18 5',            // 0 foot forward · go
+    'M12 3V14M12 11L6 19M12 11L18 19',           // 1 foot back · return
+    'M3 12H14M11 12L19 6M11 12L19 18',           // 2 foot sideways · step aside / swap
+    'M12 12h.01',                                 // 3 one pebble · one fish
+    'M12 7h.01M12 17h.01',                       // 4 two pebbles · mate
+    'M12 6h.01M6 17h.01M18 17h.01',              // 5 three pebbles · colony
+    'M5 16L12 8 19 16',                          // 6 chevron up · sun / above
+    'M5 8L12 16 19 8',                           // 7 chevron down · sea / dive
+    'M3 10c3-4 6 4 9 0s6 4 9 0M3 16c3-4 6 4 9 0s6 4 9 0', // 8 water
+    'M12 4C17 4 18 12 18 15 18 19 15 21 12 21 9 21 6 19 6 15 6 12 7 4 12 4Z', // 9 egg
+    'M4 12H20',                                   // 10 ice
+    'M5 5L19 19M19 5L5 19'                       // 11 danger · bear
+  ];
+  const MEAN = [['가다','발끝이 향한 쪽으로'],['돌아오다','발뒤꿈치 쪽으로'],['비키다','자리를 바꾸다'],['하나','물고기 하나, 돌 하나'],['짝','둘. 서로'],['무리','셋 이상은 모두'],['해 · 위','해가 있는 쪽'],['바다 · 아래','잠수, 깊은 곳'],['물','흐르는 것'],['알','지켜야 하는 것'],['얼음','딛고 서는 것'],['위험','곰. 사람의 물건 중 날카로운 것']];
+  function glyphSVG(i) {
+    const sw = (i >= 3 && i <= 5) ? 5.2 : 2.6;
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="lo" d="${G[i]}" transform="translate(.9 1.1)" fill="none" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/><path class="hi" d="${G[i]}" fill="none" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  }
+  function markHTML(seq) { return seq.map(glyphSVG).join(''); }
+  $$('[data-mark]').forEach(el => { el.innerHTML = markHTML(el.dataset.mark.trim().split(/\s+/).map(Number)); });
+  const textToSeq = s => [...s].filter(c => c.trim()).map(c => { const h = (c.codePointAt(0) * 2654435761) >>> 0; return h % 12; });
+
+  // glyph legend
+  const gl = $('#glyphs');
+  MEAN.forEach((m, i) => { gl.insertAdjacentHTML('beforeend', `<div class="glyph"><span class="mk">${glyphSVG(i)}</span><b>${String(i).padStart(2,'0')} · ${m[0]}</b><span>${m[1]}</span></div>`); });
+
+  /* ── hero colony: rows recede toward the town, all backlit by a sun at (880,546) ── */
+  function addPenguin(g, x, y, s, kind, flip, shadowOp) {
+    const w = 100 * s, h = 200 * s, sun = [880, 546];
+    let dx = x - sun[0], dy = y - sun[1]; const L = Math.hypot(dx, dy); dx /= L; dy /= L;
+    const len = h * 1.3;
+    const sh = document.createElementNS(NS, 'path');
+    const px = -dy, py = dx; const fw = w * .26;
+    sh.setAttribute('d', `M${x - px * fw} ${y - py * fw}L${x + dx * len - px * fw * .5} ${y + dy * len - py * fw * .5}L${x + dx * len + px * fw * .5} ${y + dy * len + py * fw * .5}L${x + px * fw} ${y + py * fw}Z`);
+    sh.setAttribute('fill', '#5f7898'); sh.setAttribute('opacity', shadowOp);
+    g.appendChild(sh);
+    const u = document.createElementNS(NS, 'use');
+    u.setAttribute('href', kind === 'f' ? '#pg-front' : '#pg-side');
+    u.setAttribute('width', w); u.setAttribute('height', h);
+    u.setAttribute('x', -w / 2); u.setAttribute('y', -h);
+    u.setAttribute('transform', `translate(${x} ${y + 2}) scale(${flip ? -1 : 1} 1)`);
+    u.style.setProperty('--pg-belly', kind === 'f' ? '#9aa4b4' : '#c4cbd6'); u.style.setProperty('--pg-back', '#0e1216');
+    g.appendChild(u);
+  }
+  const col = $('#colony');
+  const gauss = () => { let u = 0; for (let i = 0; i < 4; i++) u += rnd(); return (u - 2) / .58; };
+  const sAt = y => .1 + Math.max(0, y - 700) / 260 * .7;
+  const birds = [];
+  const cluster = (cx, cy, sx, sy, n, front) => { for (let i = 0; i < n; i++) { const y = cy + Math.abs(gauss()) * sy, x = cx + gauss() * sx; birds.push([x, y, sAt(y) * (.9 + rnd() * .16), rnd() < front ? 'f' : 's', rnd() < .5]); } };
+  cluster(880, 706, 170, 10, 46, .3);   // the colony proper, packed under the town
+  cluster(640, 744, 60, 10, 12, .25);   // a group walking in from the sea ice
+  cluster(1150, 738, 70, 9, 10, .25);
+  cluster(860, 790, 50, 10, 6, .3);
+  // a few close, separate adults
+  [[470, 900, 's', false], [715, 932, 's', true], [1012, 968, 's', true], [1190, 902, 'f', false], [590, 842, 's', false], [960, 858, 'f', false]].forEach(b => birds.push([b[0], b[1], sAt(b[1]), b[2], b[3]]));
+  birds.sort((a, b) => a[1] - b[1]).forEach(b => addPenguin(col, b[0], b[1], b[2], b[3], b[4], .3));
+  addPenguin(col, 1350, 872, .62, 's', true, .3);
+
+  // night colony: a huddle, tight
+  const nc = $('#nightColony');
+  const hb = [];
+  for (let i = 0; i < 46; i++) { const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * 1; hb.push([1180 + Math.cos(a) * rr * 170, 740 + Math.sin(a) * rr * 26, .34 + rnd() * .06, rnd() < .55 ? 'f' : 's', rnd() < .5]); }
+  hb.sort((a, b) => a[1] - b[1]).forEach(b => {
+    const u = document.createElementNS(NS, 'use'); const w = 100 * b[2], h = 200 * b[2];
+    u.setAttribute('href', b[3] === 'f' ? '#pg-front' : '#pg-side'); u.setAttribute('width', w); u.setAttribute('height', h);
+    u.setAttribute('x', -w / 2); u.setAttribute('y', -h); u.setAttribute('transform', `translate(${b[0]} ${b[1]}) scale(${b[4] ? -1 : 1} 1)`);
+    u.style.setProperty('--pg-belly', '#5d6b78'); u.style.setProperty('--pg-rim', '#8fdcb8'); u.style.setProperty('--pg-back', '#05080b');
+    nc.appendChild(u);
+  });
+
+  /* ── rails: footprints up the left edge, the sun's height down the right ── */
+  function buildRails() {
+    const L = $('#railL'), R = $('#railR'); if (!L) return;
+    const hL = L.clientHeight || innerHeight - 96, hR = R.clientHeight || innerHeight;
+    L.setAttribute('viewBox', `0 0 40 ${hL}`); R.setAttribute('viewBox', `0 0 40 ${hR}`);
+    let s = `<rect class="bg" width="40" height="${hL}"/><line x1="39.5" y1="0" x2="39.5" y2="${hL}" stroke="rgba(236,238,234,.16)"/>`;
+    const n = Math.floor((hL - 40) / 34);
+    for (let i = 0; i < n; i++) {
+      const y = hL - 30 - i * 34, x = i % 2 ? 22 : 12;
+      s += `<use class="foot" data-i="${i}" href="#foot" x="${x - 7}" y="${y - 9}" width="14" height="17" transform="rotate(${i % 2 ? 8 : -8} ${x} ${y})"/>`;
+    }
+    L.innerHTML = s;
+    let r = `<rect class="bg" width="40" height="${hR}"/><line x1=".5" y1="0" x2=".5" y2="${hR}" stroke="rgba(236,238,234,.16)"/>`;
+    for (let y = 20; y < hR; y += 16) r += `<line class="tick" x1="${y % 80 < 16 ? 14 : 24}" y1="${y}" x2="40" y2="${y}"/>`;
+    r += `<line class="horizon" x1="4" x2="40" y1="${hR * .78}" y2="${hR * .78}"/><text class="label" x="20" y="${hR * .78 + 22}" text-anchor="middle">0°</text>`;
+    r += `<circle class="sundot" id="railSun" cx="20" cy="${hR * .3}" r="9"/>`;
+    R.innerHTML = r;
+    railTick();
+  }
+  function railTick() {
+    const p = Math.min(1, Math.max(0, scrollY / (document.documentElement.scrollHeight - innerHeight || 1)));
+    const feet = $$('#railL .foot'); const on = Math.round(p * feet.length);
+    feet.forEach((f, i) => f.classList.toggle('on', i < on));
+    const sun = $('#railSun'); if (sun) { const hR = $('#railR').clientHeight; const y = hR * (.3 + p * .46); sun.setAttribute('cy', y); }
+  }
+  buildRails();
+  addEventListener('resize', buildRails);
+  addEventListener('scroll', railTick, { passive: true });
+
+  /* ── toasts ── */
+  const box = $('#toasts');
+  function toast(title, body) {
+    const t = document.createElement('div'); t.className = 'toast';
+    t.innerHTML = `<b></b><span></span>`; t.firstChild.textContent = title; t.lastChild.textContent = body || '';
+    box.appendChild(t);
+    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), reduce ? 0 : 300); }, 5000);
+    while (box.children.length > 3) box.firstChild.remove();
+  }
+  $$('[data-toast]').forEach(b => b.addEventListener('click', () => { const [a, c] = b.dataset.toast.split('|'); toast(a, c); call(); }));
+  $('#bearBtn').addEventListener('click', () => { toast('북극곰 경보', '모두 물가로. 곰은 우리보다 헤엄이 느리다.'); wind(1.2); });
+
+  /* ── sound (off by default): wind = filtered noise; call = two voices beating ── */
+  let ac = null, on = false, windNode = null;
+  const sBtn = $('#soundBtn');
+  sBtn.addEventListener('click', () => {
+    on = !on; sBtn.setAttribute('aria-pressed', on); sBtn.querySelector('span').textContent = on ? '바람 소리 켜짐' : '바람 소리 꺼짐';
+    if (on) { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); ac.resume(); startWind(); } else stopWind();
+  });
+  function startWind() {
+    if (!ac || windNode) return;
+    const len = ac.sampleRate * 2, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+    let last = 0; for (let i = 0; i < len; i++) { last = (last + .02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
+    const src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+    const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 420; f.Q.value = .7;
+    const g = ac.createGain(); g.gain.value = 0; g.gain.linearRampToValueAtTime(.35, ac.currentTime + 1.5);
+    const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = .13; lg.gain.value = 220; lfo.connect(lg).connect(f.frequency); lfo.start();
+    src.connect(f).connect(g).connect(ac.destination); src.start();
+    windNode = { src, g, lfo };
+  }
+  function stopWind() { if (!windNode) return; const w = windNode; windNode = null; w.g.gain.linearRampToValueAtTime(0, ac.currentTime + .6); setTimeout(() => { w.src.stop(); w.lfo.stop(); }, 700); }
+  function wind(k) { if (windNode) { windNode.g.gain.setTargetAtTime(.35 * (1 + k), ac.currentTime, .1); windNode.g.gain.setTargetAtTime(.35, ac.currentTime + .8, .4); } }
+  function call(pitch = 1) {
+    if (!on || !ac) return;
+    const t = ac.currentTime, g = ac.createGain(); g.connect(ac.destination);
+    g.gain.setValueAtTime(0, t);
+    [0, .55].forEach((o) => { g.gain.linearRampToValueAtTime(.16, t + o + .05); g.gain.linearRampToValueAtTime(.12, t + o + .35); g.gain.linearRampToValueAtTime(0, t + o + .45); });
+    [480 * pitch, 507 * pitch].forEach(fr => {
+      const o = ac.createOscillator(), m = ac.createOscillator(), mg = ac.createGain();
+      o.type = 'sawtooth'; o.frequency.value = fr; m.frequency.value = 38; mg.gain.value = 40; m.connect(mg).connect(o.frequency);
+      const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1600;
+      o.connect(lp).connect(g); o.start(t); m.start(t); o.stop(t + 1.1); m.stop(t + 1.1);
+    });
+  }
+  $('#callBtn').addEventListener('click', () => { call(.9); toast('짝을 불렀다', on ? '두 음이 겹쳐 맥놀이를 만든다. 대답을 기다린다.' : '소리가 꺼져 있다. 위쪽 단추로 바람 소리를 켜면 울음도 들린다.'); });
+
+  /* ── species tabs: changes the one accent for the whole book ── */
+  const SP = { em: ['#eba73a', '#7a4510'], ki: ['#f2862b', '#8a3b0a'], ge: ['#f26b2b', '#9a3410'], ro: ['#e6cf36', '#5f5000'] };
+  const tabs = $$('#speciesTabs [role="tab"]');
+  function selTab(tab, focus) {
+    tabs.forEach(t => { const s = t === tab; t.setAttribute('aria-selected', s); t.tabIndex = s ? 0 : -1; $('#' + t.getAttribute('aria-controls')).hidden = !s; });
+    const k = tab.id.slice(4); document.documentElement.style.setProperty('--acc', SP[k][0]); document.documentElement.style.setProperty('--acc-ink', SP[k][1]);
+    $('#accHex').textContent = SP[k][0].toUpperCase();
+    if (focus) tab.focus();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => selTab(t));
+    t.addEventListener('keydown', e => {
+      let j = null; if (e.key === 'ArrowRight') j = (i + 1) % tabs.length; if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length; if (e.key === 'Home') j = 0; if (e.key === 'End') j = tabs.length - 1;
+      if (j !== null) { e.preventDefault(); selTab(tabs[j], true); }
+    });
+  });
+
+  /* ── switch ── */
+  const sw = $('#slideSw');
+  sw.addEventListener('click', () => { const v = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', v); $('#slideState').textContent = v ? '배로 미끄러진다' : '걸어서 간다'; });
+
+  /* ── huddle radios ── */
+  const SPOTS = [['바람맞이', '−31°'], ['바람 그늘 가장자리', '−4°'], ['한가운데', '+37°']];
+  const hf = $('#huddle');
+  const hex = []; [4, 5, 6, 5, 4].forEach((n, r) => { for (let c = 0; c < n; c++) hex.push([60 + (c - (n - 1) / 2) * 15, 20 + r * 14]); });
+  const ME = [hex[9], hex[14], hex[11]]; // windward edge, lee edge, centre
+  SPOTS.forEach((sp, i) => {
+    const me = ME[i];
+    let c = ''; hex.forEach(p => { if (p === me) return; c += `<ellipse class="pg" cx="${p[0]}" cy="${p[1]}" rx="7.5" ry="6.5" fill="#454e55" stroke="#6b757e"/>`; });
+    hf.insertAdjacentHTML('beforeend', `<label class="spot"><input type="radio" name="spot" value="${i}" ${i === 0 ? 'checked' : ''}><svg viewBox="0 0 110 96" aria-hidden="true"><path d="M2 30h14M0 48h14M2 66h14" stroke="#7fb0c2" stroke-width="2.5" stroke-linecap="round"/>${c}<ellipse class="me" cx="${me[0]}" cy="${me[1]}" rx="7.5" ry="6.5"/></svg><b>${sp[0]}</b><span class="t">${sp[1]}</span></label>`);
+  });
+  let huddleTimer;
+  hf.addEventListener('change', e => {
+    const i = +e.target.value; toast(`${SPOTS[i][0]}에 섰다`, i === 0 ? '오래 있지 않아도 된다. 곧 안으로 돈다.' : i === 2 ? '따뜻하다. 곧 바깥 차례가 온다.' : '반쯤 바람, 반쯤 체온.');
+    clearTimeout(huddleTimer);
+    huddleTimer = setTimeout(() => { const r = $$('input', hf); const n = (i + 2) % 3; if (!r[i].checked) return; r[n].checked = true; toast('허들이 돌았다', `${SPOTS[i][0]}에서 ${SPOTS[n][0]}(으)로 옮겼다.`); }, 50000);
+  });
+
+  /* ── segmented floes (roving tabindex, arrow keys) ── */
+  const fl = $$('#floes [role="radio"]');
+  function selFloe(b, focus) { fl.forEach(x => { const s = x === b; x.setAttribute('aria-checked', s); x.tabIndex = s ? 0 : -1; }); $('#floeOut').textContent = b.dataset.v; if (focus) b.focus(); }
+  fl.forEach((b, i) => {
+    b.addEventListener('click', () => selFloe(b));
+    b.addEventListener('keydown', e => {
+      let j = null; if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % fl.length; if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + fl.length) % fl.length;
+      if (j !== null) { e.preventDefault(); selFloe(fl[j], true); }
+    });
+  });
+
+  /* ── chips ── */
+  const chips = $$('#chips .chip');
+  const chipOut = () => { const s = chips.filter(c => c.getAttribute('aria-pressed') === 'true').map(c => c.textContent.trim()); $('#chipOut').textContent = s.length ? `거름망에 남길 것: ${s.join(', ')}` : '아무것도 거르지 않는다 — 다 흘려보낸다'; };
+  chips.forEach(c => c.addEventListener('click', () => { c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'); chipOut(); }));
+  chipOut();
+
+  /* ── beak inputs ── */
+  const nm = $('#nm'), pr = $('#nmPrint');
+  const printName = () => { const seq = textToSeq(nm.value).slice(0, 18); pr.innerHTML = seq.length ? `<span class="mk" style="--mk:24px">${markHTML(seq)}</span>` : '<span style="font-size:16px">아직 자국 없음</span>'; };
+  nm.addEventListener('input', () => { printName(); if (nm.value.trim()) { $('#beakName').dataset.bad = 'false'; nm.removeAttribute('aria-invalid'); $('#nmErr').textContent = ''; } });
+  printName();
+  $('#beakForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!nm.value.trim()) { $('#beakName').dataset.bad = 'true'; nm.setAttribute('aria-invalid', 'true'); $('#nmErr').textContent = '울음 이름이 비었다. 짝이 찾을 수 없다.'; nm.focus(); return; }
+    toast('눈 벽에 새겼다', `${nm.value.trim()} · ${$('#tide').value}에 돌아옴`); call(1.05);
+  });
+
+  /* ── ranges ── */
+  const ice = $('#ice'), fish = $('#fish');
+  const fill = el => el.style.setProperty('--p', (el.value - el.min) / (el.max - el.min) * 100 + '%');
+  function iceUp() {
+    fill(ice); const v = +ice.value; $('#iceOut').textContent = v + 'cm';
+    const vd = $('#iceVerdict'); const ok = v >= 30; vd.classList.toggle('ok', ok);
+    vd.lastElementChild.textContent = v < 10 ? '헤엄쳐야 한다' : ok ? (v >= 80 ? '무리 전체가 서도 된다' : '걸어서 건너도 된다') : '배로 미끄러지면 건넌다, 걷지 말 것';
+    ice.setAttribute('aria-valuetext', `${v}센티미터, ${vd.lastElementChild.textContent}`);
+  }
+  function fishUp() {
+    fill(fish); const v = +fish.value; $('#fishOut').textContent = v + '마리'; fish.setAttribute('aria-valuetext', v + '마리');
+    $('#fishes').innerHTML = Array.from({ length: v }, () => '<svg viewBox="0 0 30 16"><path d="M2 8C6 2 15 1 21 8 15 15 6 14 2 8ZM21 8L28 3V13Z" fill="#2f5b80"/><circle cx="8" cy="7" r="1.4" fill="#f3f0e9"/></svg>').join('');
+  }
+  ice.addEventListener('input', iceUp); fish.addEventListener('input', fishUp); iceUp(); fishUp();
+
+  /* ── egg progress ── */
+  let egg = 40; const eb = $('#eggBar');
+  function eggUp() {
+    const txt = egg >= 100 ? '다 데웠다 — 당번 교대' : egg >= 70 ? '따뜻하다' : egg >= 40 ? '아직 차갑다' : '얼고 있다';
+    eb.setAttribute('aria-valuenow', egg); eb.setAttribute('aria-valuetext', `${egg}%, ${txt}`);
+    eb.firstElementChild.style.width = egg + '%'; $('#eggOut').textContent = `${egg}% · ${txt}`;
+    const t = egg / 100; $('#egg').setAttribute('fill', `rgb(${Math.round(207 + 32 * t)},${Math.round(221 + 11 * t)},${Math.round(228 - 30 * t)})`);
+  }
+  $('#eggBtn').addEventListener('click', () => { if (egg >= 100) { egg = 20; toast('당번을 바꿨다', '짝이 알을 넘겨받았다. 이제 바다로 가도 된다.'); } else { egg = Math.min(100, egg + 15); } eggUp(); });
+  eggUp();
+
+  /* ── sun hours ring ── */
+  const wk = $('#week');
+  const MONTHS = ['6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+  function sunUp() {
+    const w = +wk.value; const hrs = Math.max(0, Math.round(24 - Math.max(0, w - 5) * 1.25));
+    const p = hrs / 24 * 100; $('#sunArc').setAttribute('stroke-dasharray', `${p} 100`);
+    const a = (p / 100) * Math.PI * 2 - Math.PI / 2; $('#sunDot').setAttribute('cx', 75 + Math.cos(a) * 58); $('#sunDot').setAttribute('cy', 75 + Math.sin(a) * 58);
+    $('#sunTxt').textContent = hrs + 'h'; $('#sunRing').setAttribute('aria-valuenow', hrs); $('#sunRing').setAttribute('aria-valuetext', `하루 ${hrs}시간`);
+    const m = Math.floor((w + 2) / 4), wn = ['첫째', '둘째', '셋째', '넷째'][(w + 2) % 4];
+    $('#weekOut').textContent = `${MONTHS[Math.min(6, m)]} ${wn} 주`; wk.setAttribute('aria-valuetext', $('#weekOut').textContent);
+    $('#weekNote').textContent = hrs >= 24 ? '해가 지지 않는다. 그림자가 원을 그린다.' : hrs > 8 ? '해가 수평선 아래로 잠깐 들어간다. 허들 연습을 시작한다.' : hrs > 0 ? '낮이 짧다. 알을 품는 계절이 온다.' : '해가 뜨지 않는다. 모두 허들에 있다.';
+    fill(wk);
+  }
+  wk.addEventListener('input', sunUp); sunUp();
+
+  /* ── migration steps ── */
+  const steps = $$('#steps li'); let cur = 2;
+  const swim = $('#swim'), sl = swim.getTotalLength();
+  const dots = $('#stepDots'); const SP_AT = [0, .3, .55, .78, 1];
+  SP_AT.forEach((f, i) => { const p = swim.getPointAtLength(f * sl); dots.insertAdjacentHTML('beforeend', `<circle cx="${p.x}" cy="${p.y}" r="9" fill="#111518" stroke="#b3bcc0" stroke-width="2" data-i="${i}"/>`); });
+  function stepUp() {
+    steps.forEach((s, i) => { s.classList.toggle('done', i < cur); if (i === cur) s.setAttribute('aria-current', 'step'); else s.removeAttribute('aria-current'); });
+    $('#swimDone').setAttribute('stroke-dasharray', `${SP_AT[cur] * 100} 100`);
+    $$('#stepDots circle').forEach((c, i) => { c.setAttribute('fill', i <= cur ? 'var(--acc)' : '#111518'); c.setAttribute('r', i === cur ? 12 : 9); });
+    $('#stepOut').textContent = `${cur + 1} / 5 · ${steps[cur].querySelector('b').textContent}`;
+    $('#stepPrev').disabled = cur === 0; $('#stepNext').disabled = cur === 4;
+  }
+  $('#stepPrev').addEventListener('click', () => { if (cur > 0) { cur--; stepUp(); } });
+  $('#stepNext').addEventListener('click', () => { if (cur < 4) { cur++; stepUp(); if (cur === 4) toast('도착', '빈 집과 지지 않는 해. 여기 머물기로 했다.'); } });
+  stepUp();
+
+  /* ── accordion: interpretations of human things ── */
+  const ACC = [
+    ['타이어', '알을 얹는 받침', '고무는 얼음보다 덜 차다. 가운데 구멍에 알을 넣으면 굴러가지 않는다. 사람들은 이것을 네 개씩 모아 두었는데, 아마 알을 넷씩 낳았던 모양이다.', 'M28 22m-18 0a18 12 0 1 0 36 0a18 12 0 1 0 -36 0M28 22m-8 0a8 5 0 1 0 16 0a8 5 0 1 0 -16 0'],
+    ['피아노', '부리로 누르면 우는 바위', '흰 판과 검은 판을 누르면 소리가 난다. 짝을 잃은 이들이 자주 간다. 같은 판을 오래 누르면 누군가의 울음과 닮은 소리가 날 때가 있다.', 'M6 14h44v18H6zM12 14v10M18 14v10M30 14v10M36 14v10M42 14v10'],
+    ['전화 부스', '한 명용 허들', '유리로 된 작은 방. 바람이 들어오지 않는다. 안에 매달린 검은 물건에 대고 울면, 아무도 대답하지 않는다.', 'M18 6h20v34H18zM22 12h12v10H22z'],
+    ['머그잔', '크릴 되', '크릴을 이것으로 퍼서 나눈다. 한 잔이 새끼 한 끼. 손잡이는 쓸모가 없어 대개 부러뜨린다.', 'M16 12h20v22H16zM36 16c8 0 8 12 0 12'],
+    ['책', '깔개', '얼어붙은 종이를 겹쳐 두면 알 밑이 덜 차다. 안쪽엔 작은 무늬가 끝없이 줄지어 있다. 우리 표기보다 훨씬 많다. 무엇을 그렇게 많이 세었을까.', 'M8 10h18v26H8zM26 10h18v26H26zM12 16h10M12 22h10M30 16h10M30 22h10'],
+    ['씨앗 창고', '들어가지 않는 산', '산 속으로 난 문. 열리지 않는다. 안에서 아무 냄새도 나지 않는다. 늙은 이들은 그 안에 사람들이 마지막 알을 두고 갔다고 말한다.', 'M6 38L28 8 50 38ZM22 38v-12h12v12']
+  ];
+  const al = $('#accList');
+  ACC.forEach((a, i) => {
+    al.insertAdjacentHTML('beforeend', `<div class="acc-item"><h3><button type="button" aria-expanded="false" aria-controls="acc-${i}" id="accb-${i}"><svg class="ico" viewBox="0 0 56 44" aria-hidden="true"><path d="${a[3]}" fill="none" stroke="#14181b" stroke-width="2.4" stroke-linejoin="round"/></svg><span>${a[0]} <span style="color:var(--ink-dim);font-weight:400">→ ${a[1]}</span></span><span class="chev" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></h3><div class="panel" id="acc-${i}" role="region" aria-labelledby="accb-${i}" hidden><p><b>사람의 이름: ${a[0]}.</b> ${a[2]}</p></div></div>`);
+  });
+  $$('#accList button').forEach(b => b.addEventListener('click', () => { const x = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', x); $('#' + b.getAttribute('aria-controls')).hidden = !x; }));
+  $('#accList button').click();
+
+  /* ── roster table ── */
+  const ROWS = [
+    ['두 번 낮게 우는 자', '황제', '길게 끄는 자', 14, 3],
+    ['파란 집 그늘', '임금', '세 번 끊는 자', 9, 1],
+    ['세 번 끊는 자', '임금', '파란 집 그늘', 11, 4],
+    ['조약돌 많은 자', '젠투', '높이 우는 자', 6, 2],
+    ['높이 우는 자', '젠투', '조약돌 많은 자', 8, 5],
+    ['길게 끄는 자', '황제', '두 번 낮게 우는 자', 17, 6],
+    ['계단 위의 자', '바위뛰기', '—', 4, 7],
+    ['띠가 남은 늙은 자', '황제', '(바다에서 돌아오지 않음)', 2, 8]
+  ];
+  function callPath(name, k) {
+    let h = 0; for (const c of name) h = (h * 31 + c.codePointAt(0)) >>> 0;
+    const a = 2 + (h % 4), b = 3 + ((h >> 3) % 5), amp = k ? 6 : 10;
+    let d = 'M0 15'; for (let x = 2; x <= 120; x += 2) { const y = 15 + Math.sin(x / (a + k)) * amp * Math.sin(x / 120 * Math.PI) * (k ? Math.cos(x / b) : 1); d += `L${x} ${y.toFixed(1)}`; }
+    return d;
+  }
+  const tb = $('#rosterTbl tbody');
+  function renderRows(rows) {
+    tb.innerHTML = rows.map(r => `<tr><th scope="row" style="font-weight:600">${r[0]}</th><td><svg class="call" viewBox="0 0 120 30" role="img" aria-label="${r[0]}의 울음 무늬"><path d="${callPath(r[0], 0)}"/><path d="${callPath(r[0], 1)}"/></svg></td><td>${r[1]}</td><td>${r[2]}</td><td class="n">${r[3]}</td><td class="n">${r[4]}번째</td></tr>`).join('');
+  }
+  const KEYS = { name: 0, sp: 1, mate: 2, fish: 3, turn: 4 };
+  let sortK = 'name', dir = 1;
+  function sortRows() { const k = KEYS[sortK]; const rows = [...ROWS].sort((a, b) => (typeof a[k] === 'number' ? a[k] - b[k] : a[k].localeCompare(b[k], 'ko')) * dir); renderRows(rows); }
+  $$('#rosterTbl thead button').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.k; if (k === sortK) dir = -dir; else { sortK = k; dir = 1; }
+    $$('#rosterTbl thead th').forEach(th => th.removeAttribute('aria-sort'));
+    b.parentElement.setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+    sortRows();
+  }));
+  sortRows();
+
+  /* ── dialog ── */
+  const dlg = $('#dlg');
+  let art = '<path d="M0 100H400" stroke="#14181b" stroke-width="2"/>';
+  for (let i = 0; i < 9; i++) { const x = 120 + (i % 5) * 36 + (i > 4 ? 18 : 0), y = i > 4 ? 98 : 88; art += `<use href="#pg-front" x="${x - 18}" y="${y - 72}" width="36" height="72" style="--pg-belly:#fff;--pg-rim:transparent"/>`; }
+  art += '<use href="#pg-side" x="320" y="30" width="36" height="72" style="--pg-belly:#fff;--pg-rim:transparent"/><path d="M300 66h-24M296 58l-20 8 20 8" fill="none" stroke="#9e3a2f" stroke-width="3" stroke-linecap="round"/>';
+  $('#dlgArt').innerHTML = art;
+  $('#openDlg').addEventListener('click', () => { dlg.showModal(); });
+  dlg.addEventListener('close', () => { if (dlg.returnValue === 'yes') { toast('허들을 불렀다', '바깥 자리부터 차례로. 오늘 밤은 아무도 혼자 서지 않는다.'); call(.95); } else if (dlg.returnValue === 'no') toast('조금 더 기다린다', '바다에 나간 이들이 아직 돌아오는 중.'); });
+})();
+</script>
+<script src="../systems-nav.js?v=20261101d" defer></script>
+</body>
+</html>

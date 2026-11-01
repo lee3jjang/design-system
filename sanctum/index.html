@@ -256,6 +256,10 @@ section.sect { padding-block: 104px 10px; scroll-margin-top: 80px; display: grid
 .tip__b span { display: block; font-size: 14px; line-height: 1.5; color: var(--bone-2); }
 .tip__b em { display: block; font: 700 12.5px/1.4 var(--font-latin); font-style: normal; color: var(--t-magic); letter-spacing: .04em; margin-top: 2px; }
 .tip:hover .tip__b, .tip:focus-within .tip__b { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition: opacity .15s, transform .2s var(--ease); }
+.skills .tip:first-child .tip__b { left: -6px; transform: translate(0, 6px); } .skills .tip:first-child .tip__b::after { left: 39px; }
+.skills .tip:last-child .tip__b { left: auto; right: -6px; transform: translate(0, 6px); } .skills .tip:last-child .tip__b::after { left: auto; right: 34px; }
+.skills .tip:first-child:hover .tip__b, .skills .tip:first-child:focus-within .tip__b, .skills .tip:last-child:hover .tip__b, .skills .tip:last-child:focus-within .tip__b { transform: none; }
+@media (max-width: 480px) { .skills { gap: 8px; padding: 12px 10px; } .skill { width: 58px; height: 58px; } .skill svg { width: 30px; height: 30px; } }
 
 /* Portal: the one big call to action */
 .portal { position: relative; display: grid; justify-items: center; gap: 8px; padding: 0 6px 6px; border: 0; border-radius: 12px; background: none; cursor: pointer; color: var(--bone); }

@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Riad 디자인 시스템</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Gothic+A1:wght@400;500;700&family=Marcellus&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<style>
+/* Riad: a courtyard house in the old medina of Fes.
+   Plaster walls, carved cedar, zellige tile friezes, a fountain in the middle, pierced brass lanterns.
+   Decoration lives on the edges: every panel is framed in a zellige frieze with brass star medallions at the corners
+   and a carved stucco arcade (gebs) along the top. The inside stays plain and quiet.
+   One geometry for everything: the eight-point star (khatam) and the horseshoe arch. */
+:root {
+  color-scheme: light;
+  --chalk: #fcf8f0; --plaster: #f3e7d3; --plaster-2: #e9d8bc; --plaster-3: #d6bd96; --wall: #ead9bd;
+  --cedar: #7b4a2a; --cedar-d: #4a2a15; --cedar-l: #a9774d; --cedar-xl: #d4b08a;
+  --cobalt: #1f4f9e; --cobalt-d: #133570; --cobalt-l: #5b8ad6; --cobalt-wash: #dfe7f6;
+  --emerald: #19775a; --emerald-d: #0e523e; --emerald-l: #5db190; --emerald-wash: #d9efe4;
+  --saffron: #e3a52b; --saffron-d: #9a6a0c; --saffron-l: #f6d27c; --saffron-wash: #fbefd2;
+  --terra: #b4472a; --terra-d: #7e2d16; --terra-l: #de7d5a; --terra-wash: #f7ddd1;
+  --brass: #c19434; --brass-d: #7c5a16; --brass-l: #ecd082;
+  --mint: #3f8a5f; --tea: #b8701f;
+  --ink: #2b1d12; --ink-2: #5b4433; --ink-3: #6c5542;
+  --ease: cubic-bezier(.2,.8,.2,1); --spring: cubic-bezier(.3,1.45,.5,1);
+  --font-d: "Nanum Myeongjo", "AppleMyungjo", serif;
+  --font-l: "Marcellus", "Nanum Myeongjo", serif;
+  --font-ar: "Aref Ruqaa", serif;
+  --font: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  /* the eight-point star made of two squares (khatam) */
+  --star: polygon(50% 0, 64.64% 14.64%, 85.36% 14.64%, 85.36% 35.36%, 100% 50%, 85.36% 64.64%, 85.36% 85.36%, 64.64% 85.36%, 50% 100%, 35.36% 85.36%, 14.64% 85.36%, 14.64% 64.64%, 0 50%, 14.64% 35.36%, 14.64% 14.64%, 35.36% 14.64%);
+  --fr: 22px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--wall); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
+body { margin: 0; color: var(--ink); font: 400 16.5px/1.8 var(--font); word-break: keep-all; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  background: radial-gradient(ellipse 700px 420px at 15% 30%, rgba(255,248,232,.55), transparent 70%), radial-gradient(ellipse 600px 500px at 90% 70%, rgba(226,180,143,.22), transparent 70%), var(--wall); background-attachment: fixed; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { margin: 0; font-weight: 800; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--cobalt-d); text-underline-offset: 4px; }
+code { font: .85em ui-monospace, Menlo, Consolas, monospace; background: var(--plaster-2); padding: 1px 6px; border-radius: 3px; }
+.ar { font-family: var(--font-ar); }
+.wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; border-radius: 6px; }
+
+/* ---------- Roof beam + nav ---------- */
+.top { position: sticky; top: 0; z-index: 40; }
+.top__bar { background: repeating-linear-gradient(90deg, rgba(0,0,0,.07) 0 2px, transparent 2px 9px), linear-gradient(var(--cedar), var(--cedar-d)); border-bottom: 2px solid #2e1a0c; }
+.top__bar .wrap { display: flex; align-items: center; gap: 18px; min-height: 60px; overflow-x: auto; scrollbar-width: none; }
+.top__name { flex: none; display: flex; align-items: center; gap: 10px; color: #fbefd9; font: 800 20px/1 var(--font-d); text-decoration: none; }
+.top__name i { width: 30px; height: 30px; background: var(--medal) center/contain no-repeat; }
+.top__name small { font: 400 14px/1 var(--font-l); letter-spacing: .24em; color: var(--saffron-l); }
+.top nav { margin-left: auto; display: flex; gap: 2px; flex: none; }
+.top nav a { position: relative; display: grid; place-items: center; height: 44px; padding: 0 12px; color: #f2e2c6; text-decoration: none; font: 500 15px/1 var(--font); border-radius: 6px; }
+.top nav a:hover { color: #fff; background: rgba(255,255,255,.08); }
+.top nav a[aria-current="true"] { color: var(--saffron-l); font-weight: 700; }
+.top nav a[aria-current="true"]::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 10px; height: 10px; margin-left: -5px; clip-path: var(--star); background: var(--saffron); }
+.top nav a:focus-visible, .top__name:focus-visible { outline-color: var(--saffron-l); }
+.top__frieze { height: 14px; background: var(--zl) 0 0/14px 14px repeat-x, var(--chalk); border-bottom: 2px solid var(--cedar-d); box-shadow: 0 4px 12px -4px rgba(74,42,21,.35); }
+@media (max-width: 920px) { .top nav { display: none; } }
+
+/* ---------- Hero: a horseshoe arch opening onto the courtyard ---------- */
+.hero { position: relative; overflow-x: clip; padding-block: 56px 0; }
+.hero__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 40px; align-items: center; }
+.hero__k { display: flex; align-items: center; gap: 12px; font: 400 14px/1 var(--font-l); letter-spacing: .3em; color: var(--terra-d); }
+.hero__k .ar { font-size: 26px; letter-spacing: 0; color: var(--cobalt); line-height: 1; }
+.hero h1 { margin-top: 18px; font: 800 clamp(66px, 11vw, 124px)/.95 var(--font-d); letter-spacing: -.02em; color: var(--ink); }
+.hero h1 small { display: block; margin-top: 16px; font: 400 clamp(20px, 2.5vw, 25px)/1.4 var(--font-d); letter-spacing: 0; color: var(--ink-2); }
+.hero__p { margin-top: 22px; max-width: 40ch; color: var(--ink-2); font-size: 17px; }
+.hero__cta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 30px; }
+.hero__court { justify-self: center; width: 100%; max-width: 440px; }
+.hero__court svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 18px 24px rgba(74,42,21,.28)); }
+.flow { stroke-dasharray: 5 6; animation: flow .9s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -11; } }
+.flicker { animation: flicker 2.6s ease-in-out infinite alternate; }
+@keyframes flicker { 0% { opacity: .75; } 40% { opacity: 1; } 70% { opacity: .85; } 100% { opacity: 1; } }
+.dado { position: relative; height: 70px; margin-top: 56px; border-block: 3px solid var(--cedar-d);
+  background: linear-gradient(var(--cedar-d), var(--cedar-d)) 0 13px/100% 2px no-repeat, linear-gradient(var(--cedar-d), var(--cedar-d)) 0 calc(100% - 13px)/100% 2px no-repeat,
+    var(--zl) 0 0/13px 13px repeat-x, var(--zl) 0 100%/13px 13px repeat-x, var(--zf) 0 15px/38px 38px repeat-x, var(--chalk); }
+@media (max-width: 820px) { .hero__grid { grid-template-columns: minmax(0, 1fr); } .hero__court { max-width: 380px; } }
+
+/* ---------- Halls (sections) ---------- */
+section.hall { padding-block: 96px 8px; scroll-margin-top: 86px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 34px; }
+.hall__head { display: grid; justify-items: center; text-align: center; gap: 12px; }
+.plate { position: relative; width: 300px; height: 170px; }
+.plate svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.plate small { position: absolute; left: 0; right: 0; top: 46px; font: 400 15px/1 var(--font-l); letter-spacing: .3em; padding-left: .3em; color: var(--terra-d); }
+.plate h2 { position: absolute; left: 0; right: 0; top: 76px; font: 800 28px/1.2 var(--font-d); letter-spacing: 0; white-space: nowrap; }
+.plate h2::after { content: ""; display: block; width: 12px; height: 12px; margin: 10px auto 0; clip-path: var(--star); background: var(--saffron); }
+.hall__head p { max-width: 58ch; color: var(--ink-2); }
+
+/* Niche: a panel framed in a zellige frieze with brass medallions at the corners and a carved stucco arcade along the top */
+.niche { position: relative; padding: var(--fr); border: 3px solid var(--cedar-d); border-radius: 4px;
+  background: var(--zl) 0 0/var(--fr) var(--fr) round, var(--chalk); box-shadow: 0 3px 0 var(--cedar-d), 0 22px 30px -20px rgba(74,42,21,.6); }
+.niche::before, .niche::after, .niche__in::before, .niche__in::after { content: ""; position: absolute; z-index: 3; width: 38px; height: 38px; background: var(--medal) center/contain no-repeat; pointer-events: none; }
+.niche::before { top: calc(var(--fr) / 2 - 19px); left: calc(var(--fr) / 2 - 19px); }
+.niche::after { top: calc(var(--fr) / 2 - 19px); right: calc(var(--fr) / 2 - 19px); }
+.niche__in::before { bottom: calc(var(--fr) / 2 - 19px); left: calc(var(--fr) / 2 - 19px); }
+.niche__in::after { bottom: calc(var(--fr) / 2 - 19px); right: calc(var(--fr) / 2 - 19px); }
+.niche__in { border: 3px solid var(--cedar-d); padding-top: 21px;
+  background: radial-gradient(circle, var(--cedar-xl) 0 1.4px, transparent 1.9px) 0 2px/12px 6px repeat-x,
+    radial-gradient(circle at 50% 100%, var(--chalk) 0 7px, var(--cedar-xl) 7px 8.6px, transparent 9px) 0 11px/20px 10px repeat-x,
+    linear-gradient(var(--plaster-2), var(--plaster-2)) 0 0/100% 21px no-repeat, var(--chalk); }
+.spec { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); }
+.note { padding: 26px 24px 28px; display: grid; gap: 8px; align-content: start; min-width: 0; background: var(--plaster); border-right: 2px solid var(--plaster-3); }
+.note h3 { display: flex; align-items: center; gap: 10px; font: 800 21px/1.4 var(--font-d); }
+.note h3::before { content: ""; flex: none; width: 14px; height: 14px; clip-path: var(--star); background: var(--terra); }
+.note h3 small { font: 400 13px/1 var(--font-l); letter-spacing: .14em; color: var(--terra-d); }
+.note p { color: var(--ink-2); font-size: 16px; }
+.note ul { margin: 2px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 15px; color: var(--ink-2); }
+.note li { position: relative; padding-left: 20px; }
+.note li::before { content: ""; position: absolute; left: 0; top: .5em; width: 10px; height: 10px; clip-path: var(--star); background: var(--emerald); }
+.yard { position: relative; min-width: 0; padding: 44px 28px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; align-content: center; min-height: 170px;
+  background: var(--ghost) 0 0/64px 64px, var(--chalk); }
+.yard.col { flex-direction: column; align-items: stretch; }
+.yard.full { grid-column: 1 / -1; }
+.spec--stack { grid-template-columns: minmax(0, 1fr); }
+.spec--stack > .note { border-right: 0; border-bottom: 2px solid var(--plaster-3); }
+.spec--stack .rugs { grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); max-width: 820px; }
+.yard > * { min-width: 0; max-width: 100%; }
+@media (max-width: 820px) {
+  :root { --fr: 16px; }
+  .niche::before, .niche::after, .niche__in::before, .niche__in::after { width: 30px; height: 30px; }
+  .niche::before { top: calc(var(--fr) / 2 - 15px); left: calc(var(--fr) / 2 - 15px); } .niche::after { top: calc(var(--fr) / 2 - 15px); right: calc(var(--fr) / 2 - 15px); }
+  .niche__in::before { bottom: calc(var(--fr) / 2 - 15px); left: calc(var(--fr) / 2 - 15px); } .niche__in::after { bottom: calc(var(--fr) / 2 - 15px); right: calc(var(--fr) / 2 - 15px); }
+  .spec { grid-template-columns: minmax(0, 1fr); } .note { border-right: 0; border-bottom: 2px solid var(--plaster-3); padding: 24px 18px 20px; } .yard { padding: 38px 14px 34px; }
+}
+
+/* ---------- Foundations ---------- */
+.swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; width: 100%; }
+.sw { display: grid; gap: 6px; align-content: start; }
+.sw i { position: relative; height: 72px; border-radius: 4px; border: 2px solid var(--cedar-d); box-shadow: inset 0 0 0 3px rgba(255,255,255,.18); overflow: hidden; }
+.sw i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,.35) 0 22%, transparent 34%); }
+.sw b { font: 800 16px/1.3 var(--font-d); }
+.sw code { background: none; padding: 0; font-size: 12px; color: var(--ink-3); }
+.sw span { font-size: 14px; color: var(--ink-2); line-height: 1.45; }
+.swhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; font: 800 18px/1 var(--font-d); margin-top: 8px; }
+.swhead:first-child { margin-top: 0; }
+.swhead::after { content: ""; flex: 1; height: 8px; background: var(--zl) 0 0/8px 8px repeat-x; border-block: 1px solid var(--cedar-d); opacity: .8; }
+.swhead span { font: 400 14px/1 var(--font); color: var(--ink-3); }
+.pats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 22px; width: 100%; }
+.pats figure { margin: 0; display: grid; gap: 8px; }
+.pats figure > div { height: 70px; border: 2px solid var(--cedar-d); border-radius: 3px; }
+.pats b { font: 800 16px/1.3 var(--font-d); }
+.pats span { font-size: 14px; color: var(--ink-2); }
+.typerow { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 18px; align-items: baseline; padding: 14px 0; border-top: 1px dashed var(--plaster-3); }
+.typerow:first-child { border-top: 0; }
+.typerow .k { display: grid; gap: 2px; } .typerow .k b { font: 800 15px/1.3 var(--font-d); } .typerow .k span { font-size: 13px; color: var(--ink-3); }
+@media (max-width: 820px) { .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .typerow { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 34px 22px; margin: 18px 0 0; padding: 0; list-style: none; counter-reset: r; }
+.rules li { counter-increment: r; position: relative; padding: 54px 22px 24px; display: grid; gap: 6px; align-content: start; background: var(--chalk); border: 2.5px solid var(--cedar-d); border-radius: 999px 999px 6px 6px / 90px 90px 6px 6px; box-shadow: inset 0 0 0 5px var(--chalk), inset 0 0 0 6.5px var(--cedar-xl), 0 3px 0 var(--cedar-d); text-align: center; }
+.rules li::before { content: counter(r); position: absolute; top: -20px; left: 50%; width: 42px; height: 42px; margin-left: -21px; display: grid; place-items: center; background: var(--medal) center/contain no-repeat; font: 400 0/1 var(--font-l); }
+.rules li::after { content: counter(r, upper-roman); position: absolute; top: 30px; left: 0; right: 0; font: 400 13px/1 var(--font-l); letter-spacing: .2em; color: var(--terra-d); }
+.rules b { font: 800 19px/1.4 var(--font-d); }
+.rules span { font-size: 15px; color: var(--ink-2); }
+
+/* ---------- Buttons ---------- */
+/* Glazed tile: a deep glaze with a glossy highlight, small stars set at both ends */
+.btn { --g: var(--cobalt); --gl: var(--cobalt-l); --gd: var(--cobalt-d); --t: #fff; --s: var(--saffron-l);
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 42px; border: 2px solid var(--gd); border-radius: 8px; cursor: pointer; text-decoration: none;
+  font: 800 17px/1 var(--font-d); letter-spacing: .02em; color: var(--t);
+  background: linear-gradient(165deg, rgba(255,255,255,.4) 0 16%, rgba(255,255,255,0) 30%), radial-gradient(130% 100% at 30% 15%, var(--gl), var(--g) 55%, var(--gd));
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.22), 0 3px 0 var(--gd), 0 12px 16px -10px rgba(43,29,18,.6); transition: transform .3s var(--spring), box-shadow .3s var(--spring), filter .2s; }
+.btn::before, .btn::after { content: ""; position: absolute; top: 50%; width: 12px; height: 12px; margin-top: -6px; clip-path: var(--star); background: var(--s); transition: transform .5s var(--spring); }
+.btn::before { left: 15px; } .btn::after { right: 15px; }
+.btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.btn:hover::before { transform: rotate(45deg) scale(1.15); } .btn:hover::after { transform: rotate(-45deg) scale(1.15); }
+.btn:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px rgba(255,255,255,.22), 0 1px 0 var(--gd), 0 4px 6px -4px rgba(43,29,18,.5); transition-duration: .06s; }
+.btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; flex: none; }
+.btn--em { --g: var(--emerald); --gl: var(--emerald-l); --gd: var(--emerald-d); }
+.btn--terra { --g: var(--terra); --gl: var(--terra-l); --gd: var(--terra-d); --s: #fbe0c8; }
+/* Carved cedar: wood grain, a carved inner groove */
+.btn--cedar { --gd: var(--cedar-d); --t: #fbefd9; --s: var(--brass-l);
+  background: repeating-linear-gradient(90deg, rgba(0,0,0,.07) 0 2px, transparent 2px 8px), linear-gradient(var(--cedar-l), var(--cedar) 45%, var(--cedar-d));
+  box-shadow: inset 0 0 0 3px var(--cedar), inset 0 0 0 4.5px rgba(255,226,180,.4), 0 3px 0 var(--gd), 0 12px 16px -10px rgba(43,29,18,.6); }
+/* Plaster: quiet */
+.btn--plaster { --gd: var(--cedar-l); --t: var(--ink); --s: var(--cobalt); background: linear-gradient(var(--chalk), var(--plaster)); border-color: var(--cedar-l); box-shadow: inset 0 0 0 3px var(--chalk), 0 3px 0 var(--cedar-l), 0 12px 16px -12px rgba(43,29,18,.4); }
+.btn--link { --t: var(--ink-2); background: none; border-color: transparent; box-shadow: none; padding: 0 10px; text-decoration: underline 2px var(--saffron); text-underline-offset: 8px; }
+.btn--link::before, .btn--link::after { display: none; }
+.btn--link:hover { color: var(--ink); filter: none; }
+.btn--link:active { box-shadow: none; }
+.btn--sm { min-height: 44px; padding: 0 34px; font-size: 15.5px; }
+.btn--sm::before { left: 12px; width: 10px; height: 10px; margin-top: -5px; } .btn--sm::after { right: 12px; width: 10px; height: 10px; margin-top: -5px; }
+.btn:disabled { cursor: not-allowed; --t: var(--ink-3); --s: var(--plaster-3); background: var(--plaster-2); border-color: var(--plaster-3); box-shadow: none; transform: none; filter: none; }
+.btn[aria-disabled="true"] { cursor: progress; }
+.spin { width: 16px; height: 16px; flex: none; clip-path: var(--star); background: radial-gradient(circle, var(--g) 0 2.5px, currentColor 3px); animation: spin 1.4s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Brass medallion: icon buttons */
+.medal { position: relative; width: 56px; height: 56px; padding: 0; border: 0; cursor: pointer; display: grid; place-items: center; color: var(--cedar-d); background: var(--medalbtn) center/100% no-repeat; transition: transform .4s var(--spring), filter .2s; }
+.medal svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.medal:hover { transform: translateY(-2px) rotate(-8deg); filter: brightness(1.07); }
+.medal:active { transform: translateY(1px); transition-duration: .06s; }
+.medal:focus-visible { border-radius: 50%; }
+.medal--sm { width: 48px; height: 48px; }
+.medal--sm svg { width: 20px; height: 20px; }
+.tip { position: relative; display: inline-flex; }
+.tip__b { position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%) translateY(4px); z-index: 10; padding: 7px 12px; background: var(--cedar-d); color: #fbefd9; border-top: 3px solid var(--saffron); border-radius: 3px; font: 500 14px/1.4 var(--font); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .25s, transform .4s var(--spring); }
+.tip__b::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--cedar-d); }
+.tip:hover .tip__b, .tip:focus-within .tip__b { opacity: 1; transform: translateX(-50%); }
+.medals { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; }
+
+/* Riad door with a brass knocker: the one big call to action */
+.door { position: relative; display: grid; justify-items: center; gap: 8px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--ink); }
+.door svg { width: 200px; height: 260px; overflow: visible; }
+.door .leaf { transform-box: fill-box; transition: transform .9s var(--ease); }
+.door .leaf--l { transform-origin: 0 50%; } .door .leaf--r { transform-origin: 100% 50%; }
+.door.open .leaf--l, .door.open .leaf--r { transform: scaleX(.14); }
+.door .ring { transform-box: fill-box; transform-origin: 50% 0; }
+.door.knock .ring { animation: knock .7s var(--ease); }
+@keyframes knock { 20% { transform: scaleY(.45); } 38% { transform: none; } 58% { transform: scaleY(.5); } 76% { transform: none; } }
+.door:hover .ring { transform: scaleY(.85); }
+.door b { font: 800 18px/1.2 var(--font-d); }
+.door small { font-size: 14px; color: var(--ink-3); }
+.door__knock { position: absolute; top: 120px; left: 50%; font: 800 26px/1 var(--font-d); color: var(--terra-d); opacity: 0; pointer-events: none; text-shadow: 0 0 0 var(--chalk), 2px 2px 0 var(--chalk), -2px -2px 0 var(--chalk), 2px -2px 0 var(--chalk), -2px 2px 0 var(--chalk); }
+.door.knock .door__knock { animation: knocktext .9s var(--ease); }
+@keyframes knocktext { from { opacity: 1; transform: translate(10px, 0) scale(.8); } to { opacity: 0; transform: translate(40px, -40px) scale(1.1); } }
+.door:focus-visible { outline-offset: 6px; }
+
+/* Mint tea: pour to confirm */
+.pour { position: relative; display: grid; justify-items: center; gap: 8px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--ink); }
+.pour svg { width: 220px; height: 171px; overflow: visible; }
+.pour .pot { transform-origin: 60px 120px; transition: transform .6s var(--ease); }
+.pour:hover .pot { transform: rotate(4deg); }
+.pour.on .pot { transform: translate(0, -26px) rotate(20deg); }
+.pour .stream { stroke-dasharray: 60; stroke-dashoffset: 60; opacity: 0; }
+.pour.on .stream { animation: stream 1.6s .45s var(--ease) forwards; }
+@keyframes stream { 0% { opacity: 1; stroke-dashoffset: 60; } 30% { stroke-dashoffset: 0; } 80% { opacity: 1; stroke-dashoffset: 0; } 100% { opacity: 0; stroke-dashoffset: -60; } }
+.pour .tea { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(.08); transition: transform 1.2s .6s var(--ease); }
+.pour.on .tea { transform: scaleY(1); }
+.pour .leafm { opacity: 0; transition: opacity .4s 1.4s; }
+.pour.on .leafm { opacity: 1; }
+.pour b { font: 800 18px/1.2 var(--font-d); }
+.pour small { font-size: 14px; color: var(--ink-3); }
+
+.menu { position: relative; }
+.menu__list { position: absolute; right: 0; top: calc(100% + 12px); z-index: 15; min-width: 220px; padding: 14px 6px 6px; margin: 0; list-style: none; background: var(--chalk); border: 2px solid var(--cedar-d); border-radius: 4px; box-shadow: 0 18px 28px -14px rgba(43,29,18,.55); }
+.menu__list::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 8px; background: var(--zl) 0 0/8px 8px repeat-x; border-bottom: 1px solid var(--cedar-d); }
+.menu__list [role="menuitem"] { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; min-height: 44px; padding: 0 12px; border: 0; border-radius: 4px; background: none; cursor: pointer; text-align: left; font: 500 15.5px/1 var(--font); }
+.menu__list [role="menuitem"]:hover, .menu__list [role="menuitem"]:focus { background: var(--cobalt-wash); color: var(--cobalt-d); outline: none; }
+.menu__list .danger { color: var(--terra-d); }
+.menu__list .danger:hover, .menu__list .danger:focus { background: var(--terra-wash); color: var(--terra-d); }
+.menu__list kbd { font: 400 12px/1 ui-monospace, monospace; color: var(--ink-3); }
+.menu__sep { height: 1px; margin: 6px 10px; background: var(--plaster-3); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; max-width: 440px; padding: 12px 12px 12px 16px; background: var(--chalk); border: 2px solid var(--plaster-3); border-left: 6px solid var(--saffron); border-radius: 4px; }
+.row div { display: grid; line-height: 1.45; }
+.row b { font: 800 17px/1.4 var(--font-d); }
+.row span { font-size: 14px; color: var(--ink-3); }
+
+/* ---------- Toggles ---------- */
+/* Pierced brass lantern: switch it on and star-shaped light falls on the wall */
+.lamp, .fount { display: inline-flex; align-items: center; gap: 16px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.lamp svg { width: 84px; height: 110px; flex: none; overflow: visible; --hole: #3a2614; }
+.lamp .glow { opacity: 0; transition: opacity .5s; }
+.lamp .dots use { transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform .5s var(--spring); }
+.lamp .dots use:nth-child(2n) { transition-delay: .08s; } .lamp .dots use:nth-child(3n) { transition-delay: .16s; }
+.lamp[aria-checked="true"] svg { --hole: #fff3c4; }
+.lamp[aria-checked="true"] .glow { opacity: 1; }
+.lamp[aria-checked="true"] .dots use { transform: scale(1); }
+.lamp .body { transform-origin: 42px 0; }
+.lamp:hover .body { animation: swing 1.4s ease-in-out; }
+@keyframes swing { 25% { transform: rotate(4deg); } 60% { transform: rotate(-3deg); } }
+.tog__t { display: grid; line-height: 1.5; }
+.tog__t em { font-style: normal; font: 400 13px/1.3 var(--font-l); letter-spacing: .16em; color: var(--ink-3); }
+[aria-checked="true"] > .tog__t em { color: var(--terra-d); }
+.tog__t b { font: 800 18px/1.4 var(--font-d); }
+.tog__t small { font-size: 14.5px; color: var(--ink-2); }
+/* Fountain: water on/off */
+.fount svg { width: 96px; height: 86px; flex: none; overflow: visible; }
+.fount .water { fill: #cdbb9c; transition: fill .5s; }
+.fount .jet { opacity: 0; transition: opacity .4s; }
+.fount .ripple { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.fount[aria-checked="true"] .water { fill: var(--cobalt-l); }
+.fount[aria-checked="true"] .jet { opacity: 1; }
+.fount[aria-checked="true"] .ripple { animation: ripple 2s ease-out infinite; }
+.fount[aria-checked="true"] .ripple:nth-of-type(2) { animation-delay: 1s; }
+@keyframes ripple { from { opacity: .9; transform: scale(.3); } to { opacity: 0; transform: scale(1); } }
+/* Tile groove: a brass star slides along a glazed groove */
+.slide { display: inline-flex; align-items: center; gap: 14px; min-height: 48px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.slide__g { position: relative; width: 70px; height: 34px; flex: none; border-radius: 17px; border: 2px solid var(--cedar-d); background: var(--plaster-2); box-shadow: inset 0 3px 4px rgba(74,42,21,.25); transition: background .35s; }
+.slide__g::after { content: ""; position: absolute; top: 0; left: 1px; width: 30px; height: 30px; background: var(--thumb) center/contain no-repeat; transition: transform .5s var(--spring); }
+.slide[aria-checked="true"] .slide__g { background: linear-gradient(165deg, rgba(255,255,255,.3) 0 20%, transparent 32%), var(--emerald); }
+.slide[aria-checked="true"] .slide__g::after { transform: translateX(34px) rotate(180deg); }
+.slide__t { display: grid; line-height: 1.5; } .slide__t b { font: 800 16.5px/1.4 var(--font-d); } .slide__t small { font-size: 14.5px; color: var(--ink-2); }
+
+/* Checkbox: a plain glazed tile that flips over to its patterned face */
+.check { position: relative; display: flex; align-items: flex-start; gap: 14px; cursor: pointer; min-height: 44px; padding-block: 4px; }
+.check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.tile { position: relative; width: 30px; height: 30px; flex: none; margin-top: 2px; transform-style: preserve-3d; transition: transform .55s var(--spring); }
+.tile__f, .tile__b { position: absolute; inset: 0; border: 2px solid var(--cedar-d); border-radius: 4px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.tile__f { background: linear-gradient(150deg, #fff 0 28%, transparent 40%), var(--chalk); box-shadow: inset 0 -3px 0 var(--plaster-2); }
+.tile__b { transform: rotateY(180deg); background: var(--zl) center/26px 26px, var(--chalk); }
+.tile__b svg { position: absolute; left: -3px; top: -6px; width: 34px; height: 34px; overflow: visible; }
+.tile__b svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.tile__b::after { content: ""; position: absolute; left: 3px; right: 3px; top: 9px; height: 8px; border-radius: 4px; background: var(--chalk); border: 2px solid var(--cedar-d); display: none; }
+.check:hover .tile { transform: rotate(-6deg); }
+.check input:checked + .tile, .check input:indeterminate + .tile { transform: perspective(240px) rotateY(180deg); }
+.check input:indeterminate + .tile svg { display: none; }
+.check input:indeterminate + .tile .tile__b::after { display: block; }
+.check input:focus-visible + .tile, .check input:focus-visible + .star-r { outline: 3px solid var(--cobalt); outline-offset: 5px; border-radius: 4px; }
+.check input:disabled + .tile { opacity: .45; }
+.check input:disabled ~ .check__t { color: var(--ink-3); }
+.check:has(input:disabled) { cursor: not-allowed; }
+.check__t { display: grid; line-height: 1.5; } .check__t b { font: 800 16.5px/1.4 var(--font-d); } .check__t small { font-size: 14.5px; color: var(--ink-2); }
+/* Radio: an eight-point star */
+.star-r { position: relative; width: 32px; height: 32px; flex: none; margin-top: 1px; }
+.star-r::before { content: ""; position: absolute; inset: 0; clip-path: var(--star); background: var(--cedar-d); }
+.star-r::after { content: ""; position: absolute; inset: 3.5px; clip-path: var(--star); background: var(--chalk); }
+.check input:checked + .star-r::after { background: radial-gradient(circle, var(--cobalt) 0 3.5px, var(--saffron-l) 4px 6.5px, var(--saffron) 7px); animation: twinkle .7s var(--spring); }
+@keyframes twinkle { from { transform: rotate(-90deg) scale(.35); } }
+.stack { display: grid; gap: 10px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 12px; font: 400 14px/1.3 var(--font-l); color: var(--ink-3); letter-spacing: .12em; }
+
+/* ---------- Choosing ---------- */
+/* Segmented: a carved cedar tray; the chosen cell is a glazed emerald tile */
+.tray { display: inline-flex; gap: 4px; padding: 5px; max-width: 100%; overflow-x: auto; border-radius: 12px; background: repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 2px, transparent 2px 8px), linear-gradient(var(--cedar), var(--cedar-d)); box-shadow: inset 0 2px 5px rgba(0,0,0,.4), 0 0 0 2px var(--cedar-d), 0 0 0 4px var(--brass); }
+.tray button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 48px; min-width: 62px; padding: 0 14px; border: 0; border-radius: 8px; cursor: pointer; white-space: nowrap; font: 800 16px/1 var(--font-d); color: #f7e9d2; background: transparent; transition: background .25s; }
+.tray button:hover { background: rgba(255,255,255,.09); }
+.tray button[aria-checked="true"] { color: #fff; background: linear-gradient(165deg, rgba(255,255,255,.35) 0 18%, transparent 32%), radial-gradient(130% 100% at 30% 15%, var(--emerald-l), var(--emerald) 55%, var(--emerald-d)); box-shadow: inset 0 0 0 2px rgba(255,255,255,.25), 0 2px 0 #062a1f; }
+.tray button[aria-checked="true"]::before { content: ""; width: 11px; height: 11px; clip-path: var(--star); background: var(--saffron-l); }
+.tray button:focus-visible { outline-color: var(--saffron-l); outline-offset: -5px; }
+
+/* Tabs: a row of horseshoe arches; the open one shows its tiles */
+.arches { display: flex; gap: 8px; align-items: flex-end; padding: 0 6px; }
+.arch-tab { position: relative; flex: 1 1 0; max-width: 118px; min-width: 0; height: 100px; padding: 0 4px 12px; border: 2.5px solid var(--cedar-d); border-bottom: 0; border-radius: 999px 999px 0 0; cursor: pointer; display: flex; align-items: flex-end; justify-content: center;
+  background: var(--plaster-2); box-shadow: inset 0 0 0 5px var(--plaster), inset 0 0 0 6.5px var(--cedar-xl); font: 800 16px/1.2 var(--font-d); color: var(--ink-2); transition: height .4s var(--spring), background .3s; }
+.arch-tab span { position: relative; padding: 4px 8px; border-radius: 3px; white-space: nowrap; }
+.arch-tab:hover { background: var(--plaster); }
+.arch-tab[aria-selected="true"] { height: 116px; color: var(--ink); background: var(--zf) 50% 0/34px 34px, var(--chalk); box-shadow: inset 0 0 0 5px var(--chalk), inset 0 0 0 7px var(--cobalt); }
+.arch-tab[aria-selected="true"] span { background: var(--chalk); box-shadow: 0 0 0 2px var(--cedar-d); }
+.arch-tab:focus-visible { outline-offset: 2px; border-radius: 999px 999px 0 0; }
+.archpanel { padding: 18px 20px; background: var(--chalk); border: 2.5px solid var(--cedar-d); border-top: 5px solid var(--cobalt); border-radius: 0 0 4px 4px; font-size: 16px; color: var(--ink-2); }
+
+/* Filter chips: glazed pills; a star lights when on */
+.chips { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px 0 14px; border: 2px solid var(--cedar-xl); border-radius: 22px; cursor: pointer; font: 500 15.5px/1 var(--font); color: var(--ink-2); background: var(--chalk); transition: background .25s, color .25s, border-color .25s, transform .3s var(--spring); }
+.chip::before { content: ""; width: 13px; height: 13px; clip-path: var(--star); background: var(--plaster-3); transition: transform .5s var(--spring), background .25s; }
+.chip:hover { border-color: var(--cedar-l); transform: translateY(-1px); }
+.chip[aria-pressed="true"] { color: #fff; border-color: var(--emerald-d); background: linear-gradient(165deg, rgba(255,255,255,.3) 0 18%, transparent 32%), var(--emerald); }
+.chip[aria-pressed="true"]::before { background: var(--saffron-l); transform: rotate(45deg); }
+
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; width: 100%; }
+.field > label, .flabel { font: 800 15.5px/1.3 var(--font-d); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.field > label small, .flabel small { font: 400 13px/1.3 var(--font); color: var(--ink-3); }
+.help { font-size: 14.5px; color: var(--ink-2); }
+.help.err { color: var(--terra-d); font-weight: 700; display: flex; gap: 8px; align-items: flex-start; }
+.help.err::before { content: "!"; flex: none; width: 20px; height: 20px; margin-top: 2px; display: grid; place-items: center; clip-path: var(--star); background: var(--terra); color: #fff; font: 700 12px/1 var(--font); }
+.help.ok { color: var(--emerald-d); font-weight: 700; }
+
+.select { position: relative; }
+.select select { appearance: none; width: 100%; min-height: 54px; padding: 0 64px 0 16px; border: 2px solid var(--cedar); border-radius: 8px; cursor: pointer; font: 500 16.5px/1 var(--font); background: var(--chalk); box-shadow: inset 0 2px 0 rgba(74,42,21,.07); }
+.select::after { content: ""; position: absolute; right: 2px; top: 2px; bottom: 2px; width: 48px; border-radius: 0 6px 6px 0; pointer-events: none; background: repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 2px, transparent 2px 8px), linear-gradient(var(--cedar-l), var(--cedar)); box-shadow: inset 2px 0 0 var(--cedar-d); }
+.select svg { position: absolute; right: 15px; top: 50%; width: 20px; height: 20px; margin-top: -10px; stroke: #fbefd9; stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; z-index: 1; pointer-events: none; }
+.select select:focus-visible { outline-offset: 2px; }
+
+/* Range: a woven rug strip with a brass star for a handle; the tea darkens as it steeps */
+.brew { display: grid; gap: 8px; width: 100%; }
+.brew__top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.brew__out { display: flex; align-items: flex-end; gap: 10px; }
+.brew__out output { font: 400 32px/1 var(--font-l); color: var(--terra-d); }
+.brew__out output small { font: 500 15px/1 var(--font); color: var(--ink-3); margin-left: 4px; }
+.brew__out svg { width: 34px; height: 46px; }
+.brew__track { position: relative; padding: 0 14px; }
+.brew__track::before, .brew__track::after { content: ""; position: absolute; top: 15px; width: 14px; height: 14px; background: repeating-linear-gradient(var(--cedar-xl) 0 2px, transparent 2px 4px); }
+.brew__track::before { left: 0; } .brew__track::after { right: 0; }
+.brew input { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; cursor: pointer; --p: 50%; }
+.brew input::-webkit-slider-runnable-track { height: 18px; border-radius: 2px; border: 2px solid var(--cedar-d);
+  background: linear-gradient(90deg, transparent 0 var(--p), rgba(233,216,188,.82) var(--p)), repeating-linear-gradient(90deg, var(--terra) 0 9px, var(--saffron) 9px 12px, var(--terra) 12px 15px, var(--cobalt) 15px 18px, var(--terra) 18px 27px, var(--chalk) 27px 29px); }
+.brew input::-moz-range-track { height: 14px; border: 2px solid var(--cedar-d); background: var(--plaster-2); }
+.brew input::-moz-range-progress { height: 14px; background: var(--terra); }
+.brew input::-webkit-slider-thumb { -webkit-appearance: none; width: 36px; height: 36px; margin-top: -11px; border: 0; background: var(--thumb) center/contain no-repeat; }
+.brew input::-moz-range-thumb { width: 34px; height: 34px; border: 0; background: var(--thumb) center/contain no-repeat; }
+.brew input:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 4px; }
+.brew__scale { display: flex; justify-content: space-between; padding: 0 14px; font: 400 14px/1 var(--font-l); color: var(--ink-3); }
+
+/* Side menu: the rooms around the courtyard, a fountain in the middle */
+.court { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 380px; margin: 0; padding: 10px; list-style: none; border: 2.5px solid var(--cedar-d); border-radius: 4px; background: var(--zl) 0 0/14px 14px, var(--chalk); }
+.court li:nth-child(1) { grid-area: 1 / 1; } .court li:nth-child(2) { grid-area: 1 / 2; } .court li:nth-child(3) { grid-area: 1 / 3; } .court li:nth-child(4) { grid-area: 2 / 3; }
+.court li:nth-child(5) { grid-area: 3 / 3; } .court li:nth-child(6) { grid-area: 3 / 2; } .court li:nth-child(7) { grid-area: 3 / 1; } .court li:nth-child(8) { grid-area: 2 / 1; }
+.court::after { content: ""; grid-area: 2 / 2; align-self: center; justify-self: center; width: 76%; aspect-ratio: 1; clip-path: var(--star); background: radial-gradient(circle, var(--cobalt-l) 0 22%, var(--chalk) 23% 28%, var(--cobalt) 29% 46%, var(--chalk) 47% 52%, var(--emerald) 53%); }
+.court a { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 92px; padding: 8px 4px; text-align: center; text-decoration: none; color: var(--ink-2); background: var(--chalk); border: 2px solid var(--plaster-3); border-radius: 3px; font: 800 15px/1.25 var(--font-d); transition: background .25s, transform .3s var(--spring); }
+.court a svg { width: 24px; height: 30px; }
+.court a svg { fill: var(--plaster-2); stroke: var(--cedar); stroke-width: 1.8; transition: fill .3s; }
+.court a em { font: 400 13px/1.2 var(--font); font-style: normal; color: var(--ink-3); }
+.court a:hover { background: var(--plaster); transform: translateY(-2px); }
+.court a[aria-current="page"] { color: var(--ink); background: var(--saffron-wash); border-color: var(--saffron-d); box-shadow: inset 0 0 0 2px var(--saffron); }
+.court a[aria-current="page"] svg { fill: var(--saffron); stroke: var(--cedar-d); }
+.court a .new { margin-top: 2px; padding: 1px 7px; border-radius: 3px; background: var(--terra); color: #fff; font-size: 12.5px; }
+
+/* ---------- Inputs: smooth tadelakt in a cedar frame ---------- */
+.input { position: relative; display: flex; align-items: stretch; min-height: 54px; border: 2px solid var(--cedar); border-radius: 8px; background: var(--chalk); box-shadow: inset 0 2px 0 rgba(74,42,21,.07); transition: border-color .2s, box-shadow .2s; }
+.input:focus-within { border-color: var(--cobalt); box-shadow: 0 0 0 4px var(--cobalt-wash); }
+.input input, .input textarea { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; padding: 0 16px; font: 400 16.5px/1.5 var(--font); }
+.input textarea { padding: 14px 16px; min-height: 116px; resize: vertical; line-height: 1.8; }
+.input input::placeholder, .input textarea::placeholder { color: var(--ink-3); opacity: .85; }
+.input__ico { display: grid; place-items: center; padding-left: 14px; }
+.input__ico svg { width: 19px; height: 19px; stroke: var(--ink-3); fill: none; stroke-width: 2; stroke-linecap: round; }
+.input__aff { display: grid; place-items: center; padding: 0 16px; font: 800 15.5px/1 var(--font-d); color: var(--ink-2); background: var(--plaster); border-left: 2px solid var(--plaster-3); border-radius: 0 6px 6px 0; }
+.input__btn { margin: 4px; min-width: 64px; padding: 0 12px; border: 2px solid var(--cedar-l); border-radius: 5px; cursor: pointer; font: 800 14.5px/1 var(--font-d); background: var(--plaster); color: var(--ink); }
+.input__btn:hover { background: var(--plaster-2); }
+.input.is-err { border-color: var(--terra); background: #fff7f3; }
+.input.is-err:focus-within { box-shadow: 0 0 0 4px var(--terra-wash); }
+.input.is-ok { border-color: var(--emerald); }
+.input.is-off { border-color: var(--plaster-3); background: var(--plaster); box-shadow: none; }
+.input.is-off input { color: var(--ink-3); cursor: not-allowed; }
+.input .num { text-align: right; font: 400 19px/1 var(--font-l); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 20px; width: 100%; align-items: start; }
+.count { text-align: right; font: 400 14px/1 var(--font-l); color: var(--ink-3); }
+
+/* ---------- Display ---------- */
+.glaze { display: inline-flex; align-items: center; white-space: nowrap; gap: 7px; min-height: 32px; padding: 0 12px 0 10px; border-radius: 4px; font: 700 14px/1 var(--font); color: #fff; border: 1.5px solid rgba(43,29,18,.5);
+  background: linear-gradient(165deg, rgba(255,255,255,.35) 0 20%, transparent 34%), var(--c, var(--cobalt)); }
+.glaze::before { content: ""; width: 10px; height: 10px; clip-path: var(--star); background: currentColor; opacity: .85; }
+.glaze--em { --c: var(--emerald); } .glaze--terra { --c: var(--terra); } .glaze--saf { --c: var(--saffron); color: var(--ink); } .glaze--plaster { --c: var(--plaster-2); color: var(--ink); } .glaze--cedar { --c: var(--cedar); color: #fbefd9; }
+.glazes { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+
+/* Rug cards: a woven field with a centre medallion, fringe at both ends */
+.rugs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 36px 24px; width: 100%; padding-block: 12px; }
+.rug { position: relative; display: grid; text-decoration: none; color: inherit; background: var(--chalk); border: 3px solid var(--rd); border-radius: 3px; box-shadow: 0 14px 20px -14px rgba(43,29,18,.55); transition: transform .4s var(--spring), box-shadow .4s; }
+.rug::before, .rug::after { content: ""; position: absolute; left: 8px; right: 8px; height: 11px; background: repeating-linear-gradient(90deg, var(--cedar-xl) 0 2px, transparent 2px 5px); }
+.rug::before { top: -14px; } .rug::after { bottom: -14px; }
+.rug__art { position: relative; height: 128px; display: grid; place-items: center; background:
+    repeating-linear-gradient(45deg, transparent 0 13px, rgba(255,255,255,.2) 13px 15px), repeating-linear-gradient(-45deg, transparent 0 13px, rgba(255,255,255,.2) 13px 15px), var(--r);
+  box-shadow: inset 0 0 0 6px var(--r2), inset 0 0 0 8px var(--chalk), inset 0 0 0 11px var(--rd); }
+.rug__art svg { width: 86px; height: 86px; }
+.rug__body { padding: 14px 16px 10px; display: grid; gap: 4px; }
+.rug__body small { font: 400 12.5px/1 var(--font-l); letter-spacing: .2em; color: var(--ink-3); }
+.rug__body h4 { font: 800 20px/1.3 var(--font-d); }
+.rug__body p { font-size: 15px; color: var(--ink-2); }
+.rug__meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 10px; white-space: nowrap; padding: 10px 16px 14px; border-top: 1px dashed var(--plaster-3); font: 400 16px/1 var(--font-l); color: var(--ink); }
+.rug:hover { transform: translateY(-4px) rotate(-.6deg); box-shadow: 0 22px 26px -16px rgba(43,29,18,.6); }
+.rug:focus-visible { outline-offset: 18px; }
+
+/* Gauges: a tea glass that fills, a mosaic that completes, a frieze that grows */
+.gauges { display: flex; flex-wrap: wrap; gap: 30px 44px; justify-content: center; align-items: flex-end; width: 100%; }
+.gauge { display: grid; justify-items: center; gap: 8px; text-align: center; }
+.gauge b { font: 800 17px/1.3 var(--font-d); }
+.gauge span { font-size: 14.5px; color: var(--ink-2); }
+.glass svg { width: 100px; height: 150px; overflow: visible; }
+.glass .lvl { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .8s var(--ease); }
+.mosaic { display: grid; grid-template-columns: repeat(6, 32px); gap: 4px; padding: 8px; border: 2.5px solid var(--cedar-d); border-radius: 3px; background: var(--chalk); }
+.mosaic i { position: relative; width: 32px; height: 32px; border: 1.5px dashed var(--plaster-3); border-radius: 2px; }
+.mosaic i.on { border: 0; background: linear-gradient(160deg, rgba(255,255,255,.35) 0 22%, transparent 34%), var(--c); animation: set .5s var(--spring); }
+.mosaic i.on::after { content: ""; position: absolute; inset: 7px; clip-path: var(--star); background: var(--chalk); }
+@keyframes set { from { transform: scale(.3) rotate(-30deg); } }
+.bar { width: 100%; display: grid; gap: 8px; }
+.bar__top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.bar__top b { font: 800 16.5px/1.3 var(--font-d); }
+.bar__top output { font: 400 22px/1 var(--font-l); color: var(--terra-d); }
+.bar__track { position: relative; height: 24px; border: 2.5px solid var(--cedar-d); border-radius: 3px; background: var(--plaster-2); box-shadow: inset 0 2px 4px rgba(74,42,21,.2); overflow: hidden; }
+.bar__track i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--zl) 0 0/19px 19px repeat-x, var(--chalk); border-right: 2.5px solid var(--cedar-d); transition: width .7s var(--ease); }
+/* Steps: arches along the way in */
+.ways { display: flex; width: 100%; margin: 0; padding: 0; list-style: none; overflow-x: auto; }
+.ways li { position: relative; flex: 1; min-width: 64px; display: grid; justify-items: center; gap: 6px; text-align: center; font: 800 15px/1.3 var(--font-d); color: var(--ink-3); --af: var(--chalk); --as: var(--plaster-3); --an: var(--ink-3); }
+.ways li::after { content: ""; position: absolute; top: 34px; left: calc(50% + 28px); right: calc(-50% + 28px); height: 6px; background: radial-gradient(circle, var(--plaster-3) 0 2px, transparent 2.5px) 0 0/10px 6px repeat-x; }
+.ways li:last-child::after { display: none; }
+.ways .st { position: relative; width: 48px; height: 56px; }
+.ways .st svg { width: 48px; height: 56px; }
+.ways .st b { position: absolute; left: 0; right: 0; top: 24px; font: 400 17px/1 var(--font-l); color: var(--an); }
+.ways li.done { color: var(--ink-2); --af: var(--emerald); --as: var(--emerald-d); --an: #fff; }
+.ways li.done::after { background: radial-gradient(circle, var(--emerald) 0 2.5px, transparent 3px) 0 0/10px 6px repeat-x; }
+.ways li.now { color: var(--ink); --af: var(--saffron); --as: var(--saffron-d); --an: var(--ink); }
+.ways li.now .st { animation: glowpulse 2s ease-in-out infinite; }
+@keyframes glowpulse { 50% { filter: drop-shadow(0 0 8px rgba(227,165,43,.8)); } }
+
+/* Accordion: carved cedar lintels */
+.faq { width: 100%; display: grid; gap: 10px; }
+.faq details { border: 2px solid var(--cedar-d); border-radius: 4px; background: var(--chalk); overflow: hidden; }
+.faq summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 22px 1fr; align-items: center; gap: 14px; min-height: 58px; padding: 0 18px; font: 800 16.5px/1.4 var(--font-d); background: var(--plaster); transition: background .25s; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::before { content: ""; width: 20px; height: 20px; clip-path: var(--star); background: var(--brass); transition: transform .5s var(--spring), background .25s; }
+.faq details[open] summary { background: var(--plaster-2); border-bottom: 2px solid var(--cedar-xl); }
+.faq details[open] summary::before { transform: rotate(135deg); background: var(--cobalt); }
+.faq summary:hover { background: var(--plaster-2); }
+.faq summary:focus-visible { outline-offset: -4px; }
+.faq details > div { padding: 14px 20px 18px 54px; color: var(--ink-2); font-size: 16px; }
+@media (max-width: 480px) { .faq details > div { padding-left: 18px; } }
+
+/* Table */
+.tablewrap { width: 100%; overflow-x: auto; background: var(--chalk); border: 2.5px solid var(--cedar-d); border-radius: 3px; }
+table { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 15.5px; }
+caption { padding: 14px 16px 10px; text-align: left; font: 800 16px/1 var(--font-d); color: var(--ink-2); border-bottom: 10px solid transparent; border-image: var(--zl) 0 0 100% 0 / 0 0 10px 0 round; }
+th { text-align: left; padding: 12px 16px; font: 800 14.5px/1.2 var(--font-d); color: #fbefd9; background: var(--cedar-d); white-space: nowrap; }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; min-height: 28px; }
+th button::after { content: ""; width: 9px; height: 9px; clip-path: var(--star); background: var(--cedar-l); }
+th button:focus-visible { outline: 2px solid var(--saffron-l); outline-offset: 3px; }
+th[aria-sort="ascending"] button::after { clip-path: polygon(50% 0, 100% 100%, 0 100%); background: var(--saffron-l); }
+th[aria-sort="descending"] button::after { clip-path: polygon(0 0, 100% 0, 50% 100%); background: var(--saffron-l); }
+td { padding: 13px 16px; border-bottom: 1px solid var(--plaster-2); }
+tbody tr:nth-child(even) td { background: #faf3e6; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--cobalt-wash); }
+td.num, th.num { text-align: right; } td.num, td.date { font: 400 16.5px/1 var(--font-l); }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; font: 500 14.5px/1 var(--font); color: var(--ink-3); }
+.pager ol { display: flex; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.pager button { width: 44px; height: 44px; border: 2px solid var(--cedar-l); border-radius: 5px; cursor: pointer; font: 400 18px/1 var(--font-l); background: var(--chalk); color: var(--ink-2); transition: transform .3s var(--spring); }
+.pager button:hover:not(:disabled) { transform: translateY(-2px); }
+.pager li:first-child button, .pager li:last-child button { font: 400 24px/1 var(--font); }
+.pager button[aria-current="page"] { color: #fff; border-color: var(--cobalt-d); background: linear-gradient(165deg, rgba(255,255,255,.35) 0 20%, transparent 34%), var(--cobalt); }
+.pager button:disabled { opacity: .4; cursor: not-allowed; }
+
+.empty { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 10px; }
+.empty svg { width: 120px; height: 130px; }
+.empty b { font: 800 20px/1.3 var(--font-d); }
+.empty p { color: var(--ink-2); font-size: 16px; max-width: 32ch; }
+
+/* ---------- Overlays ---------- */
+dialog { padding: 0; border: 0; background: transparent; color: var(--ink); width: 100%; max-width: min(460px, calc(100vw - 32px)); overflow: visible; }
+dialog::backdrop { background: rgba(43,29,18,.55); backdrop-filter: blur(3px); }
+dialog[open] { animation: rise .5s var(--spring); }
+@keyframes rise { from { opacity: 0; transform: translateY(18px) scale(.97); } }
+.dlg { position: relative; padding: 16px; border: 3px solid var(--cedar-d); border-radius: 999px 999px 10px 10px / 200px 200px 10px 10px; background: var(--zl) 0 0/16px 16px, var(--chalk); box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); }
+.dlg::before { content: ""; position: absolute; top: -22px; left: 50%; width: 44px; height: 44px; margin-left: -22px; background: var(--medal) center/contain no-repeat; }
+.dlg__in { border: 3px solid var(--cedar-d); border-radius: 999px 999px 4px 4px / 184px 184px 4px 4px; background: var(--chalk); padding: 70px 26px 26px; display: grid; gap: 10px; justify-items: center; text-align: center; }
+.dlg__in svg { width: 46px; height: 74px; margin-bottom: 4px; }
+.dlg h3 { font: 800 22px/1.4 var(--font-d); }
+.dlg p { color: var(--ink-2); font-size: 16px; }
+.dlg__foot { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+
+/* Side panel: a carved shutter (mashrabiya) slides in from the right */
+.side { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(430px, 100vw); display: grid; grid-template-rows: auto 1fr auto; background: var(--chalk); border-left: 30px solid transparent; transform: translateX(105%); visibility: hidden; transition: transform .6s var(--ease), visibility 0s .6s; box-shadow: -24px 0 40px -20px rgba(43,29,18,.55); }
+.side.open { transform: none; visibility: visible; transition: transform .6s var(--ease); }
+.side::before { content: ""; position: absolute; left: -30px; top: 0; bottom: 0; width: 30px; border-right: 3px solid var(--cedar-d); background: var(--mou) 0 0/30px 30px, linear-gradient(90deg, #fbe7b4, #f3cf7c); }
+.side__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 22px 22px 16px; border-bottom: 2px solid var(--plaster-2); background: radial-gradient(circle at 50% 100%, var(--chalk) 0 7px, var(--cedar-xl) 7px 8.6px, transparent 9px) 0 100%/20px 10px repeat-x, var(--plaster); padding-bottom: 26px; }
+.side__head small { font: 400 13px/1 var(--font-l); color: var(--ink-3); letter-spacing: .16em; }
+.side__head h3 { font: 800 23px/1.3 var(--font-d); }
+.side__body { padding: 24px 22px; overflow: auto; display: grid; gap: 20px; align-content: start; }
+.side__foot { padding: 16px 22px 22px; display: flex; gap: 14px; justify-content: flex-end; align-items: center; flex-wrap: wrap; border-top: 2px solid var(--plaster-2); }
+.scrim { position: fixed; inset: 0; z-index: 59; background: rgba(43,29,18,.45); opacity: 0; pointer-events: none; transition: opacity .4s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+/* Toast: a postcard sealed with wax */
+.posts { position: fixed; z-index: 70; top: 96px; right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; width: min(350px, calc(100vw - 32px)); }
+.post { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 18px 8px 14px 14px; background: var(--chalk); border: 2px solid var(--cedar-d); border-radius: 3px; box-shadow: 0 18px 28px -14px rgba(43,29,18,.55); animation: postin .6s var(--spring); }
+.post::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 7px; background: var(--zl) 0 0/7px 7px repeat-x; border-bottom: 1px solid var(--cedar-d); }
+@keyframes postin { from { opacity: 0; transform: translateX(40px) rotate(4deg); } }
+.post.out { animation: postout .4s var(--ease) forwards; }
+@keyframes postout { to { opacity: 0; transform: translateX(40px); } }
+.seal { position: relative; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 36% 30%, rgba(255,255,255,.35) 0 4px, transparent 10px), var(--w, var(--terra)); box-shadow: 0 0 0 3px var(--w, var(--terra)), 0 0 0 4px rgba(43,29,18,.35), 2px 3px 0 4px rgba(43,29,18,.15); }
+.seal::after { content: ""; width: 22px; height: 22px; clip-path: var(--star); background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 2px rgba(255,255,255,.2); }
+.post small { display: block; font: 400 12.5px/1.3 var(--font-l); color: var(--ink-3); letter-spacing: .16em; }
+.post b { display: block; font: 800 16px/1.4 var(--font-d); }
+.post span { font-size: 14.5px; color: var(--ink-2); }
+.post .x { width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--ink-3); font-size: 20px; }
+.post .x:hover { background: var(--plaster); color: var(--ink); }
+.post--em { --w: var(--emerald); } .post--cob { --w: var(--cobalt); } .post--saf { --w: var(--saffron-d); }
+
+/* ---------- Code ---------- */
+pre.code { margin: 0; padding: 22px; overflow: auto; max-height: 520px; background: #2b1d12; color: #f0e2c8; font: 400 13px/1.75 ui-monospace, Menlo, Consolas, monospace; border: 2.5px solid var(--cedar-d); border-top: 12px solid transparent; border-image: var(--zl) 12 0 0 0 / 12px 0 0 0 round; border-radius: 3px; }
+pre.code .c { color: #b49b7d; } pre.code .p { color: var(--saffron-l); } pre.code .v { color: #9cc0f0; }
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; }
+
+.foot { position: relative; z-index: 1; margin-top: 110px; }
+.foot .dado { margin-top: 0; }
+.foot__in { background: repeating-linear-gradient(90deg, rgba(0,0,0,.07) 0 2px, transparent 2px 9px), linear-gradient(var(--cedar), var(--cedar-d)); padding-block: 34px 54px; text-align: center; color: #f2e2c6; font-size: 15px; display: grid; justify-items: center; gap: 8px; }
+.foot__in .ar { font-size: 44px; line-height: 1.3; color: var(--saffron-l); }
+.foot__in b { font: 400 18px/1 var(--font-l); letter-spacing: .36em; padding-left: .36em; color: #fbefd9; }
+.foot__in a { color: var(--saffron-l); }
+.foot__in a:focus-visible { outline-color: var(--saffron-l); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="defs">
+  <pattern id="pzf" width="32" height="32" patternUnits="userSpaceOnUse"><image id="pzfI" width="32" height="32"/></pattern>
+  <pattern id="pzs" width="24" height="24" patternUnits="userSpaceOnUse"><image id="pzsI" width="24" height="24"/></pattern>
+  <pattern id="pzr" width="14" height="14" patternUnits="userSpaceOnUse"><image id="pzrI" width="14" height="14"/></pattern>
+  <radialGradient id="glow"><stop offset="0" stop-color="#ffe7a3" stop-opacity=".9"/><stop offset=".55" stop-color="#ffd977" stop-opacity=".35"/><stop offset="1" stop-color="#ffd977" stop-opacity="0"/></radialGradient>
+  <!-- eight-point star (two squares) -->
+  <symbol id="st8" viewBox="0 0 20 20"><polygon points="10,0 12.93,2.93 17.07,2.93 17.07,7.07 20,10 17.07,12.93 17.07,17.07 12.93,17.07 10,20 7.07,17.07 2.93,17.07 2.93,12.93 0,10 2.93,7.07 2.93,2.93 7.07,2.93"/></symbol>
+  <!-- pierced brass lantern; the holes take --hole -->
+  <symbol id="lamp" viewBox="0 0 40 72">
+    <circle cx="20" cy="4" r="3" fill="none" stroke="#7c5a16" stroke-width="1.6"/>
+    <path d="M11 18Q20 4 29 18Z" fill="#c19434" stroke="#4a2a15" stroke-width="1.5" stroke-linejoin="round"/><circle cx="20" cy="8.5" r="1.8" fill="#ecd082" stroke="#4a2a15" stroke-width="1"/>
+    <rect x="10" y="18" width="20" height="3.5" fill="#7c5a16" stroke="#4a2a15" stroke-width="1"/>
+    <path d="M11 21.5H29L35 40L29 58H11L5 40Z" fill="#c19434" stroke="#4a2a15" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M20 21.5V58M5 40H35" stroke="#7c5a16" stroke-width="1.1"/>
+    <g style="fill:var(--hole, #3a2614)"><use href="#st8" x="10" y="25.5" width="6" height="6"/><use href="#st8" x="24" y="25.5" width="6" height="6"/><use href="#st8" x="6.5" y="42.5" width="5" height="5"/><use href="#st8" x="13.5" y="42.5" width="5" height="5"/><use href="#st8" x="21.5" y="42.5" width="5" height="5"/><use href="#st8" x="28.5" y="42.5" width="5" height="5"/><use href="#st8" x="10" y="49" width="6" height="6"/><use href="#st8" x="24" y="49" width="6" height="6"/><use href="#st8" x="9" y="32" width="5" height="5"/><use href="#st8" x="26" y="32" width="5" height="5"/></g>
+    <path d="M12 58H28L23.5 65H16.5Z" fill="#c19434" stroke="#4a2a15" stroke-width="1.5" stroke-linejoin="round"/><circle cx="20" cy="68.5" r="2.6" fill="#ecd082" stroke="#4a2a15" stroke-width="1.2"/>
+  </symbol>
+  <!-- horseshoe arch head plate: zellige spandrels, striped voussoirs -->
+  <symbol id="arch" viewBox="0 0 300 170">
+    <rect x="16" y="3" width="268" height="167" fill="url(#pzs)"/>
+    <path d="M82 170V134.2A78 78 0 1 1 218 134.2V170" fill="none" stroke="#fcf8f0" stroke-width="26"/>
+    <path d="M82 170V134.2A78 78 0 1 1 218 134.2V170" fill="none" stroke="#b4472a" stroke-width="26" stroke-dasharray="9 5"/>
+    <path d="M69 170V137.5A91 91 0 1 1 231 137.5V170" fill="none" stroke="#4a2a15" stroke-width="2.5"/>
+    <path d="M82 170V134.2A78 78 0 1 1 218 134.2V170Z" fill="#fcf8f0" stroke="#4a2a15" stroke-width="3"/>
+    <path d="M88 170V132.6A72 72 0 1 1 212 132.6V170" fill="none" stroke="#e3a52b" stroke-width="1.5"/>
+    <rect x="16" y="3" width="268" height="167" fill="none" stroke="#4a2a15" stroke-width="3"/>
+    <rect x="22" y="9" width="256" height="161" fill="none" stroke="#e3a52b" stroke-width="1.2"/>
+    <path d="M10 170H290" stroke="#4a2a15" stroke-width="4"/>
+  </symbol>
+  <!-- small arch for steps; colours from --af / --as -->
+  <symbol id="archs" viewBox="0 0 48 56"><path d="M8 55V33.5A17 17 0 1 1 40 33.5V55Z" style="fill:var(--af);stroke:var(--as)" stroke-width="2.5" stroke-linejoin="round"/><path d="M12.5 55V33A13 13 0 1 1 35.5 33V55" fill="none" style="stroke:var(--as)" stroke-width="1" opacity=".55"/></symbol>
+  <!-- room door for the courtyard menu -->
+  <symbol id="rdoor" viewBox="0 0 24 30"><path d="M3 29V13.5A9 9 0 1 1 21 13.5V29Z"/></symbol>
+</defs></svg>
+
+<header class="top">
+  <div class="top__bar"><div class="wrap"><a class="top__name" href="#"><i aria-hidden="true"></i>리아드 <small>RIAD</small></a>
+    <nav aria-label="섹션" id="nav"><a href="#base">기초</a><a href="#press">누르기</a><a href="#toggle">켜고 끄기</a><a href="#choose">고르기</a><a href="#type-in">입력</a><a href="#show">보여 주기</a><a href="#float">띄우기</a><a href="#code">코드</a></nav></div></div>
+  <div class="top__frieze" aria-hidden="true"></div>
+</header>
+
+<div class="hero">
+  <div class="wrap hero__grid">
+    <div>
+      <div class="hero__k">DESIGN SYSTEM <span class="ar" lang="ar" aria-hidden="true">رياض</span></div>
+      <h1>리아드<small>별빛 타일과 분수가 있는 안뜰</small></h1>
+      <p class="hero__p">페스의 옛 골목 안, 회반죽 벽 뒤에 숨은 중정. 판마다 젤리주 타일 띠를 두르고, 모서리에는 놋쇠 별을 박습니다. 안쪽은 비워 두고, 장식은 가장자리에만.</p>
+      <div class="hero__cta"><a class="btn" href="#press">둘러보기</a><a class="btn btn--cedar" href="#code">토큰 받기</a></div>
+    </div>
+    <div class="hero__court" id="heroCourt"></div>
+  </div>
+  <div class="dado" aria-hidden="true"></div>
+</div>
+
+<main class="wrap">
+
+<!-- 기초 -->
+<section class="hall" id="base">
+  <div class="hall__head"><div class="plate"><svg aria-hidden="true"><use href="#arch"/></svg><small>I</small><h2>기초</h2></div><p>바탕은 회반죽과 삼나무. 색은 젤리주 유약 네 가지, 코발트 · 에메랄드 · 사프란 · 테라코타. 빛은 놋쇠와 차의 호박색.</p></div>
+
+  <div class="niche"><div class="niche__in"><div class="yard col full" style="padding:40px 28px"><div class="swatches" id="swatches"></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>무늬 네 가지 <small>PATTERN</small></h3><p>모든 무늬는 여덟 꼭지 별과 그 조각. 같은 격자, 같은 각도로만 짭니다.</p><ul><li>무늬는 가장자리에. 글이 놓이는 안쪽은 비웁니다.</li><li>사진 질감은 쓰지 않습니다. 선과 면만.</li></ul></div>
+    <div class="yard col"><div class="pats" id="pats"></div></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>글자 <small>TYPE</small></h3><p>제목은 나눔명조, 본문은 고딕 A1. 숫자와 영문은 마르셀루스, 아랍 글씨는 장식으로만.</p></div><div class="yard col" id="typescale" style="display:block;padding:30px 28px"></div></div></div></div>
+
+  <ol class="rules">
+    <li><b>가장자리에 공을 들인다</b><span>타일 띠, 별 메달, 회반죽 아케이드는 판의 테두리에만. 안쪽은 고요하게.</span></li>
+    <li><b>별은 여덟 꼭지</b><span>장식, 표시, 손잡이 모두 같은 별에서 나옵니다. 모양이 하나라 화면이 정돈됩니다.</span></li>
+    <li><b>유약은 네 색</b><span>코발트는 주요 동작, 에메랄드는 켜짐과 완료, 사프란은 빛과 지금, 테라코타는 경고.</span></li>
+    <li><b>누구나 읽게</b><span>본문 16.5px, 누르는 곳 44px 이상, 글자 대비 4.5:1 이상. 움직임 줄이기를 켜면 물과 불빛이 멈춥니다.</span></li>
+  </ol>
+</section>
+
+<!-- 누르기 -->
+<section class="hall" id="press">
+  <div class="hall__head"><div class="plate"><svg aria-hidden="true"><use href="#arch"/></svg><small>II</small><h2>누르기</h2></div><p>버튼은 유약 바른 타일과 깎은 삼나무. 가장 큰 행동은 리아드의 문을 두드리는 것, 확인은 민트 차 한 잔.</p></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>유약 타일 버튼 <small>GLAZE</small></h3><p>주요 동작은 코발트 유약, 완료는 에메랄드, 위험은 테라코타. 보조는 깎은 삼나무, 조용한 것은 회반죽.</p><ul><li>양 끝의 작은 별이 손을 올리면 돌아갑니다.</li><li>레이블은 짧은 동사: "예약하기".</li></ul></div>
+    <div class="yard"><button class="btn">예약하기</button><button class="btn btn--em">체크인</button><button class="btn btn--cedar">방 둘러보기</button><button class="btn btn--terra">예약 취소</button><button class="btn btn--plaster">나중에</button><button class="btn btn--link">자세히</button></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>크기와 상태</h3><p>작은 버튼도 누르는 높이는 44px. 쓸 수 없을 때는 유약이 빠진 맨 흙빛, 기다리는 동안에는 별이 돕니다.</p></div>
+    <div class="yard"><button class="btn btn--sm">작게</button><button class="btn btn--sm btn--cedar">작은 삼나무</button><button class="btn" disabled>빈 방 없음</button><button class="btn" id="busyBtn"><span>예약 보내기</span></button></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>놋쇠 메달 <small>BRASS</small></h3><p>아이콘만 있는 버튼은 놋쇠 별 메달. 가운데에 선으로 새긴 그림, 손을 올리면 살짝 기웁니다.</p><ul><li>이름(aria-label)과 말풍선을 꼭 붙입니다.</li></ul></div>
+    <div class="yard"><div class="medals">
+      <span class="tip"><button class="medal" aria-label="지도"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/></svg></button><span class="tip__b" role="tooltip">메디나 지도</span></span>
+      <span class="tip"><button class="medal" aria-label="찜하기"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg></button><span class="tip__b" role="tooltip">찜하기</span></span>
+      <span class="tip"><button class="medal" aria-label="공유"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/></svg></button><span class="tip__b" role="tooltip">공유하기</span></span>
+    </div></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>문 두드리기 <small>KNOCKER</small></h3><p>한 화면에 하나뿐인 가장 큰 행동. 놋쇠 고리로 문을 두드리면 삼나무 문이 열리고 안뜰의 빛이 쏟아집니다.</p></div>
+    <div class="yard" style="padding-top:40px" id="doorYard"></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>민트 차 <small>ATAY</small></h3><p>가벼운 확인은 차 한 잔. 주전자를 높이 들어 따르면 잔이 차오르고 민트 잎이 뜹니다.</p></div>
+    <div class="yard" id="pourYard"></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>더보기 메뉴</h3><p>자주 쓰지 않는 동작은 접어 둡니다. ↑↓로 옮기고 Esc로 닫습니다.</p></div>
+    <div class="yard" style="min-height:320px;align-content:start;padding-top:48px"><div class="row"><div><b>사프란 방 · 2박</b><span>11월 22–24일 · 2인</span></div>
+      <div class="menu"><button class="medal medal--sm" aria-label="더보기" aria-haspopup="menu" aria-expanded="false" aria-controls="menuList" id="menuBtn"><svg viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg></button>
+        <ul class="menu__list" role="menu" id="menuList" aria-label="예약 동작" hidden><li role="none"><button role="menuitem" tabindex="-1">자세히 보기 <kbd>V</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">날짜 바꾸기 <kbd>D</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">공항 마중 추가 <kbd>A</kbd></button></li><li role="none" class="menu__sep"></li><li role="none"><button role="menuitem" tabindex="-1" class="danger">예약 취소</button></li></ul></div></div></div></div></div></div>
+</section>
+
+<!-- 켜고 끄기 -->
+<section class="hall" id="toggle">
+  <div class="hall__head"><div class="plate"><svg aria-hidden="true"><use href="#arch"/></svg><small>III</small><h2>켜고 끄기</h2></div><p>켜면 놋쇠 등불 구멍으로 별빛이 쏟아지고, 분수가 솟습니다. 작은 설정은 홈을 따라 구르는 놋쇠 별.</p></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>등불 스위치 <small>LANTERN</small></h3><p>큰 설정. 누르면 뚫린 별 구멍에 불이 들고 벽에 별 모양 빛이 맺힙니다. 켜짐과 꺼짐을 글자로도 적습니다.</p></div>
+    <div class="yard col" style="align-items:flex-start;gap:20px" id="lamps"></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>분수 스위치 <small>FOUNTAIN</small></h3><p>흐르는 것을 켜고 끌 때. 켜지면 물이 솟아 대야에 떨어지고 물결이 번집니다.</p></div>
+    <div class="yard col" style="align-items:flex-start;gap:20px" id="founts"></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>타일 홈 스위치</h3><p>작은 설정. 놋쇠 별이 홈을 따라 반 바퀴 구르고, 켜지면 홈이 에메랄드 유약으로 바뀝니다.</p></div>
+    <div class="yard col" style="align-items:flex-start">
+      <button class="slide" role="switch" aria-checked="true"><span class="slide__g" aria-hidden="true"></span><span class="slide__t"><b>아침 식사 알림</b><small>옥상 테라스, 오전 8시</small></span></button>
+      <button class="slide" role="switch" aria-checked="false"><span class="slide__g" aria-hidden="true"></span><span class="slide__t"><b>방해 금지</b><small>문 앞에 표시를 걸어 둡니다</small></span></button>
+    </div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>타일 체크박스</h3><p>민무늬 흰 타일이 고르면 뒤집혀 별 무늬 면을 보입니다. 일부만 고르면 "전부"에 가로 띠.</p></div>
+    <div class="yard col" style="align-items:flex-start"><fieldset class="stack"><legend>방에 준비해 둘 것</legend>
+      <label class="check"><input type="checkbox" id="chkAll"><span class="tile" aria-hidden="true"><span class="tile__f"></span><span class="tile__b"><svg viewBox="0 0 34 34"><path d="M8 18l6 6L27 9" stroke="#4a2a15" stroke-width="8"/><path d="M8 18l6 6L27 9" stroke="#fcf8f0" stroke-width="4"/></svg></span></span><span class="check__t"><b>전부</b></span></label>
+      <div class="stack" style="padding-left:44px">
+        <label class="check"><input type="checkbox" class="ci" checked><span class="tile" aria-hidden="true"><span class="tile__f"></span><span class="tile__b"><svg viewBox="0 0 34 34"><path d="M8 18l6 6L27 9" stroke="#4a2a15" stroke-width="8"/><path d="M8 18l6 6L27 9" stroke="#fcf8f0" stroke-width="4"/></svg></span></span><span class="check__t"><b>민트 차 한 주전자</b><small>도착하면 바로 내어 드립니다</small></span></label>
+        <label class="check"><input type="checkbox" class="ci"><span class="tile" aria-hidden="true"><span class="tile__f"></span><span class="tile__b"><svg viewBox="0 0 34 34"><path d="M8 18l6 6L27 9" stroke="#4a2a15" stroke-width="8"/><path d="M8 18l6 6L27 9" stroke="#fcf8f0" stroke-width="4"/></svg></span></span><span class="check__t"><b>하맘 수건과 가운</b></span></label>
+        <label class="check"><input type="checkbox" class="ci"><span class="tile" aria-hidden="true"><span class="tile__f"></span><span class="tile__b"><svg viewBox="0 0 34 34"><path d="M8 18l6 6L27 9" stroke="#4a2a15" stroke-width="8"/><path d="M8 18l6 6L27 9" stroke="#fcf8f0" stroke-width="4"/></svg></span></span><span class="check__t"><b>장미 꽃잎</b><small>침대 위에 조금</small></span></label>
+        <label class="check"><input type="checkbox" disabled><span class="tile" aria-hidden="true"><span class="tile__f"></span><span class="tile__b"></span></span><span class="check__t"><b>벽난로 장작</b><small>11월에는 준비하지 않습니다</small></span></label>
+      </div></fieldset></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>별 라디오 <small>KHATAM</small></h3><p>하나만 고를 때. 고른 별이 한 바퀴 돌며 사프란 빛으로 채워집니다.</p></div>
+    <div class="yard col" style="align-items:flex-start"><fieldset class="stack"><legend>아침 식사</legend>
+      <label class="check"><input type="radio" name="bf" checked><span class="star-r" aria-hidden="true"></span><span class="check__t"><b>옥상 테라스</b><small>메디나 지붕 너머로 해가 뜹니다</small></span></label>
+      <label class="check"><input type="radio" name="bf"><span class="star-r" aria-hidden="true"></span><span class="check__t"><b>분수 곁 중정</b><small>그늘이 지고 물소리가 납니다</small></span></label>
+      <label class="check"><input type="radio" name="bf"><span class="star-r" aria-hidden="true"></span><span class="check__t"><b>방으로</b><small>오전 9시까지 문 앞에 둡니다</small></span></label>
+    </fieldset></div></div></div></div>
+</section>
+
+<!-- 고르기 -->
+<section class="hall" id="choose">
+  <div class="hall__head"><div class="plate"><svg aria-hidden="true"><use href="#arch"/></svg><small>IV</small><h2>고르기</h2></div><p>고른 것은 유약을 입거나, 아치 안 타일이 드러나거나, 등불처럼 밝아집니다.</p></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>삼나무 쟁반</h3><p>서너 개 중 하나를 바로 바꿀 때. 고른 칸이 에메랄드 타일로 바뀝니다. ←→ 키로 옮깁니다.</p></div>
+    <div class="yard"><div class="tray" role="radiogroup" aria-label="차에 넣을 설탕"><button role="radio" aria-checked="false">없이</button><button role="radio" aria-checked="false">조금</button><button role="radio" aria-checked="true">보통</button><button role="radio" aria-checked="false">듬뿍</button></div></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>아치 탭 <small>ARCHES</small></h3><p>탭은 나란한 말굽 아치. 고른 아치는 더 높이 솟고 안쪽 타일이 드러납니다.</p><ul><li>←→ 키로 넘기고 Home, End로 처음과 끝.</li></ul></div>
+    <div class="yard col">
+      <div><div class="arches" role="tablist" aria-label="리아드의 공간"><button class="arch-tab" role="tab" aria-selected="true" aria-controls="tp1" id="t1"><span>중정</span></button><button class="arch-tab" role="tab" aria-selected="false" aria-controls="tp2" id="t2" tabindex="-1"><span>옥상</span></button><button class="arch-tab" role="tab" aria-selected="false" aria-controls="tp3" id="t3" tabindex="-1"><span>하맘</span></button></div>
+      <div class="archpanel" role="tabpanel" id="tp1" aria-labelledby="t1" tabindex="0">집 한가운데 하늘이 열린 마당. 분수와 오렌지 나무가 있고, 네 면의 방이 모두 이곳을 향합니다.</div>
+      <div class="archpanel" role="tabpanel" id="tp2" aria-labelledby="t2" tabindex="0" hidden>지붕 위 테라스. 아침을 먹고, 해 질 녘에는 메디나의 기도 소리를 듣습니다.</div>
+      <div class="archpanel" role="tabpanel" id="tp3" aria-labelledby="t3" tabindex="0" hidden>타데락트로 마감한 증기 목욕탕. 검은 비누와 장갑으로 씻고 민트 차로 마무리합니다.</div></div>
+    </div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>별 칩 필터</h3><p>여러 개를 켜고 끄는 필터. 켜지면 에메랄드 유약을 입고 별이 사프란으로 밝아집니다.</p></div>
+    <div class="yard"><div class="chips" role="group" aria-label="방 조건"><button class="chip" aria-pressed="true">중정 쪽</button><button class="chip" aria-pressed="false">벽난로</button><button class="chip" aria-pressed="true">욕조</button><button class="chip" aria-pressed="false">테라스 가까이</button><button class="chip" aria-pressed="false">계단 없음</button></div></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>드롭다운과 러그 슬라이더</h3><p>목록이 길면 드롭다운. 값을 고를 때는 짜다 만 러그 한 줄: 짠 만큼 색이 살고, 손잡이는 놋쇠 별, 옆 잔의 차가 진해집니다.</p></div>
+    <div class="yard col">
+      <div class="field"><label for="sel1">공항 마중 <small>편도 기준</small></label><div class="select"><select id="sel1"><option>필요 없음</option><option>마라케시 메나라 공항</option><option>페스 사이스 공항</option><option>기차역 (페스 역)</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+      <div class="brew"><div class="brew__top"><label class="flabel" for="rg">차 우리는 시간</label><div class="brew__out"><svg viewBox="0 0 34 46" aria-hidden="true"><path d="M5 6H29L26 42H8Z" fill="#fff" stroke="#4a2a15" stroke-width="2"/><path id="brewTea" d="M6.3 16H27.7L25.8 40H8.2Z" fill="#c98a2e"/><path d="M5.5 9H28.5" stroke="#c19434" stroke-width="2.5" stroke-dasharray="2 1.5"/></svg><output id="rgOut" for="rg">4<small>분</small></output></div></div>
+        <div class="brew__track"><input type="range" id="rg" min="1" max="8" step="1" value="4" aria-valuetext="4분"></div>
+        <div class="brew__scale" aria-hidden="true"><span>1</span><span>4</span><span>8</span></div></div>
+    </div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>중정 메뉴 <small>DAR</small></h3><p>사이드 메뉴는 중정을 둘러싼 방들. 가운데 분수를 두고 시계 방향으로 돌며, 지금 있는 방에 등불이 켜집니다.</p></div>
+    <div class="yard"><nav aria-label="리아드의 방" style="width:100%;display:grid;justify-items:center"><ul class="court" id="court">
+      <li><a href="#"><svg aria-hidden="true"><use href="#rdoor"/></svg>입구<em>스키파</em></a></li>
+      <li><a href="#" aria-current="page"><svg aria-hidden="true"><use href="#rdoor"/></svg>살롱<em>응접실</em></a></li>
+      <li><a href="#"><svg aria-hidden="true"><use href="#rdoor"/></svg>사프란 방<em>2층</em></a></li>
+      <li><a href="#"><svg aria-hidden="true"><use href="#rdoor"/></svg>코발트 방<em>2층</em></a></li>
+      <li><a href="#"><svg aria-hidden="true"><use href="#rdoor"/></svg>하맘<em class="new">예약</em></a></li>
+      <li><a href="#"><svg aria-hidden="true"><use href="#rdoor"/></svg>부엌<em>타진</em></a></li>
+      <li><a href="#"><svg aria-hidden="true"><use href="#rdoor"/></svg>서재<em>책 120권</em></a></li>
+      <li><a href="#"><svg aria-hidden="true"><use href="#rdoor"/></svg>옥상<em>테라스</em></a></li>
+    </ul></nav></div></div></div></div>
+</section>
+
+<!-- 입력 -->
+<section class="hall" id="type-in">
+  <div class="hall__head"><div class="plate"><svg aria-hidden="true"><use href="#arch"/></svg><small>V</small><h2>입력</h2></div><p>입력 칸은 매끈한 타데락트 벽을 삼나무 테에 끼운 것. 쓰는 동안 테가 코발트로 바뀝니다.</p></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>글자 입력</h3><p>이름은 칸 위에. 틀리면 테가 테라코타로 바뀌고, 무엇을 어떻게 고칠지 한 문장으로 알려 줍니다.</p></div>
+    <div class="yard col"><div class="grid2">
+      <div class="field"><label for="i1">이름</label><div class="input"><input id="i1" placeholder="예: 한여름" autocomplete="name"></div></div>
+      <div class="field"><label for="i2">이메일</label><div class="input is-err"><input id="i2" type="email" value="yeoreum@" aria-invalid="true" aria-describedby="i2e" autocomplete="email"></div><span class="help err" id="i2e">주소가 덜 적혔어요. yeoreum@mail.com처럼 적어 주세요.</span></div>
+      <div class="field"><label for="i3">찾기</label><div class="input"><span class="input__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></span><input id="i3" type="search" placeholder="도시, 리아드 이름"></div></div>
+      <div class="field"><label for="i4">비밀번호</label><div class="input is-ok"><input id="i4" type="password" value="zellige-star-8" autocomplete="new-password" aria-describedby="i4h"><button class="input__btn" type="button" id="pwBtn" aria-pressed="false" aria-controls="i4">보기</button></div><span class="help ok" id="i4h">충분히 깁니다</span></div>
+      <div class="field"><label for="i5">인원</label><div class="input"><input id="i5" class="num" type="number" value="2" min="1" max="6"><span class="input__aff">명</span></div></div>
+      <div class="field"><label for="i6">예약 번호 <small>바꿀 수 없음</small></label><div class="input is-off"><input id="i6" value="FES-1122-08" disabled></div></div>
+    </div></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>날짜와 긴 글</h3><p>날짜와 시각은 기본 달력으로. 여러 줄 입력은 남은 글자 수를 아래에 적습니다.</p></div>
+    <div class="yard col">
+      <div class="grid2"><div class="field"><label for="d1">도착하는 날</label><div class="input"><input id="d1" type="date" value="2026-11-22"></div></div><div class="field"><label for="d2">도착 시각</label><div class="input"><input id="d2" type="time" value="15:30"></div></div></div>
+      <div class="field"><label for="ta">주인에게 남길 말</label><div class="input"><textarea id="ta" maxlength="160" placeholder="예: 늦게 도착합니다" aria-describedby="taCount">기차가 늦으면 저녁 8시쯤 도착합니다. 메디나 입구까지 마중 나와 주실 수 있을까요?</textarea></div><div class="count" id="taCount" aria-live="polite"></div></div>
+    </div></div></div></div>
+</section>
+
+<!-- 보여 주기 -->
+<section class="hall" id="show">
+  <div class="hall__head"><div class="plate"><svg aria-hidden="true"><use href="#arch"/></svg><small>VI</small><h2>보여 주기</h2></div><p>유약 타일 꼬리표, 러그 카드, 차오르는 찻잔과 완성되는 모자이크, 안으로 들어가는 아치들.</p></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>유약 꼬리표</h3><p>상태 표시는 작은 유약 타일. 색만으로 알리지 않고 글자로 함께 적습니다.</p></div>
+    <div class="yard"><div class="glazes"><span class="glaze glaze--plaster">대기</span><span class="glaze glaze--em">확정</span><span class="glaze glaze--saf">입금 대기</span><span class="glaze">새 소식</span><span class="glaze glaze--cedar">지난 예약</span><span class="glaze glaze--terra">취소</span></div></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec spec--stack"><div class="note"><h3>러그 카드 <small>ZARBIA</small></h3><p>카드는 작은 러그. 마름모 격자 위에 가운데 메달리온, 위아래로 술이 달립니다. 방마다 제 색이 있습니다.</p></div>
+    <div class="yard"><div class="rugs" id="rugs"></div></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>찻잔과 모자이크</h3><p>양은 찻잔에 차가 차오르는 것으로, 여러 장으로 된 일은 타일을 붙여 가는 모자이크로, 기다림은 자라나는 타일 띠로 보여 줍니다.</p><ul><li>모두 role="progressbar"와 값을 함께 둡니다.</li></ul></div>
+    <div class="yard col" style="gap:34px">
+      <div class="gauges">
+        <div class="gauge"><div class="glass" id="glass" role="progressbar" aria-label="환영 차" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="절반"></div><b>환영 차</b><span id="glassTxt">절반 찼어요</span><button class="btn btn--sm btn--plaster" id="pourBtn">더 따르기</button></div>
+        <div class="gauge"><div class="mosaic" id="mosaic" role="progressbar" aria-label="방 단장" aria-valuemin="0" aria-valuemax="24" aria-valuenow="15" aria-valuetext="24장 중 15장"></div><b>방 단장</b><span id="mosaicTxt">24장 중 15장</span><button class="btn btn--sm btn--plaster" id="tileBtn">타일 붙이기</button></div>
+      </div>
+      <div class="bar"><div class="bar__top"><b>하맘 데우는 중</b><output id="barOut">60%</output></div><div class="bar__track" role="progressbar" aria-label="하맘 데우는 중" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" id="bar"><i style="width:60%"></i></div></div>
+      <ol class="ways" aria-label="예약 단계"><li class="done"><span class="st"><svg aria-hidden="true"><use href="#archs"/></svg><b aria-hidden="true">✓</b></span>날짜</li><li class="done"><span class="st"><svg aria-hidden="true"><use href="#archs"/></svg><b aria-hidden="true">✓</b></span>방</li><li class="now" aria-current="step"><span class="st"><svg aria-hidden="true"><use href="#archs"/></svg><b aria-hidden="true">3</b></span>결제</li><li><span class="st"><svg aria-hidden="true"><use href="#archs"/></svg><b aria-hidden="true">4</b></span>도착</li></ol>
+    </div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>아코디언</h3><p>긴 설명은 접어 둡니다. 펼친 칸은 놋쇠 별이 돌아 코발트로 바뀝니다.</p></div>
+    <div class="yard"><div class="faq">
+      <details open><summary>체크인은 몇 시인가요?</summary><div>오후 2시부터입니다. 먼저 도착하면 짐을 맡기고 중정에서 차를 드실 수 있어요.</div></details>
+      <details><summary>메디나 안까지 차가 들어가나요?</summary><div>골목이 좁아 차는 들어가지 못합니다. 입구 광장에서 짐꾼이 수레로 함께 걸어갑니다.</div></details>
+      <details><summary>하맘은 따로 예약해야 하나요?</summary><div>네, 하루 전까지 알려 주세요. 한 번에 두 사람까지, 한 시간 동안 씁니다.</div></details>
+    </div></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>예약 표</h3><p>머리는 삼나무, 칸은 회반죽. 숫자와 날짜는 마르셀루스로 줄을 맞춥니다.</p><ul><li>날짜, 박, 금액 머리글을 누르면 정렬됩니다.</li></ul></div>
+    <div class="yard col">
+      <div class="tablewrap"><table id="tbl"><caption>11월 예약</caption><thead><tr><th scope="col">방</th><th scope="col">손님</th><th scope="col" aria-sort="ascending"><button data-k="2">도착</button></th><th scope="col" class="num" aria-sort="none"><button data-k="3">박</button></th><th scope="col" class="num" aria-sort="none"><button data-k="4">금액</button></th></tr></thead><tbody></tbody></table></div>
+      <div class="pager"><span id="pgInfo" aria-live="polite"></span><nav aria-label="쪽"><ol id="pager"></ol></nav></div>
+    </div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>비어 있음</h3><p>빈 곳에는 불 꺼진 등불 하나와 할 일 하나.</p></div>
+    <div class="yard"><div class="empty"><svg viewBox="0 0 120 130" aria-hidden="true"><path d="M18 128V64A42 42 0 1 1 102 64V128" fill="#f3e7d3" stroke="#d6bd96" stroke-width="2.5" stroke-dasharray="6 5"/><path d="M60 22V40" stroke="#7c5a16" stroke-width="1.5"/><use href="#lamp" x="44" y="38" width="32" height="58"/><ellipse cx="60" cy="122" rx="30" ry="4" fill="rgba(74,42,21,.12)"/></svg><b>아직 예약이 없어요</b><p>중정의 등불은 손님이 와야 켜집니다. 머물 리아드를 골라 보세요.</p><button class="btn btn--sm">리아드 찾기</button></div></div></div></div></div>
+</section>
+
+<!-- 띄우기 -->
+<section class="hall" id="float">
+  <div class="hall__head"><div class="plate"><svg aria-hidden="true"><use href="#arch"/></svg><small>VII</small><h2>띄우기</h2></div><p>확인 창은 열쇠 구멍 아치, 옆 판은 밀려 들어오는 나무 창살, 알림은 밀랍으로 봉한 엽서.</p></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>아치 확인 창</h3><p>되돌릴 수 없는 일 앞에서. 뒤는 어둡게 가리고, 버튼은 결과를 말합니다. Esc로 닫힙니다.</p></div>
+    <div class="yard"><button class="btn btn--terra" id="dlgOpen">예약 취소…</button></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>마슈라비야 옆 판 <small>SHUTTER</small></h3><p>화면을 떠나지 않고 자세히 볼 때. 깎은 나무 창살 너머로 사프란 빛이 비치는 판이 오른쪽에서 밀려옵니다.</p><ul><li>열리면 초점이 안에 갇히고, Esc나 바깥을 누르면 닫힙니다.</li></ul></div>
+    <div class="yard"><button class="btn btn--cedar" id="sideOpen">예약 자세히</button></div></div></div></div>
+
+  <div class="niche"><div class="niche__in"><div class="spec"><div class="note"><h3>밀랍 엽서 알림</h3><p>방금 일어난 일. 밀랍으로 봉한 엽서가 오른쪽 위에 꽂히고 5초 뒤 빠져나갑니다. 오류는 바로 읽어 줍니다.</p></div>
+    <div class="yard"><button class="btn btn--em" data-toast="ok">확정 알림</button><button class="btn" data-toast="info">안내 알림</button><button class="btn btn--terra" data-toast="err">오류 알림</button></div></div></div></div>
+</section>
+
+<!-- 코드 -->
+<section class="hall" id="code">
+  <div class="hall__head"><div class="plate"><svg aria-hidden="true"><use href="#arch"/></svg><small>VIII</small><h2>코드</h2></div><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 별 모양과 타일 액자를 유틸리티로 씁니다.</p></div>
+  <div class="niche"><div class="niche__in"><div class="yard col full" style="padding:30px 26px"><div class="codebar"><span class="flabel">app/globals.css</span><button class="btn btn--sm btn--cedar" id="copyBtn">복사하기</button></div><pre class="code" id="codeBlock" tabindex="0" aria-label="globals.css 코드"></pre></div></div></div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="dado" aria-hidden="true"></div>
+  <div class="foot__in"><span class="ar" lang="ar" aria-hidden="true">رياض</span><b>RIAD</b><span>Nanum Myeongjo · Gothic A1 · Marcellus · Aref Ruqaa</span><span>다른 시스템: <a href="../">Oat</a> · <a href="../riso/">Riso</a> · <a href="../arcology/">Arcology</a> · <a href="../dal/">Dal</a> · <a href="../canopy/">Canopy</a> · <a href="../sansa/">Sansa</a></span></div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgT" aria-describedby="dlgD">
+  <div class="dlg"><div class="dlg__in">
+    <svg viewBox="0 0 40 72" aria-hidden="true" style="--hole:#fff3c4"><use href="#lamp"/></svg>
+    <h3 id="dlgT">사프란 방 예약을 취소할까요?</h3><p id="dlgD">11월 22–24일, 2인 2박 예약이 취소됩니다. 사흘 전까지는 전액 돌려드립니다.</p>
+    <div class="dlg__foot"><button class="btn btn--plaster" data-close>그대로 두기</button><button class="btn btn--terra" data-close data-after="err">예약 취소</button></div>
+  </div></div>
+</dialog>
+
+<div class="scrim" id="scrim"></div>
+<aside class="side" id="side" role="dialog" aria-modal="true" aria-labelledby="sideT" aria-hidden="true">
+  <div class="side__head"><div><small>FES-1122-08</small><h3 id="sideT">사프란 방 · 2박</h3></div><button class="medal medal--sm" aria-label="닫기" data-sclose><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
+  <div class="side__body">
+    <div class="field"><label for="s1">대표 손님</label><div class="input"><input id="s1" value="한여름"></div></div>
+    <div class="field"><label for="s2">인원</label><div class="input"><input id="s2" class="num" type="number" value="2" min="1" max="4"><span class="input__aff">명</span></div></div>
+    <div class="field"><label for="s3">도착 시각</label><div class="input"><input id="s3" type="time" value="15:30"></div></div>
+    <button class="slide" role="switch" aria-checked="true"><span class="slide__g" aria-hidden="true"></span><span class="slide__t"><b>공항 마중</b><small>페스 사이스 공항, 편도</small></span></button>
+  </div>
+  <div class="side__foot"><button class="btn btn--link" data-sclose>닫기</button><button class="btn" data-sclose data-after="ok">저장</button></div>
+</aside>
+<div class="posts" id="posts"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  /* ---- Zellige: every pattern is drawn from the same eight-point star ---- */
+  const C = { cob: '#1f4f9e', em: '#19775a', saf: '#e3a52b', ter: '#b4472a', g: '#fcf8f0', ced: '#7b4a2a', cedd: '#4a2a15', br: '#c19434', brl: '#ecd082', brd: '#7c5a16' };
+  const pts = (cx, cy, R) => { const r = R * 0.7654, p = []; for (let k = 0; k < 16; k++) { const a = -Math.PI / 2 + k * Math.PI / 8, d = k % 2 ? r : R; p.push((cx + Math.cos(a) * d).toFixed(2) + ',' + (cy + Math.sin(a) * d).toFixed(2)); } return p.join(' '); };
+  const S = (cx, cy, R, f) => `<polygon points='${pts(cx, cy, R)}' fill='${f}'/>`;
+  const D = (cx, cy, h, f) => `<polygon points='${cx},${cy - h} ${cx + h},${cy} ${cx},${cy + h} ${cx - h},${cy}' fill='${f}'/>`;
+  const svg = (w, body, bg) => `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${w}' viewBox='0 0 ${w} ${w}'>${bg ? `<rect width='${w}' height='${w}' fill='${bg}'/>` : ''}${body}</svg>`;
+  const uri = s => `data:image/svg+xml,${encodeURIComponent(s)}`;
+  const corners = (w, fn) => [[0, 0], [w, 0], [0, w], [w, w]].map(([x, y]) => fn(x, y)).join('');
+  // frieze tile: one cobalt star with a saffron heart, emerald diamonds where four tiles meet
+  const frieze = svg(20, S(10, 10, 8.6, C.cob) + S(10, 10, 4.8, C.g) + S(10, 10, 2.8, C.saf) + corners(20, (x, y) => D(x, y, 4.2, C.em)), C.g);
+  // field tile: star-and-star khatam with saffron diamonds between
+  const field = svg(48, S(24, 24, 16, C.cob) + S(24, 24, 10.5, C.g) + S(24, 24, 6, C.saf) + corners(48, (x, y) => S(x, y, 16, C.em) + S(x, y, 10.5, C.g) + S(x, y, 5.5, C.ter)) + [[24, 0], [0, 24], [48, 24], [24, 48]].map(([x, y]) => D(x, y, 5.2, C.saf)).join(''), C.g);
+  // ghost: the same field carved into the plaster, barely there
+  const ghost = svg(48, S(24, 24, 16, '#f4ead9') + S(24, 24, 10.5, '#fcf8f0') + corners(48, (x, y) => S(x, y, 16, '#f6eee0')), '#fcf8f0');
+  const medal = svg(40, S(20, 20, 19.5, C.cedd) + S(20, 20, 17, C.br) + S(20, 20, 13.2, C.brl) + S(20, 20, 11.4, C.brd) + S(20, 20, 9.6, C.cob) + `<circle cx='20' cy='20' r='3.2' fill='${C.saf}'/>`);
+  const medalBtn = svg(56, S(28, 28, 27.5, C.cedd) + S(28, 28, 25, C.br) + `<circle cx='28' cy='28' r='17.5' fill='${C.brl}' stroke='${C.brd}' stroke-width='1.5'/><circle cx='28' cy='28' r='15' fill='none' stroke='${C.br}' stroke-width='1' stroke-dasharray='2 2'/>` + `<path d='M28 2.5 L28 7 M28 49 L28 53.5 M2.5 28 L7 28 M49 28 L53.5 28' stroke='${C.brd}' stroke-width='1.5'/>`);
+  const thumb = svg(36, S(18, 18, 17.5, C.cedd) + S(18, 18, 15, C.br) + S(18, 18, 11, C.brl) + `<circle cx='18' cy='18' r='4.5' fill='${C.ter}' stroke='${C.cedd}' stroke-width='1'/>`);
+  // mashrabiya: turned cedar lattice, beads at the crossings
+  const mou = `<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'><g fill='${C.ced}' stroke='${C.cedd}' stroke-width='.8'><rect x='0' y='13.4' width='30' height='3.2'/><rect x='13.4' y='0' width='3.2' height='30'/><rect x='0' y='-1.6' width='30' height='3.2'/><rect x='-1.6' y='0' width='3.2' height='30'/><circle cx='15' cy='15' r='4.6'/><circle cx='0' cy='0' r='4.6'/><circle cx='30' cy='0' r='4.6'/><circle cx='0' cy='30' r='4.6'/><circle cx='30' cy='30' r='4.6'/><ellipse cx='7.5' cy='15' rx='2.4' ry='3.2'/><ellipse cx='22.5' cy='15' rx='2.4' ry='3.2'/><ellipse cx='15' cy='7.5' rx='3.2' ry='2.4'/><ellipse cx='15' cy='22.5' rx='3.2' ry='2.4'/><ellipse cx='7.5' cy='0' rx='2.4' ry='3.2'/><ellipse cx='22.5' cy='0' rx='2.4' ry='3.2'/><ellipse cx='7.5' cy='30' rx='2.4' ry='3.2'/><ellipse cx='22.5' cy='30' rx='2.4' ry='3.2'/><ellipse cx='0' cy='7.5' rx='3.2' ry='2.4'/><ellipse cx='0' cy='22.5' rx='3.2' ry='2.4'/><ellipse cx='30' cy='7.5' rx='3.2' ry='2.4'/><ellipse cx='30' cy='22.5' rx='3.2' ry='2.4'/></g><g fill='${C.cedl||'#a9774d'}'><circle cx='15' cy='15' r='1.6'/></g></svg>`;
+  const root = document.documentElement.style;
+  [['--zl', frieze], ['--zf', field], ['--ghost', ghost], ['--medal', medal], ['--medalbtn', medalBtn], ['--thumb', thumb], ['--mou', mou]].forEach(([k, v]) => root.setProperty(k, `url("${uri(v)}")`));
+  $('#pzfI').setAttribute('href', uri(field)); $('#pzsI').setAttribute('href', uri(field)); $('#pzrI').setAttribute('href', uri(frieze));
+
+  /* ---- Hero courtyard ---- */
+  const lampAt = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><circle class="flicker" cx="20" cy="40" r="46" fill="url(#glow)"/><use href="#lamp" width="40" height="72" style="--hole:#fff3c4"/></g>`;
+  const dots = [[96, 150], [120, 196], [84, 230], [302, 152], [330, 204], [286, 238], [212, 172], [152, 250], [262, 260]].map(([x, y], i) => `<use href="#st8" x="${x}" y="${y}" width="${i % 3 ? 7 : 10}" height="${i % 3 ? 7 : 10}" fill="#f6d27c" opacity=".85" class="flicker" style="animation-delay:${i * -.3}s"/>`).join('');
+  const studs = (x0, x1) => { let s = ''; for (let y = 300; y <= 362; y += 14) s += `<circle cx="${x0}" cy="${y}" r="1.6" fill="#ecd082"/><circle cx="${x1}" cy="${y}" r="1.6" fill="#ecd082"/>`; return s; };
+  $('#heroCourt').innerHTML = `<svg viewBox="0 0 420 460" role="img" aria-label="분수와 등불이 있는 리아드 중정을 말굽 아치 너머로 본 그림">
+    <defs><clipPath id="heroOpen"><path d="M60 452V268.7A165 165 0 1 1 360 268.7V452Z"/></clipPath>
+      <linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2dcc0"/><stop offset="1" stop-color="#e2b48f"/></linearGradient>
+      <linearGradient id="floorShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2a15" stop-opacity=".35"/><stop offset=".4" stop-color="#4a2a15" stop-opacity="0"/></linearGradient></defs>
+    <rect x="8" y="8" width="404" height="444" fill="url(#pzf)" stroke="#4a2a15" stroke-width="4"/>
+    <rect x="18" y="18" width="384" height="434" fill="none" stroke="#4a2a15" stroke-width="1.5"/>
+    <path d="M60 456V268.7A165 165 0 1 1 360 268.7V456" fill="none" stroke="#fcf8f0" stroke-width="30"/>
+    <path d="M60 456V268.7A165 165 0 1 1 360 268.7V456" fill="none" stroke="#b4472a" stroke-width="30" stroke-dasharray="15 8"/>
+    <path d="M45 452V271.9A180 180 0 1 1 375 271.9V452" fill="none" stroke="#4a2a15" stroke-width="3"/>
+    <g clip-path="url(#heroOpen)">
+      <rect x="40" y="20" width="340" height="440" fill="url(#wallG)"/>
+      <g fill="#7b4a2a" stroke="#4a2a15" stroke-width="2">${[130, 210, 290].map(x => `<path d="M${x - 15} 168V136A15 15 0 0 1 ${x + 15} 136V168Z"/>`).join('')}</g>
+      <g fill="url(#pzr)" stroke="#4a2a15" stroke-width="1">${[130, 210, 290].map(x => `<path d="M${x - 11} 166V137A11 11 0 0 1 ${x + 11} 137V166Z" opacity=".55"/>`).join('')}</g>
+      <rect x="40" y="186" width="340" height="12" fill="#e9d8bc" stroke="#a9774d" stroke-width="1"/>
+      <path d="M40 198H380" stroke="#4a2a15" stroke-width="1.5"/>
+      <rect x="40" y="318" width="340" height="44" fill="url(#pzr)"/>
+      <path d="M40 318H380M40 362H380" stroke="#4a2a15" stroke-width="2"/>
+      <path d="M168 362V288.5A42 42 0 1 1 252 288.5V362" fill="none" stroke="#fcf8f0" stroke-width="14"/>
+      <path d="M168 362V288.5A42 42 0 1 1 252 288.5V362" fill="none" stroke="#1f4f9e" stroke-width="14" stroke-dasharray="7 4"/>
+      <path d="M175 362V286.3A36 36 0 1 1 245 286.3V362Z" fill="#7b4a2a" stroke="#4a2a15" stroke-width="2"/>
+      <path d="M210 250V362" stroke="#4a2a15" stroke-width="2"/>${studs(184, 236)}
+      <circle cx="200" cy="318" r="4" fill="none" stroke="#ecd082" stroke-width="2"/><circle cx="220" cy="318" r="4" fill="none" stroke="#ecd082" stroke-width="2"/>
+      ${dots}
+      <rect x="40" y="362" width="340" height="100" fill="url(#pzf)"/><rect x="40" y="362" width="340" height="100" fill="url(#floorShade)"/>
+      ${[86, 334].map(x => `<g><path d="M${x - 16} 378H${x + 16}L${x + 11} 404H${x - 11}Z" fill="#b4472a" stroke="#4a2a15" stroke-width="2"/><path d="M${x - 18} 374H${x + 18}V380H${x - 18}Z" fill="#de7d5a" stroke="#4a2a15" stroke-width="1.6"/><path d="M${x} 374V336" stroke="#4a2a15" stroke-width="2.5"/><circle cx="${x}" cy="318" r="24" fill="#19775a" stroke="#0e523e" stroke-width="2"/><circle cx="${x - 9}" cy="310" r="9" fill="#5db190"/><g fill="#e3a52b" stroke="#9a6a0c" stroke-width="1"><circle cx="${x + 8}" cy="306" r="3.6"/><circle cx="${x - 10}" cy="326" r="3.6"/><circle cx="${x + 11}" cy="327" r="3.6"/></g></g>`).join('')}
+      <path d="M114 380V412Q210 436 306 412V380" fill="url(#pzr)" stroke="#4a2a15" stroke-width="2.5"/>
+      <ellipse cx="210" cy="380" rx="96" ry="12" fill="#fcf8f0" stroke="#4a2a15" stroke-width="2.5"/><ellipse cx="210" cy="380" rx="86" ry="7.5" fill="#5b8ad6"/>
+      <ellipse cx="210" cy="380" rx="40" ry="3.5" fill="none" stroke="#dfe7f6" stroke-width="1.5" class="flicker"/>
+      <rect x="203" y="316" width="14" height="64" fill="#fcf8f0" stroke="#4a2a15" stroke-width="2"/><rect x="203" y="336" width="14" height="10" fill="url(#pzr)" stroke="#4a2a15" stroke-width="1"/>
+      <path d="M174 316Q210 344 246 316Z" fill="#fcf8f0" stroke="#4a2a15" stroke-width="2"/><ellipse cx="210" cy="316" rx="36" ry="5" fill="#5b8ad6" stroke="#4a2a15" stroke-width="2"/>
+      <g fill="none" stroke="#b9d3f2" stroke-width="3" stroke-linecap="round"><path class="flow" d="M210 314V280"/><path class="flow" d="M210 282C204 280 196 290 192 314"/><path class="flow" d="M210 282C216 280 224 290 228 314"/><path class="flow" d="M176 318C170 336 168 352 166 376"/><path class="flow" d="M244 318C250 336 252 352 254 376"/></g>
+      <path d="M150 20V60M270 20V60" stroke="#4a2a15" stroke-width="1.6" stroke-dasharray="3 2"/>
+      ${lampAt(130, 56, 1)}${lampAt(250, 56, 1)}
+    </g>
+    <path d="M60 452V268.7A165 165 0 1 1 360 268.7V452" fill="none" stroke="#4a2a15" stroke-width="3"/>
+    <path d="M4 452H416" stroke="#4a2a15" stroke-width="6"/>
+  </svg>`;
+
+  /* ---- Swatches, patterns, type ---- */
+  const G = [
+    ['벽과 나무', '바탕', [['회반죽', '#FCF8F0', '--chalk', '판 안쪽, 입력 칸'], ['타데락트', '#EAD9BD', '--wall', '페이지 바탕'], ['삼나무', '#7B4A2A', '--cedar', '보조 버튼, 머리, 테'], ['먹', '#2B1D12', '--ink', '본문']]],
+    ['젤리주 유약', '네 색만', [['코발트', '#1F4F9E', '--cobalt', '주요 동작, 선택'], ['에메랄드', '#19775A', '--emerald', '켜짐, 완료'], ['사프란', '#E3A52B', '--saffron', '빛, 지금, 별'], ['테라코타', '#B4472A', '--terra', '경고, 취소']]],
+    ['빛과 차', '조금만', [['놋쇠', '#C19434', '--brass', '메달, 손잡이, 등불'], ['민트', '#3F8A5F', '--mint', '찻잎'], ['차', '#B8701F', '--tea', '찻잔, 진행'], ['물빛', '#DFE7F6', '--cobalt-wash', '호버, 초점 둘레']]],
+  ];
+  $('#swatches').innerHTML = G.map(([g, s, it]) => `<div class="swhead">${g}<span>${s}</span></div>` + it.map(([n, hex, v, u]) => `<div class="sw"><i style="background:${hex}"></i><b>${n}</b><code>${v} · ${hex}</code><span>${u}</span></div>`).join('')).join('');
+  $('#pats').innerHTML = [
+    ['젤리주 띠', '판의 테, 머리 아래, 엽서 위.', 'background:var(--zl) 0 0/22px 22px round'],
+    ['별과 별', '아치의 삼각 벽, 바닥, 고른 탭 안쪽.', 'background:var(--zf) 0 0/36px 36px'],
+    ['겝스 아케이드', '깎은 회반죽. 판 안쪽 위 가장자리.', 'background:radial-gradient(circle,#d4b08a 0 1.4px,transparent 1.9px) 0 4px/12px 6px repeat-x,radial-gradient(circle at 50% 100%,#fcf8f0 0 9px,#d4b08a 9px 11px,transparent 11.5px) 0 14px/26px 13px repeat-x,linear-gradient(#e9d8bc,#e9d8bc) 0 0/100% 27px no-repeat,#fcf8f0'],
+    ['마슈라비야', '깎은 나무 창살. 옆 판의 가장자리.', 'background:var(--mou) 0 0/34px 34px,linear-gradient(#fbe7b4,#f3cf7c)'],
+  ].map(([b, s, st]) => `<figure><div style="${st}"></div><b>${b}</b><span>${s}</span></figure>`).join('');
+  $('#typescale').innerHTML = [
+    ['제목', 'Nanum Myeongjo 800 · 30–124', '<span style="font:800 44px/1.15 var(--font-d)">별이 내리는 중정</span>'],
+    ['소제목', 'Nanum Myeongjo 800 · 18–22', '<span style="font:800 21px/1.4 var(--font-d)">분수 곁에서 민트 차 한 잔</span>'],
+    ['본문', 'Gothic A1 400 · 16.5/1.8', '<span>오렌지 나무 그늘 아래 물소리가 납니다. 짐을 내려놓고 천천히 쉬어 가세요.</span>'],
+    ['숫자 · 영문', 'Marcellus', '<span style="font:400 30px/1 var(--font-l);color:var(--terra-d)">RIAD · 08:30 · ₩180,000</span>'],
+    ['장식', 'Aref Ruqaa · 아랍 글씨', '<span class="ar" lang="ar" style="font-size:40px;line-height:1.3;color:var(--cobalt)">رياض</span> <small style="color:var(--ink-3)">리아드. 읽히는 글에는 쓰지 않습니다.</small>'],
+  ].map(([k, s, ex]) => `<div class="typerow"><div class="k"><b>${k}</b><span>${s}</span></div><div>${ex}</div></div>`).join('');
+
+  /* ---- Nav highlight ---- */
+  const links = $$('#nav a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute('aria-current', a.hash === '#' + e.target.id ? 'true' : 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.hall').forEach(s => io.observe(s));
+
+  /* ---- Toasts: postcards sealed with wax ---- */
+  const T = { ok: ['CONFIRMED', '예약이 확정되었습니다', '11월 22일 오후 2시부터 들어오실 수 있어요', 'em'], info: ['NOTICE', '내일 아침은 옥상에서', '오전 8시, 메디나 지붕 위로 해가 뜹니다', 'cob'], err: ['ERROR', '예약을 취소했습니다', '사흘 안에 전액 돌려드립니다', ''],
+    door: ['WELCOME', '문이 열렸습니다', '어서 오세요. 중정에서 차를 내어 드릴게요', 'saf'], tea: ['ATAY', '차를 따랐습니다', '확인했어요. 천천히 드세요', 'em'], sent: ['SENT', '예약을 보냈습니다', '주인이 이틀 안에 답을 드립니다', 'cob'], glass: ['ATAY', '찻잔이 가득 찼어요', '세 번째 잔은 죽음처럼 달다고 하지요', 'saf'], tiles: ['DONE', '모자이크를 마쳤습니다', '방 단장이 끝났어요', 'em'] };
+  function toast(k) { const [kk, t, s, c] = T[k]; const el = document.createElement('div');
+    el.className = 'post' + (c ? ' post--' + c : ''); el.setAttribute('role', k === 'err' ? 'alert' : 'status');
+    el.innerHTML = `<span class="seal" aria-hidden="true"></span><div><small>${kk}</small><b>${t}</b><span>${s}</span></div><button class="x" aria-label="알림 닫기">×</button>`;
+    const kill = () => { if (el.classList.contains('out')) return; el.classList.add('out'); setTimeout(() => el.remove(), 400); }; $('.x', el).onclick = kill;
+    const box = $('#posts'); box.prepend(el); while (box.children.length > 3) box.lastChild.remove(); setTimeout(kill, 5000); }
+  $$('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+
+  /* ---- Door knocker ---- */
+  const leaf = (x0, cls, ring) => { let s = `<g class="leaf ${cls}"><rect x="${x0}" y="20" width="68" height="240" fill="#7b4a2a"/>`;
+    for (let x = x0 + 9; x < x0 + 68; x += 10) s += `<path d="M${x} 20V260" stroke="#5f3820" stroke-width="1"/>`;
+    s += `<rect x="${x0 + 8}" y="150" width="52" height="88" fill="none" stroke="#4a2a15" stroke-width="2"/><rect x="${x0 + 13}" y="155" width="42" height="78" fill="none" stroke="#a9774d" stroke-width="1"/>`;
+    s += `<use href="#st8" x="${x0 + 24}" y="184" width="20" height="20" fill="#1f4f9e" stroke="#4a2a15" stroke-width=".8"/>`;
+    for (let y = 70; y <= 250; y += 18) s += `<circle cx="${x0 + 5}" cy="${y}" r="2.2" fill="#ecd082" stroke="#7c5a16" stroke-width=".6"/><circle cx="${x0 + 63}" cy="${y}" r="2.2" fill="#ecd082" stroke="#7c5a16" stroke-width=".6"/>`;
+    if (ring) s += `<circle cx="${x0 + 34}" cy="120" r="6" fill="#c19434" stroke="#4a2a15" stroke-width="1.5"/><g class="ring"><circle cx="${x0 + 34}" cy="136" r="14" fill="none" stroke="#4a2a15" stroke-width="7"/><circle cx="${x0 + 34}" cy="136" r="14" fill="none" stroke="#ecd082" stroke-width="3.5"/><path d="M${x0 + 34} 122v-2" stroke="#4a2a15" stroke-width="5"/></g>`;
+    return s + '</g>'; };
+  $('#doorYard').innerHTML = `<button class="door" id="door"><svg viewBox="0 0 200 260" aria-hidden="true">
+      <defs><clipPath id="doorOpen"><path d="M32 252V143.9A76 76 0 1 1 168 143.9V252Z"/></clipPath><radialGradient id="inside" cx=".5" cy=".6" r=".7"><stop offset="0" stop-color="#fff3c4"/><stop offset=".6" stop-color="#f6d27c"/><stop offset="1" stop-color="#e3a52b"/></radialGradient></defs>
+      <rect x="4" y="12" width="192" height="244" fill="url(#pzs)" stroke="#4a2a15" stroke-width="3"/>
+      <path d="M32 256V143.9A76 76 0 1 1 168 143.9V256" fill="none" stroke="#fcf8f0" stroke-width="20"/>
+      <path d="M32 256V143.9A76 76 0 1 1 168 143.9V256" fill="none" stroke="#1f4f9e" stroke-width="20" stroke-dasharray="9 5"/>
+      <path d="M22 256V146.2A86 86 0 1 1 178 146.2V256" fill="none" stroke="#4a2a15" stroke-width="2.5"/>
+      <g clip-path="url(#doorOpen)"><rect x="20" y="20" width="160" height="240" fill="url(#inside)"/>
+        <g fill="#e3a52b">${[[60, 90], [120, 76], [96, 130], [70, 180], [130, 190], [100, 222]].map(([x, y], i) => `<use href="#st8" x="${x}" y="${y}" width="${i % 2 ? 9 : 13}" height="${i % 2 ? 9 : 13}"/>`).join('')}</g>
+        ${leaf(32, 'leaf--l', true)}${leaf(100, 'leaf--r', true)}</g>
+      <path d="M32 256V143.9A76 76 0 1 1 168 143.9V256" fill="none" stroke="#4a2a15" stroke-width="3"/>
+      <rect x="18" y="250" width="164" height="9" fill="#fcf8f0" stroke="#4a2a15" stroke-width="2.5"/>
+    </svg><span class="door__knock" aria-hidden="true">똑똑</span><b>문 두드리기</b><small>체크인을 시작합니다</small></button>`;
+  const door = $('#door'); let doorT;
+  door.addEventListener('click', () => { door.classList.remove('knock'); void door.offsetWidth; door.classList.add('knock'); clearTimeout(doorT);
+    setTimeout(() => { door.classList.add('open'); toast('door'); }, 650); doorT = setTimeout(() => door.classList.remove('open'), 3600); });
+
+  /* ---- Mint tea pour ---- */
+  $('#pourYard').innerHTML = `<button class="pour" id="pour"><svg viewBox="0 0 180 140" aria-hidden="true">
+      <defs><clipPath id="glassClip"><path d="M131 92H157L153.5 131H134.5Z"/></clipPath></defs>
+      <ellipse cx="96" cy="134" rx="74" ry="5" fill="rgba(74,42,21,.14)"/>
+      <path class="stream" d="M144.5 70V128" stroke="#b8701f" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <g clip-path="url(#glassClip)"><rect class="tea" x="128" y="102" width="32" height="30" fill="#b8701f"/><rect class="tea" x="128" y="102" width="32" height="3" fill="#e0a54f"/></g>
+      <path class="leafm" d="M140 102c3-6 9-7 12-5-2 4-7 7-12 5z" fill="#3f8a5f" stroke="#1f4d33" stroke-width=".8"/>
+      <path d="M130 92H158L154 132H134Z" fill="rgba(255,255,255,.35)" stroke="#4a2a15" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M130.5 97H157.5" stroke="#c19434" stroke-width="3" stroke-dasharray="3 2"/><path d="M134 127H154" stroke="#c19434" stroke-width="2"/>
+      <g class="pot">
+        <path d="M28 82C8 82 8 112 30 110" fill="none" stroke="#4a2a15" stroke-width="7" stroke-linecap="round"/><path d="M28 82C8 82 8 112 30 110" fill="none" stroke="#c19434" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M92 100C110 98 116 80 129 66L133 69.5C122 84 116 104 94 109Z" fill="#c19434" stroke="#4a2a15" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M30 118C17 110 17 84 34 74H86C103 84 103 110 90 118Z" fill="#c19434" stroke="#4a2a15" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M26 96H94" stroke="#7c5a16" stroke-width="1.5"/><path d="M28 104H92" stroke="#ecd082" stroke-width="3" stroke-dasharray="2 3"/>
+        <use href="#st8" x="52" y="80" width="16" height="16" fill="#ecd082" stroke="#7c5a16" stroke-width="1"/>
+        <path d="M38 118H82V125H38Z" fill="#7c5a16" stroke="#4a2a15" stroke-width="2"/>
+        <path d="M40 74C44 58 76 58 80 74Z" fill="#ecd082" stroke="#4a2a15" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M60 60V52" stroke="#4a2a15" stroke-width="2.5"/><circle cx="60" cy="49" r="4.5" fill="#ecd082" stroke="#4a2a15" stroke-width="2"/>
+      </g>
+    </svg><b>차 대접하기</b><small>확인</small></button>`;
+  const pour = $('#pour'); let pourT;
+  pour.addEventListener('click', () => { clearTimeout(pourT); pour.classList.remove('on'); void pour.offsetWidth; pour.classList.add('on'); setTimeout(() => toast('tea'), 1500); pourT = setTimeout(() => pour.classList.remove('on'), 3400); });
+
+  /* ---- Busy ---- */
+  $('#busyBtn').addEventListener('click', e => { const b = e.currentTarget; if (b.dataset.busy) return; b.dataset.busy = 1; b.setAttribute('aria-disabled', 'true');
+    b.innerHTML = '<span class="spin" aria-hidden="true"></span><span>보내는 중</span>'; setTimeout(() => { b.innerHTML = '<span>보냈습니다</span>'; toast('sent'); }, 1600); setTimeout(() => { delete b.dataset.busy; b.removeAttribute('aria-disabled'); b.innerHTML = '<span>예약 보내기</span>'; }, 3200); });
+
+  /* ---- More menu ---- */
+  const mb = $('#menuBtn'), ml = $('#menuList'), mi = $$('[role=menuitem]', ml);
+  const closeM = f => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); if (f) mb.focus(); };
+  const openM = (i = 0) => { ml.hidden = false; mb.setAttribute('aria-expanded', 'true'); mi.at(i).focus(); };
+  mb.addEventListener('click', () => ml.hidden ? openM() : closeM());
+  mb.addEventListener('keydown', e => { if (e.key === 'ArrowDown') { e.preventDefault(); openM(0); } if (e.key === 'ArrowUp') { e.preventDefault(); openM(-1); } });
+  ml.addEventListener('keydown', e => { const i = mi.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); mi[(i + 1) % mi.length].focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); mi[(i - 1 + mi.length) % mi.length].focus(); }
+    if (e.key === 'Home') { e.preventDefault(); mi[0].focus(); } if (e.key === 'End') { e.preventDefault(); mi.at(-1).focus(); }
+    if (e.key === 'Escape') closeM(true); if (e.key === 'Tab') closeM(); });
+  mi.forEach(m => m.addEventListener('click', () => { closeM(true); if (m.classList.contains('danger')) $('#dlg').showModal(); }));
+  document.addEventListener('click', e => { if (!ml.hidden && !e.target.closest('.menu')) closeM(); });
+
+  /* ---- Lantern + fountain switches ---- */
+  const lamp = (t, s, on) => `<button class="lamp" role="switch" aria-checked="${on}"><svg viewBox="0 0 84 110" aria-hidden="true">
+      <circle class="glow" cx="42" cy="58" r="44" fill="url(#glow)"/>
+      <g class="dots" fill="#e3a52b">${[[4, 36, 8], [72, 30, 8], [2, 72, 6], [76, 76, 6], [14, 96, 7], [62, 100, 7], [10, 12, 5], [70, 6, 5]].map(([x, y, w]) => `<use href="#st8" x="${x}" y="${y}" width="${w}" height="${w}"/>`).join('')}</g>
+      <g class="body"><path d="M42 0V14" stroke="#4a2a15" stroke-width="1.6"/><use href="#lamp" x="22" y="12" width="40" height="72"/></g></svg>
+    <span class="tog__t"><em>${on ? 'ON · 켜짐' : 'OFF · 꺼짐'}</em><b>${t}</b><small>${s}</small></span></button>`;
+  $('#lamps').innerHTML = lamp('중정 등불', '해가 지면 중정의 놋쇠 등불을 밝힙니다', true) + lamp('방 등불', '잠들기 전 30분 동안 은은하게', false);
+  const fount = (t, s, on) => `<button class="fount" role="switch" aria-checked="${on}"><svg viewBox="0 0 96 86" aria-hidden="true">
+      <path d="M10 56V70Q48 84 86 70V56" fill="url(#pzr)" stroke="#4a2a15" stroke-width="2"/>
+      <ellipse cx="48" cy="56" rx="38" ry="7" fill="#fcf8f0" stroke="#4a2a15" stroke-width="2"/><ellipse class="water" cx="48" cy="56" rx="32" ry="4.5"/>
+      <ellipse class="ripple" cx="34" cy="56" rx="10" ry="2.4" fill="none" stroke="#dfe7f6" stroke-width="1.4"/><ellipse class="ripple" cx="62" cy="56" rx="10" ry="2.4" fill="none" stroke="#dfe7f6" stroke-width="1.4"/>
+      <rect x="44" y="30" width="8" height="26" fill="#fcf8f0" stroke="#4a2a15" stroke-width="1.6"/>
+      <path d="M30 30Q48 42 66 30Z" fill="#fcf8f0" stroke="#4a2a15" stroke-width="1.6"/><ellipse class="water" cx="48" cy="30" rx="18" ry="3" stroke="#4a2a15" stroke-width="1.4"/>
+      <g class="jet" fill="none" stroke="#5b8ad6" stroke-width="2.4" stroke-linecap="round"><path class="flow" d="M48 28V8"/><path class="flow" d="M48 10C41 9 35 17 33 28"/><path class="flow" d="M48 10C55 9 61 17 63 28"/><path class="flow" d="M31 32C28 40 26 46 24 54"/><path class="flow" d="M65 32C68 40 70 46 72 54"/></g></svg>
+    <span class="tog__t"><em>${on ? 'ON · 흐름' : 'OFF · 멈춤'}</em><b>${t}</b><small>${s}</small></span></button>`;
+  $('#founts').innerHTML = fount('중정 분수', '물소리가 방까지 들립니다', true) + fount('옥상 물그릇', '새들이 와서 물을 마십니다', false);
+  document.addEventListener('click', e => {
+    const l = e.target.closest('.lamp'); if (l) { const on = l.getAttribute('aria-checked') !== 'true'; l.setAttribute('aria-checked', on); $('em', l).textContent = on ? 'ON · 켜짐' : 'OFF · 꺼짐'; }
+    const f = e.target.closest('.fount'); if (f) { const on = f.getAttribute('aria-checked') !== 'true'; f.setAttribute('aria-checked', on); $('em', f).textContent = on ? 'ON · 흐름' : 'OFF · 멈춤'; }
+    const t = e.target.closest('.slide'); if (t) t.setAttribute('aria-checked', t.getAttribute('aria-checked') !== 'true');
+    const c = e.target.closest('.chip'); if (c) c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+  });
+
+  /* ---- Checkbox group ---- */
+  const all = $('#chkAll'), ci = $$('.ci'); const sync = () => { const n = ci.filter(c => c.checked).length; all.checked = n === ci.length; all.indeterminate = n > 0 && n < ci.length; };
+  ci.forEach(c => c.addEventListener('change', sync)); all.addEventListener('change', () => { ci.forEach(c => c.checked = all.checked); sync(); }); sync();
+
+  /* ---- Segmented (roving tabindex) ---- */
+  $$('.tray').forEach(g => { const bs = $$('button', g);
+    const pick = (b, f = true) => { bs.forEach(x => { x.setAttribute('aria-checked', x === b); x.tabIndex = x === b ? 0 : -1; }); if (f) b.focus(); };
+    bs.forEach(b => { b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1; b.addEventListener('click', () => pick(b)); });
+    g.addEventListener('keydown', e => { const i = bs.indexOf(document.activeElement); if (i < 0) return;
+      if (['ArrowRight', 'ArrowDown'].includes(e.key)) { e.preventDefault(); pick(bs[(i + 1) % bs.length]); } if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); pick(bs[(i - 1 + bs.length) % bs.length]); } });
+  });
+
+  /* ---- Arch tabs ---- */
+  const tabs = $$('[role=tab]'); const sel = t => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); };
+  tabs.forEach(t => t.addEventListener('click', () => sel(t)));
+  $('[role=tablist]').addEventListener('keydown', e => { const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+    const k = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key]; if (k !== undefined) { e.preventDefault(); sel(tabs[k]); } });
+
+  /* ---- Rug range: tea darkens as it steeps ---- */
+  const rg = $('#rg'), ro = $('#rgOut'), bt = $('#brewTea');
+  const upd = () => { const p = (rg.value - rg.min) / (rg.max - rg.min); rg.style.setProperty('--p', `calc(${p * 100}% + ${(1 - p) * 18 - 9}px)`); ro.innerHTML = `${rg.value}<small>분</small>`; rg.setAttribute('aria-valuetext', `${rg.value}분`);
+    const mix = (a, b) => Math.round(a + (b - a) * p); bt.setAttribute('fill', `rgb(${mix(226, 120)},${mix(190, 62)},${mix(104, 18)})`); };
+  rg.addEventListener('input', upd); upd();
+
+  /* ---- Courtyard menu ---- */
+  $$('#court a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $$('#court a').forEach(x => x.removeAttribute('aria-current')); a.setAttribute('aria-current', 'page'); }));
+
+  /* ---- Inputs ---- */
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; e.currentTarget.textContent = on ? '숨기기' : '보기'; e.currentTarget.setAttribute('aria-pressed', on); });
+  $('#i2').addEventListener('input', e => { const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.target.value.trim()); const w = e.target.closest('.input'); w.classList.toggle('is-err', !ok); w.classList.toggle('is-ok', ok); e.target.setAttribute('aria-invalid', !ok); $('#i2e').hidden = ok; });
+  const ta = $('#ta'), tc = $('#taCount'); const cnt = () => tc.textContent = `${ta.value.length} / 160`; ta.addEventListener('input', cnt); cnt();
+
+  /* ---- Rug cards ---- */
+  const R = [['DAR SAFRAN', '사프란 방', '2층, 중정이 내려다보이는 방. 아침 해가 가장 먼저 듭니다.', '₩180,000', '#e3a52b', '#b4472a', '#7e2d16', ['glaze--em', '빈 방']],
+    ['DAR AZRAQ', '코발트 방', '분수 바로 위. 밤새 물소리를 들으며 잠듭니다.', '₩210,000', '#1f4f9e', '#e3a52b', '#133570', ['glaze--saf', '1개 남음']],
+    ['DAR AKHDAR', '에메랄드 방', '옥상 테라스 옆, 오렌지 나무가 창을 덮습니다.', '₩160,000', '#19775a', '#f6d27c', '#0e523e', ['glaze--plaster', '대기']]];
+  $('#rugs').innerHTML = R.map(([en, n, d, p, r, r2, rd, [bc, bt]]) => `<a class="rug" href="#show" style="--r:${r};--r2:${r2};--rd:${rd}"><span class="rug__art" aria-hidden="true"><svg viewBox="0 0 86 86"><polygon points="43,2 84,43 43,84 2,43" fill="${r2}" stroke="#fcf8f0" stroke-width="3"/><polygon points="43,14 72,43 43,72 14,43" fill="${rd}"/><polygon points="43,22 64,43 43,64 22,43" fill="none" stroke="#fcf8f0" stroke-width="1.5" stroke-dasharray="3 3"/><use href="#st8" x="31" y="31" width="24" height="24" fill="#fcf8f0"/><use href="#st8" x="38" y="38" width="10" height="10" fill="${r2}"/></svg></span><span class="rug__body"><small>${en}</small><h4>${n}</h4><p>${d}</p></span><span class="rug__meta"><span>${p} <small style="font:400 13px var(--font);color:var(--ink-3)">/ 1박</small></span><span class="glaze ${bc}">${bt}</span></span></a>`).join('');
+
+  /* ---- Tea glass ---- */
+  let lvl = 50;
+  $('#glass').innerHTML = `<svg viewBox="0 0 100 150" aria-hidden="true"><defs><clipPath id="gc"><path d="M20 24H80L72 140H28Z"/></clipPath></defs>
+    <ellipse cx="50" cy="144" rx="38" ry="5" fill="rgba(74,42,21,.14)"/>
+    <g clip-path="url(#gc)"><g class="lvl" id="lvl"><rect x="16" y="40" width="68" height="104" fill="#b8701f"/><rect x="16" y="40" width="68" height="5" fill="#e0a54f"/><path d="M42 44c4-9 13-10 17-7-3 6-10 10-17 7z" fill="#3f8a5f" stroke="#1f4d33" stroke-width="1"/></g></g>
+    <path d="M18 20H82L73 142H27Z" fill="rgba(255,255,255,.3)" stroke="#4a2a15" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M19 28H81" stroke="#c19434" stroke-width="5" stroke-dasharray="4 3"/><path d="M20.5 36H79.5" stroke="#c19434" stroke-width="1.5"/>
+    <path d="M28 132H72" stroke="#c19434" stroke-width="3"/><path d="M30 46L34 120" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".5"/></svg>`;
+  const words = { 0: '비었어요', 25: '조금 담겼어요', 50: '절반 찼어요', 75: '거의 찼어요', 100: '가득 찼어요' };
+  const glass = () => { $('#lvl').style.transform = `scaleY(${lvl / 100})`; const g = $('#glass'); g.setAttribute('aria-valuenow', lvl); g.setAttribute('aria-valuetext', words[lvl]); $('#glassTxt').textContent = words[lvl]; };
+  glass(); $('#pourBtn').addEventListener('click', () => { lvl = lvl >= 100 ? 0 : lvl + 25; glass(); if (lvl === 100) toast('glass'); });
+
+  /* ---- Mosaic ---- */
+  let tiles = 15; const TC = ['var(--cobalt)', 'var(--emerald)', 'var(--saffron)', 'var(--terra)'];
+  const mosaic = () => { const m = $('#mosaic'); m.innerHTML = Array.from({ length: 24 }, (_, i) => `<i class="${i < tiles ? 'on' : ''}" style="--c:${TC[(i + Math.floor(i / 6)) % 4]}"></i>`).join('');
+    m.setAttribute('aria-valuenow', tiles); m.setAttribute('aria-valuetext', `24장 중 ${tiles}장`); $('#mosaicTxt').textContent = `24장 중 ${tiles}장`; };
+  mosaic(); $('#tileBtn').addEventListener('click', () => { tiles = tiles >= 24 ? 0 : tiles + 1; mosaic(); if (tiles === 24) toast('tiles'); });
+
+  /* ---- Frieze bar ---- */
+  let hb = 60; setInterval(() => { hb = hb >= 100 ? 10 : hb + 5; const b = $('#bar'); b.setAttribute('aria-valuenow', hb); $('i', b).style.width = hb + '%'; $('#barOut').textContent = hb + '%'; }, 1600);
+
+  /* ---- Table: sort + pages ---- */
+  const rows = [['사프란 방', '한여름', '11-22', 2, 360000], ['코발트 방', '박서진', '11-03', 3, 630000], ['에메랄드 방', '이도윤', '11-07', 1, 160000], ['살롱 스위트', '정하린', '11-12', 4, 1040000],
+    ['사프란 방', '최유나', '11-15', 2, 360000], ['코발트 방', '강민재', '11-18', 1, 210000], ['에메랄드 방', '윤솔', '11-25', 3, 480000], ['살롱 스위트', '오지후', '11-28', 2, 520000],
+    ['사프란 방', '임채원', '11-01', 1, 180000], ['코발트 방', '서하준', '11-09', 2, 420000], ['에메랄드 방', '노아린', '11-20', 5, 800000], ['살롱 스위트', '문태오', '11-26', 1, 260000]];
+  const per = 4, pages = Math.ceil(rows.length / per); let sortK = 2, sortDir = 1, page = 1;
+  const won = n => '₩' + n.toLocaleString('ko-KR');
+  const render = () => { const s = [...rows].sort((a, b) => (sortK === 2 ? a[2].localeCompare(b[2]) : a[sortK] - b[sortK]) * sortDir);
+    $('#tbl tbody').innerHTML = s.slice((page - 1) * per, page * per).map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="date">${r[2].replace('-', '.')}</td><td class="num">${r[3]}</td><td class="num">${won(r[4])}</td></tr>`).join('');
+    $('#pgInfo').textContent = `예약 ${rows.length}건 중 ${(page - 1) * per + 1}–${Math.min(page * per, rows.length)}`;
+    $('#pager').innerHTML = `<li><button aria-label="이전 쪽" ${page === 1 ? 'disabled' : ''} data-p="${page - 1}">‹</button></li>` + Array.from({ length: pages }, (_, i) => `<li><button data-p="${i + 1}" ${i + 1 === page ? 'aria-current="page"' : ''} aria-label="${i + 1}쪽">${i + 1}</button></li>`).join('') + `<li><button aria-label="다음 쪽" ${page === pages ? 'disabled' : ''} data-p="${page + 1}">›</button></li>`; };
+  $('#pager').addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.disabled) return; const kind = b.getAttribute('aria-label'); page = +b.dataset.p; render();
+    ($$('#pager button').find(x => x.getAttribute('aria-label') === kind && !x.disabled) || $('#pager [aria-current]')).focus(); });
+  $$('#tbl th button').forEach(b => b.addEventListener('click', () => { const th = b.parentElement, k = +b.dataset.k; sortDir = th.getAttribute('aria-sort') === 'ascending' ? -1 : 1; sortK = k;
+    $$('#tbl th[aria-sort]').forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', sortDir === 1 ? 'ascending' : 'descending'); page = 1; render(); }));
+  render();
+
+  /* ---- Dialog ---- */
+  const dlg = $('#dlg'); $('#dlgOpen').addEventListener('click', () => dlg.showModal());
+  $$('[data-close]', dlg).forEach(b => b.addEventListener('click', () => { dlg.close(); if (b.dataset.after) toast(b.dataset.after); }));
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  /* ---- Side panel: focus trap, Esc, scrim ---- */
+  const sd = $('#side'), sc = $('#scrim'); let opener;
+  const openS = () => { opener = document.activeElement; sd.classList.add('open'); sc.classList.add('open'); sd.setAttribute('aria-hidden', 'false'); setTimeout(() => $('#s1').focus(), 80); };
+  const closeS = () => { sd.classList.remove('open'); sc.classList.remove('open'); sd.setAttribute('aria-hidden', 'true'); if (opener) opener.focus(); };
+  $('#sideOpen').addEventListener('click', openS); sc.addEventListener('click', closeS);
+  $$('[data-sclose]', sd).forEach(b => b.addEventListener('click', () => { closeS(); if (b.dataset.after) toast(b.dataset.after); }));
+  sd.addEventListener('keydown', e => { if (e.key === 'Escape') closeS();
+    if (e.key === 'Tab') { const f = $$('button, input', sd).filter(x => !x.disabled), a = f[0], z = f.at(-1);
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } } });
+
+  /* ---- Code ---- */
+  $('#codeBlock').innerHTML = `<span class="c">/* Riad — 리아드의 중정 · Tailwind v4 + shadcn */</span>
+@import "tailwindcss";
+
+<span class="p">:root</span> {
+  <span class="v">--background</span>: #ead9bd;  <span class="v">--foreground</span>: #2b1d12;     <span class="c">/* 타데락트, 먹 */</span>
+  <span class="v">--card</span>: #fcf8f0;  <span class="v">--card-foreground</span>: #2b1d12;           <span class="c">/* 회반죽 */</span>
+  <span class="v">--popover</span>: #fcf8f0;  <span class="v">--popover-foreground</span>: #2b1d12;
+  <span class="v">--primary</span>: #1f4f9e;  <span class="v">--primary-foreground</span>: #ffffff;     <span class="c">/* 코발트 */</span>
+  <span class="v">--secondary</span>: #7b4a2a;  <span class="v">--secondary-foreground</span>: #fbefd9; <span class="c">/* 삼나무 */</span>
+  <span class="v">--muted</span>: #f3e7d3;  <span class="v">--muted-foreground</span>: #6c5542;
+  <span class="v">--accent</span>: #19775a;  <span class="v">--accent-foreground</span>: #ffffff;       <span class="c">/* 에메랄드 */</span>
+  <span class="v">--destructive</span>: #b4472a;                                   <span class="c">/* 테라코타 */</span>
+  <span class="v">--border</span>: #d6bd96;  <span class="v">--input</span>: #7b4a2a;  <span class="v">--ring</span>: #1f4f9e;
+  <span class="v">--radius</span>: 0.5rem;
+
+  <span class="v">--saffron</span>: #e3a52b;  <span class="v">--brass</span>: #c19434;  <span class="v">--cedar-dark</span>: #4a2a15;
+  <span class="c">/* 여덟 꼭지 별 (두 정사각형) */</span>
+  <span class="v">--star</span>: polygon(50% 0, 64.64% 14.64%, 85.36% 14.64%, 85.36% 35.36%, 100% 50%,
+          85.36% 64.64%, 85.36% 85.36%, 64.64% 85.36%, 50% 100%, 35.36% 85.36%,
+          14.64% 85.36%, 14.64% 64.64%, 0 50%, 14.64% 35.36%, 14.64% 14.64%, 35.36% 14.64%);
+  <span class="v">--spring</span>: cubic-bezier(.3,1.45,.5,1);
+}
+
+@theme inline {
+  <span class="v">--color-background</span>: var(--background);
+  <span class="v">--color-foreground</span>: var(--foreground);
+  <span class="v">--color-primary</span>: var(--primary);
+  <span class="v">--color-secondary</span>: var(--secondary);
+  <span class="v">--color-accent</span>: var(--accent);
+  <span class="v">--color-destructive</span>: var(--destructive);
+  <span class="v">--color-saffron</span>: var(--saffron);
+  <span class="v">--font-display</span>: "Nanum Myeongjo", serif;
+  <span class="v">--font-sans</span>: "Gothic A1", system-ui, sans-serif;
+}
+
+<span class="c">/* 별 모양으로 오리기: 아이콘, 표시, 손잡이 */</span>
+@utility <span class="p">star</span> { clip-path: var(--star); }
+
+<span class="c">/* 유약 타일 버튼: 짙은 유약 + 비스듬한 광택 */</span>
+@utility <span class="p">glaze</span> {
+  color: var(--primary-foreground); border: 2px solid color-mix(in oklab, var(--primary), black 35%);
+  background: linear-gradient(165deg, rgb(255 255 255 / .4) 0 16%, transparent 30%), var(--primary);
+  box-shadow: 0 3px 0 color-mix(in oklab, var(--primary), black 35%);
+  transition: transform .3s var(--spring);
+  &amp;:active { transform: translateY(2px); box-shadow: 0 1px 0 color-mix(in oklab, var(--primary), black 35%); }
+}
+
+<span class="c">/* 타일 액자: 테두리에 젤리주 띠를 두르는 판 (--zellige에 별 타일 SVG를 넣습니다) */</span>
+@utility <span class="p">niche</span> {
+  padding: 22px; border: 3px solid var(--cedar-dark);
+  background: var(--zellige) 0 0 / 22px 22px round, var(--card);
+  &amp; &gt; * { border: 3px solid var(--cedar-dark); background: var(--card); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}`;
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget; try { await navigator.clipboard.writeText($('#codeBlock').textContent); b.textContent = '복사했습니다'; } catch { b.textContent = '직접 선택해 주세요'; } setTimeout(() => b.textContent = '복사하기', 1800); });
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

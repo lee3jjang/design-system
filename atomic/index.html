@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Atomic 디자인 시스템</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Righteous&family=Sunflower:wght@500;700&display=swap">
+<style>
+/* Atomic: a roadside space-age diner, 1962.
+   Every control is an object from that diner or the rocket parked out back: jukebox keys, dashboard knobs,
+   rocker switches, punch cards, radio tuners, a TV set, a launch pad.
+   One drawing style throughout: an ink outline, a chrome rim, a flat pastel enamel face with one gloss highlight, a short foot. */
+:root {
+  color-scheme: light;
+  --ink: #22303a; --ink-2: #46535c; --ink-3: #56636b; --ol: #22303a;
+  --cream: #fdf6e6; --cream-2: #f5e9cc; --cream-3: #e8d5a9; --paper: #fffaf0;
+  --teal: #6fd0c4; --teal-l: #b9ebe3; --teal-wash: #e2f6f2; --teal-d: #1a7169; --teal-dd: #135650;
+  --coral: #f4856f; --coral-l: #fbc3b5; --coral-wash: #fde4dc; --coral-d: #a8392a;
+  --mustard: #f5bf3c; --mustard-l: #fde29a; --mustard-d: #7d5a05;
+  --red: #c9321f; --red-d: #8e1d12; --red-l: #f08a76;
+  --space: #1f2d3d; --space-2: #2c3e52;
+  --ch-1: #ffffff; --ch-2: #dde4e8; --ch-3: #9eabb2; --ch-4: #6f7d85;
+  --chrome: linear-gradient(#ffffff 0%, #e6ebee 30%, #a3afb6 50%, #dbe2e6 62%, #f8fafb 84%, #b6c0c6 100%);
+  --chrome-x: linear-gradient(90deg, #b6c0c6 0%, #f8fafb 18%, #dbe2e6 40%, #a3afb6 52%, #e6ebee 72%, #ffffff 88%, #b6c0c6 100%);
+  --knurl: repeating-conic-gradient(from 0deg, #f3f6f7 0 7deg, #a9b5bb 7deg 14deg);
+  --foot: 4px;
+  --spring: cubic-bezier(.3,1.5,.5,1); --ease: cubic-bezier(.2,.8,.2,1);
+  --font-d: "Righteous", "Do Hyeon", sans-serif;
+  --font-k: "Do Hyeon", "Righteous", sans-serif;
+  --font: "Sunflower", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --formica: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg opacity='.3'%3E%3Cpath d='M14 40q22-28 52-8q-24-4-52 8z' fill='%236fd0c4'/%3E%3Cpath d='M104 118q24-24 54-2q-26-2-54 2z' fill='%23f4856f'/%3E%3Cpath d='M118 30q10 22 36 22q-22 4-36-22z' fill='%23f5bf3c'/%3E%3Cpath d='M20 132q8 26 36 28q-24-6-36-28z' fill='%236fd0c4'/%3E%3C/g%3E%3Cg fill='%2322303a' opacity='.24'%3E%3Ccircle cx='80' cy='70' r='1.6'/%3E%3Ccircle cx='150' cy='88' r='1.2'/%3E%3Ccircle cx='40' cy='96' r='1.2'/%3E%3Ccircle cx='96' cy='160' r='1.6'/%3E%3Ccircle cx='170' cy='150' r='1'/%3E%3Ccircle cx='60' cy='12' r='1'/%3E%3Cpath d='M70 104l2 6 6 2-6 2-2 6-2-6-6-2 6-2z'/%3E%3Cpath d='M160 4l1.5 4.5 4.5 1.5-4.5 1.5-1.5 4.5-1.5-4.5-4.5-1.5 4.5-1.5z'/%3E%3C/g%3E%3C/svg%3E");
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--cream); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
+body { margin: 0; color: var(--ink); font: 500 17px/1.75 var(--font); word-break: keep-all; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  background: radial-gradient(ellipse 900px 520px at 80% -5%, rgba(111,208,196,.28), transparent 70%) no-repeat, radial-gradient(ellipse 700px 420px at 0% 10%, rgba(244,133,111,.14), transparent 70%) no-repeat, var(--cream); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--teal-d); text-underline-offset: 4px; text-decoration-thickness: 2px; }
+code { font: .84em ui-monospace, Menlo, Consolas, monospace; background: var(--cream-2); padding: 1px 6px; border-radius: 6px; }
+.wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--teal-d); outline-offset: 4px; border-radius: 10px; }
+svg { flex: none; }
+
+/* ---------- Top bar: a diner counter edge with a chrome trim ---------- */
+.top { position: sticky; top: 0; z-index: 40; background: rgba(255,250,240,.95); backdrop-filter: blur(6px); }
+.top::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 8px; background: var(--chrome); border-top: 2px solid var(--ol); border-bottom: 2px solid var(--ol); }
+.top .wrap { display: flex; align-items: center; gap: 16px; min-height: 64px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; flex: none; color: var(--ink); text-decoration: none; font: 400 25px/1 var(--font-d); }
+.logo svg { width: 38px; height: 38px; }
+.logo small { font: 400 15px/1 var(--font-k); color: var(--ink-2); padding: 4px 9px; border: 2px solid var(--ol); border-radius: 10px; background: var(--mustard-l); }
+.top nav { margin-left: auto; display: flex; gap: 4px; flex: none; }
+.top nav a { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 44px; padding: 0 14px; border: 2px solid transparent; border-radius: 22px; color: var(--ink-2); text-decoration: none; font: 400 17px/1 var(--font-k); }
+.top nav a::before { content: ""; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--ink-3); background: var(--paper); }
+.top nav a:hover { color: var(--ink); background: var(--teal-wash); }
+.top nav a[aria-current="true"] { color: var(--ink); border-color: var(--ol); background: var(--teal); box-shadow: 0 3px 0 var(--ol); }
+.top nav a[aria-current="true"]::before { background: var(--mustard); border-color: var(--ol); box-shadow: 0 0 8px 2px rgba(245,191,60,.9); }
+@media (max-width: 1040px) { .top nav { display: none; } }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; overflow-x: clip; padding-block: 70px 40px; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 30px; align-items: center; }
+.hero__deco { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.hero__deco svg { position: absolute; }
+.hero__txt { position: relative; z-index: 1; }
+.hero__k { display: inline-flex; align-items: center; gap: 10px; padding: 7px 16px 7px 8px; border: 2.5px solid var(--ol); border-radius: 30px; background: var(--paper); box-shadow: 0 3px 0 var(--ol); font: 400 16px/1 var(--font-k); color: var(--ink-2); }
+.hero__k b { padding: 5px 10px; border-radius: 16px; background: var(--coral); border: 2px solid var(--ol); color: var(--ink); font: 400 14px/1 var(--font-d); letter-spacing: .08em; }
+.hero h1 { margin-top: 22px; font: 400 clamp(68px, 13vw, 156px)/.9 var(--font-d); letter-spacing: -.01em; color: var(--coral);
+  text-shadow: 3px 0 0 var(--ol), -3px 0 0 var(--ol), 0 3px 0 var(--ol), 0 -3px 0 var(--ol), 2px 2px 0 var(--ol), -2px -2px 0 var(--ol), 2px -2px 0 var(--ol), -2px 2px 0 var(--ol), 7px 8px 0 var(--teal), 9px 10px 0 var(--ol); }
+.hero h1 span { color: var(--mustard); }
+.hero__sub { margin-top: 18px; font: 400 clamp(24px, 3vw, 32px)/1.3 var(--font-k); color: var(--ink); }
+.hero__sub em { font-style: normal; background: linear-gradient(transparent 60%, var(--teal-l) 60%); }
+.hero p.lead { margin-top: 14px; max-width: 40ch; color: var(--ink-2); font-size: 18px; }
+.hero__fonts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.hero__stage { position: relative; z-index: 1; display: grid; justify-items: center; padding-top: 40px; }
+@media (max-width: 860px) { .hero { grid-template-columns: minmax(0, 1fr); padding-block: 44px 20px; } .hero__stage { padding-top: 20px; } }
+
+/* ---------- Section heads: a googie roadside sign ---------- */
+section.sec { padding-block: 100px 10px; scroll-margin-top: 80px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 34px; }
+.sec__head { display: grid; justify-items: center; text-align: center; gap: 16px; }
+.gsign { --s: var(--teal); position: relative; display: inline-flex; align-items: center; gap: 14px; padding: 12px 40px 14px 14px; border: 2.5px solid var(--ol); border-radius: 46px 90px 60px 100px / 50px 70px 46px 64px; background: var(--s); box-shadow: 0 5px 0 var(--ol), 0 18px 26px -16px rgba(34,48,58,.5); }
+.gsign::after { content: ""; position: absolute; left: 30px; right: 60px; top: 7px; height: 9px; border-radius: 9px; background: linear-gradient(rgba(255,255,255,.75), rgba(255,255,255,0)); }
+.gsign__no { position: relative; z-index: 1; display: grid; place-items: center; width: 48px; height: 48px; border: 2.5px solid var(--ol); border-radius: 50%; background: var(--chrome); font: 400 17px/1 var(--font-d); color: var(--ink); }
+.gsign h2 { position: relative; z-index: 1; font: 400 clamp(32px, 5vw, 46px)/1.1 var(--font-k); color: var(--ink); }
+.gsign__burst { position: absolute; right: -34px; top: -36px; width: 74px; height: 74px; color: var(--ink); }
+.gsign__burst use { color: var(--mustard); }
+.sec__head p { max-width: 58ch; color: var(--ink-2); }
+
+/* Panel: a Formica table top with a chrome edge trim */
+.panel { position: relative; padding: 7px; border: 2.5px solid var(--ol); border-radius: 28px; background: var(--chrome); box-shadow: 0 6px 0 var(--ol), 0 24px 34px -22px rgba(34,48,58,.55); }
+.spec { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); border: 2px solid var(--ol); border-radius: 20px; overflow: hidden; background: var(--paper); }
+.note { padding: 30px 26px 30px; display: grid; gap: 10px; align-content: start; min-width: 0; border-right: 2px solid var(--ol); }
+.note h3 { font: 400 26px/1.25 var(--font-k); display: flex; align-items: center; gap: 10px; }
+.note h3::before { content: ""; width: 14px; height: 14px; flex: none; border: 2px solid var(--ol); border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 3px var(--teal-wash); }
+.note p { color: var(--ink-2); font-size: 16px; }
+.note ul { margin: 2px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 16px; color: var(--ink-2); }
+.note li { position: relative; padding-left: 24px; }
+.note li::before { content: ""; position: absolute; left: 0; top: .42em; width: 14px; height: 14px; background: var(--coral); clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); }
+.stage { position: relative; min-width: 0; padding: 46px 28px 42px; display: flex; flex-wrap: wrap; gap: 22px; align-items: center; justify-content: center; align-content: center; min-height: 180px; background: var(--formica), var(--cream-2); }
+.stage.col { flex-direction: column; align-items: stretch; }
+.stage > * { min-width: 0; max-width: 100%; }
+@media (max-width: 820px) { .spec { grid-template-columns: minmax(0, 1fr); } .note { border-right: 0; border-bottom: 2px solid var(--ol); padding: 26px 20px 22px; } .stage { padding: 40px 16px 36px; } .panel { padding: 5px; border-radius: 24px; } }
+
+/* ---------- Foundations ---------- */
+.swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px 16px; padding: 30px clamp(14px, 4vw, 28px) 30px; background: var(--paper); border: 2px solid var(--ol); border-radius: 20px; }
+@media (max-width: 640px) { .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.sw { display: grid; gap: 4px; align-content: start; }
+.sw i { position: relative; height: 72px; margin-bottom: 6px; border: 2.5px solid var(--ol); border-radius: 18px / 22px; box-shadow: 0 4px 0 var(--ol); overflow: hidden; }
+.sw i::after { content: ""; position: absolute; left: 10px; right: 30%; top: 6px; height: 12px; border-radius: 10px; background: linear-gradient(rgba(255,255,255,.65), rgba(255,255,255,0)); }
+.sw b { font: 400 19px/1.2 var(--font-k); }
+.sw code { background: none; padding: 0; font-size: 13px; color: var(--ink-3); }
+.sw span { font-size: 15px; color: var(--ink-2); line-height: 1.45; }
+.swhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; font: 400 22px/1 var(--font-k); margin-top: 10px; }
+.swhead:first-child { margin-top: 0; }
+.swhead::after { content: ""; flex: 1; height: 8px; border: 2px solid var(--ol); border-radius: 6px; background: var(--chrome); }
+.swhead span { font: 500 15px/1 var(--font); color: var(--ink-3); order: 1; }
+.swhead::after { order: 2; }
+.typerow { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 18px; align-items: baseline; padding: 16px 0; border-top: 2px dashed var(--cream-3); }
+.typerow:first-child { border-top: 0; }
+.typerow .k { display: grid; gap: 2px; } .typerow .k b { font: 400 18px/1.2 var(--font-k); } .typerow .k span { font-size: 14px; color: var(--ink-3); }
+@media (max-width: 560px) { .typerow { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 34px 22px; margin: 0; padding: 0; list-style: none; counter-reset: r; }
+.rules li { counter-increment: r; position: relative; padding: 40px 22px 24px; border: 2.5px solid var(--ol); border-radius: 30px 60px 34px 50px / 40px 34px 50px 30px; background: var(--paper); box-shadow: 0 5px 0 var(--ol); display: grid; gap: 4px; }
+.rules li:nth-child(4n+1) { background: var(--teal-wash); } .rules li:nth-child(4n+2) { background: var(--coral-wash); } .rules li:nth-child(4n+3) { background: #fdf0c8; }
+.rules li::before { content: counter(r, decimal-leading-zero); position: absolute; top: -26px; left: 18px; width: 50px; height: 50px; display: grid; place-items: center; font: 400 18px/1 var(--font-d); color: var(--ink); border: 2.5px solid var(--ol); border-radius: 50%;
+  background: radial-gradient(ellipse 60% 40% at 45% 25%, rgba(255,255,255,.85), transparent 70%) content-box, linear-gradient(var(--mustard), var(--mustard)) content-box, var(--knurl); padding: 5px; box-shadow: 0 3px 0 var(--ol); }
+.rules b { font: 400 22px/1.3 var(--font-k); }
+.rules span { font-size: 16px; color: var(--ink-2); }
+
+/* ---------- Buttons ---------- */
+/* Jukebox key: an ink outline, a chrome rim, an enamel face, one gloss. */
+.btn { --e: var(--teal); --t: var(--ink); --rad: 999px;
+  position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 58px; padding: 0 32px; border: 2.5px solid var(--ol); border-radius: var(--rad); cursor: pointer; text-decoration: none; white-space: nowrap;
+  font: 400 20px/1 var(--font-k); color: var(--t); background: var(--chrome); box-shadow: 0 var(--foot) 0 var(--ol), 0 calc(var(--foot) + 10px) 16px -8px rgba(34,48,58,.45);
+  transition: transform .3s var(--spring), box-shadow .3s var(--spring); }
+.btn::before { content: ""; position: absolute; inset: 4px; z-index: -1; border-radius: var(--rad); background: var(--e); box-shadow: inset 0 0 0 1.5px rgba(34,48,58,.6), inset 0 -5px 0 rgba(34,48,58,.13); }
+.btn::after { content: ""; position: absolute; left: 18px; right: 18px; top: 8px; height: 30%; z-index: -1; border-radius: 999px; background: linear-gradient(rgba(255,255,255,.75), rgba(255,255,255,.05)); pointer-events: none; }
+.btn > * { position: relative; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 calc(var(--foot) + 2px) 0 var(--ol), 0 calc(var(--foot) + 14px) 18px -8px rgba(34,48,58,.45); }
+.btn:active { transform: translateY(var(--foot)); box-shadow: 0 0 0 var(--ol), 0 2px 4px rgba(34,48,58,.3); transition-duration: .05s; }
+.btn svg { width: 22px; height: 22px; }
+.lamp-dot { width: 14px; height: 14px; border: 2px solid var(--ol); border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff 0 2px, transparent 3px), var(--mustard); box-shadow: 0 0 0 2px rgba(255,255,255,.5); transition: box-shadow .2s; }
+.btn:hover .lamp-dot { box-shadow: 0 0 10px 3px rgba(245,191,60,.95); }
+/* Diner: a cream face piped in coral, no chrome */
+.btn--diner { --e: var(--paper); background: var(--coral); }
+.btn--diner::before { inset: 5px; box-shadow: inset 0 0 0 1.5px rgba(34,48,58,.6), inset 0 -4px 0 rgba(34,48,58,.08); }
+.btn--diner::after { display: none; }
+/* Mustard tail fin: the accent action */
+.btn--fin { --e: var(--mustard); --rad: 30px 10px 30px 10px; padding: 0 30px; }
+.btn--fin::after { left: 14px; right: 14px; border-radius: 20px 6px 20px 6px; }
+/* Rocket red: abort, the dangerous thing */
+.btn--abort { --e: var(--red); --t: #fff; text-shadow: 0 2px 0 var(--red-d); }
+.btn--abort::after { background: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0)); }
+.btn--abort svg { color: #fff; }
+/* Quiet: neon tube underline */
+.btn--ghost { background: none; border-color: transparent; box-shadow: none; padding: 0 12px; color: var(--ink); }
+.btn--ghost::before { inset: auto 12px 10px; height: 4px; background: var(--coral); border-radius: 4px; box-shadow: none; transform-origin: left; transition: transform .35s var(--spring); }
+.btn--ghost::after { display: none; }
+.btn--ghost:hover { transform: none; box-shadow: none; }
+.btn--ghost:hover::before { background: var(--teal); }
+.btn--ghost:active { transform: none; box-shadow: none; }
+.btn--sm { min-height: 46px; padding: 0 22px; font-size: 17px; --foot: 3px; }
+.btn--sm::after { top: 6px; left: 14px; right: 14px; }
+.btn--lg { min-height: 66px; padding: 0 40px; font-size: 23px; --foot: 5px; }
+.btn:disabled, .btn[aria-disabled="true"] { cursor: not-allowed; }
+.btn:disabled { --e: #e9e3d4; --t: #5d676d; background: #c7cdd0; border-color: #6d777d; text-shadow: none; transform: none; box-shadow: 0 var(--foot) 0 #6d777d; }
+.btn:disabled::after { opacity: .4; }
+.btn:disabled .lamp-dot { background: #c7cdd0; border-color: #6d777d; box-shadow: none; }
+.orbit-load { position: relative; width: 22px; height: 22px; border: 2px solid currentColor; border-radius: 50%; opacity: .9; }
+.orbit-load::before { content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: currentColor; }
+.orbit-load::after { content: ""; position: absolute; top: -5px; left: 50%; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--coral); border: 1.5px solid var(--ol); transform-origin: 4px 14px; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.star-badge { position: absolute; top: -18px; right: -16px; z-index: 3; width: 40px; height: 40px; display: grid; place-items: center; font: 400 16px/1 var(--font-d); color: var(--ink); animation: twirl 6s linear infinite; }
+.star-badge svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.star-badge b { position: relative; font-weight: 400; animation: twirl 6s linear infinite reverse; }
+@keyframes twirl { to { transform: rotate(360deg); } }
+.hold { position: relative; display: inline-flex; }
+
+/* Dashboard knob: icon buttons. A knurled chrome bezel and an enamel cap. */
+.knob { --e: var(--teal-l); position: relative; isolation: isolate; width: 60px; height: 60px; padding: 0; border: 2.5px solid var(--ol); border-radius: 50%; cursor: pointer; display: grid; place-items: center; color: var(--ink); background: var(--ch-2); box-shadow: 0 var(--foot) 0 var(--ol); transition: transform .3s var(--spring), box-shadow .3s var(--spring); }
+.knob::before { content: ""; position: absolute; inset: 0; z-index: -2; border-radius: 50%; background: var(--knurl); transition: transform .5s var(--spring); }
+.knob::after { content: ""; position: absolute; inset: 8px; z-index: -1; border-radius: 50%; border: 2px solid var(--ol); background: radial-gradient(ellipse 60% 40% at 45% 25%, rgba(255,255,255,.85), rgba(255,255,255,0) 70%), var(--e); }
+.knob svg { width: 22px; height: 22px; fill: none; stroke: var(--ol); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.knob:hover { transform: translateY(-2px); box-shadow: 0 calc(var(--foot) + 2px) 0 var(--ol); }
+.knob:hover::before { transform: rotate(40deg); }
+.knob:active { transform: translateY(var(--foot)); box-shadow: 0 0 0 var(--ol); transition-duration: .05s; }
+.knob:focus-visible { border-radius: 50%; }
+.knob--coral { --e: var(--coral-l); } .knob--mustard { --e: var(--mustard-l); }
+.knob--sm { width: 48px; height: 48px; --foot: 3px; }
+.knob--sm::after { inset: 6px; }
+.knob--sm svg { width: 18px; height: 18px; }
+
+/* Rocket launch: the one biggest action */
+.launch { position: relative; display: grid; justify-items: center; gap: 16px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--ink); }
+.launch__pad { position: relative; width: 220px; height: 220px; border: 2.5px solid var(--ol); border-radius: 50%; background: var(--chrome); box-shadow: 0 6px 0 var(--ol), 0 26px 30px -16px rgba(34,48,58,.55); }
+.launch__pad::before { content: ""; position: absolute; inset: 9px; border-radius: 50%; border: 2px solid var(--ol);
+  background: radial-gradient(circle at 26% 30%, #fff 0 1.5px, transparent 2.5px), radial-gradient(circle at 72% 22%, #fff 0 2px, transparent 3px), radial-gradient(circle at 80% 55%, #fff 0 1.5px, transparent 2.5px), linear-gradient(var(--teal) 0%, var(--teal-l) 62%, var(--cream-2) 62% 100%); }
+.launch__pad > svg { position: absolute; left: 50%; bottom: 14px; width: 172px; height: 238px; margin-left: -86px; overflow: visible; }
+.launch .rk { transition: transform 1.6s cubic-bezier(.55,0,.9,.4), opacity .4s 1.2s; }
+.launch .fl { transform-origin: 100px 166px; transform: scaleY(0); transition: transform .25s var(--ease); }
+.launch .fl path { animation: flame .12s ease-in-out infinite alternate; transform-origin: 100px 166px; }
+@keyframes flame { to { transform: scale(1.12, .9); } }
+.launch .puff { opacity: 0; transform-origin: center; transform-box: fill-box; }
+.launch.go .rk { transform: translateY(-330px); opacity: 0; }
+.launch.go .fl, .launch.lit .fl { transform: scaleY(1); }
+.launch.lit .puff, .launch.go .puff { animation: puff 1s var(--ease) infinite; }
+.launch .puff:nth-of-type(2) { animation-delay: .25s; } .launch .puff:nth-of-type(3) { animation-delay: .5s; }
+@keyframes puff { from { opacity: .95; transform: scale(.5); } to { opacity: 0; transform: scale(1.5) translateY(-6px); } }
+.launch.land .rk { transition: none; animation: land .6s var(--spring); }
+@keyframes land { from { opacity: 0; transform: translateY(-30px); } }
+.launch.lit .launch__pad { animation: rumble .08s linear infinite; }
+@keyframes rumble { 50% { transform: translate(1px, -1px); } }
+@media (prefers-reduced-motion: reduce) { .launch.go .rk { transform: none; opacity: .25; } }
+.launch__dial { position: absolute; right: -20px; bottom: 6px; width: 74px; height: 74px; display: grid; place-items: center; border: 2.5px solid var(--ol); border-radius: 50%; background: var(--knurl); box-shadow: 0 4px 0 var(--ol); }
+.launch__dial span { width: 54px; height: 54px; display: grid; place-items: center; align-content: center; border: 2px solid var(--ol); border-radius: 50%; background: radial-gradient(ellipse 60% 40% at 45% 25%, rgba(255,255,255,.8), transparent 70%), var(--mustard); line-height: 1; }
+.launch__dial small { font: 400 11px/1 var(--font-d); letter-spacing: .08em; color: var(--ink); }
+.launch__dial b { font: 400 24px/1 var(--font-d); }
+.launch__label { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: 10px; min-height: 60px; padding: 0 34px; border: 2.5px solid var(--ol); border-radius: 999px; background: var(--chrome); box-shadow: 0 5px 0 var(--ol); font: 400 23px/1 var(--font-k); transition: transform .3s var(--spring), box-shadow .3s var(--spring); }
+.launch__label::before { content: ""; position: absolute; inset: 4px; z-index: -1; border-radius: 999px; background: var(--mustard); box-shadow: inset 0 0 0 1.5px rgba(34,48,58,.6), inset 0 -5px 0 rgba(34,48,58,.13); }
+.launch__label::after { content: ""; position: absolute; left: 18px; right: 18px; top: 8px; height: 30%; z-index: -1; border-radius: 999px; background: linear-gradient(rgba(255,255,255,.75), rgba(255,255,255,.05)); }
+.launch:hover .launch__label { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ol); }
+.launch:active .launch__label { transform: translateY(5px); box-shadow: 0 0 0 var(--ol); transition-duration: .05s; }
+.launch[aria-disabled="true"] { cursor: progress; }
+.launch:focus-visible { outline-offset: 8px; border-radius: 30px; }
+.launch small.hint { font-size: 14px; color: var(--ink-2); }
+
+/* ---------- Toggles ---------- */
+/* Rocker: a chunky dashboard rocker in a chrome bezel, with a pilot lamp */
+.rocker { display: inline-flex; align-items: center; gap: 16px; min-height: 60px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.rocker__b { position: relative; flex: none; width: 104px; height: 58px; padding: 6px; border: 2.5px solid var(--ol); border-radius: 16px; background: var(--chrome); box-shadow: 0 4px 0 var(--ol); }
+.rocker__p { position: relative; display: grid; grid-template-columns: 1fr 1fr; height: 100%; border: 2px solid var(--ol); border-radius: 10px; overflow: hidden; font: 400 18px/1 var(--font-d); }
+.rocker__p span { display: grid; place-items: center; transition: background .2s, box-shadow .2s, color .2s; }
+.rocker__p span:first-child { background: linear-gradient(#fff, var(--cream-2)); box-shadow: inset -2px 0 0 rgba(34,48,58,.25); color: var(--ink-3); }
+.rocker__p span:last-child { background: linear-gradient(var(--cream-3), #d7c497); box-shadow: inset 0 4px 4px rgba(34,48,58,.25); color: var(--ink); }
+.rocker[aria-checked="true"] .rocker__p span:first-child { background: linear-gradient(#c7f0e9, var(--teal) 70%); box-shadow: inset 0 4px 4px rgba(34,48,58,.22); color: var(--ink); }
+.rocker[aria-checked="true"] .rocker__p span:last-child { background: linear-gradient(#fff, var(--cream-2)); box-shadow: inset 2px 0 0 rgba(34,48,58,.25); color: var(--ink-3); }
+.pilot { position: absolute; top: -9px; right: 10px; width: 16px; height: 16px; border: 2px solid var(--ol); border-radius: 50%; background: #c9b991; transition: background .2s, box-shadow .2s; }
+.rocker[aria-checked="true"] .pilot, .tvknob[aria-checked="true"] .pilot { background: radial-gradient(circle at 35% 35%, #fff 0 2px, transparent 3px), var(--mustard); box-shadow: 0 0 10px 3px rgba(245,191,60,.9); }
+.tg__t { display: grid; line-height: 1.45; }
+.tg__t em { font-style: normal; font: 400 15px/1.2 var(--font-k); color: var(--ink-3); }
+.tg__t b { font: 400 21px/1.3 var(--font-k); font-weight: 400; }
+.tg__t small { font-size: 15px; color: var(--ink-2); }
+[aria-checked="true"] > .tg__t em { color: var(--teal-d); }
+
+/* TV channel knob: turn it from 끔 to 켬 */
+.tvknob { display: inline-flex; align-items: center; gap: 16px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.tvknob__w { position: relative; flex: none; width: 108px; height: 84px; }
+.tvknob__w > i { position: absolute; top: 2px; font: 400 15px/1 var(--font-k); font-style: normal; color: var(--ink-3); }
+.tvknob__w > i:first-of-type { left: 4px; } .tvknob__w > i:last-of-type { right: 4px; }
+.tvknob[aria-checked="false"] .tvknob__w > i:first-of-type, .tvknob[aria-checked="true"] .tvknob__w > i:last-of-type { color: var(--ink); }
+.tvknob__k { position: absolute; left: 50%; bottom: 0; width: 64px; height: 64px; margin-left: -32px; border: 2.5px solid var(--ol); border-radius: 50%; background: var(--knurl); box-shadow: 0 4px 0 var(--ol); transform: rotate(-55deg); transition: transform .5s var(--spring); }
+.tvknob__k::before { content: ""; position: absolute; inset: 9px; border: 2px solid var(--ol); border-radius: 50%; background: radial-gradient(ellipse 60% 40% at 45% 25%, rgba(255,255,255,.85), transparent 70%), var(--coral-l); }
+.tvknob__k::after { content: ""; position: absolute; left: 50%; top: 4px; width: 6px; height: 22px; margin-left: -3px; border: 2px solid var(--ol); border-radius: 4px; background: var(--red); }
+.tvknob[aria-checked="true"] .tvknob__k { transform: rotate(55deg); }
+.tvknob[aria-checked="true"] .tvknob__k::before { background: radial-gradient(ellipse 60% 40% at 45% 25%, rgba(255,255,255,.85), transparent 70%), var(--teal); }
+.tvknob .pilot { top: 0; left: 50%; right: auto; margin-left: -8px; }
+.tvknob:focus-visible { border-radius: 16px; }
+
+/* Checkbox: a punch card; checking punches the hole */
+.check { position: relative; display: flex; align-items: flex-start; gap: 14px; cursor: pointer; min-height: 44px; padding-top: 4px; }
+.check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.punch { position: relative; flex: none; width: 38px; height: 32px; border: 2.5px solid var(--ol); border-radius: 5px; background: repeating-linear-gradient(var(--paper) 0 5px, #f1e3c2 5px 6px); box-shadow: 0 3px 0 var(--ol); clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); transition: transform .3s var(--spring); }
+.punch::before { content: ""; position: absolute; left: 0; top: 0; width: 13px; height: 13px; background: linear-gradient(135deg, transparent 45%, var(--ol) 45% 60%, transparent 60%); }
+.punch::after { content: ""; position: absolute; left: 9px; top: 5px; width: 16px; height: 18px; border: 2px dashed var(--ink-3); border-radius: 5px; transition: background .15s, border-color .15s; }
+.punch svg { position: absolute; left: 7px; top: 3px; width: 20px; height: 22px; z-index: 1; overflow: visible; }
+.punch path { fill: none; stroke: var(--paper); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; transition: stroke-dashoffset .25s var(--ease) .05s; }
+.check:hover .punch { transform: rotate(-4deg); }
+.check input:checked + .punch::after { background: var(--ink); border: 2px solid var(--ink); }
+.check input:checked + .punch path { stroke-dashoffset: 0; }
+.check input:indeterminate + .punch::after { top: 11px; height: 8px; background: var(--ink); border: 2px solid var(--ink); border-radius: 4px; }
+.check input:focus-visible + .punch, .check input:focus-visible + .jlamp { outline: 3px solid var(--teal-d); outline-offset: 5px; }
+.check input:disabled + .punch { opacity: .45; }
+.check input:disabled ~ .check__t { color: var(--ink-3); }
+.check { cursor: pointer; }
+.check:has(input:disabled) { cursor: not-allowed; }
+.check__t { display: grid; line-height: 1.45; } .check__t b { font: 400 20px/1.3 var(--font-k); font-weight: 400; } .check__t small { font-size: 15px; color: var(--ink-2); }
+.check__t > span { font: 400 20px/1.3 var(--font-k); }
+/* Radio: a jukebox selector lamp */
+.jlamp { position: relative; flex: none; width: 34px; height: 34px; border: 2.5px solid var(--ol); border-radius: 50%; background: var(--knurl); box-shadow: 0 3px 0 var(--ol); }
+.jlamp::after { content: ""; position: absolute; inset: 5px; border: 2px solid var(--ol); border-radius: 50%; background: radial-gradient(circle at 38% 35%, rgba(255,255,255,.9) 0 2px, transparent 4px), #d9d1bd; transition: background .2s, box-shadow .2s; }
+.check input:checked + .jlamp::after { background: radial-gradient(circle at 38% 35%, #fff 0 2px, transparent 4px), radial-gradient(circle, #fff3c4, var(--mustard) 70%); box-shadow: 0 0 12px 4px rgba(245,191,60,.85); }
+.stack { display: grid; gap: 14px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 14px; font: 400 17px/1.3 var(--font-k); color: var(--ink-2); }
+
+/* ---------- Choosing ---------- */
+/* Segmented: a row of jukebox selector keys on a chrome bar */
+.keys { display: inline-flex; gap: 6px; padding: 8px; max-width: 100%; overflow-x: auto; border: 2.5px solid var(--ol); border-radius: 18px; background: var(--chrome); box-shadow: 0 4px 0 var(--ol); }
+.keys button { position: relative; min-width: 76px; min-height: 52px; padding: 0 16px; border: 2px solid var(--ol); border-radius: 10px; cursor: pointer; font: 400 18px/1 var(--font-k); color: var(--ink); white-space: nowrap;
+  background: linear-gradient(#fff 0 6px, var(--paper) 6px calc(100% - 7px), var(--cream-3) calc(100% - 7px)); box-shadow: 0 4px 0 var(--ol); transition: transform .2s var(--spring), box-shadow .2s var(--spring), background .2s; }
+@media (max-width: 480px) { .keys button { min-width: 0; padding: 0 11px; font-size: 16px; } .strip { min-width: 100px; padding: 8px 10px; } }
+.keys button:hover { transform: translateY(-1px); }
+.keys button[aria-checked="true"] { transform: translateY(3px); box-shadow: 0 1px 0 var(--ol), inset 0 0 14px rgba(255,255,255,.6); background: linear-gradient(#c7f0e9 0 6px, var(--teal) 6px calc(100% - 7px), #4fb3a7 calc(100% - 7px)); }
+.keys button[aria-checked="true"]::after { content: ""; position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--ol); background: var(--mustard); box-shadow: 0 0 6px 2px rgba(245,191,60,.9); }
+.keys button:focus-visible { outline-offset: 3px; }
+
+/* Tabs: jukebox title strips over a TV screen */
+.strips { display: flex; gap: 10px; padding: 4px 4px 14px; overflow-x: auto; }
+.strip { position: relative; flex: none; min-width: 132px; min-height: 64px; padding: 8px 16px; border: 2px solid var(--ol); border-radius: 6px; cursor: pointer; display: grid; justify-items: center; align-content: center; gap: 2px; text-align: center; color: var(--ink);
+  background: linear-gradient(var(--red) 0 3px, transparent 3px 6px, var(--red) 6px 7px, transparent 7px calc(100% - 7px), var(--red) calc(100% - 7px) calc(100% - 6px), transparent calc(100% - 6px) calc(100% - 3px), var(--red) calc(100% - 3px)), var(--paper);
+  box-shadow: 0 4px 0 var(--ol); transition: transform .25s var(--spring), background-color .2s; }
+.strip small { font: 400 13px/1 var(--font-d); letter-spacing: .1em; color: var(--ink-3); }
+.strip span { font: 400 19px/1.1 var(--font-k); }
+.strip:hover { transform: translateY(-2px); }
+.strip[aria-selected="true"] { background-color: var(--mustard-l); transform: translateY(3px); box-shadow: 0 1px 0 var(--ol); }
+.strip[aria-selected="true"]::before { content: ""; position: absolute; left: 50%; bottom: -15px; margin-left: -9px; border: 9px solid transparent; border-top-color: var(--ol); border-bottom: 0; }
+.tv { position: relative; padding: 14px; border: 2.5px solid var(--ol); border-radius: 30px; background: var(--teal); box-shadow: 0 5px 0 var(--ol); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.tv__screen { position: relative; min-height: 150px; padding: 22px 24px; border: 2.5px solid var(--ol); border-radius: 34px / 26px; color: var(--ink);
+  background: repeating-linear-gradient(rgba(34,48,58,.045) 0 2px, transparent 2px 4px), radial-gradient(ellipse at 50% 40%, #fbfffd, #cfe8e3 85%); box-shadow: inset 0 0 0 6px rgba(255,255,255,.35), inset 0 0 26px rgba(34,48,58,.22), 0 0 0 5px var(--ch-2), 0 0 0 7.5px var(--ol); margin: 7px; }
+.tv__screen h4 { font: 400 23px/1.3 var(--font-k); margin-bottom: 6px; }
+.tv__screen p { font-size: 16px; color: var(--ink-2); }
+.tv__side { display: grid; gap: 12px; justify-items: center; }
+.tv__side i { width: 36px; height: 36px; border: 2.5px solid var(--ol); border-radius: 50%; background: var(--knurl); position: relative; }
+.tv__side i::after { content: ""; position: absolute; left: 50%; top: 3px; width: 4px; height: 12px; margin-left: -2px; background: var(--ol); border-radius: 2px; }
+.tv__side i:nth-child(2) { transform: rotate(70deg); }
+.tv__side em { width: 36px; height: 40px; border: 2px solid var(--ol); border-radius: 8px; background: repeating-linear-gradient(var(--ink) 0 2px, transparent 2px 6px), var(--teal-l); }
+@media (max-width: 520px) { .tv { grid-template-columns: minmax(0, 1fr); } .tv__side { display: none; } }
+
+/* Chips: little atoms you switch on */
+.chips { display: flex; flex-wrap: wrap; gap: 12px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 18px 0 10px; border: 2.5px solid var(--ol); border-radius: 23px; cursor: pointer; font: 400 18px/1 var(--font-k); color: var(--ink); background: var(--paper); box-shadow: 0 3px 0 var(--ol); transition: transform .25s var(--spring), background .2s; }
+.chip svg { width: 26px; height: 26px; transition: transform .5s var(--spring); }
+.chip:hover { transform: translateY(-2px); }
+.chip[aria-pressed="true"] { background: var(--coral-l); }
+.chip[aria-pressed="true"] svg { transform: rotate(180deg); }
+.chip[aria-pressed="true"] .nuc { fill: var(--red); }
+
+.field { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 8px; min-width: 0; width: 100%; }
+.field > label, .flabel { font: 400 19px/1.3 var(--font-k); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.field > label small, .flabel small { font: 500 14px/1.3 var(--font); color: var(--ink-3); }
+.help { font-size: 15px; color: var(--ink-2); }
+.help.err { color: var(--coral-d); font-weight: 700; display: flex; gap: 8px; align-items: flex-start; }
+.help.err::before { content: "!"; flex: none; width: 22px; height: 22px; margin-top: 1px; display: grid; place-items: center; font: 400 14px/1 var(--font-d); color: #fff; background: var(--red); clip-path: polygon(50% 0%,59.8% 13.3%,75% 6.7%,76.9% 23.1%,93.3% 25%,86.7% 40.2%,100% 50%,86.7% 59.8%,93.3% 75%,76.9% 76.9%,75% 93.3%,59.8% 86.7%,50% 100%,40.2% 86.7%,25% 93.3%,23.1% 76.9%,6.7% 75%,13.3% 59.8%,0% 50%,13.3% 40.2%,6.7% 25%,23.1% 23.1%,25% 6.7%,40.2% 13.3%); }
+.help.ok { color: var(--teal-d); font-weight: 700; }
+
+.select { position: relative; }
+.select select { appearance: none; width: 100%; min-height: 58px; padding: 0 70px 0 18px; border: 2.5px solid var(--ol); border-radius: 16px; cursor: pointer; font: 400 19px/1 var(--font-k); color: var(--ink); background: var(--paper); box-shadow: inset 0 3px 0 rgba(34,48,58,.07), 0 4px 0 var(--ol); }
+.select select:hover { background: #fff; }
+.select__k { position: absolute; right: 8px; top: 7px; width: 44px; height: 44px; border: 2px solid var(--ol); border-radius: 50%; background: var(--knurl); pointer-events: none; display: grid; place-items: center; }
+.select__k::before { content: ""; position: absolute; inset: 6px; border: 2px solid var(--ol); border-radius: 50%; background: var(--teal-l); }
+.select__k svg { position: relative; width: 16px; height: 16px; fill: none; stroke: var(--ol); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Range: a radio tuner window; the red needle is the handle */
+.tuner { display: grid; gap: 10px; width: 100%; }
+.tuner__top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.tuner__top output { font: 400 30px/1 var(--font-d); color: var(--ink); }
+.tuner__top output small { font: 400 16px/1 var(--font-k); color: var(--ink-2); margin-left: 6px; }
+.tuner__win { position: relative; padding: 8px 18px 6px; border: 2.5px solid var(--ol); border-radius: 18px; background: var(--chrome); box-shadow: 0 4px 0 var(--ol); }
+.tuner__glass { position: relative; border: 2px solid var(--ol); border-radius: 10px; padding: 6px 14px 0; background: linear-gradient(#fff6d8, #fbe3a3); box-shadow: inset 0 4px 10px rgba(125,90,5,.18); }
+.tuner__nums { display: flex; justify-content: space-between; font: 400 15px/1 var(--font-d); color: var(--ink-2); padding: 2px 0 0; }
+.tuner__nums span { width: 0; display: flex; justify-content: center; }
+.tuner input { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 50px; margin: 0; background: transparent; cursor: pointer; }
+.tuner input::-webkit-slider-runnable-track { height: 50px; background: linear-gradient(90deg, var(--ink-3) 0 2px, transparent 2px) 0 30px/calc((100% - 2px) / 20) 12px repeat-x, linear-gradient(90deg, var(--ink) 0 2px, transparent 2px) 0 22px/calc((100% - 2px) / 5) 20px repeat-x, linear-gradient(var(--ink-3), var(--ink-3)) 0 41px/100% 2px no-repeat; }
+.tuner input::-moz-range-track { height: 50px; background: linear-gradient(90deg, var(--ink) 0 2px, transparent 2px) 0 22px/20% 20px repeat-x, linear-gradient(var(--ink-3), var(--ink-3)) 0 41px/100% 2px no-repeat; }
+.tuner input::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 50px; border: 2px solid var(--ol); border-radius: 4px; background: var(--red); box-shadow: 0 0 0 2px rgba(255,255,255,.6); }
+.tuner input::-moz-range-thumb { width: 8px; height: 46px; border: 2px solid var(--ol); border-radius: 4px; background: var(--red); }
+.tuner input:focus-visible { outline: 3px solid var(--teal-d); outline-offset: 4px; }
+.tuner__foot { display: flex; justify-content: space-between; font-size: 14px; color: var(--ink-3); }
+
+/* Side menu: a diner letter board */
+.board { width: 100%; max-width: 330px; padding: 10px; border: 2.5px solid var(--ol); border-radius: 22px; background: var(--chrome); box-shadow: 0 5px 0 var(--ol); }
+.board__in { padding: 14px 10px 14px; border: 2px solid var(--ol); border-radius: 14px; background: repeating-linear-gradient(transparent 0 7px, rgba(255,255,255,.06) 7px 8px), var(--space); }
+.board__title { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 0 0 10px; font: 400 18px/1 var(--font-d); letter-spacing: .3em; color: var(--mustard-l); }
+.board__title::before, .board__title::after { content: ""; width: 12px; height: 12px; background: var(--coral); clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); }
+.board a { position: relative; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 14px 0 34px; border-radius: 10px; color: #f6eedb; text-decoration: none; font: 400 19px/1 var(--font-k); }
+.board a::before { content: ""; position: absolute; left: 12px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; border: 2px solid #8796a2; }
+.board a i { flex: 1; height: 0; border-bottom: 2px dotted #7f8f9b; margin-top: 6px; }
+.board a em { font-style: normal; font: 400 16px/1 var(--font-d); color: var(--teal-l); }
+.board a:hover { background: rgba(255,255,255,.08); }
+.board a[aria-current="page"] { background: var(--mustard); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ol); }
+.board a[aria-current="page"]::before { border-color: var(--ol); background: var(--red); box-shadow: 0 0 0 3px rgba(255,255,255,.5); }
+.board a[aria-current="page"] i { border-color: rgba(34,48,58,.5); }
+.board a[aria-current="page"] em { color: var(--ink); }
+.board a .new { padding: 3px 8px; border-radius: 10px; background: var(--coral); color: var(--ink); font-size: 14px; }
+.board a:focus-visible { outline-color: var(--mustard); outline-offset: 2px; }
+
+/* ---------- Inputs: a rounded TV-set field ---------- */
+.input { display: flex; align-items: stretch; min-height: 58px; border: 2.5px solid var(--ol); border-radius: 16px; background: var(--paper); box-shadow: inset 0 3px 0 rgba(34,48,58,.07), 0 4px 0 var(--ol); overflow: hidden; transition: box-shadow .2s, background .2s; }
+.input input, .input textarea { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; padding: 0 16px; font: 500 17px/1.4 var(--font); color: var(--ink); }
+.input textarea { padding: 14px 16px; min-height: 120px; resize: vertical; line-height: 1.75; }
+.input input::placeholder, .input textarea::placeholder { color: var(--ink-3); opacity: .85; }
+.input:focus-within { background: #fff; box-shadow: inset 0 3px 0 rgba(34,48,58,.05), 0 4px 0 var(--ol), 0 0 0 5px var(--teal-l), 0 0 0 7px var(--teal-d); }
+.input__ico { display: grid; place-items: center; padding-left: 14px; }
+.input__ico svg { width: 22px; height: 22px; fill: none; stroke: var(--ink-2); stroke-width: 2.4; stroke-linecap: round; }
+.input__aff { display: grid; place-items: center; padding: 0 16px; border-left: 2px solid var(--ol); background: var(--chrome-x); font: 400 18px/1 var(--font-k); color: var(--ink); }
+.input__btn { align-self: center; min-height: 44px; margin: 0 5px; padding: 0 14px; border: 2px solid var(--ol); border-radius: 11px; cursor: pointer; font: 400 16px/1 var(--font-k); background: var(--mustard-l); box-shadow: 0 2px 0 var(--ol); }
+.input__btn:hover { background: var(--mustard); }
+.input.is-err { background: var(--coral-wash); border-color: var(--red-d); box-shadow: inset 0 3px 0 rgba(34,48,58,.05), 0 4px 0 var(--red-d), 0 0 0 4px var(--coral-l); }
+.input.is-ok { box-shadow: inset 0 3px 0 rgba(34,48,58,.05), 0 4px 0 var(--ol), 0 0 0 4px var(--teal-l); }
+.input.is-off { background: #ece6d8; border-color: #6d777d; box-shadow: 0 4px 0 #6d777d; }
+.input.is-off input { color: var(--ink-2); cursor: not-allowed; }
+.input .num { text-align: right; font: 400 21px/1 var(--font-d); }
+.input input[type="date"], .input input[type="time"] { font: 400 18px/1 var(--font-d); min-height: 52px; }
+.input input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .75; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 24px 20px; width: 100%; }
+.count { text-align: right; font: 400 15px/1 var(--font-d); color: var(--ink-3); }
+
+/* ---------- Display ---------- */
+.tag { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 0 14px 0 10px; border: 2px solid var(--ol); border-radius: 16px; background: var(--paper); font: 400 16px/1 var(--font-k); color: var(--ink); box-shadow: 0 2px 0 var(--ol); }
+.tag::before { content: ""; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ol); background: var(--d, var(--cream-3)); }
+.tag--teal { background: var(--teal-l); --d: var(--teal-d); } .tag--coral { background: var(--coral-l); --d: var(--red); } .tag--mustard { background: var(--mustard-l); --d: var(--mustard); }
+.tag--chrome { background: var(--chrome); --d: var(--ch-3); } .tag--ink { background: var(--ink); color: var(--paper); --d: var(--mustard); }
+.sticker { position: relative; width: 78px; height: 78px; display: grid; place-items: center; font: 400 18px/1 var(--font-d); color: var(--ink); transform: rotate(-10deg); }
+.sticker svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sticker b { position: relative; font-weight: 400; }
+
+/* Planet postcards */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 26px; width: 100%; }
+.pc { --c: var(--teal-l); position: relative; display: grid; padding: 0; border: 2.5px solid var(--ol); border-radius: 18px; overflow: hidden; background: var(--paper); box-shadow: 0 5px 0 var(--ol); cursor: pointer; text-align: left; color: var(--ink); transition: transform .3s var(--spring), box-shadow .3s var(--spring); }
+.pc:hover { transform: translateY(-4px) rotate(-1deg); box-shadow: 0 9px 0 var(--ol); }
+.pc:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ol); transition-duration: .05s; }
+.pc:focus-visible { outline-offset: 5px; border-radius: 18px; }
+.pc__art { position: relative; height: 150px; display: grid; place-items: center; border-bottom: 2.5px solid var(--ol); overflow: hidden;
+  background: radial-gradient(circle at 18% 22%, #fff 0 1.5px, transparent 2.5px), radial-gradient(circle at 84% 70%, #fff 0 2px, transparent 3px), radial-gradient(circle at 62% 14%, #fff 0 1.5px, transparent 2.5px), var(--c); }
+.pc__art > svg.planet { width: 110px; height: 110px; position: relative; z-index: 1; }
+.pc__art > svg.rays { position: absolute; width: 230px; height: 230px; color: rgba(255,255,255,.65); }
+.pc__stamp { position: absolute; top: 10px; right: 10px; z-index: 2; width: 42px; height: 50px; display: grid; place-items: center; background: var(--paper); border: 2px dashed var(--ink-3); outline: 3px solid var(--paper); font: 400 13px/1.1 var(--font-d); color: var(--coral-d); text-align: center; transform: rotate(6deg); }
+.pc__mark { position: absolute; left: 10px; top: 10px; z-index: 2; padding: 4px 10px; border: 2px solid var(--ol); border-radius: 12px; background: var(--paper); font: 400 14px/1.2 var(--font-k); }
+.pc__body { padding: 14px 16px 16px; display: grid; gap: 4px; }
+.pc__body b { font: 400 24px/1.2 var(--font-k); font-weight: 400; }
+.pc__body b small { margin-left: 6px; font: 400 15px/1 var(--font-d); color: var(--ink-3); letter-spacing: .04em; }
+.pc__body span { font-size: 15px; color: var(--ink-2); line-height: 1.5; }
+.pc__meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; padding-top: 10px; border-top: 2px dashed var(--cream-3); font: 400 16px/1 var(--font-k); }
+.pc__meta em { font-style: normal; color: var(--ink-3); font-size: 14px; }
+
+/* Fuel gauge + tube */
+.gauges { display: flex; flex-wrap: wrap; gap: 30px; align-items: center; justify-content: center; width: 100%; }
+.fuel { display: grid; justify-items: center; gap: 6px; }
+.fuel__dial { position: relative; width: 230px; padding: 10px 10px 0; border: 2.5px solid var(--ol); border-radius: 120px 120px 22px 22px; background: var(--chrome); box-shadow: 0 5px 0 var(--ol); }
+.fuel__dial svg { display: block; width: 100%; height: auto; border: 2px solid var(--ol); border-bottom: 0; border-radius: 110px 110px 0 0; background: radial-gradient(ellipse at 50% 100%, #fff, var(--paper) 70%); }
+.fuel__dial .needle { transition: transform .8s var(--spring); transform-origin: 100px 105px; }
+.fuel b { font: 400 21px/1.2 var(--font-k); font-weight: 400; }
+.fuel span { font-size: 15px; color: var(--ink-2); }
+.fuel__btns { display: flex; gap: 10px; }
+.tube { flex: 1; min-width: min(260px, 100%); display: grid; gap: 10px; }
+.tube__top { display: flex; justify-content: space-between; align-items: baseline; }
+.tube__top b { font: 400 20px/1.2 var(--font-k); font-weight: 400; }
+.tube__top output { font: 400 26px/1 var(--font-d); color: var(--teal-d); }
+.tube__bar { position: relative; height: 36px; padding: 5px; border: 2.5px solid var(--ol); border-radius: 18px; background: var(--chrome); box-shadow: 0 4px 0 var(--ol); }
+.tube__glass { position: relative; height: 100%; border: 2px solid var(--ol); border-radius: 12px; overflow: hidden; background: linear-gradient(#fff, var(--paper)); }
+.tube__glass i { position: absolute; left: 0; top: 0; bottom: 0; border-right: 2px solid var(--ol); transition: width .6s var(--ease);
+  background: radial-gradient(circle, rgba(255,255,255,.85) 0 2px, transparent 2.5px) 0 0/18px 14px, linear-gradient(#b9ebe3 0 30%, var(--teal) 30%); animation: bubble 1.4s linear infinite; }
+@keyframes bubble { to { background-position: 18px -14px, 0 0; } }
+.tube__glass::after { content: ""; position: absolute; left: 8px; right: 8px; top: 3px; height: 4px; border-radius: 4px; background: rgba(255,255,255,.7); }
+.tube__foot { display: flex; justify-content: space-between; font: 400 14px/1 var(--font-d); color: var(--ink-3); }
+/* Launch sequence steps: lamps on a chrome pipe */
+.seq { display: flex; width: 100%; margin: 0; padding: 0 0 4px; list-style: none; overflow-x: auto; position: relative; }
+.seq::before { content: ""; position: absolute; left: 30px; right: 30px; top: 18px; height: 12px; border: 2px solid var(--ol); border-radius: 6px; background: var(--chrome); }
+.seq li { position: relative; flex: 1; min-width: 92px; display: grid; justify-items: center; gap: 8px; text-align: center; font: 400 17px/1.2 var(--font-k); color: var(--ink-3); }
+.seq li span { position: relative; width: 48px; height: 48px; display: grid; place-items: center; border: 2.5px solid var(--ol); border-radius: 50%; background: var(--knurl); box-shadow: 0 3px 0 var(--ol); font: 400 17px/1 var(--font-d); color: var(--ink-2); }
+.seq li span::before { content: ""; position: absolute; inset: 6px; z-index: -0; border: 2px solid var(--ol); border-radius: 50%; background: #e3dccb; }
+.seq li span b { position: relative; font-weight: 400; }
+.seq li.done { color: var(--ink-2); }
+.seq li.done span::before { background: var(--teal); }
+.seq li.done span { color: var(--ink); }
+.seq li.now { color: var(--ink); }
+.seq li.now span::before { background: radial-gradient(circle, #fff3c4, var(--mustard) 70%); animation: blink 1.2s ease-in-out infinite; }
+@keyframes blink { 50% { box-shadow: 0 0 14px 5px rgba(245,191,60,.95); } }
+
+/* Accordion */
+.faq { width: 100%; display: grid; gap: 14px; }
+.faq details { border: 2.5px solid var(--ol); border-radius: 18px; background: var(--paper); box-shadow: 0 4px 0 var(--ol); overflow: hidden; }
+.faq summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 0 12px 0 16px; font: 400 20px/1.3 var(--font-k); }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary > svg { width: 30px; height: 30px; transition: transform .6s var(--spring); }
+.faq summary > span { flex: 1; }
+.faq summary > i { position: relative; flex: none; width: 40px; height: 40px; border: 2px solid var(--ol); border-radius: 50%; background: var(--knurl); transition: transform .4s var(--spring); }
+.faq summary > i::before, .faq summary > i::after { content: ""; position: absolute; left: 50%; top: 50%; width: 16px; height: 4px; margin: -2px 0 0 -8px; border-radius: 2px; background: var(--ol); }
+.faq summary > i::after { transform: rotate(90deg); }
+.faq details[open] summary > i { transform: rotate(135deg); }
+.faq details[open] summary > svg { transform: rotate(120deg); }
+.faq details[open] summary { background: var(--teal-wash); border-bottom: 2px dashed var(--cream-3); }
+.faq summary:hover { background: var(--teal-wash); }
+.faq summary:focus-visible { outline-offset: -6px; }
+.faq details > div { padding: 14px 22px 20px 60px; color: var(--ink-2); font-size: 16px; }
+@media (max-width: 480px) { .faq details > div { padding-left: 18px; } }
+
+/* Table: the departures board */
+.tablewrap { width: 100%; overflow-x: auto; border: 2.5px solid var(--ol); border-radius: 18px; box-shadow: 0 4px 0 var(--ol); background: var(--paper); }
+table { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 16px; }
+caption { padding: 14px 16px 12px; text-align: left; font: 400 19px/1 var(--font-k); color: var(--ink); background: var(--paper); }
+th { text-align: left; padding: 13px 16px; background: var(--space); color: #f6eedb; font: 400 17px/1.2 var(--font-k); white-space: nowrap; border-top: 2px solid var(--ol); border-bottom: 2.5px solid var(--ol); }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+th button::after { content: "↕"; font-size: 14px; color: #9fb0bc; }
+th button:focus-visible { outline: 3px solid var(--mustard); outline-offset: 3px; border-radius: 4px; }
+th[aria-sort="ascending"] button::after { content: "▲"; font-size: 11px; color: var(--mustard); } th[aria-sort="descending"] button::after { content: "▼"; font-size: 11px; color: var(--mustard); }
+td { padding: 13px 16px; border-bottom: 2px dashed var(--cream-3); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--teal-wash); }
+td.num, th.num { text-align: right; }
+td.num, td.time { font: 400 19px/1 var(--font-d); }
+td .dest { display: inline-flex; align-items: center; gap: 10px; font: 400 19px/1.2 var(--font-k); }
+td .dest svg { width: 30px; height: 30px; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; font: 400 17px/1 var(--font-k); color: var(--ink-2); }
+.pager ol { display: flex; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.pager button { position: relative; isolation: isolate; width: 46px; height: 46px; padding: 0; border: 2.5px solid var(--ol); border-radius: 50%; cursor: pointer; font: 400 18px/1 var(--font-d); color: var(--ink); background: var(--knurl); box-shadow: 0 3px 0 var(--ol); transition: transform .3s var(--spring); }
+.pager button::before { content: ""; position: absolute; inset: 6px; z-index: -1; border: 2px solid var(--ol); border-radius: 50%; background: var(--paper); }
+.pager button:hover:not(:disabled) { transform: translateY(-2px); }
+.pager button[aria-current="page"]::before { background: var(--teal); }
+.pager button:disabled { opacity: .4; cursor: not-allowed; }
+.pager button:focus-visible { border-radius: 50%; }
+
+.empty { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 10px; }
+.empty svg { width: 150px; height: 110px; }
+.empty b { font: 400 25px/1.3 var(--font-k); font-weight: 400; }
+.empty p { color: var(--ink-2); font-size: 16px; max-width: 34ch; }
+
+/* ---------- Overlays ---------- */
+/* Dialog: a 1962 TV set on splayed atomic legs */
+dialog { padding: 0; border: 0; background: transparent; color: var(--ink); width: 100%; max-width: min(520px, calc(100vw - 32px)); overflow: visible; }
+dialog::backdrop { background: rgba(31,45,61,.62); backdrop-filter: blur(3px); }
+dialog[open] { animation: tvon .45s var(--spring); }
+@keyframes tvon { from { opacity: 0; transform: scale(.85, .4); } 60% { opacity: 1; } }
+.tvset { position: relative; padding: 46px 0 34px; }
+.tvset__ant { position: absolute; left: 50%; top: -6px; width: 150px; height: 60px; margin-left: -75px; overflow: visible; }
+.tvset__cab { position: relative; padding: 14px; border: 2.5px solid var(--ol); border-radius: 34px; background: var(--coral); box-shadow: 0 6px 0 var(--ol), 0 30px 40px -18px rgba(0,0,0,.5); }
+.tvset__cab::before { content: ""; position: absolute; left: 30px; right: 30px; top: 6px; height: 6px; border-radius: 6px; background: rgba(255,255,255,.55); }
+.tvset__screen { position: relative; margin: 8px; padding: 30px 24px 24px; display: grid; justify-items: center; gap: 10px; text-align: center; border: 2.5px solid var(--ol); border-radius: 44px / 32px;
+  background: repeating-linear-gradient(rgba(34,48,58,.04) 0 2px, transparent 2px 4px), radial-gradient(ellipse at 50% 35%, #fffef8, #e8f3ee 80%); box-shadow: inset 0 0 26px rgba(34,48,58,.2), 0 0 0 6px var(--ch-2), 0 0 0 8.5px var(--ol); }
+.tvset__screen > svg { width: 64px; height: 64px; }
+.tvset h3 { font: 400 28px/1.3 var(--font-k); }
+.tvset p { color: var(--ink-2); font-size: 16px; max-width: 34ch; }
+.tvset__foot { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+.tvset__panel { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 16px 8px 2px; }
+.tvset__panel em { flex: 1; height: 26px; border: 2px solid var(--ol); border-radius: 8px; background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 7px), var(--coral-l); }
+.tvset__panel i { position: relative; width: 34px; height: 34px; border: 2px solid var(--ol); border-radius: 50%; background: var(--knurl); }
+.tvset__panel i::after { content: ""; position: absolute; left: 50%; top: 3px; width: 4px; height: 11px; margin-left: -2px; border-radius: 2px; background: var(--ol); }
+.tvset__panel i + i { transform: rotate(-60deg); }
+.tvset__legs { position: absolute; left: 0; right: 0; bottom: 0; height: 40px; pointer-events: none; }
+.tvset__legs::before, .tvset__legs::after { content: ""; position: absolute; top: -4px; width: 12px; height: 40px; border: 2.5px solid var(--ol); border-radius: 0 0 6px 6px; background: var(--chrome-x); }
+.tvset__legs::before { left: 22%; transform: rotate(18deg); } .tvset__legs::after { right: 22%; transform: rotate(-18deg); }
+
+/* Side panel: the rocket hatch, riveted, with a porthole */
+.hatch { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(440px, 100vw); display: grid; grid-template-rows: auto 1fr auto; padding-left: 18px; border-left: 2.5px solid var(--ol);
+  background: radial-gradient(circle at 50% 50%, #fff 0 2px, var(--ch-4) 2.5px 4px, transparent 4.5px) 2px 10px/14px 28px repeat-y, var(--chrome-x) 0 0/18px 100% no-repeat, var(--paper);
+  transform: translateX(105%); visibility: hidden; transition: transform .5s var(--spring), visibility 0s .5s; box-shadow: -12px 0 0 rgba(31,45,61,.18); }
+.hatch.open { transform: none; visibility: visible; transition: transform .5s var(--spring); }
+.hatch::before { content: ""; position: absolute; left: 18px; top: 0; bottom: 0; width: 2.5px; background: var(--ol); }
+.hatch__head { display: flex; align-items: center; gap: 14px; padding: 22px 18px 18px 22px; border-bottom: 2px solid var(--ol); background: var(--teal-wash); }
+.port { position: relative; flex: none; width: 76px; height: 76px; border: 2.5px solid var(--ol); border-radius: 50%; background: radial-gradient(circle at 50% 50%, transparent 0 25px, transparent 25px), var(--chrome); display: grid; place-items: center; }
+.port::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 50% 4px, var(--ch-4) 0 2px, transparent 2.5px), radial-gradient(circle at 50% calc(100% - 4px), var(--ch-4) 0 2px, transparent 2.5px), radial-gradient(circle at 4px 50%, var(--ch-4) 0 2px, transparent 2.5px), radial-gradient(circle at calc(100% - 4px) 50%, var(--ch-4) 0 2px, transparent 2.5px); }
+.port span { width: 54px; height: 54px; border: 2px solid var(--ol); border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: radial-gradient(circle at 30% 30%, #fff 0 1.5px, transparent 2.5px), radial-gradient(circle at 70% 75%, #fff 0 1px, transparent 2px), var(--space); }
+.port span svg { width: 40px; height: 40px; }
+.hatch__head div { flex: 1; min-width: 0; }
+.hatch__head small { font: 400 15px/1.2 var(--font-k); color: var(--ink-2); }
+.hatch__head h3 { font: 400 28px/1.2 var(--font-k); }
+.hatch__body { padding: 22px 20px 22px 22px; overflow: auto; display: grid; gap: 22px; align-content: start; }
+.hatch__foot { padding: 16px 20px 22px 22px; display: flex; gap: 14px; justify-content: flex-end; align-items: center; flex-wrap: wrap; border-top: 2px solid var(--ol); background: var(--cream-2); }
+.scrim { position: fixed; inset: 0; z-index: 59; background: rgba(31,45,61,.55); opacity: 0; pointer-events: none; transition: opacity .3s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+/* Toast: a telegram strip off the ticker */
+.wires { position: fixed; z-index: 70; top: 86px; right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; width: min(360px, calc(100vw - 32px)); }
+.tele { --c: var(--teal); position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 18px 10px 16px 14px; border: 2.5px solid var(--ol); border-radius: 6px; background: var(--paper); box-shadow: 0 5px 0 var(--ol), 0 18px 24px -14px rgba(0,0,0,.45); animation: tape .5s var(--spring); }
+.tele::before, .tele::after { content: ""; position: absolute; left: 10px; right: 10px; height: 6px; background: radial-gradient(circle, var(--cream-3) 0 2px, transparent 2.5px) 0 0/10px 6px repeat-x; }
+.tele::before { top: 5px; } .tele::after { bottom: 4px; }
+@keyframes tape { from { opacity: 0; clip-path: inset(0 0 0 100%); transform: translateX(30px); } to { clip-path: inset(0 0 0 0); } }
+.tele.out { animation: away .3s var(--ease) forwards; }
+@keyframes away { to { opacity: 0; transform: translateX(60px); } }
+.tele__seal { position: relative; width: 48px; height: 48px; display: grid; place-items: center; }
+.tele__seal svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tele__seal svg { fill: var(--c); }
+.tele__seal b { position: relative; font: 400 18px/1 var(--font-d); }
+.tele small { display: block; font: 400 13px/1.2 var(--font-d); letter-spacing: .12em; color: var(--ink-3); }
+.tele b.t { display: block; font: 400 20px/1.3 var(--font-k); font-weight: 400; }
+.tele span.s { display: block; font-size: 15px; color: var(--ink-2); line-height: 1.5; }
+.tele .x { width: 44px; height: 44px; border: 2px solid var(--ol); border-radius: 50%; background: var(--cream-2); cursor: pointer; font: 400 20px/1 var(--font-d); color: var(--ink); }
+.tele .x { display: grid; place-items: center; padding: 0; }
+.tele .x svg { width: 18px; height: 18px; fill: none; stroke: var(--ol); stroke-width: 3; stroke-linecap: round; }
+.tele .x:hover { background: var(--cream-3); }
+.tele--coral { --c: var(--coral); } .tele--mustard { --c: var(--mustard); } .tele--red { --c: var(--red-l); }
+
+.tip { position: relative; display: inline-flex; }
+.tip__b { position: absolute; bottom: calc(100% + 14px); left: 50%; transform: translateX(-50%) translateY(6px) scale(.9); z-index: 10; padding: 7px 14px; border: 2px solid var(--ol); border-radius: 14px; background: var(--space); color: #f6eedb; box-shadow: 0 3px 0 var(--ol); font: 400 16px/1.3 var(--font-k); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s, transform .3s var(--spring); }
+.tip__b::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -7px; border: 7px solid transparent; border-top-color: var(--space); border-bottom: 0; }
+.tip:hover .tip__b, .tip:focus-within .tip__b { opacity: 1; transform: translateX(-50%); }
+
+.menu { position: relative; }
+.menu__list { position: absolute; right: 0; top: calc(100% + 14px); z-index: 15; min-width: 220px; padding: 8px; margin: 0; list-style: none; border: 2.5px solid var(--ol); border-radius: 16px; background: var(--paper); box-shadow: 0 5px 0 var(--ol), 0 18px 24px -12px rgba(0,0,0,.35); }
+.menu__list [role="menuitem"] { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; min-height: 46px; padding: 0 12px; border: 0; border-radius: 10px; background: none; cursor: pointer; text-align: left; font: 400 18px/1 var(--font-k); color: var(--ink); }
+.menu__list [role="menuitem"]:hover, .menu__list [role="menuitem"]:focus { background: var(--teal); box-shadow: inset 0 0 0 2px var(--ol); outline: none; }
+.menu__list .danger { color: var(--coral-d); }
+.menu__list .danger:hover, .menu__list .danger:focus { background: var(--red); color: #fff; }
+.menu__list kbd { font: 400 13px/1 var(--font-d); color: var(--ink-3); }
+.menu__list [role="menuitem"]:focus kbd, .menu__list [role="menuitem"]:hover kbd { color: var(--ink); }
+.menu__list .danger:focus kbd { color: #fff; }
+.menu__sep { height: 8px; margin: 6px 4px; border: 2px solid var(--ol); border-radius: 4px; background: var(--chrome); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; max-width: 460px; padding: 12px 14px; border: 2.5px solid var(--ol); border-radius: 18px; background: var(--paper); box-shadow: 0 4px 0 var(--ol); }
+.row > div:first-child { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row .disc { flex: none; width: 52px; height: 52px; border: 2px solid var(--ol); border-radius: 50%; background: radial-gradient(circle, var(--coral) 0 7px, var(--ol) 7px 8px, transparent 8px), repeating-radial-gradient(circle, #2b3a46 0 2px, #22303a 2px 4px); }
+.row b { display: block; font: 400 20px/1.3 var(--font-k); font-weight: 400; }
+.row span { font-size: 15px; color: var(--ink-3); }
+
+/* ---------- Code ---------- */
+.codebox { border: 2px solid var(--ol); border-radius: 20px; overflow: hidden; background: var(--space); }
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 16px 18px; background: var(--paper); border-bottom: 2px solid var(--ol); }
+.codebar .flabel { font: 400 18px/1 var(--font-d); }
+pre.code { margin: 0; padding: 24px; overflow: auto; max-height: 540px; color: #f1ead7; font: 400 14px/1.75 ui-monospace, Menlo, Consolas, monospace;
+  background: radial-gradient(circle at 92% 12%, rgba(255,255,255,.5) 0 1.5px, transparent 2.5px), radial-gradient(circle at 70% 40%, rgba(255,255,255,.35) 0 1px, transparent 2px), radial-gradient(circle at 96% 78%, rgba(255,255,255,.4) 0 1.5px, transparent 2.5px), var(--space); }
+pre.code .c { color: #a6b5c0; } pre.code .p { color: var(--mustard-l); } pre.code .v { color: var(--teal-l); }
+
+/* ---------- Footer ---------- */
+.foot { position: relative; margin-top: 120px; background: var(--teal); border-top: 2.5px solid var(--ol); }
+.foot::before { content: ""; position: absolute; left: 0; right: 0; top: -12px; height: 8px; background: var(--chrome); border-top: 2px solid var(--ol); }
+.foot .wrap { padding-block: 44px 64px; display: grid; justify-items: center; gap: 10px; text-align: center; color: var(--ink); font-size: 16px; }
+.foot b { font: 400 40px/1 var(--font-d); color: var(--paper); text-shadow: 2px 0 0 var(--ol), -2px 0 0 var(--ol), 0 2px 0 var(--ol), 0 -2px 0 var(--ol), 4px 5px 0 var(--ol); }
+.foot a { color: var(--ink); font-weight: 700; }
+.foot nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-atom" viewBox="0 0 64 64"><g fill="none" stroke="#22303a" stroke-width="3"><ellipse cx="32" cy="32" rx="28" ry="10.5"/><ellipse cx="32" cy="32" rx="28" ry="10.5" transform="rotate(60 32 32)"/><ellipse cx="32" cy="32" rx="28" ry="10.5" transform="rotate(-60 32 32)"/></g><circle class="nuc" cx="32" cy="32" r="6.5" fill="#f4856f" stroke="#22303a" stroke-width="2.5"/><circle cx="56" cy="22" r="3.5" fill="#6fd0c4" stroke="#22303a" stroke-width="2"/></symbol>
+  <symbol id="i-twinkle" viewBox="0 0 100 100"><path d="M50 0C54 38 62 46 100 50C62 54 54 62 50 100C46 62 38 54 0 50C38 46 46 38 50 0Z"/></symbol>
+  <symbol id="i-rays" viewBox="0 0 100 100"><g stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="50" y1="50" x2="96" y2="50"/><line x1="50" y1="50" x2="76" y2="65"/><line x1="50" y1="50" x2="73" y2="89.8"/><line x1="50" y1="50" x2="50" y2="80"/><line x1="50" y1="50" x2="27" y2="89.8"/><line x1="50" y1="50" x2="24" y2="65"/><line x1="50" y1="50" x2="4" y2="50"/><line x1="50" y1="50" x2="24" y2="35"/><line x1="50" y1="50" x2="27" y2="10.2"/><line x1="50" y1="50" x2="50" y2="20"/><line x1="50" y1="50" x2="73" y2="10.2"/><line x1="50" y1="50" x2="76" y2="35"/></g><g fill="currentColor"><circle cx="96" cy="50" r="4.5"/><circle cx="76" cy="65" r="3"/><circle cx="73" cy="89.8" r="4.5"/><circle cx="50" cy="80" r="3"/><circle cx="27" cy="89.8" r="4.5"/><circle cx="24" cy="65" r="3"/><circle cx="4" cy="50" r="4.5"/><circle cx="24" cy="35" r="3"/><circle cx="27" cy="10.2" r="4.5"/><circle cx="50" cy="20" r="3"/><circle cx="73" cy="10.2" r="4.5"/><circle cx="76" cy="35" r="3"/><circle cx="50" cy="50" r="6"/></g></symbol>
+  <symbol id="i-star" viewBox="-4 -4 108 108"><polygon points="50,0 59.8,13.3 75,6.7 76.9,23.1 93.3,25 86.7,40.2 100,50 86.7,59.8 93.3,75 76.9,76.9 75,93.3 59.8,86.7 50,100 40.2,86.7 25,93.3 23.1,76.9 6.7,75 13.3,59.8 0,50 13.3,40.2 6.7,25 23.1,23.1 25,6.7 40.2,13.3" stroke="#22303a" stroke-width="5" stroke-linejoin="round"/></symbol>
+  <symbol id="i-boom" viewBox="0 0 100 50"><path d="M4 40C22 6 70 0 96 22C70 14 30 18 4 40Z" stroke="#22303a" stroke-width="3" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sputnik" viewBox="0 0 100 100"><g stroke="#22303a" stroke-width="3" stroke-linecap="round"><path d="M40 58L8 92M46 62L28 98M60 58L92 92M54 62L72 98"/></g><circle cx="50" cy="44" r="24" fill="#dde4e8" stroke="#22303a" stroke-width="3.5"/><path d="M34 34a18 18 0 0 1 14-10" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M27 48c10 6 36 6 46 0" stroke="#9eabb2" stroke-width="3" fill="none"/><circle cx="8" cy="92" r="3.5" fill="#f4856f" stroke="#22303a" stroke-width="2"/><circle cx="92" cy="92" r="3.5" fill="#f4856f" stroke="#22303a" stroke-width="2"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 64 64"><path d="M22 40l-9 12v6l9-6zM42 40l9 12v6l-9-6z" fill="#f4856f" stroke="#22303a" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 4c8 8 11 18 11 30v18H21V34c0-12 3-22 11-30z" fill="#fffaf0" stroke="#22303a" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 4c5 5 8 11 9.5 17h-19C24 15 27 9 32 4z" fill="#f4856f" stroke="#22303a" stroke-width="2.5" stroke-linejoin="round"/><circle cx="32" cy="31" r="5.5" fill="#6fd0c4" stroke="#22303a" stroke-width="2.5"/><path d="M26 52h12l-2 6h-8z" fill="#9eabb2" stroke="#22303a" stroke-width="2.5" stroke-linejoin="round"/></symbol>
+  <symbol id="p-moon" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="#ece6d6" stroke="#22303a" stroke-width="3.5"/><circle cx="38" cy="40" r="8" fill="#d4cab0" stroke="#22303a" stroke-width="2"/><circle cx="62" cy="62" r="11" fill="#d4cab0" stroke="#22303a" stroke-width="2"/><circle cx="64" cy="32" r="4.5" fill="#d4cab0" stroke="#22303a" stroke-width="2"/><circle cx="34" cy="68" r="4" fill="#d4cab0" stroke="#22303a" stroke-width="2"/><path d="M24 36a30 30 0 0 1 16-16" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="p-mars" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="#f4856f" stroke="#22303a" stroke-width="3.5"/><path d="M16 46c14 4 26-6 40 0s22 4 28 0" stroke="#c9563f" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M22 66c12 2 22-4 34 2s18 2 22-2" stroke="#c9563f" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="62" cy="30" r="5" fill="#fbc3b5" stroke="#22303a" stroke-width="2"/><path d="M26 34a30 30 0 0 1 14-14" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".8"/></symbol>
+  <symbol id="p-saturn" viewBox="0 0 100 100"><path d="M8 58C2 44 30 32 60 30s40 6 34 18" fill="none" stroke="#22303a" stroke-width="11" stroke-linecap="round"/><path d="M8 58C2 44 30 32 60 30s40 6 34 18" fill="none" stroke="#6fd0c4" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="50" r="27" fill="#f5bf3c" stroke="#22303a" stroke-width="3.5"/><path d="M25 42h50M24 54h52" stroke="#d99a16" stroke-width="4"/><path d="M34 33a20 20 0 0 1 12-7" stroke="#fff" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M94 48C100 62 72 72 44 72S4 70 8 58" fill="none" stroke="#22303a" stroke-width="11" stroke-linecap="round"/><path d="M94 48C100 62 72 72 44 72S4 70 8 58" fill="none" stroke="#6fd0c4" stroke-width="5" stroke-linecap="round"/></symbol>
+  <symbol id="p-neptune" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="#6fd0c4" stroke="#22303a" stroke-width="3.5"/><path d="M14 42h72M12 56h76M20 70h60" stroke="#3fa99c" stroke-width="5"/><ellipse cx="62" cy="62" rx="9" ry="5" fill="#22303a" opacity=".55"/><path d="M26 34a30 30 0 0 1 14-14" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/></symbol>
+</defs></svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top"><svg aria-hidden="true"><use href="#i-atom"/></svg>Atomic <small>1962</small></a>
+    <nav aria-label="섹션" id="nav"><a href="#base">기초</a><a href="#press">누르기</a><a href="#toggle">켜고 끄기</a><a href="#choose">고르기</a><a href="#type-in">입력</a><a href="#show">보여 주기</a><a href="#float">띄우기</a><a href="#code">코드</a></nav>
+  </div>
+</header>
+
+<div class="wrap hero" id="top">
+  <div class="hero__deco" aria-hidden="true">
+    <svg viewBox="0 0 100 100" style="left:-30px;top:10px;width:120px;color:var(--teal)"><use href="#i-rays"/></svg>
+    <svg viewBox="0 0 100 50" style="left:42%;top:30px;width:110px;fill:var(--mustard);transform:rotate(-12deg)"><use href="#i-boom"/></svg>
+    <svg viewBox="0 0 100 50" style="right:44%;bottom:-6px;width:80px;fill:var(--coral);transform:rotate(160deg)"><use href="#i-boom"/></svg>
+    <svg viewBox="0 0 100 100" style="left:38%;bottom:60px;width:28px;fill:var(--ink)"><use href="#i-twinkle"/></svg>
+    <svg viewBox="0 0 100 100" style="left:48%;top:120px;width:18px;fill:var(--coral)"><use href="#i-twinkle"/></svg>
+  </div>
+  <div class="hero__txt">
+    <div class="hero__k"><b>DS</b>우주시대 다이너 디자인 시스템</div>
+    <h1>Atomic<span>!</span></h1>
+    <p class="hero__sub">내일은 <em>달에서 아침을</em> 먹을 거예요.</p>
+    <p class="lead">1962년, 길가의 우주시대 다이너. 버튼은 주크박스 열쇠, 스위치는 계기판 로커, 고르는 것은 라디오 다이얼. 모든 것에 크롬 테두리와 파스텔 에나멜을 입혔습니다.</p>
+    <div class="hero__fonts"><span class="tag tag--teal">Righteous</span><span class="tag tag--coral">도현체</span><span class="tag tag--mustard">해바라기체</span></div>
+  </div>
+  <div class="hero__stage">
+    <svg viewBox="0 0 100 100" aria-hidden="true" style="position:absolute;top:-10px;left:50%;width:min(440px,110%);margin-left:max(-220px,-55%);color:var(--coral);opacity:.55;z-index:-1"><use href="#i-rays"/></svg>
+    <svg viewBox="0 0 100 100" aria-hidden="true" style="position:absolute;right:4%;top:10px;width:62px;z-index:2"><use href="#i-sputnik"/></svg>
+    <svg viewBox="0 0 100 100" aria-hidden="true" style="position:absolute;left:4%;top:40px;width:80px;z-index:2"><use href="#p-saturn"/></svg>
+    <button class="launch" data-launch type="button"><span class="launch__label">발사하기</span></button>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- 기초 -->
+<section class="sec" id="base">
+  <div class="sec__head"><div class="gsign"><span class="gsign__no">01</span><h2>기초</h2><svg class="gsign__burst" viewBox="0 0 100 100" aria-hidden="true"><use href="#i-rays"/></svg></div><p>그리는 방법은 하나. 잉크 외곽선, 크롬 테두리, 파스텔 에나멜 면, 반짝이는 하이라이트 하나, 그리고 아래로 짧은 굽. 모든 물건이 같은 공장에서 나온 것처럼 보이게 합니다.</p></div>
+
+  <div class="panel"><div class="swatches" id="swatches"></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>글자</h3><p>제목은 둥글고 굵은 Righteous와 도현체. 다이너 간판처럼 읽힙니다. 본문은 해바라기체 17px.</p><ul><li>영문은 Righteous, 한글은 도현체가 자동으로 맡습니다.</li><li>숫자는 Righteous로 계기판처럼.</li></ul></div>
+    <div class="stage col" id="typescale" style="display:block;padding:28px 28px;background:var(--paper)"></div></div></div>
+
+  <ol class="rules">
+    <li><b>한 공장에서 찍어 낸다</b><span>외곽선 2.5px 잉크, 크롬 테두리, 에나멜 면. 굵기와 재료가 같으면 모든 물건이 한 세트가 됩니다.</span></li>
+    <li><b>색이 곧 역할</b><span>청록은 주요 동작, 겨자는 가장 큰 행동과 불빛, 산호는 장식과 강조, 로켓 빨강은 되돌릴 수 없는 일.</span></li>
+    <li><b>누르면 들어간다</b><span>모든 버튼 아래에는 굽이 있어 누르면 그만큼 들어가고, 놓으면 용수철처럼 돌아옵니다.</span></li>
+    <li><b>낙관적으로, 그러나 읽히게</b><span>본문 17px, 누르는 곳 44px 이상, 글자 대비 4.5:1 이상. 움직임 줄이기 설정이면 반짝임과 발사를 멈춥니다.</span></li>
+  </ol>
+</section>
+
+<!-- 누르기 -->
+<section class="sec" id="press">
+  <div class="sec__head"><div class="gsign" style="--s:var(--coral)"><span class="gsign__no">02</span><h2>누르기</h2><svg class="gsign__burst" viewBox="0 0 100 100" aria-hidden="true"><use href="#i-rays"/></svg></div><p>주크박스 열쇠, 다이너 메뉴판 버튼, 꼬리 날개, 그리고 빨간 중단 버튼. 크롬 테두리가 있으면 기계, 없으면 다이너.</p></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>버튼 종류</h3><p>청록 주크박스 열쇠가 기본 주요 동작. 불빛 램프가 켜져 있어 손이 먼저 갑니다. 다이너는 보조, 꼬리 날개는 강조, 빨강은 되돌릴 수 없는 일.</p><ul><li>레이블은 짧은 동사: "예약하기".</li><li>새 소식은 별 스티커 숫자로.</li></ul></div>
+    <div class="stage"><button class="btn"><span class="lamp-dot" aria-hidden="true"></span><span>예약하기</span></button><span class="hold"><button class="btn btn--diner"><span>메뉴 보기</span></button><span class="star-badge" aria-label="새 메뉴 3개"><svg viewBox="-4 -4 108 108" aria-hidden="true" style="fill:var(--mustard)"><use href="#i-star"/></svg><b aria-hidden="true">3</b></span></span><button class="btn btn--fin"><span>특가 보기</span></button><button class="btn btn--abort"><span>발사 중단</span></button><button class="btn btn--ghost"><span>나중에</span></button></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>크기와 상태</h3><p>쓸 수 없을 때는 색이 빠진 회색 에나멜. 이유를 레이블에 함께 적어 주세요. 일하는 중에는 작은 원자가 궤도를 돕니다.</p></div>
+    <div class="stage"><button class="btn btn--sm"><span>작게</span></button><button class="btn btn--lg btn--fin"><span>크게</span></button><button class="btn" disabled><span class="lamp-dot" aria-hidden="true"></span><span>좌석 없음</span></button><button class="btn" id="busyBtn"><span class="lamp-dot" aria-hidden="true"></span><span>탑승권 받기</span></button></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>계기판 손잡이</h3><p>아이콘만 있는 버튼은 계기판의 둥근 손잡이. 톱니 무늬 크롬 테두리가 있고, 올리면 살짝 돌아갑니다.</p><ul><li>이름(aria-label)과 말풍선을 꼭 붙입니다.</li></ul></div>
+    <div class="stage" style="gap:26px">
+      <span class="tip"><button class="knob" aria-label="좋아요"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg></button><span class="tip__b" role="tooltip">좋아요</span></span>
+      <span class="tip"><button class="knob knob--coral" aria-label="음악 틀기"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button><span class="tip__b" role="tooltip">주크박스 틀기</span></span>
+      <span class="tip"><button class="knob knob--mustard" aria-label="공유"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.3 10.8l7.4-3.6M8.3 13.2l7.4 3.6"/></svg></button><span class="tip__b" role="tooltip">엽서로 보내기</span></span>
+    </div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>발사 버튼</h3><p>한 화면에 하나뿐인 가장 큰 행동. 누르면 계기판이 3, 2, 1을 세고 로켓이 떠오릅니다. 세는 동안에는 다시 눌리지 않습니다.</p><ul><li>숫자는 화면 읽기 프로그램에도 읽어 줍니다.</li></ul></div>
+    <div class="stage" style="padding-top:70px"><button class="launch" data-launch type="button"><span class="launch__label">달로 출발</span></button></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>더보기 메뉴</h3><p>자주 쓰지 않는 동작은 접어 둡니다. ↑↓로 움직이고, Esc로 닫습니다.</p></div>
+    <div class="stage" style="min-height:340px;align-content:start;padding-top:50px"><div class="row"><div><span class="disc" aria-hidden="true"></span><div><b>달빛 맘보</b><span>주크박스 B-7 · 2분 48초</span></div></div>
+      <div class="menu"><button class="knob knob--sm" aria-label="더보기" aria-haspopup="menu" aria-expanded="false" aria-controls="menuList" id="menuBtn"><svg viewBox="0 0 24 24" style="fill:var(--ol);stroke:none"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/></svg></button>
+        <ul class="menu__list" role="menu" id="menuList" aria-label="노래 동작" hidden><li role="none"><button role="menuitem" tabindex="-1">다음 곡으로 <kbd>N</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">가사 보기 <kbd>L</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">친구에게 보내기 <kbd>S</kbd></button></li><li role="none" class="menu__sep"></li><li role="none"><button role="menuitem" tabindex="-1" class="danger">목록에서 빼기</button></li></ul></div></div></div></div></div>
+</section>
+
+<!-- 켜고 끄기 -->
+<section class="sec" id="toggle">
+  <div class="sec__head"><div class="gsign" style="--s:var(--mustard)"><span class="gsign__no">03</span><h2>켜고 끄기</h2><svg class="gsign__burst" viewBox="0 0 100 100" aria-hidden="true"><use href="#i-rays"/></svg></div><p>켜는 것은 계기판 로커와 TV 채널 손잡이, 여럿 고르는 것은 천공 카드, 하나 고르는 것은 주크박스 램프.</p></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>로커 스위치</h3><p>큰 설정. 누른 쪽이 들어가고, 켜지면 청록빛이 돌며 위의 파일럿 램프에 불이 들어옵니다. 켜짐/꺼짐을 글자로도 적습니다.</p></div>
+    <div class="stage col" style="align-items:flex-start;gap:26px" id="rockers"></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>TV 채널 손잡이</h3><p>돌려서 켜는 스위치. 빨간 눈금이 "끔"에서 "켬"으로 돌아갑니다. 공간이 넉넉한 설정 화면에 씁니다.</p></div>
+    <div class="stage col" style="align-items:flex-start;gap:26px" id="tvknobs"></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>천공 카드 체크</h3><p>여러 개를 고를 때. 고르면 카드에 구멍이 뚫리고 체크가 찍힙니다. 일부만 고르면 "전부"에는 반쯤 뚫린 홈이 생깁니다.</p></div>
+    <div class="stage col" style="align-items:flex-start"><fieldset class="stack"><legend>우주여행 짐 꾸리기</legend>
+      <label class="check"><input type="checkbox" id="chkAll"><span class="punch"><svg viewBox="0 0 20 22" aria-hidden="true"><path d="M4 11l4 4 8-9"/></svg></span><span class="check__t"><span>전부</span></span></label>
+      <div class="stack" style="padding-left:52px">
+        <label class="check"><input type="checkbox" class="ci" checked><span class="punch"><svg viewBox="0 0 20 22" aria-hidden="true"><path d="M4 11l4 4 8-9"/></svg></span><span class="check__t"><b>우주복</b><small>크롬 헬멧 포함</small></span></label>
+        <label class="check"><input type="checkbox" class="ci"><span class="punch"><svg viewBox="0 0 20 22" aria-hidden="true"><path d="M4 11l4 4 8-9"/></svg></span><span class="check__t"><b>튜브 도시락</b><small>사과파이 맛 3개</small></span></label>
+        <label class="check"><input type="checkbox" class="ci"><span class="punch"><svg viewBox="0 0 20 22" aria-hidden="true"><path d="M4 11l4 4 8-9"/></svg></span><span class="check__t"><b>즉석 카메라</b><small>달 표면 기념 사진</small></span></label>
+        <label class="check"><input type="checkbox" disabled><span class="punch"><svg viewBox="0 0 20 22" aria-hidden="true"><path d="M4 11l4 4 8-9"/></svg></span><span class="check__t"><b>애완 강아지</b><small>다음 시즌부터 탑승 가능</small></span></label>
+      </div></fieldset></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>주크박스 램프 라디오</h3><p>하나만 고를 때. 고른 곡의 선택 램프에만 겨자색 불이 들어옵니다.</p></div>
+    <div class="stage col" style="align-items:flex-start"><fieldset class="stack"><legend>기내 음악</legend>
+      <label class="check"><input type="radio" name="song" checked><span class="jlamp"></span><span class="check__t"><b>A-1 달빛 맘보</b><small>신나는 맘보 · 2분 48초</small></span></label>
+      <label class="check"><input type="radio" name="song"><span class="jlamp"></span><span class="check__t"><b>B-4 토성의 고리</b><small>느린 스윙 · 3분 12초</small></span></label>
+      <label class="check"><input type="radio" name="song"><span class="jlamp"></span><span class="check__t"><b>C-2 은하 서프</b><small>서프 기타 · 2분 05초</small></span></label>
+    </fieldset></div></div></div>
+</section>
+
+<!-- 고르기 -->
+<section class="sec" id="choose">
+  <div class="sec__head"><div class="gsign"><span class="gsign__no">04</span><h2>고르기</h2><svg class="gsign__burst" viewBox="0 0 100 100" aria-hidden="true"><use href="#i-rays"/></svg></div><p>고른 것은 눌려 들어가고 불이 켜집니다. 키보드 화살표로도 고를 수 있습니다.</p></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>주크박스 열쇠</h3><p>두셋 중 하나를 바로 바꿀 때. 크롬 막대에 꽂힌 열쇠 중 고른 것이 눌려 들어가고 불이 켜집니다.</p><ul><li>←→ 키로 옮깁니다.</li></ul></div>
+    <div class="stage"><div class="keys" role="radiogroup" aria-label="좌석 등급"><button role="radio" aria-checked="false">일반석</button><button role="radio" aria-checked="true">창가석</button><button role="radio" aria-checked="false">일등석</button><button role="radio" aria-checked="false">조종석</button></div></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>제목 띠 탭</h3><p>주크박스의 곡 제목 띠. 고른 띠는 노랗게 켜지고, 내용은 아래 TV 화면에 나옵니다.</p><ul><li>←→로 넘기고 Home/End로 처음과 끝.</li></ul></div>
+    <div class="stage col">
+      <div class="strips" role="tablist" aria-label="여행 안내"><button class="strip" role="tab" aria-selected="true" aria-controls="tp1" id="t1"><small>CH 2</small><span>출발 전</span></button><button class="strip" role="tab" aria-selected="false" aria-controls="tp2" id="t2" tabindex="-1"><small>CH 4</small><span>비행 중</span></button><button class="strip" role="tab" aria-selected="false" aria-controls="tp3" id="t3" tabindex="-1"><small>CH 7</small><span>도착 후</span></button></div>
+      <div class="tv"><div class="tv__screen">
+        <div role="tabpanel" id="tp1" aria-labelledby="t1" tabindex="0"><h4>출발 2시간 전까지 오세요</h4><p>탑승 수속은 다이너 2층 우주 정류장에서. 밀크셰이크는 무료입니다.</p></div>
+        <div role="tabpanel" id="tp2" aria-labelledby="t2" tabindex="0" hidden><h4>무중력 구간에서는 벨트를</h4><p>창밖의 지구가 손바닥만 해지면 기내식이 나옵니다. 오늘은 미트로프.</p></div>
+        <div role="tabpanel" id="tp3" aria-labelledby="t3" tabindex="0" hidden><h4>달 기지 환영 파티</h4><p>도착하면 크롬 라운지에서 환영 파티가 열립니다. 무중력 춤 강습 포함.</p></div>
+      </div><div class="tv__side" aria-hidden="true"><i></i><i></i><em></em></div></div>
+    </div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>원자 필터</h3><p>여러 개를 켜고 끄는 필터. 켜면 작은 원자가 반 바퀴 돌고 산호색으로 물듭니다.</p></div>
+    <div class="stage"><div class="chips" id="chips"></div></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>드롭다운과 라디오 다이얼</h3><p>목록이 길면 드롭다운. 값을 끌어 맞출 때는 진공관 라디오의 주파수 창. 빨간 바늘을 끌거나 ←→ 키로 맞춥니다.</p></div>
+    <div class="stage col" style="gap:30px">
+      <div class="field"><label for="sel1">행선지 <small>이번 달 운항하는 곳만</small></label><div class="select"><select id="sel1"><option>달 정거장</option><option>화성 기지</option><option>토성 고리 호텔</option><option>해왕성 등대</option></select><span class="select__k" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span></div></div>
+      <div class="tuner"><div class="tuner__top"><label class="flabel" for="rg">기내 라디오 주파수</label><output id="rgOut" for="rg">98.0<small>MHz</small></output></div>
+        <div class="tuner__win"><div class="tuner__glass"><div class="tuner__nums" aria-hidden="true"><span>88</span><span>92</span><span>96</span><span>100</span><span>104</span><span>108</span></div><input type="range" id="rg" min="88" max="108" step="0.5" value="98" aria-describedby="rgSt"></div></div>
+        <div class="tuner__foot"><span id="rgSt">은하 스윙 방송</span><span>FM</span></div></div>
+    </div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>다이너 메뉴판</h3><p>사이드 메뉴는 벽에 걸린 글자 메뉴판. 지금 있는 곳은 겨자색 띠와 빨간 불빛으로 표시합니다(aria-current).</p></div>
+    <div class="stage"><nav class="board" aria-label="다이너" id="board"><div class="board__in"><p class="board__title" aria-hidden="true">MENU</p>
+      <a href="#" aria-current="page">오늘의 비행<i></i><em>6</em></a><a href="#">우주 정류장<i></i><em>12</em></a><a href="#">밀크셰이크<i></i><em class="new">신메뉴</em></a><a href="#">주크박스<i></i><em>48</em></a><a href="#">기념품<i></i><em>30</em></a>
+    </div></nav></div></div></div>
+</section>
+
+<!-- 입력 -->
+<section class="sec" id="type-in">
+  <div class="sec__head"><div class="gsign" style="--s:var(--coral)"><span class="gsign__no">05</span><h2>입력</h2><svg class="gsign__burst" viewBox="0 0 100 100" aria-hidden="true"><use href="#i-rays"/></svg></div><p>입력 칸은 모서리가 둥근 TV 화면. 쓰는 동안 청록빛 테가 켜지고, 틀리면 산호색으로 바뀝니다.</p></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>글자 입력</h3><p>이름은 칸 위에. 틀리면 무엇을 어떻게 고칠지 한 문장으로 알려 줍니다.</p><ul><li>오류 문장은 aria-describedby로 칸에 연결.</li></ul></div>
+    <div class="stage col"><div class="grid2">
+      <div class="field"><label for="i1">탑승자 이름</label><div class="input"><input id="i1" placeholder="예: 김별님" autocomplete="name"></div></div>
+      <div class="field"><label for="i2">이메일</label><div class="input is-err"><input id="i2" type="email" value="rocket@" aria-invalid="true" aria-describedby="i2e" autocomplete="email"></div><span class="help err" id="i2e">@ 뒤에 주소를 마저 적어 주세요. 예: rocket@atomic.kr</span></div>
+      <div class="field"><label for="i3">찾기</label><div class="input"><span class="input__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></span><input id="i3" type="search" placeholder="행성, 정류장"></div></div>
+      <div class="field"><label for="i4">비밀번호</label><div class="input is-ok"><input id="i4" type="password" value="moonpie1962" autocomplete="new-password"><button class="input__btn" type="button" id="pwBtn" aria-pressed="false" aria-controls="i4">보기</button></div><span class="help ok">✓ 튼튼해요</span></div>
+      <div class="field"><label for="i5">탑승 인원</label><div class="input"><input id="i5" class="num" type="number" value="2" min="1" max="8"><span class="input__aff">명</span></div></div>
+      <div class="field"><label for="i6">회원 번호 <small>바꿀 수 없음</small></label><div class="input is-off"><input id="i6" value="ATM-1962-0417" disabled></div></div>
+      <div class="field"><label for="i7">출발 날짜</label><div class="input"><input id="i7" type="date" value="2026-12-24"></div></div>
+      <div class="field"><label for="i8">출발 시각</label><div class="input"><input id="i8" type="time" value="09:30"></div></div>
+    </div></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>긴 글</h3><p>여러 줄 입력. 남은 글자 수는 오른쪽 아래에 계기판 숫자로.</p></div>
+    <div class="stage col"><div class="field"><label for="ta">승무원에게 남길 말</label><div class="input"><textarea id="ta" maxlength="140" placeholder="예: 창가 자리로 부탁해요">아이가 처음 우주에 가요. 지구가 보일 때 알려 주세요!</textarea></div><div class="count" id="taCount" aria-live="polite"></div></div></div></div></div>
+</section>
+
+<!-- 보여 주기 -->
+<section class="sec" id="show">
+  <div class="sec__head"><div class="gsign" style="--s:var(--mustard)"><span class="gsign__no">06</span><h2>보여 주기</h2><svg class="gsign__burst" viewBox="0 0 100 100" aria-hidden="true"><use href="#i-rays"/></svg></div><p>행성 엽서, 연료 계기판, 발사 순서 램프, 출발 시간표. 한눈에, 그리고 즐겁게.</p></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>배지와 스티커</h3><p>상태 표시는 작은 에나멜 배지. 색과 글자를 함께 씁니다. 정말 새로운 것에만 별 스티커.</p></div>
+    <div class="stage"><span class="tag">대기</span><span class="tag tag--teal">탑승 중</span><span class="tag tag--mustard">거의 매진</span><span class="tag tag--coral">매진</span><span class="tag tag--chrome">예정</span><span class="tag tag--ink">일등석</span><span class="sticker"><svg viewBox="-4 -4 108 108" aria-hidden="true" style="fill:var(--mustard)"><use href="#i-star"/></svg><b>NEW!</b></span></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>행성 엽서</h3><p>여행지는 그 행성에서 보낸 엽서처럼. 왼쪽 위에 여행 등급, 오른쪽 위에 우표 값. 누르면 예약 해치가 열립니다.</p></div>
+    <div class="stage"><div class="cards" id="cards"></div></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>연료와 진행</h3><p>남은 양은 반원 연료 계기판, 오래 걸리는 일은 연료관에 차오르는 청록 거품, 여러 단계는 발사 순서 램프로.</p><ul><li>모두 role="progressbar"와 값을 함께.</li></ul></div>
+    <div class="stage col" style="gap:36px">
+      <div class="gauges"><div class="fuel"><div class="fuel__dial" role="progressbar" aria-label="로켓 연료" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" id="fuel"></div><b id="fuelT">연료 60%</b><div class="fuel__btns"><button class="btn btn--sm btn--diner" id="fuelDown"><span>쓰기 −20</span></button><button class="btn btn--sm" id="fuelUp"><span>넣기 +20</span></button></div></div>
+        <div class="tube"><div class="tube__top"><b>탑승권 인쇄 중</b><output id="tubeOut">48%</output></div><div class="tube__bar"><div class="tube__glass" role="progressbar" aria-label="탑승권 인쇄" aria-valuemin="0" aria-valuemax="100" aria-valuenow="48" id="tube"><i style="width:48%"></i></div></div><div class="tube__foot" aria-hidden="true"><span>E</span><span>½</span><span>F</span></div></div></div>
+      <ol class="seq" aria-label="발사 순서"><li class="done"><span><b>1</b></span>점검</li><li class="done"><span><b>2</b></span>연료</li><li class="now" aria-current="step"><span><b>3</b></span>탑승</li><li><span><b>4</b></span>카운트다운</li><li><span><b>5</b></span>발사</li></ol>
+    </div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>접는 안내</h3><p>긴 설명은 접어 둡니다. 펼치면 원자가 돌고 손잡이가 X로 돌아갑니다.</p></div>
+    <div class="stage"><div class="faq">
+      <details open><summary><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#i-atom"/></svg><span>우주 멀미가 나면 어떡하죠?</span><i aria-hidden="true"></i></summary><div>좌석 앞 주머니의 박하사탕을 드세요. 그래도 어지러우면 승무원 호출 단추를 누르면 무중력 담요를 가져다 드립니다.</div></details>
+      <details><summary><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#i-atom"/></svg><span>짐은 몇 개까지 실을 수 있나요?</span><i aria-hidden="true"></i></summary><div>한 사람에 가방 하나, 20kg까지. 크롬 헬멧은 무게에 넣지 않습니다.</div></details>
+      <details><summary><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#i-atom"/></svg><span>출발이 늦어지면 어떻게 되나요?</span><i aria-hidden="true"></i></summary><div>한 시간 넘게 늦어지면 다이너에서 파이와 커피를 드립니다. 세 시간이 넘으면 요금을 모두 돌려 드립니다.</div></details>
+    </div></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>출발 시간표</h3><p>정류장 벽의 출발 안내판. 머리는 우주색, 줄은 점선. 숫자는 계기판 글꼴로.</p><ul><li>머리글을 누르면 정렬됩니다.</li></ul></div>
+    <div class="stage col">
+      <div class="tablewrap"><table id="tbl"><caption>오늘 출발하는 로켓</caption><thead><tr><th scope="col" aria-sort="none"><button data-k="0">행선지</button></th><th scope="col" aria-sort="ascending"><button data-k="1">출발</button></th><th scope="col" class="num" aria-sort="none"><button data-k="2">남은 좌석</button></th><th scope="col">상태</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dest"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#p-moon"/></svg>달 정거장</span></td><td class="time">09:30</td><td class="num">12</td><td><span class="tag tag--teal">탑승 중</span></td></tr>
+        <tr><td><span class="dest"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#p-mars"/></svg>화성 기지</span></td><td class="time">11:05</td><td class="num">3</td><td><span class="tag tag--mustard">거의 매진</span></td></tr>
+        <tr><td><span class="dest"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#p-saturn"/></svg>토성 고리 호텔</span></td><td class="time">14:20</td><td class="num">0</td><td><span class="tag tag--coral">매진</span></td></tr>
+        <tr><td><span class="dest"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#p-neptune"/></svg>해왕성 등대</span></td><td class="time">18:45</td><td class="num">24</td><td><span class="tag tag--chrome">예정</span></td></tr>
+      </tbody></table></div>
+      <div class="pager"><span id="pgInfo">출발편 12개 중 1–4</span><nav aria-label="쪽"><ol><li><button aria-label="이전 쪽" disabled>‹</button></li><li><button aria-current="page" aria-label="1쪽">1</button></li><li><button aria-label="2쪽">2</button></li><li><button aria-label="3쪽">3</button></li><li><button aria-label="다음 쪽">›</button></li></ol></nav></div>
+    </div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>비어 있음</h3><p>빈 곳에는 홀로 도는 스푸트니크 하나와 할 일 하나.</p></div>
+    <div class="stage"><div class="empty"><svg viewBox="0 0 150 110" aria-hidden="true"><ellipse cx="75" cy="62" rx="68" ry="22" fill="none" stroke="#56636b" stroke-width="2.5" stroke-dasharray="6 7"/><use href="#i-sputnik" x="45" y="12" width="60" height="60"/><use href="#i-twinkle" x="12" y="10" width="14" height="14" fill="#f5bf3c"/><use href="#i-twinkle" x="124" y="84" width="10" height="10" fill="#f4856f"/></svg><b>예약한 우주여행이 없어요</b><p>엽서에서 마음에 드는 행성을 골라 첫 여행을 떠나 보세요.</p><button class="btn btn--sm"><span class="lamp-dot" aria-hidden="true"></span><span>행성 둘러보기</span></button></div></div></div></div>
+</section>
+
+<!-- 띄우기 -->
+<section class="sec" id="float">
+  <div class="sec__head"><div class="gsign" style="--s:var(--coral)"><span class="gsign__no">07</span><h2>띄우기</h2><svg class="gsign__burst" viewBox="0 0 100 100" aria-hidden="true"><use href="#i-rays"/></svg></div><p>확인 창은 다리가 벌어진 TV, 옆 판은 리벳이 박힌 로켓 해치, 알림은 전보 테이프.</p></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>TV 확인 창</h3><p>되돌릴 수 없는 일 앞에서. TV가 켜지듯 나타나고, 버튼은 결과를 말합니다. Esc나 바깥을 누르면 닫힙니다.</p></div>
+    <div class="stage"><button class="btn btn--abort" id="dlgOpen"><span>발사 중단…</span></button></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>로켓 해치 옆 판</h3><p>지금 화면을 떠나지 않고 자세히 볼 때. 오른쪽에서 해치가 열립니다. 초점은 판 안에 머물고, Esc나 어두운 바깥을 누르면 닫힙니다.</p></div>
+    <div class="stage"><button class="btn" id="sideOpen"><span class="lamp-dot" aria-hidden="true"></span><span>예약 해치 열기</span></button></div></div></div>
+
+  <div class="panel"><div class="spec"><div class="note"><h3>전보 알림</h3><p>무언가 끝났을 때 오른쪽 위로 전보 테이프가 감겨 나옵니다. 5초 뒤 사라지고, 오류는 role="alert"로 바로 읽어 줍니다.</p></div>
+    <div class="stage"><button class="btn" data-toast="booked"><span>예약 완료</span></button><button class="btn btn--fin" data-toast="deal"><span>특가 소식</span></button><button class="btn btn--abort" data-toast="storm"><span>운항 오류</span></button></div></div></div>
+</section>
+
+<!-- 코드 -->
+<section class="sec" id="code">
+  <div class="sec__head"><div class="gsign" style="--s:var(--mustard)"><span class="gsign__no">08</span><h2>코드</h2><svg class="gsign__burst" viewBox="0 0 100 100" aria-hidden="true"><use href="#i-rays"/></svg></div><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 크롬 테두리와 굽은 유틸리티 하나로 씁니다.</p></div>
+  <div class="panel"><div class="codebox"><div class="codebar"><span class="flabel">app/globals.css</span><button class="btn btn--sm btn--fin" id="copyBtn"><span>복사하기</span></button></div><pre class="code" id="codeBlock" tabindex="0"></pre></div></div>
+</section>
+</main>
+
+<footer class="foot"><div class="wrap"><b>Atomic</b><span>Righteous · 도현 · 해바라기</span><nav aria-label="다른 시스템">다른 시스템: <a href="../">Oat</a><a href="../riso/">Riso</a><a href="../arcology/">Arcology</a><a href="../dal/">Dal</a><a href="../canopy/">Canopy</a><a href="../sansa/">Sansa</a></nav></div></footer>
+
+<dialog id="dlg" aria-labelledby="dlgT" aria-describedby="dlgD">
+  <div class="tvset">
+    <svg class="tvset__ant" viewBox="0 0 150 60" aria-hidden="true"><path d="M75 52L30 4M75 52L120 4" stroke="#22303a" stroke-width="7" stroke-linecap="round"/><path d="M75 52L30 4M75 52L120 4" stroke="#dde4e8" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="4" r="5" fill="#f5bf3c" stroke="#22303a" stroke-width="2.5"/><circle cx="120" cy="4" r="5" fill="#f5bf3c" stroke="#22303a" stroke-width="2.5"/><ellipse cx="75" cy="54" rx="18" ry="8" fill="#dde4e8" stroke="#22303a" stroke-width="2.5"/></svg>
+    <div class="tvset__cab">
+      <div class="tvset__screen">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><use href="#i-rocket"/></svg>
+        <h3 id="dlgT">달행 로켓 발사를 멈출까요?</h3>
+        <p id="dlgD">멈추면 연료를 다시 넣는 데 하루가 걸리고, 탑승객 48명의 출발이 내일로 미뤄집니다.</p>
+        <div class="tvset__foot"><button class="btn btn--diner" data-close autofocus><span>계속 비행</span></button><button class="btn btn--abort" data-close data-after="aborted"><span>발사 중단</span></button></div>
+      </div>
+      <div class="tvset__panel" aria-hidden="true"><em></em><i></i><i></i></div>
+    </div>
+    <div class="tvset__legs" aria-hidden="true"></div>
+  </div>
+</dialog>
+
+<div class="scrim" id="scrim"></div>
+<aside class="hatch" id="side" role="dialog" aria-modal="true" aria-labelledby="sideT" aria-hidden="true">
+  <div class="hatch__head"><span class="port" aria-hidden="true"><span><svg viewBox="0 0 100 100" id="sidePlanet"><use href="#p-mars"/></svg></span></span><div><small id="sideK">행성 엽서 · 예약</small><h3 id="sideT">화성 기지</h3></div><button class="knob knob--sm" aria-label="닫기" data-sclose><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="hatch__body">
+    <div class="field"><label for="s1">탑승자 이름</label><div class="input"><input id="s1" value="김별님" autocomplete="name"></div></div>
+    <div class="field"><label for="s2">좌석 수</label><div class="input"><input id="s2" class="num" type="number" value="2" min="1" max="8"><span class="input__aff">석</span></div></div>
+    <div id="sideRocker"></div>
+  </div>
+  <div class="hatch__foot"><button class="btn btn--ghost" data-sclose><span>닫기</span></button><button class="btn" data-sclose data-after="saved"><span class="lamp-dot" aria-hidden="true"></span><span>예약 저장</span></button></div>
+</aside>
+<div class="wires" id="wires"></div>
+<div class="sr" aria-live="assertive" id="live"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  // Swatches + type
+  const G = [
+    ['다이너 에나멜', '면을 칠하는 네 가지 색', [['청록', '#6FD0C4', '--teal', '주요 동작, 켜짐'], ['산호', '#F4856F', '--coral', '강조, 장식, 고른 필터'], ['겨자', '#F5BF3C', '--mustard', '가장 큰 행동, 불빛'], ['로켓 빨강', '#C9321F', '--red', '위험, 중단, 오류']]],
+    ['크림과 크롬', '바탕과 테두리', [['크림', '#FDF6E6', '--cream', '페이지 바탕'], ['포마이카', '#F5E9CC', '--cream-2', '무대 바탕, 부메랑 무늬'], ['크롬', 'var(--chrome)', '--chrome', '테두리, 손잡이, 띠'], ['잉크', '#22303A', '--ink', '모든 외곽선, 본문']]],
+    ['글자용 짙은 색', '밝은 바탕 위 4.5:1 이상', [['깊은 청록', '#1A7169', '--teal-d', '링크, 켜짐 글자, 초점'], ['깊은 산호', '#A8392A', '--coral-d', '오류 문장'], ['회청', '#46535C', '--ink-2', '보조 글자'], ['우주', '#1F2D3D', '--space', '메뉴판, 표 머리, 코드']]],
+  ];
+  $('#swatches').innerHTML = G.map(([g, s, it]) => `<div class="swhead">${g}<span>${s}</span></div>` + it.map(([n, hex, v, u]) => `<div class="sw"><i style="background:${hex}"></i><b>${n}</b><code>${v}${hex.startsWith('#') ? ' · ' + hex : ''}</code><span>${u}</span></div>`).join('')).join('');
+  $('#typescale').innerHTML = [
+    ['간판 제목', 'Righteous + 도현 · 32–156', '<span style="font:400 48px/1.1 var(--font-d)">Atomic 다이너</span>'],
+    ['버튼 · 라벨', '도현 · 17–23', '<span style="font:400 22px/1.3 var(--font-k)">달로 가는 표 예약하기</span>'],
+    ['본문', '해바라기 500 · 17/1.75', '<span>내일 아침 아홉 시 반, 다이너 뒤편 발사대에서 달행 로켓이 떠납니다. 밀크셰이크를 들고 오세요.</span>'],
+    ['계기판 숫자', 'Righteous', '<span style="font:400 34px/1 var(--font-d);color:var(--teal-d)">T−03 · 98.5 MHz</span>'],
+  ].map(([k, s, ex]) => `<div class="typerow"><div class="k"><b>${k}</b><span>${s}</span></div><div>${ex}</div></div>`).join('');
+
+  // Nav highlight
+  const links = $$('#nav a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute('aria-current', a.hash === '#' + e.target.id ? 'true' : 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.sec').forEach(s => io.observe(s));
+
+  // Telegrams
+  const T = {
+    booked: ['예약 완료', '달 정거장행 2석', '12월 24일 09:30 출발. 밀크셰이크 쿠폰 동봉. 끝.', '', 'OK'],
+    deal: ['특가 소식', '토성 고리 호텔 30% 할인', '이번 주 금요일까지. 고리 전망 객실 포함. 끝.', 'mustard', '%'],
+    storm: ['운항 오류', '화성행이 늦어집니다', '태양풍 때문에 1시간 지연. 파이는 다이너가 냅니다. 끝.', 'red', '!'],
+    launch: ['발사 성공', '로켓이 궤도에 올랐어요', '고도 400km. 창밖으로 지구가 보임. 끝.', '', 'GO'],
+    aborted: ['발사 중단', '달행 로켓을 세웠어요', '탑승객 48명에게 내일 출발 안내를 보냄. 끝.', 'red', '!'],
+    saved: ['예약 저장', '해치 안 예약을 고쳤어요', '이름과 좌석 수가 바뀜. 끝.', 'coral', 'OK'],
+    done: ['인쇄 완료', '탑승권이 나왔어요', '창구에서 크롬 탑승권을 받아 가세요. 끝.', '', 'OK'],
+    copied: ['복사', 'globals.css를 복사했어요', '프로젝트에 붙여 넣으면 다이너 개점. 끝.', 'mustard', 'OK'],
+  };
+  function toast(k) { const [kk, t, s, c, seal] = T[k]; const el = document.createElement('div');
+    el.className = 'tele' + (c ? ' tele--' + c : ''); el.setAttribute('role', c === 'red' ? 'alert' : 'status');
+    el.innerHTML = `<span class="tele__seal" aria-hidden="true"><svg viewBox="-4 -4 108 108"><use href="#i-star"/></svg><b>${seal}</b></span><div><small>전보 · ${kk}</small><b class="t">${t}</b><span class="s">${s}</span></div><button class="x" type="button" aria-label="전보 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>`;
+    const kill = () => { if (el.classList.contains('out')) return; el.classList.add('out'); setTimeout(() => el.remove(), 300); }; $('.x', el).onclick = kill;
+    const box = $('#wires'); box.prepend(el); while (box.children.length > 3) box.lastChild.remove(); setTimeout(kill, 5000); }
+  $$('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+
+  // Launch pads
+  const LSVG = `<span class="launch__pad" aria-hidden="true"><svg viewBox="0 0 172 238">
+    <g stroke="#22303a" stroke-width="2.5" stroke-linejoin="round" transform="translate(12 0)"><rect x="20" y="70" width="16" height="138" fill="#dde4e8"/><path d="M20 82l16 14M36 82L20 96M20 110l16 14M36 110l-16 14M20 138l16 14M36 138l-16 14M20 166l16 14M36 166l-16 14M20 194l16 14M36 194l-16 14" fill="none" stroke-width="2"/><rect x="36" y="120" width="18" height="8" rx="2" fill="#f5bf3c"/><circle cx="28" cy="64" r="6" fill="#f4856f"/></g>
+    <g class="puffs"><circle class="puff" cx="62" cy="214" r="12" fill="#fffaf0" stroke="#22303a" stroke-width="2.5"/><circle class="puff" cx="110" cy="216" r="13" fill="#fffaf0" stroke="#22303a" stroke-width="2.5"/><circle class="puff" cx="86" cy="220" r="10" fill="#fffaf0" stroke="#22303a" stroke-width="2.5"/></g>
+    <g class="rk"><g class="fl"><path d="M76 168Q86 222 96 168Z" fill="#f5bf3c" stroke="#22303a" stroke-width="2.5" stroke-linejoin="round"/><path d="M81 168Q86 198 91 168Z" fill="#fff3c4"/></g>
+      <g stroke="#22303a" stroke-width="2.5" stroke-linejoin="round"><path d="M68 126L50 156V170L68 158Z M104 126L122 156V170L104 158Z" fill="#f4856f"/>
+      <path d="M86 22C100 36 106 58 106 86V160H66V86C66 58 72 36 86 22Z" fill="#fffaf0"/>
+      <path d="M86 22C96 32 101 44 103.5 58H68.5C71 44 76 32 86 22Z" fill="#f4856f"/>
+      <rect x="66" y="128" width="40" height="10" fill="#6fd0c4"/>
+      <circle cx="86" cy="90" r="13" fill="#dde4e8"/><circle cx="86" cy="90" r="8.5" fill="#6fd0c4"/>
+      <path d="M78 160h16l3 9H75z" fill="#9eabb2"/><path d="M86 112v48" fill="none" stroke-width="2" opacity=".35"/></g>
+      <path d="M82 85a5 5 0 0 1 5-4" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M73 74c1-12 4-22 9-30" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity=".9"/></g>
+    <rect x="38" y="208" width="112" height="12" rx="5" fill="#dde4e8" stroke="#22303a" stroke-width="2.5"/></svg>
+    <span class="launch__dial"><span><small>T−</small><b>3</b></span></span></span>`;
+  $$('[data-launch]').forEach(b => {
+    b.insertAdjacentHTML('afterbegin', LSVG);
+    const d = $('.launch__dial b', b), label = $('.launch__label', b), orig = label.textContent;
+    b.addEventListener('click', () => { if (b.dataset.busy) return; b.dataset.busy = 1; b.setAttribute('aria-disabled', 'true'); b.classList.remove('land');
+      let n = 3; const live = $('#live');
+      const tick = () => { d.textContent = n; if (n > 0) { label.textContent = `발사 ${n}초 전`; live.textContent = `발사 ${n}초 전`; if (n === 1) b.classList.add('lit'); n--; setTimeout(tick, 800); return; }
+        label.textContent = '발사!'; live.textContent = '발사!'; b.classList.add('go'); toast('launch');
+        setTimeout(() => { b.classList.remove('go', 'lit'); b.classList.add('land'); d.textContent = '3'; label.textContent = orig; delete b.dataset.busy; b.removeAttribute('aria-disabled'); }, 2400); };
+      tick(); });
+  });
+
+  // Busy button
+  $('#busyBtn').addEventListener('click', e => { const b = e.currentTarget; if (b.dataset.busy) return; b.dataset.busy = 1; b.setAttribute('aria-disabled', 'true');
+    b.innerHTML = '<span class="orbit-load" aria-hidden="true"></span><span>인쇄하는 중</span>';
+    setTimeout(() => { b.innerHTML = '<span class="lamp-dot" aria-hidden="true"></span><span>받았어요!</span>'; toast('done'); }, 1600);
+    setTimeout(() => { delete b.dataset.busy; b.removeAttribute('aria-disabled'); b.innerHTML = '<span class="lamp-dot" aria-hidden="true"></span><span>탑승권 받기</span>'; }, 3200); });
+
+  // More menu
+  const mb = $('#menuBtn'), ml = $('#menuList'), mi = $$('[role=menuitem]', ml);
+  const closeM = f => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); if (f) mb.focus(); };
+  const openM = (i = 0) => { ml.hidden = false; mb.setAttribute('aria-expanded', 'true'); mi[i].focus(); };
+  mb.addEventListener('click', () => ml.hidden ? openM() : closeM());
+  mb.addEventListener('keydown', e => { if (e.key === 'ArrowDown') { e.preventDefault(); openM(0); } if (e.key === 'ArrowUp') { e.preventDefault(); openM(mi.length - 1); } });
+  ml.addEventListener('keydown', e => { const i = mi.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); mi[(i + 1) % mi.length].focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); mi[(i - 1 + mi.length) % mi.length].focus(); }
+    if (e.key === 'Home') { e.preventDefault(); mi[0].focus(); } if (e.key === 'End') { e.preventDefault(); mi.at(-1).focus(); }
+    if (e.key === 'Escape') closeM(true); if (e.key === 'Tab') closeM(); });
+  mi.forEach(m => m.addEventListener('click', () => closeM(true)));
+  document.addEventListener('click', e => { if (!ml.hidden && !e.target.closest('.menu')) closeM(); });
+
+  // Rockers + TV knobs
+  const rocker = (t, s, on) => `<button class="rocker" role="switch" aria-checked="${on}"><span class="rocker__b" aria-hidden="true"><span class="pilot"></span><span class="rocker__p"><span>I</span><span>O</span></span></span><span class="tg__t"><em>${on ? '켜짐' : '꺼짐'}</em><b>${t}</b><small>${s}</small></span></button>`;
+  $('#rockers').innerHTML = rocker('무중력 모드', '좌석 벨트를 풀어도 둥둥 떠요', true) + rocker('기내 방송', '도착 30분 전에 알려 드려요', false);
+  $('#sideRocker').innerHTML = rocker('창가 좌석', '지구가 보이는 쪽으로 배정해요', true);
+  const tvk = (t, s, on) => `<button class="tvknob" role="switch" aria-checked="${on}"><span class="tvknob__w" aria-hidden="true"><i>끔</i><i>켬</i><span class="tvknob__k"></span><span class="pilot"></span></span><span class="tg__t"><em>${on ? '켜짐' : '꺼짐'}</em><b>${t}</b><small>${s}</small></span></button>`;
+  $('#tvknobs').innerHTML = tvk('네온 간판', '밤새 다이너 지붕 별이 반짝여요', true) + tvk('주크박스 자동 재생', '손님이 들어오면 노래를 틀어요', false);
+  document.addEventListener('click', e => {
+    const t = e.target.closest('.rocker, .tvknob'); if (t) { const on = t.getAttribute('aria-checked') !== 'true'; t.setAttribute('aria-checked', on); $('em', t).textContent = on ? '켜짐' : '꺼짐'; }
+    const c = e.target.closest('.chip'); if (c) c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+  });
+
+  // Checkbox group
+  const all = $('#chkAll'), ci = $$('.ci'); const sync = () => { const n = ci.filter(c => c.checked).length; all.checked = n === ci.length; all.indeterminate = n > 0 && n < ci.length; };
+  ci.forEach(c => c.addEventListener('change', sync)); all.addEventListener('change', () => { ci.forEach(c => c.checked = all.checked); sync(); }); sync();
+
+  // Segmented keys (radiogroup)
+  $$('.keys').forEach(g => { const bs = $$('button', g);
+    const pick = b => { bs.forEach(x => { x.setAttribute('aria-checked', x === b); x.tabIndex = x === b ? 0 : -1; }); b.focus(); };
+    bs.forEach(b => { b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1; b.addEventListener('click', () => pick(b)); });
+    g.addEventListener('keydown', e => { const i = bs.indexOf(document.activeElement); if (['ArrowRight', 'ArrowDown'].includes(e.key)) { e.preventDefault(); pick(bs[(i + 1) % bs.length]); } if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); pick(bs[(i - 1 + bs.length) % bs.length]); } });
+  });
+
+  // Tabs
+  const tabs = $$('[role=tab]'); const sel = t => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); };
+  tabs.forEach(t => t.addEventListener('click', () => sel(t)));
+  $('[role=tablist]').addEventListener('keydown', e => { const i = tabs.indexOf(document.activeElement); let n = -1;
+    if (e.key === 'ArrowRight') n = (i + 1) % tabs.length; if (e.key === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length; if (e.key === 'Home') n = 0; if (e.key === 'End') n = tabs.length - 1;
+    if (n > -1) { e.preventDefault(); sel(tabs[n]); } });
+
+  // Chips
+  $('#chips').innerHTML = [['달', true], ['화성', false], ['토성', true], ['당일치기', false], ['가족석', false], ['무중력 체험', false]].map(([n, on]) => `<button class="chip" aria-pressed="${on}"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#i-atom"/></svg>${n}</button>`).join('');
+
+  // Tuner
+  const ST = [[88, '정류장 교통 방송'], [92, '달빛 재즈'], [96, '은하 스윙 방송'], [100, '로켓 뉴스'], [104, '서프 기타 FM']];
+  const rg = $('#rg'), ro = $('#rgOut'), rs = $('#rgSt'); const upd = () => { const v = +rg.value, st = ST.filter(s => v >= s[0]).at(-1)[1]; ro.innerHTML = `${v.toFixed(1)}<small>MHz</small>`; rs.textContent = st; rg.setAttribute('aria-valuetext', `${v.toFixed(1)} 메가헤르츠, ${st}`); }; rg.addEventListener('input', upd); upd();
+
+  // Letter board
+  $$('#board a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $$('#board a').forEach(x => x.removeAttribute('aria-current')); a.setAttribute('aria-current', 'page'); }));
+
+  // Inputs
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; e.currentTarget.textContent = on ? '숨기기' : '보기'; e.currentTarget.setAttribute('aria-pressed', on); });
+  $('#i2').addEventListener('input', e => { const ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.target.value); const w = e.target.closest('.input'); w.classList.toggle('is-err', !ok); w.classList.toggle('is-ok', ok); e.target.setAttribute('aria-invalid', !ok); $('#i2e').hidden = ok; });
+  const ta = $('#ta'), tc = $('#taCount'); const cnt = () => tc.textContent = `${ta.value.length} / 140`; ta.addEventListener('input', cnt); cnt();
+
+  // Postcards
+  const P = [['moon', '달 정거장', 'MOON', '당일치기', '15¢', '38만 km', '3일', 'var(--teal-l)', '크롬 라운지에서 지구돋이 보며 아침 식사.'], ['mars', '화성 기지', 'MARS', '모험', '25¢', '7,800만 km', '7개월', 'var(--coral-l)', '붉은 모래 언덕에서 로버 타고 드라이브.'], ['saturn', '토성 고리 호텔', 'SATURN', '일등석', '50¢', '12억 km', '6년', 'var(--mustard-l)', '고리 위 수영장, 얼음 칵테일 무제한.'], ['neptune', '해왕성 등대', 'NEPTUNE', '탐험', '80¢', '43억 km', '12년', '#d6e7e3', '태양계 끝 등대지기와 보내는 조용한 밤.']];
+  $('#cards').innerHTML = P.map(([k, n, en, g, st, d, t, c, s]) => `<button class="pc" data-planet="${k}" data-name="${n}" style="--c:${c}"><span class="pc__art"><svg class="rays" viewBox="0 0 100 100" aria-hidden="true"><use href="#i-rays"/></svg><span class="pc__mark">${g}</span><span class="pc__stamp" aria-hidden="true">${st}</span><svg class="planet" viewBox="0 0 100 100" aria-hidden="true"><use href="#p-${k}"/></svg></span><span class="pc__body"><b>${n}<small>${en}</small></b><span>${s}</span><span class="pc__meta"><span><em>거리</em> ${d}</span><span><em>비행</em> ${t}</span></span></span></button>`).join('');
+
+  // Fuel gauge
+  let fv = 60; const fuel = () => { const el = $('#fuel'), rot = (fv / 100 - .5) * 180;
+    el.innerHTML = `<svg viewBox="0 0 200 118" aria-hidden="true"><g fill="none" stroke-linecap="butt"><path d="M20 105A80 80 0 0 1 180 105" stroke="#22303a" stroke-width="24"/><path d="M20 105A80 80 0 0 1 35.3 58" stroke="#f08a76" stroke-width="18"/><path d="M35.3 58A80 80 0 0 1 100 25" stroke="#f5bf3c" stroke-width="18"/><path d="M100 25A80 80 0 0 1 180 105" stroke="#6fd0c4" stroke-width="18"/></g>
+      <g font-family="Righteous, sans-serif" font-size="15" fill="#22303a" text-anchor="middle"><text x="40" y="100">E</text><text x="100" y="54">½</text><text x="160" y="100">F</text></g>
+      <g class="needle" style="transform:rotate(${rot}deg)"><path d="M97 105L100 34L103 105Z" fill="#c9321f" stroke="#22303a" stroke-width="2" stroke-linejoin="round"/></g><circle cx="100" cy="105" r="10" fill="#dde4e8" stroke="#22303a" stroke-width="2.5"/><circle cx="97" cy="102" r="3" fill="#fff"/></svg>`;
+    el.setAttribute('aria-valuenow', fv); el.setAttribute('aria-valuetext', `연료 ${fv}%`); $('#fuelT').textContent = `연료 ${fv}%`; };
+  fuel(); const setF = v => { fv = Math.max(0, Math.min(100, v)); const r = (fv / 100 - .5) * 180; $('#fuel .needle').style.transform = `rotate(${r}deg)`; $('#fuel').setAttribute('aria-valuenow', fv); $('#fuel').setAttribute('aria-valuetext', `연료 ${fv}%`); $('#fuelT').textContent = `연료 ${fv}%`; };
+  $('#fuelUp').addEventListener('click', () => setF(fv + 20)); $('#fuelDown').addEventListener('click', () => setF(fv - 20));
+  let tp = 48; setInterval(() => { tp = tp >= 100 ? 8 : tp + 4; const b = $('#tube'); b.setAttribute('aria-valuenow', tp); $('i', b).style.width = tp + '%'; $('#tubeOut').textContent = tp + '%'; }, 1000);
+
+  // Table sort + pager
+  const tb = $('#tbl tbody');
+  $$('#tbl th button').forEach(b => b.addEventListener('click', () => { const th = b.parentElement, k = +b.dataset.k, dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    $$('#tbl th[aria-sort]').forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', dir);
+    $$('tr', tb).sort((a, c) => { const x = a.cells[k].textContent.trim(), y = c.cells[k].textContent.trim(); const q = k === 2 ? +x - +y : x.localeCompare(y, 'ko'); return dir === 'ascending' ? q : -q; }).forEach(r => tb.appendChild(r)); }));
+  const pb = $$('.pager li button'), pages = pb.slice(1, -1); let cur = 1;
+  const go = n => { cur = n; pages.forEach((b, i) => i + 1 === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')); pb[0].disabled = n === 1; pb.at(-1).disabled = n === pages.length; $('#pgInfo').textContent = `출발편 12개 중 ${(n - 1) * 4 + 1}–${n * 4}`; };
+  pages.forEach((b, i) => b.addEventListener('click', () => go(i + 1))); pb[0].addEventListener('click', () => go(Math.max(1, cur - 1))); pb.at(-1).addEventListener('click', () => go(Math.min(pages.length, cur + 1)));
+
+  // Dialog
+  const dlg = $('#dlg'); $('#dlgOpen').addEventListener('click', () => dlg.showModal());
+  $$('[data-close]', dlg).forEach(b => b.addEventListener('click', () => { dlg.close(); if (b.dataset.after) toast(b.dataset.after); }));
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Hatch side panel
+  const sd = $('#side'), sc = $('#scrim'); let opener;
+  const focusables = () => $$('button, input, select, textarea, [href]', sd).filter(x => !x.disabled);
+  const openS = (name, planet) => { opener = document.activeElement; if (name) { $('#sideT').textContent = name; $('#sidePlanet use').setAttribute('href', '#p-' + planet); }
+    sd.classList.add('open'); sc.classList.add('open'); sd.setAttribute('aria-hidden', 'false'); setTimeout(() => $('#s1').focus(), 80); };
+  const closeS = () => { if (!sd.classList.contains('open')) return; sd.classList.remove('open'); sc.classList.remove('open'); sd.setAttribute('aria-hidden', 'true'); opener && opener.focus(); };
+  $('#sideOpen').addEventListener('click', () => openS()); sc.addEventListener('click', closeS);
+  $$('.pc').forEach(c => c.addEventListener('click', () => openS(c.dataset.name, c.dataset.planet)));
+  $$('[data-sclose]', sd).forEach(b => b.addEventListener('click', () => { closeS(); if (b.dataset.after) toast(b.dataset.after); }));
+  document.addEventListener('keydown', e => { if (!sd.classList.contains('open')) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeS(); return; }
+    if (e.key === 'Tab') { const f = focusables(), a = f[0], z = f.at(-1);
+      if (!sd.contains(document.activeElement)) { e.preventDefault(); a.focus(); }
+      else if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } } });
+
+  // Code
+  $('#codeBlock').innerHTML = `<span class="c">/* Atomic — 1962 우주시대 다이너 · Tailwind v4 + shadcn */</span>
+@import "tailwindcss";
+
+<span class="p">:root</span> {
+  <span class="v">--background</span>: #fdf6e6;  <span class="v">--foreground</span>: #22303a;       <span class="c">/* 크림, 잉크 */</span>
+  <span class="v">--card</span>: #fffaf0;  <span class="v">--card-foreground</span>: #22303a;
+  <span class="v">--popover</span>: #fffaf0;  <span class="v">--popover-foreground</span>: #22303a;
+  <span class="v">--primary</span>: #6fd0c4;  <span class="v">--primary-foreground</span>: #22303a;  <span class="c">/* 청록 에나멜 */</span>
+  <span class="v">--secondary</span>: #fbc3b5;  <span class="v">--secondary-foreground</span>: #22303a;
+  <span class="v">--muted</span>: #f5e9cc;  <span class="v">--muted-foreground</span>: #46535c;     <span class="c">/* 포마이카 */</span>
+  <span class="v">--accent</span>: #f5bf3c;  <span class="v">--accent-foreground</span>: #22303a;    <span class="c">/* 겨자 불빛 */</span>
+  <span class="v">--destructive</span>: #c9321f;                                  <span class="c">/* 로켓 빨강 */</span>
+  <span class="v">--border</span>: #22303a;  <span class="v">--input</span>: #22303a;  <span class="v">--ring</span>: #1a7169;
+  <span class="v">--radius</span>: 1rem;
+  <span class="v">--chrome</span>: linear-gradient(#fff 0%, #e6ebee 30%, #a3afb6 50%, #dbe2e6 62%, #f8fafb 84%, #b6c0c6 100%);
+  <span class="v">--foot</span>: 4px;    <span class="c">/* 굽 = 누르면 들어가는 거리 */</span>
+}
+
+@theme inline {
+  <span class="v">--color-background</span>: var(--background);
+  <span class="v">--color-foreground</span>: var(--foreground);
+  <span class="v">--color-primary</span>: var(--primary);
+  <span class="v">--color-secondary</span>: var(--secondary);
+  <span class="v">--color-accent</span>: var(--accent);
+  <span class="v">--color-destructive</span>: var(--destructive);
+  <span class="v">--font-display</span>: "Righteous", "Do Hyeon", sans-serif;
+  <span class="v">--font-sans</span>: "Sunflower", system-ui, sans-serif;
+}
+
+<span class="c">/* 주크박스 열쇠: 잉크 외곽선 + 크롬 테두리 + 에나멜 면 + 굽 */</span>
+@utility <span class="p">jukebox</span> {
+  position: relative; isolation: isolate;
+  border: 2.5px solid var(--border); border-radius: 999px;
+  background: var(--chrome); color: var(--primary-foreground);
+  font-family: "Do Hyeon", sans-serif;
+  box-shadow: 0 var(--foot) 0 var(--border);
+  transition: transform .3s cubic-bezier(.3,1.5,.5,1), box-shadow .3s cubic-bezier(.3,1.5,.5,1);
+  &::before { content: ""; position: absolute; inset: 4px; z-index: -1; border-radius: inherit; background: var(--primary); }
+  &:active { transform: translateY(var(--foot)); box-shadow: 0 0 0 var(--border); }
+}
+
+<span class="c">/* 포마이카 부메랑 무늬 바탕 */</span>
+@utility <span class="p">formica</span> {
+  background-color: var(--muted);
+  background-image: url("/formica-boomerang.svg");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}`;
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget, s = $('span', b); try { await navigator.clipboard.writeText($('#codeBlock').textContent); s.textContent = '복사했어요!'; toast('copied'); } catch { s.textContent = '직접 선택해 주세요'; } setTimeout(() => s.textContent = '복사하기', 1800); });
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

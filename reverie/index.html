@@ -1,0 +1,1231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reverie 디자인 시스템</title>
+<meta name="description" content="꿈속에 떠 있는 듯한 디자인 시스템. 구름 유리 판, 달빛 버튼, 홀로 선 문.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;1,500;1,600&family=Gowun+Dodum&family=Hi+Melody&family=Nanum+Myeongjo:wght@400;700;800&family=Quicksand:wght@500;600;700&display=swap">
+<style>
+/* Reverie: the inside of a dream.
+   Pastel dusk sky, things that float and breathe, impossible details (a door alone in the clouds, stairs into the sky,
+   fish swimming through air, a clock that has gone soft). One drawing style throughout:
+   soft rounded shapes, a gentle inner light, frosted translucent panels, a thin luminous outline, a shadow far below. */
+:root {
+  color-scheme: light;
+  --sky-1: #cec4ef; --sky-2: #e4d6f2; --sky-3: #f7dcd0; --sky-4: #d4ecec;
+  --mist: #f7f5fd;
+  --lav: #a99be6; --lav-l: #e8e2fb; --lav-d: #5b4bb0; --lav-dd: #3f3388;
+  --peach: #f6bfa6; --peach-l: #fde8dd; --peach-d: #a4502f;
+  --aqua: #9ad8d3; --aqua-l: #e0f5f2; --aqua-d: #2a6f6c;
+  --moon: #fff1b8; --moon-l: #fffbe8; --moon-glow: #ffe08a; --moon-d: #86620e;
+  --rose: #f1c2cd; --rose-l: #fcebef; --rose-d: #9b3553;
+  --ink: #2a2450; --ink-2: #4a4370; --ink-3: #5d5682;
+  --edge: #b3a8e2;                       /* the thin outline every control shares */
+  --lum: rgba(255,255,255,.92);          /* luminous inner line */
+  --far: 0 50px 40px -40px rgba(74,58,150,.42), 0 10px 30px -18px rgba(74,58,150,.22);
+  --moonpill: radial-gradient(120% 150% at 30% 0%, #fffef6 0%, #fff2c2 45%, #f8d483 100%);
+  --r: 30px;
+  --float: cubic-bezier(.45,0,.25,1); --soft: cubic-bezier(.2,.8,.2,1); --spring: cubic-bezier(.34,1.45,.5,1);
+  --font-disp: "Cormorant", "Nanum Myeongjo", serif;
+  --font-head: "Nanum Myeongjo", "Apple SD Gothic Neo", serif;
+  --font: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-hand: "Hi Melody", "Gowun Dodum", sans-serif;
+  --font-num: "Quicksand", "Gowun Dodum", sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--sky-2); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
+body { margin: 0; color: var(--ink); font: 400 16.5px/1.8 var(--font); word-break: keep-all; -webkit-font-smoothing: antialiased; overflow-x: clip; background: var(--sky-2); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--lav-dd); text-underline-offset: 4px; }
+code { font: .86em ui-monospace, Menlo, Consolas, monospace; background: rgba(255,255,255,.7); padding: 1px 7px; border-radius: 8px; box-shadow: inset 0 0 0 1px #d8d0f4; }
+.wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--lav-d); outline-offset: 4px; border-radius: 12px; }
+
+/* shared motion: everything floats a little */
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(var(--a, -6px)); } }
+@keyframes breathe { 0%, 100% { opacity: .35; transform: scale(.94); } 50% { opacity: .95; transform: scale(1.06); } }
+@keyframes twinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+/* ---------- The sky behind everything ---------- */
+.sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  background: radial-gradient(60% 40% at 82% 8%, rgba(255,244,210,.75), transparent 70%), linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 30%, var(--sky-3) 62%, #fbe8dc 74%, var(--sky-4) 100%); }
+.sky__l { position: absolute; inset: -60px; transform: translate3d(calc(var(--px, 0) * var(--d) * -1px), calc(var(--py, 0) * var(--d) * -1px), 0); transition: transform 1.6s var(--soft); }
+.cl { position: absolute; width: var(--w); aspect-ratio: 2.6; opacity: var(--o, .8);
+  background:
+    radial-gradient(ellipse 30% 45% at 28% 60%, rgba(255,255,255,.95) 0 50%, rgba(255,255,255,0) 72%),
+    radial-gradient(ellipse 30% 58% at 52% 46%, rgba(255,255,255,.95) 0 50%, rgba(255,255,255,0) 72%),
+    radial-gradient(ellipse 26% 44% at 74% 60%, rgba(255,255,255,.95) 0 50%, rgba(255,255,255,0) 72%),
+    radial-gradient(ellipse 50% 28% at 50% 76%, rgba(255,255,255,.9) 0 55%, rgba(255,255,255,0) 80%);
+  animation: drift var(--t, 90s) var(--float) infinite alternate; }
+@keyframes drift { to { transform: translateX(var(--dx, 16vw)); } }
+.bk { position: absolute; width: var(--s); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(255,247,220,.75), rgba(255,247,220,0) 70%); animation: twinkle 11s ease-in-out infinite; }
+.dust { position: absolute; inset: 0; animation: twinkle 7s ease-in-out infinite;
+  background:
+    radial-gradient(1.6px 1.6px at 8% 14%, #fff, transparent), radial-gradient(1.4px 1.4px at 22% 34%, #fff, transparent), radial-gradient(2px 2px at 36% 9%, #fff8d8, transparent),
+    radial-gradient(1.4px 1.4px at 58% 22%, #fff, transparent), radial-gradient(2px 2px at 71% 40%, #fff8d8, transparent), radial-gradient(1.6px 1.6px at 88% 18%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 14% 66%, #fff, transparent), radial-gradient(2px 2px at 47% 58%, #fff8d8, transparent), radial-gradient(1.4px 1.4px at 92% 70%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 64% 84%, #fff, transparent), radial-gradient(1.4px 1.4px at 30% 90%, #fff, transparent); }
+.dust--b { animation-delay: -3.5s; transform: translate(4%, 6%); }
+
+/* ---------- Top bar: a frosted ribbon of mist ---------- */
+.bar { position: sticky; top: 0; z-index: 40; background: rgba(250,247,255,.72); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.9), 0 14px 30px -24px rgba(74,58,150,.5); }
+.bar .wrap { display: flex; align-items: center; gap: 18px; min-height: 64px; }
+.brand { flex: none; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand svg { width: 34px; height: 34px; animation: bob 6s var(--float) infinite; --a: -3px; }
+.brand b { font: italic 600 27px/1 var(--font-disp); letter-spacing: .01em; }
+.brand small { font: 400 15px/1 var(--font-head); color: var(--ink-3); }
+.bar nav { margin-left: auto; min-width: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; padding: 6px 2px; }
+.bar nav::-webkit-scrollbar { display: none; }
+.bar nav a { flex: none; display: grid; place-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; color: var(--ink-2); text-decoration: none; font-size: 16px; transition: background .4s, color .4s, box-shadow .4s; }
+.bar nav a:hover { background: rgba(255,255,255,.7); color: var(--ink); }
+.bar nav a[aria-current="true"] { background: var(--moonpill); color: var(--ink); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(214,170,80,.35), 0 0 18px rgba(255,224,138,.7); }
+@media (max-width: 640px) { .brand small { display: none; } .bar .wrap { gap: 8px; } }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; z-index: 1; overflow-x: clip; padding-block: 40px 30px; }
+.hero__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 24px; align-items: center; }
+.hero__k { font: 600 14px/1.4 var(--font-num); letter-spacing: .24em; text-transform: uppercase; color: var(--ink-2); }
+.hero h1 { margin-top: 8px; display: grid; }
+.hero h1 .t { font: italic 600 clamp(80px, 12.5vw, 156px)/.92 var(--font-disp); letter-spacing: -.01em; padding-bottom: .08em;
+  background: linear-gradient(100deg, var(--lav-dd) 10%, #6c4aa8 45%, #a14f74 85%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 8px 22px rgba(255,255,255,.85)); }
+.hero h1 .s { margin-top: 10px; font: 800 clamp(24px, 3vw, 30px)/1.3 var(--font-head); color: var(--ink); }
+.hero h1 .s small { display: block; margin-top: 4px; font: 400 18px/1.5 var(--font-head); color: var(--ink-2); }
+.hero p.lead { margin-top: 18px; max-width: 34em; font-size: 17px; color: var(--ink-2); }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 28px; }
+.scene { position: relative; width: 100%; max-width: 620px; justify-self: center; aspect-ratio: 600 / 560; }
+.scene > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.scene .px { transform: translate(calc(var(--px, 0) * var(--d) * -1px), calc(var(--py, 0) * var(--d) * -1px)); transition: transform 1.6s var(--soft); }
+.scene .fa { animation: bob 8s var(--float) infinite; --a: -9px; }
+.scene .fb { animation: bob 6s var(--float) infinite; --a: -6px; animation-delay: -2s; }
+.scene .step { animation: bob 5s var(--float) infinite; --a: -5px; animation-delay: calc(var(--i) * -.55s); }
+.scene .tw { animation: twinkle 4s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -1.3s); }
+.scene .fish { animation: swim var(--t, 26s) linear infinite; animation-delay: var(--dl, 0s); }
+@keyframes swim { 0% { transform: translate(-40px, 10px); opacity: 0; } 10% { opacity: 1; } 50% { transform: translate(110px, -12px); } 90% { opacity: 1; } 100% { transform: translate(260px, 4px); opacity: 0; } }
+.scene .lamp { animation: twinkle 3.2s ease-in-out infinite; }
+.scene .hero-door { position: absolute; left: 50%; top: 66.4%; transform: translate(-50%, calc(-1 * var(--h))); --w: clamp(84px, 17vw, 112px); --h: calc(var(--w) * 1.5); }
+@media (max-width: 900px) { .hero__grid { grid-template-columns: minmax(0, 1fr); } .scene { max-width: 560px; } }
+@media (max-width: 480px) { .scene .hero-door .door__label { font-size: 16px; padding: 0 16px; } }
+
+/* ---------- Sections ---------- */
+section.sec { padding-block: 100px 10px; scroll-margin-top: 80px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; }
+.sec__head { display: grid; justify-items: center; text-align: center; gap: 8px; }
+.sec__ico { width: 64px; height: 64px; animation: bob 7s var(--float) infinite; --a: -7px; filter: drop-shadow(0 18px 12px rgba(74,58,150,.18)); }
+.sec__k { font: italic 500 23px/1 var(--font-disp); color: var(--lav-d); letter-spacing: .02em; }
+.sec__head h2 { font: 800 clamp(34px, 5vw, 48px)/1.2 var(--font-head); color: var(--ink); text-shadow: 0 2px 18px rgba(255,255,255,.9); }
+.sec__head p { max-width: 40em; color: var(--ink-2); }
+
+/* Glass: a frosted cloud-glass panel that floats, its shadow far below. Wisps of cloud at one edge, stardust at the other. */
+.glass { position: relative; margin: 10px 6px; border-radius: var(--r);
+  background: linear-gradient(165deg, rgba(255,255,255,.88), rgba(250,247,255,.72) 55%, rgba(255,255,255,.84));
+  box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(255,255,255,.75), 0 0 0 1px rgba(150,135,215,.2), var(--far); }
+.glass::before { content: ""; position: absolute; left: -16px; bottom: -18px; width: 170px; height: 54px; pointer-events: none; z-index: 2;
+  background:
+    radial-gradient(ellipse 18% 42% at 20% 60%, rgba(255,255,255,.97) 0 55%, rgba(255,255,255,0) 75%),
+    radial-gradient(ellipse 20% 56% at 40% 46%, rgba(255,255,255,.97) 0 55%, rgba(255,255,255,0) 75%),
+    radial-gradient(ellipse 16% 40% at 60% 62%, rgba(255,255,255,.95) 0 55%, rgba(255,255,255,0) 75%),
+    radial-gradient(ellipse 42% 26% at 42% 76%, rgba(255,255,255,.92) 0 55%, rgba(255,255,255,0) 80%);
+  filter: drop-shadow(0 6px 8px rgba(91,75,176,.14)); }
+.glass:nth-of-type(2n)::before { left: auto; right: -16px; transform: scaleX(-1); }
+.glass::after { content: ""; position: absolute; top: -10px; right: 34px; width: 120px; height: 34px; pointer-events: none; animation: twinkle 6s ease-in-out infinite;
+  background:
+    radial-gradient(circle at 10% 60%, var(--moon-glow) 0 1.6px, transparent 2.6px), radial-gradient(circle at 28% 30%, #fff 0 1.4px, transparent 2.4px),
+    radial-gradient(circle at 46% 70%, #fff 0 2px, transparent 3px), radial-gradient(circle at 66% 24%, var(--moon-glow) 0 2.4px, rgba(255,224,138,.35) 3.4px, transparent 6px),
+    radial-gradient(circle at 84% 64%, #fff 0 1.4px, transparent 2.4px), radial-gradient(circle at 96% 36%, var(--lav) 0 1.4px, transparent 2.4px); }
+.glass:nth-of-type(2n)::after { right: auto; left: 40px; animation-delay: -3s; }
+.spec { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr); }
+.note { position: relative; padding: 36px 28px 32px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.note::after { content: ""; position: absolute; right: 0; top: 30px; bottom: 30px; width: 3px; opacity: .8; background: radial-gradient(circle, var(--lav) 0 1.3px, transparent 1.8px) 0 0 / 3px 11px repeat-y; }
+.note h3 { font: 700 22px/1.35 var(--font-head); color: var(--ink); }
+.note h3 small { font: italic 500 18px/1 var(--font-disp); color: var(--lav-d); margin-left: 6px; }
+.note p { color: var(--ink-2); font-size: 16px; }
+.note ul { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 15px; color: var(--ink-2); }
+.note li { position: relative; padding-left: 22px; }
+.note li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, var(--moon-glow)); box-shadow: 0 0 8px rgba(255,214,110,.9), 0 0 0 1px rgba(160,120,30,.35); }
+.stage { position: relative; min-width: 0; margin: 10px; padding: 44px 26px; border-radius: 22px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; align-content: center; min-height: 180px;
+  background: radial-gradient(120% 80% at 0% 0%, rgba(232,226,251,.95), transparent 60%), radial-gradient(100% 80% at 100% 100%, rgba(253,232,221,.9), transparent 60%), radial-gradient(80% 70% at 100% 0%, rgba(224,245,242,.85), transparent 60%), #f7f3fc;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.95), inset 0 10px 28px rgba(120,100,200,.08); }
+.stage.col { flex-direction: column; align-items: stretch; }
+.stage > * { min-width: 0; max-width: 100%; }
+@media (max-width: 820px) {
+  .spec { grid-template-columns: minmax(0, 1fr); }
+  .note { padding: 30px 20px 18px; }
+  .note::after { top: auto; bottom: 0; left: 24px; right: 24px; width: auto; height: 3px; background: radial-gradient(circle, var(--lav) 0 1.3px, transparent 1.8px) 0 0 / 11px 3px repeat-x; }
+  .stage { margin: 8px; padding: 36px 14px; }
+  .glass { margin: 10px 2px; }
+  .glass::before { left: -6px; width: 130px; } .glass:nth-of-type(2n)::before { right: -6px; }
+}
+
+/* ---------- Foundations ---------- */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 42%), 1fr)); gap: 24px 18px; padding: 36px clamp(16px, 4vw, 30px) 34px; }
+.sw { display: grid; gap: 4px; justify-items: start; }
+.sw i { width: 76px; height: 76px; border-radius: 50%; margin-bottom: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.85), inset -8px -10px 18px rgba(42,36,80,.12), inset 8px 8px 14px rgba(255,255,255,.55), 0 26px 18px -18px rgba(74,58,150,.5); }
+.sw b { font: 700 17px/1.3 var(--font-head); }
+.sw code { background: none; box-shadow: none; padding: 0; font-size: 12.5px; color: var(--ink-3); }
+.sw span { font-size: 14.5px; color: var(--ink-2); line-height: 1.5; }
+.swhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; font: 700 20px/1.2 var(--font-head); margin-top: 12px; }
+.swhead:first-child { margin-top: 0; }
+.swhead::after { content: ""; flex: 1; height: 3px; background: radial-gradient(circle, var(--lav) 0 1.3px, transparent 1.8px) 0 0 / 11px 3px repeat-x; }
+.swhead span { font: 400 15px/1 var(--font); color: var(--ink-3); }
+.typerow { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 18px; align-items: baseline; padding: 16px 0; border-top: 1px solid rgba(169,155,230,.35); }
+.typerow:first-child { border-top: 0; }
+.typerow .k { display: grid; gap: 2px; } .typerow .k b { font: 700 16px/1.3 var(--font-head); } .typerow .k span { font-size: 14px; color: var(--ink-3); }
+@media (max-width: 560px) { .typerow { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 34px 22px; margin: 0; padding: 14px 6px 0; list-style: none; counter-reset: r; }
+.rules li { counter-increment: r; position: relative; padding: 38px 22px 24px; border-radius: 40px 40px 26px 26px; display: grid; gap: 4px;
+  background: linear-gradient(170deg, rgba(255,255,255,.9), rgba(246,242,253,.75)); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(150,135,215,.2), var(--far); animation: bob 9s var(--float) infinite; --a: -5px; }
+.rules li:nth-child(2) { animation-delay: -2.2s; } .rules li:nth-child(3) { animation-delay: -4.4s; } .rules li:nth-child(4) { animation-delay: -6.6s; }
+.rules li::before { content: counter(r); position: absolute; top: -22px; left: 22px; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%;
+  background: var(--moonpill); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(214,170,80,.35), 0 0 22px rgba(255,224,138,.8); font: italic 600 26px/1 var(--font-disp); color: var(--ink); }
+.rules b { font: 700 19px/1.4 var(--font-head); }
+.rules span { font-size: 15.5px; color: var(--ink-2); }
+
+/* ---------- Buttons ---------- */
+/* Moon pill: the main action glows softly and breathes */
+.btn { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 30px; border: 0; border-radius: 999px; cursor: pointer; text-decoration: none; white-space: nowrap;
+  font: 400 17.5px/1 var(--font); letter-spacing: .02em; color: var(--ink); background: var(--moonpill);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -8px 16px rgba(214,160,60,.22), 0 0 0 1px rgba(200,155,60,.38), 0 18px 22px -14px rgba(150,100,20,.45);
+  transition: transform .5s var(--spring), box-shadow .4s, background .4s, color .3s; }
+.btn::before { content: ""; position: absolute; inset: -12px; z-index: -1; border-radius: inherit; background: radial-gradient(closest-side, rgba(255,226,140,.8), rgba(255,226,140,0)); animation: breathe 4.8s var(--float) infinite; pointer-events: none; }
+.btn:hover { transform: translateY(-3px); }
+.btn:active { transform: translateY(1px) scale(.98); transition-duration: .1s; }
+.btn svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* Cloud: translucent, a few puffs drift over its top edge */
+.btn--cloud { color: var(--lav-dd); background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(239,235,252,.82));
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px #c6bcee, 0 16px 22px -14px rgba(74,58,150,.42); }
+.btn--cloud::before { inset: -9px auto auto 14px; width: 54px; height: 22px; border-radius: 0; animation: none; z-index: 1; opacity: .95;
+  background: radial-gradient(ellipse 30% 46% at 30% 64%, #fff 0 55%, rgba(255,255,255,0) 80%), radial-gradient(ellipse 34% 60% at 58% 50%, #fff 0 55%, rgba(255,255,255,0) 80%), radial-gradient(ellipse 26% 40% at 82% 70%, #fff 0 55%, rgba(255,255,255,0) 80%); }
+.btn--cloud:hover { background: linear-gradient(180deg, #fff, rgba(232,226,251,.95)); }
+/* Dusk: a deeper lavender for actions that sit beside the moon */
+.btn--dusk { color: #fff; background: linear-gradient(180deg, #8473d6, var(--lav-d)); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 0 0 1px rgba(63,51,136,.5), 0 18px 22px -14px rgba(63,51,136,.6); }
+.btn--dusk::before { background: radial-gradient(closest-side, rgba(169,155,230,.75), rgba(169,155,230,0)); }
+/* Wilting rose: things that cannot be undone, pale and drooping */
+.btn--rose { color: var(--rose-d); background: linear-gradient(180deg, #fff6f8, #f7d9e1); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px #df9fb1, 0 16px 22px -14px rgba(155,53,83,.38); }
+.btn--rose::before { display: none; }
+.btn--rose svg { transform-origin: 30% 90%; transition: transform .8s var(--soft); }
+.btn--rose:hover svg { transform: rotate(18deg) translateY(1px); }
+.btn--rose:hover { background: linear-gradient(180deg, #fdf0f3, #f3cdd7); }
+/* Whisper: almost nothing, a dotted underline */
+.btn--whisper { background: none; box-shadow: none; color: var(--lav-dd); padding: 0 12px; text-decoration: underline dotted 2px; text-underline-offset: 7px; }
+.btn--whisper::before { display: none; }
+.btn--whisper:hover { transform: none; color: var(--ink); }
+.btn--sm { min-height: 44px; padding: 0 22px; font-size: 16px; }
+.btn--lg { min-height: 62px; padding: 0 40px; font-size: 20px; }
+.btn:disabled, .btn[aria-disabled="true"] { cursor: not-allowed; transform: none; }
+.btn:disabled { color: #5f5980; background: rgba(255,255,255,.45); box-shadow: inset 0 0 0 1.5px transparent; outline: 1.5px dashed #a49cc8; outline-offset: -1.5px; }
+.btn:disabled::before { display: none; }
+.zzz { display: inline-flex; gap: 2px; font: italic 600 18px/1 var(--font-disp); }
+.zzz i { font-style: normal; display: inline-block; animation: zz 1.6s var(--float) infinite; }
+.zzz i:nth-child(2) { animation-delay: .25s; font-size: .85em; } .zzz i:nth-child(3) { animation-delay: .5s; font-size: .7em; }
+@keyframes zz { 0% { transform: translate(0, 2px); opacity: .2; } 50% { opacity: 1; } 100% { transform: translate(3px, -8px); opacity: .2; } }
+.count-badge { position: absolute; top: -10px; right: -6px; z-index: 3; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 14px; display: grid; place-items: center;
+  background: linear-gradient(#fff, var(--peach-l)); color: var(--peach-d); font: 700 14px/1 var(--font-num); box-shadow: 0 0 0 1px #eab29b, 0 6px 10px -4px rgba(164,80,47,.4); animation: bob 3s var(--float) infinite; --a: -3px; }
+
+/* Bubble: icon buttons are soap bubbles drifting in place */
+.bubble { position: relative; width: 58px; height: 58px; flex: none; padding: 0; border: 0; border-radius: 50%; cursor: pointer; display: grid; place-items: center; color: var(--lav-dd);
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255,255,255,.98) 0 4px, rgba(255,255,255,0) 9px),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.5) 52%, rgba(214,204,255,.7) 70%, rgba(170,225,220,.65) 84%, rgba(255,205,190,.75) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.95), inset -6px -8px 14px rgba(150,135,215,.32), 0 0 0 1px rgba(150,135,215,.35), 0 18px 18px -14px rgba(74,58,150,.45);
+  animation: bob 6s var(--float) infinite; --a: -5px; transition: box-shadow .4s; }
+.bubble svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.bubble:hover { box-shadow: inset 0 0 0 1px #fff, inset -6px -8px 14px rgba(150,135,215,.32), 0 0 0 1px rgba(91,75,176,.55), 0 0 22px rgba(255,224,138,.7), 0 18px 18px -14px rgba(74,58,150,.45); }
+.bubble:active { transform: scale(.94); animation: none; }
+.bubble:focus-visible { border-radius: 50%; }
+.bubble--sm { width: 46px; height: 46px; }
+.tip { position: relative; display: inline-flex; }
+.tip:nth-child(2) .bubble { animation-delay: -2s; } .tip:nth-child(3) .bubble { animation-delay: -4s; } .tip:nth-child(4) .bubble { animation-delay: -1s; }
+/* tooltip: a little thought bubble */
+.tip__b { position: absolute; bottom: calc(100% + 22px); left: 50%; z-index: 10; padding: 8px 16px; border-radius: 20px; background: #fff; color: var(--ink); font-size: 15.5px; line-height: 1.35; white-space: nowrap;
+  box-shadow: 0 0 0 1px #d4cbf3, 0 14px 20px -12px rgba(74,58,150,.45); pointer-events: none; opacity: 0; transform: translateX(-50%) translateY(8px); transition: opacity .3s, transform .5s var(--soft); }
+.tip__b::before, .tip__b::after { content: ""; position: absolute; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px #d4cbf3; }
+.tip__b::before { width: 10px; height: 10px; left: calc(50% - 8px); top: calc(100% + 4px); }
+.tip__b::after { width: 6px; height: 6px; left: calc(50% - 1px); top: calc(100% + 15px); }
+.tip:hover .tip__b, .tip:focus-within .tip__b { opacity: 1; transform: translateX(-50%); }
+
+/* Door: the one big call to action, a door standing alone in the clouds that opens onto light */
+.door { --w: 112px; --h: 168px; position: relative; display: grid; justify-items: center; padding: 0; border: 0; background: none; cursor: pointer; color: var(--ink); }
+.door__frame { position: relative; z-index: 1; width: var(--w); height: var(--h); border-radius: calc(var(--w) / 2) calc(var(--w) / 2) 4px 4px; perspective: 500px;
+  background: linear-gradient(#fdfbff, #d9cff4); box-shadow: inset 0 0 0 1px #fff, 0 0 0 1px rgba(91,75,176,.3), 0 0 40px rgba(255,236,170,.45); }
+.door__frame::before { content: ""; position: absolute; inset: -46px -60px -16px; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,240,180,.9), rgba(255,240,180,0)); opacity: 0; transition: opacity .9s; pointer-events: none; }
+.door__light, .door__leaf { position: absolute; inset: 7px 7px 0; border-radius: calc(var(--w) / 2 - 7px) calc(var(--w) / 2 - 7px) 0 0; }
+.door__light { overflow: hidden; background: radial-gradient(ellipse 80% 60% at 50% 88%, #fffef6 0%, #fff0b8 35%, #ffd99a 65%, #f4bfa8 100%); }
+.door__light::before { content: ""; position: absolute; inset: 0; background: repeating-conic-gradient(from -60deg at 50% 100%, rgba(255,255,255,.55) 0 5deg, transparent 5deg 14deg); }
+.door__light::after { content: ""; position: absolute; left: 18%; right: 18%; bottom: 14%; height: 18%; background: radial-gradient(ellipse 40% 50% at 35% 60%, #fff 50%, transparent 70%), radial-gradient(ellipse 40% 60% at 65% 50%, #fff 50%, transparent 70%); opacity: .9; }
+.door__leaf { transform-origin: 0 50%; transition: transform 1.1s var(--soft);
+  background: linear-gradient(170deg, #c6b9ef 0%, #9483d9 55%, #7a69c9 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.55), inset -8px 0 14px rgba(63,51,136,.22); }
+.door__leaf::before { content: ""; position: absolute; inset: 20% 17% 12%; border-radius: 50% 50% 6px 6px / 26% 26% 6px 6px; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.5); background: linear-gradient(rgba(255,255,255,.16), rgba(255,255,255,0)); }
+.door__leaf i { position: absolute; right: 11%; top: 56%; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fffef0, #f2c95a); box-shadow: 0 0 10px rgba(255,224,138,.95); }
+.door__cloud { position: relative; z-index: 2; width: calc(var(--w) * 2); height: 48px; margin-top: -24px; pointer-events: none;
+  background:
+    radial-gradient(ellipse 22% 46% at 22% 62%, #fff 0 55%, rgba(255,255,255,0) 75%),
+    radial-gradient(ellipse 26% 60% at 48% 48%, #fff 0 55%, rgba(255,255,255,0) 75%),
+    radial-gradient(ellipse 22% 46% at 76% 62%, #fff 0 55%, rgba(255,255,255,0) 75%),
+    radial-gradient(ellipse 48% 30% at 50% 78%, #f3effe 0 60%, rgba(243,239,254,0) 80%);
+  filter: drop-shadow(0 10px 10px rgba(74,58,150,.16)); }
+.door__spill { position: absolute; z-index: 3; top: calc(var(--h) - 14px); left: 50%; width: calc(var(--w) * 1.5); height: 36px; margin-left: calc(var(--w) * -.75); pointer-events: none;
+  clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%); background: linear-gradient(rgba(255,236,170,.95), rgba(255,236,170,0)); opacity: 0; transition: opacity .9s; }
+.door__label { position: relative; z-index: 4; display: inline-flex; align-items: center; min-height: 46px; margin-top: -4px; padding: 0 22px; border-radius: 999px; white-space: nowrap; font-size: 18px; letter-spacing: .02em;
+  background: var(--moonpill); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(200,155,60,.4), 0 14px 18px -12px rgba(150,100,20,.5); }
+.door__motes { position: absolute; z-index: 2; left: 50%; top: calc(var(--h) * .45); width: 0; height: 0; pointer-events: none; }
+.door__motes span { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #fff6cf; box-shadow: 0 0 10px #ffe08a; opacity: 0; }
+.door__motes span:nth-child(1) { left: -30px; } .door__motes span:nth-child(2) { left: -8px; top: 20px; } .door__motes span:nth-child(3) { left: 16px; top: -10px; } .door__motes span:nth-child(4) { left: 30px; top: 26px; } .door__motes span:nth-child(5) { left: -20px; top: 40px; }
+.door.is-open .door__motes span { animation: mote 1.8s var(--soft) forwards; }
+.door.is-open .door__motes span:nth-child(2n) { animation-delay: .2s; } .door.is-open .door__motes span:nth-child(3n) { animation-delay: .4s; }
+@keyframes mote { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--mx, 0), -90px) scale(1.2); } }
+.door:hover .door__leaf { transform: rotateY(-30deg); }
+.door:hover .door__frame::before { opacity: .55; }
+.door.is-open .door__leaf { transform: rotateY(-80deg); }
+.door.is-open .door__frame::before, .door.is-open .door__spill { opacity: 1; }
+.door:active .door__label { transform: translateY(1px); }
+.door:focus-visible { outline-offset: 8px; border-radius: 28px; }
+
+/* ---------- Toggles ---------- */
+.lbl { display: grid; line-height: 1.45; text-align: left; }
+.lbl em { font: 600 14px/1.3 var(--font-num); font-style: normal; letter-spacing: .06em; color: var(--ink-3); }
+.lbl b { font-weight: 400; font-size: 17.5px; color: var(--ink); }
+.lbl small { font-size: 14.5px; color: var(--ink-2); }
+/* Moon switch: a crescent that waxes to full */
+.moonsw { display: inline-flex; align-items: center; gap: 16px; min-height: 48px; padding: 0; border: 0; background: none; cursor: pointer; }
+.moonsw__t { position: relative; width: 86px; height: 46px; flex: none; border-radius: 23px; overflow: hidden;
+  background: linear-gradient(180deg, #ddd6f5, #c3b8ea); box-shadow: inset 0 0 0 1px #9f93d8, inset 0 4px 10px rgba(63,51,136,.15); transition: background .7s var(--soft); }
+.moonsw__t::before { content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity .8s;
+  background: radial-gradient(circle at 18% 30%, #fff 0 1.2px, transparent 2px), radial-gradient(circle at 30% 70%, #fff 0 1px, transparent 1.8px), radial-gradient(circle at 44% 36%, #fff6cf 0 1.4px, transparent 2.2px), radial-gradient(circle at 22% 52%, #fff 0 .8px, transparent 1.5px); }
+.moonsw__m { position: absolute; top: 5px; left: 5px; width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 38% 34%, #fffef4, #fff0b8 55%, #f2cf74); box-shadow: 0 0 0 1px rgba(160,120,30,.35); transition: transform .8s var(--spring), box-shadow .8s; }
+.moonsw__m::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; background: #8d80c9; transform: translateX(-9px); transition: transform .9s var(--soft); }
+.moonsw[aria-checked="true"] .moonsw__t { background: linear-gradient(180deg, #6a59c4, var(--lav-dd)); }
+.moonsw[aria-checked="true"] .moonsw__t::before { opacity: 1; }
+.moonsw[aria-checked="true"] .moonsw__m { transform: translateX(40px); box-shadow: 0 0 0 1px rgba(255,240,200,.8), 0 0 18px rgba(255,224,138,.95); }
+.moonsw[aria-checked="true"] .moonsw__m::after { transform: translateX(-44px); }
+.moonsw[aria-checked="true"] .lbl em { color: var(--lav-d); }
+/* Firefly jar: tap to wake the fireflies */
+.jar { display: inline-flex; align-items: center; gap: 16px; padding: 0; border: 0; background: none; cursor: pointer; }
+.jar svg { width: 62px; height: 86px; flex: none; overflow: visible; }
+.jar .halo { opacity: 0; transition: opacity .8s; }
+.jar .ff { fill: #cfc8e6; transition: fill .6s; }
+.jar .ffg { opacity: 0; transition: opacity .6s; }
+.jar[aria-checked="true"] .halo { opacity: 1; }
+.jar[aria-checked="true"] .ff { fill: #fff3b0; }
+.jar[aria-checked="true"] .ffg { opacity: 1; }
+.jar[aria-checked="true"] .fly { animation: fly 3.4s var(--float) infinite; transform-box: fill-box; }
+.jar .fly:nth-of-type(2) { animation-delay: -1.2s !important; } .jar .fly:nth-of-type(3) { animation-delay: -2.1s !important; }
+@keyframes fly { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(3px, -5px); } 66% { transform: translate(-3px, -2px); } }
+.jar[aria-checked="true"] .lbl em { color: var(--lav-d); }
+
+/* Checkbox: a star that lights in a small square of night */
+.check { position: relative; display: flex; align-items: flex-start; gap: 14px; cursor: pointer; min-height: 44px; }
+.check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.star { position: relative; width: 32px; height: 32px; flex: none; margin-top: 2px; border-radius: 11px; display: grid; place-items: center;
+  background: rgba(255,255,255,.85); box-shadow: inset 0 0 0 1.5px #8c7fd0, 0 8px 10px -8px rgba(74,58,150,.5); transition: background .5s, box-shadow .5s; }
+.star svg { width: 24px; height: 24px; overflow: visible; }
+.star path { fill: none; stroke: #b9afe3; stroke-width: 2.4; stroke-dasharray: 3 4; stroke-linejoin: round; transition: fill .4s, stroke .4s, transform .6s var(--spring); transform-origin: 24px 24px; transform: scale(.8); }
+.check:hover .star { box-shadow: inset 0 0 0 1.5px var(--lav-d), 0 0 14px rgba(255,224,138,.6), 0 8px 10px -8px rgba(74,58,150,.5); }
+.check input:checked + .star { background: linear-gradient(160deg, #6a59c4, var(--lav-dd)); box-shadow: inset 0 0 0 1.5px var(--lav-dd), 0 0 16px rgba(255,224,138,.65); }
+.check input:checked + .star path { fill: #ffe9a0; stroke: #fff7d6; stroke-dasharray: none; stroke-width: 1.6; transform: scale(1.05); }
+.check input:indeterminate + .star { background: linear-gradient(160deg, #a99be6, #7d6bcc); box-shadow: inset 0 0 0 1.5px var(--lav-d); }
+.check input:indeterminate + .star path { opacity: 0; }
+.check input:indeterminate + .star::after { content: ""; position: absolute; left: 8px; right: 8px; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; background: #fff3c4; box-shadow: 0 0 8px #ffe08a; }
+.check input:focus-visible + .star, .check input:focus-visible + .orb { outline: 3px solid var(--lav-d); outline-offset: 4px; }
+.check input:disabled + .star, .check input:disabled + .orb { opacity: .5; }
+.check input:disabled ~ .lbl b { color: var(--ink-3); }
+.check:has(input:disabled) { cursor: not-allowed; }
+/* Radio: a soap-bubble orb; the chosen one holds a glowing pearl */
+.orb { position: relative; width: 32px; height: 32px; flex: none; margin-top: 2px; border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #fff 0 3px, rgba(255,255,255,0) 6px), radial-gradient(circle, rgba(255,255,255,.7) 50%, rgba(214,204,255,.8) 75%, rgba(255,210,195,.85) 100%);
+  box-shadow: inset 0 0 0 1.5px #8c7fd0, 0 8px 10px -8px rgba(74,58,150,.5); }
+.orb::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; transform: scale(0); transition: transform .6s var(--spring);
+  background: radial-gradient(circle at 35% 30%, #fff 0 2px, #c7b9f6 40%, var(--lav-d) 100%); box-shadow: 0 0 10px rgba(169,155,230,.9); }
+.check input:checked + .orb::after { transform: scale(1); }
+.check input:checked + .orb { box-shadow: inset 0 0 0 1.5px var(--lav-d), 0 0 14px rgba(169,155,230,.7); }
+.stack { display: grid; gap: 14px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 14px; font: 700 16px/1.3 var(--font-head); color: var(--ink-2); }
+
+/* ---------- Choosing ---------- */
+/* Segmented: pills resting on a band of cloud; the chosen one lifts into moonlight */
+.seg { display: inline-flex; gap: 4px; padding: 6px; max-width: 100%; overflow-x: auto; scrollbar-width: none; border-radius: 999px; background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px #d0c6f2, inset 0 4px 10px rgba(91,75,176,.08); }
+.seg button { flex: none; min-height: 46px; padding: 0 18px; border: 0; border-radius: 999px; background: none; cursor: pointer; color: var(--ink-2); font-size: 16.5px; white-space: nowrap; transition: transform .6s var(--spring), background .4s, box-shadow .4s, color .3s; }
+.seg button:hover { background: rgba(255,255,255,.8); color: var(--ink); }
+.seg button[aria-checked="true"] { color: var(--ink); background: var(--moonpill); transform: translateY(-3px); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(200,155,60,.38), 0 0 18px rgba(255,224,138,.75), 0 10px 12px -8px rgba(150,100,20,.45); }
+@media (max-width: 420px) { .seg button { padding: 0 13px; } }
+
+/* Tabs: doors standing in a row; the chosen one stands open, full of light */
+.doortabs { width: 100%; }
+.doortabs__row { display: flex; gap: 14px; padding: 6px 4px 0; overflow-x: auto; scrollbar-width: none; align-items: flex-end; }
+.dtab { position: relative; flex: none; min-width: 96px; height: 82px; padding: 0 16px 10px; border: 0; cursor: pointer; display: grid; align-content: end; justify-items: center;
+  border-radius: 48px 48px 8px 8px; color: var(--ink-2); font-size: 16.5px; background: linear-gradient(#f6f2ff, #dcd2f4);
+  box-shadow: inset 0 0 0 1px #fff, 0 0 0 1px #bdb2e6, 0 14px 14px -12px rgba(74,58,150,.4); transition: transform .6s var(--spring), background .5s, box-shadow .5s, color .3s; }
+.dtab::after { content: ""; position: absolute; right: 14px; top: 46%; width: 7px; height: 7px; border-radius: 50%; background: #c7bcec; box-shadow: 0 0 0 1px #a99be6; transition: background .4s, box-shadow .4s; }
+.dtab:hover { transform: translateY(-3px); color: var(--ink); }
+.dtab[aria-selected="true"] { color: var(--ink); transform: translateY(-6px);
+  background: radial-gradient(ellipse 80% 70% at 50% 92%, #fffef6, #fff0b8 45%, #ffd99a 80%, #f4c3ad);
+  box-shadow: inset 0 0 0 6px rgba(255,255,255,.75), 0 0 0 1px rgba(200,155,60,.5), 0 0 26px rgba(255,224,138,.8), 0 16px 14px -12px rgba(150,100,20,.45); }
+.dtab[aria-selected="true"]::after { background: #fff; box-shadow: 0 0 8px #ffe08a; }
+.dtab:focus-visible { border-radius: 48px 48px 8px 8px; }
+.tabpanel { margin-top: 12px; padding: 18px 20px; border-radius: 20px; background: rgba(255,255,255,.82); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px #d6cdf4, 0 18px 20px -16px rgba(74,58,150,.35); color: var(--ink-2); font-size: 16px; }
+.tabpanel b { color: var(--ink); font-weight: 400; font-family: var(--font-head); font-weight: 700; }
+
+/* Chips: little clouds; pressed ones glow with dawn water and wear a star */
+.chips { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px 0 14px; border: 0; border-radius: 999px; cursor: pointer; color: var(--ink); font-size: 16px;
+  background: rgba(255,255,255,.8); box-shadow: inset 0 0 0 1px #c3b9ea, 0 10px 12px -10px rgba(74,58,150,.4); transition: background .4s, box-shadow .4s, transform .6s var(--spring); }
+.chip::before { content: ""; width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #a99be6; transition: all .4s; }
+.chip:hover { transform: translateY(-2px); }
+.chip[aria-pressed="true"] { color: var(--aqua-d); background: linear-gradient(#f2fcfa, var(--aqua-l)); box-shadow: inset 0 0 0 1.5px #5aa9a4, 0 0 16px rgba(154,216,211,.75), 0 10px 12px -10px rgba(42,111,108,.4); }
+.chip[aria-pressed="true"]::before { content: "✦"; width: auto; height: auto; box-shadow: none; font-size: 14px; line-height: 1; color: var(--aqua-d); }
+
+.field { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 8px; min-width: 0; width: 100%; }
+.field > label, .flabel { font-size: 16.5px; color: var(--ink); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.field > label small, .flabel small { font-size: 14px; color: var(--ink-3); }
+.help { font-size: 14.5px; color: var(--ink-2); }
+.help.err { color: var(--rose-d); display: flex; gap: 8px; align-items: flex-start; }
+.help.err svg { width: 18px; height: 18px; flex: none; margin-top: 3px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.help.ok { color: var(--aqua-d); }
+
+.select { position: relative; }
+.select select { appearance: none; width: 100%; min-height: 52px; padding: 0 60px 0 20px; border: 0; border-radius: 999px; cursor: pointer; font-size: 16.5px; color: var(--ink);
+  background: rgba(255,255,255,.85); box-shadow: inset 0 0 0 1.5px var(--edge), 0 12px 16px -14px rgba(74,58,150,.4); }
+.select select:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--lav-d), 0 0 0 5px rgba(169,155,230,.4), 0 0 22px rgba(255,224,138,.5); }
+.select::after { content: ""; position: absolute; right: 8px; top: 8px; width: 36px; height: 36px; border-radius: 50%; background: var(--moonpill); box-shadow: 0 0 0 1px rgba(200,155,60,.38), 0 0 12px rgba(255,224,138,.6); pointer-events: none; }
+.select svg { position: absolute; right: 17px; top: 50%; width: 18px; height: 18px; margin-top: -9px; z-index: 1; pointer-events: none; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Range: how deep the sleep goes; drag a little cloud along the horizon */
+.range { display: grid; gap: 6px; width: 100%; }
+.range__top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.range__top output { font: 600 26px/1 var(--font-num); color: var(--lav-dd); }
+.range__top output small { font: 400 16px/1 var(--font); color: var(--ink-2); margin-left: 6px; }
+.range input { -webkit-appearance: none; appearance: none; width: 100%; height: 48px; margin: 0; background: transparent; cursor: pointer; --p: 50%; }
+.range input::-webkit-slider-runnable-track { height: 18px; border-radius: 9px; box-shadow: inset 0 0 0 1.5px #9f93d8;
+  background: linear-gradient(90deg, transparent var(--p), rgba(255,255,255,.82) var(--p)), linear-gradient(90deg, #fde8dd, #e8e2fb 30%, #a99be6 70%, #4e3fa2); }
+.range input::-moz-range-track { height: 16px; border-radius: 9px; background: rgba(255,255,255,.82); box-shadow: inset 0 0 0 1.5px #9f93d8; }
+.range input::-moz-range-progress { height: 16px; border-radius: 9px; background: linear-gradient(90deg, #fde8dd, #a99be6); }
+.range input::-webkit-slider-thumb { -webkit-appearance: none; width: 54px; height: 36px; margin-top: -9px; border: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 54 36'%3E%3Cpath d='M10 31c-6 0-8.5-7-3.5-10 0-6 7-9 11.5-5.5C20 8 32 6 36 13c6-2 12 2 11 8 5 1 5.5 10-1 10z' fill='%23fff' stroke='%235b4bb0' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cpath d='M14 22c1-3 4-4 6-3' fill='none' stroke='%23e8e2fb' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat; filter: drop-shadow(0 6px 6px rgba(74,58,150,.35)); }
+.range input::-moz-range-thumb { width: 54px; height: 36px; border: 0; border-radius: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 54 36'%3E%3Cpath d='M10 31c-6 0-8.5-7-3.5-10 0-6 7-9 11.5-5.5C20 8 32 6 36 13c6-2 12 2 11 8 5 1 5.5 10-1 10z' fill='%23fff' stroke='%235b4bb0' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; }
+.range input:focus-visible { outline: 3px solid var(--lav-d); outline-offset: 6px; border-radius: 14px; }
+.range__scale { display: flex; justify-content: space-between; font-size: 14px; color: var(--ink-3); }
+
+/* Side menu: a staircase of floating steps climbing into the sky */
+.stairs { position: relative; display: grid; gap: 12px; width: 100%; max-width: 340px; padding-top: 36px; }
+.stairs::before { content: ""; position: absolute; right: 18px; top: 0; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #fffef4, #fff0b8 55%, #f2cf74); box-shadow: 0 0 22px rgba(255,224,138,.95); animation: bob 6s var(--float) infinite; --a: -4px; }
+.stairs a { --i: 0; position: relative; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 50px; margin-left: calc(var(--i) * 18px); padding: 0 16px 0 18px; border-radius: 14px;
+  color: var(--ink); text-decoration: none; font-size: 16.5px; background: linear-gradient(180deg, #fff, #f1ecfd);
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px #cfc5ef, 0 6px 0 -1px #d9d0f3, 0 7px 0 -1px #bdb2e6, 0 24px 18px -16px rgba(74,58,150,.45);
+  animation: bob 6s var(--float) infinite; --a: -3px; animation-delay: calc(var(--i) * -1.1s); transition: background .4s, box-shadow .4s; }
+.stairs a em { font: 600 14px/1 var(--font-num); font-style: normal; color: var(--ink-3); }
+.stairs a:hover { background: linear-gradient(180deg, #fff, #e8e2fb); }
+.stairs a[aria-current="page"] { background: var(--moonpill); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(200,155,60,.45), 0 6px 0 -1px #f3d48a, 0 7px 0 -1px #d7b25a, 0 0 26px rgba(255,224,138,.8), 0 24px 18px -16px rgba(150,100,20,.45); }
+.stairs a[aria-current="page"] em { color: var(--moon-d); }
+.stairs a .new { padding: 4px 9px; border-radius: 10px; background: var(--peach-l); color: var(--peach-d); box-shadow: 0 0 0 1px #eab29b; }
+.stairs a:focus-visible { border-radius: 14px; }
+
+/* ---------- Inputs: soft wells of frosted glass that glow when you write ---------- */
+.input { display: flex; align-items: stretch; min-height: 52px; border-radius: 18px; background: rgba(255,255,255,.86);
+  box-shadow: inset 0 0 0 1.5px var(--edge), inset 0 4px 10px rgba(91,75,176,.07), 0 12px 16px -14px rgba(74,58,150,.35); transition: box-shadow .4s, background .4s; }
+.input input, .input textarea { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; padding: 0 16px; font-size: 16.5px; line-height: 1.4; color: var(--ink); }
+.input textarea { padding: 14px 16px; min-height: 140px; resize: vertical; line-height: 1.8; }
+.input input::placeholder, .input textarea::placeholder { color: #6a6390; opacity: 1; }
+.input:focus-within { background: #fff; box-shadow: inset 0 0 0 2px var(--lav-d), 0 0 0 5px rgba(169,155,230,.38), 0 0 26px rgba(255,224,138,.55); }
+.input__ico { display: grid; place-items: center; padding-left: 14px; color: var(--lav-d); }
+.input__ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.input__aff { display: grid; place-items: center; padding: 0 16px; color: var(--ink-3); font-size: 15.5px; }
+.input__btn { margin: 4px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 14px; cursor: pointer; font-size: 15px; color: var(--lav-dd); background: var(--lav-l); box-shadow: inset 0 0 0 1px #c6bcee; }
+.input__btn:hover { background: #ddd5f8; }
+.input.is-err { background: #fff7f9; box-shadow: inset 0 0 0 2px var(--rose-d), 0 0 0 4px rgba(241,194,205,.5); }
+.input.is-ok { box-shadow: inset 0 0 0 2px #4f9893, 0 0 0 4px rgba(154,216,211,.4); }
+.input.is-off { background: rgba(255,255,255,.4); box-shadow: none; outline: 1.5px dashed #a49cc8; outline-offset: -1.5px; }
+.input.is-off input { color: var(--ink-3); cursor: not-allowed; }
+.input .num { text-align: right; font: 600 18px/1 var(--font-num); }
+.input input[type="date"], .input input[type="time"] { font: 600 16.5px/1 var(--font-num); min-height: 50px; }
+.input input::-webkit-calendar-picker-indicator { opacity: .75; cursor: pointer; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 22px; width: 100%; }
+.count { text-align: right; font: 600 14px/1 var(--font-num); color: var(--ink-3); }
+
+/* ---------- Display ---------- */
+.badge { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 14px; border-radius: 999px; font-size: 15px; color: var(--lav-dd); background: var(--lav-l); box-shadow: inset 0 0 0 1px #c6bcee; }
+.badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--lav-d); box-shadow: 0 0 0 3px rgba(91,75,176,.18); }
+.badge--dream::before { animation: twinkle 2.4s ease-in-out infinite; }
+.badge--aqua { color: var(--aqua-d); background: var(--aqua-l); box-shadow: inset 0 0 0 1px #8fcac5; } .badge--aqua::before { background: var(--aqua-d); box-shadow: 0 0 0 3px rgba(42,111,108,.18); }
+.badge--rose { color: var(--rose-d); background: var(--rose-l); box-shadow: inset 0 0 0 1px #e3a9b8; } .badge--rose::before { background: var(--rose-d); box-shadow: 0 0 0 3px rgba(155,53,83,.15); }
+.badge--moon { color: var(--moon-d); background: var(--moon-l); box-shadow: inset 0 0 0 1px #e8cf86; } .badge--moon::before { background: #f2c94c; box-shadow: 0 0 8px #ffd866; }
+.badge--peach { color: var(--peach-d); background: var(--peach-l); box-shadow: inset 0 0 0 1px #eab29b; } .badge--peach::before { background: var(--peach-d); box-shadow: 0 0 0 3px rgba(164,80,47,.15); }
+.badge--fade { color: var(--ink-3); background: rgba(255,255,255,.55); box-shadow: none; outline: 1.5px dashed #b3abd3; outline-offset: -1.5px; } .badge--fade::before { background: transparent; box-shadow: inset 0 0 0 1.5px #8f88b0; }
+
+/* Dream journal cards */
+.dreams { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 26px; width: 100%; }
+.dream { position: relative; display: grid; grid-template-rows: auto 1fr; border-radius: 26px; overflow: hidden; text-align: left;
+  background: linear-gradient(170deg, rgba(255,255,255,.95), rgba(248,245,255,.85)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.9), 0 0 0 1px rgba(150,135,215,.22), var(--far); transition: transform .8s var(--soft); }
+.dream:hover { transform: translateY(-6px); }
+.dream__art { position: relative; aspect-ratio: 240 / 140; }
+.dream__art svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.dream__art .fl { animation: bob 6s var(--float) infinite; --a: -4px; }
+.dream__art .fl2 { animation: bob 7s var(--float) infinite; --a: -5px; animation-delay: -3s; }
+.dream__body { padding: 14px 18px 18px; display: grid; gap: 6px; align-content: start; }
+.dream__meta { font: 600 13.5px/1.3 var(--font-num); letter-spacing: .04em; color: var(--ink-3); }
+.dream h4 { font: 700 19px/1.4 var(--font-head); }
+.dream__hand { font: 400 21px/1.35 var(--font-hand); color: var(--ink-2); }
+.dream__foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.dream .btn--whisper { min-height: 44px; padding: 0 4px; font-size: 15.5px; }
+
+/* Gauges */
+.gauges { display: flex; flex-wrap: wrap; gap: 30px 40px; align-items: flex-end; justify-content: center; width: 100%; }
+.gauge { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.gauge svg { width: 140px; height: 140px; overflow: visible; }
+.gauge .hg { width: 96px; height: 140px; }
+.gauge b { font: 700 17px/1.3 var(--font-head); }
+.gauge span { font-size: 14.5px; color: var(--ink-2); }
+.gauge output { font: 600 22px/1 var(--font-num); color: var(--lav-dd); }
+.hg .sand-fall { stroke-dasharray: 1 5; animation: fall 1s linear infinite; }
+@keyframes fall { to { stroke-dashoffset: -12; } }
+.moonfill { transition: d .9s var(--soft); }
+.wave { width: 100%; display: grid; gap: 8px; }
+.wave__top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.wave__top b { font: 700 17px/1.3 var(--font-head); }
+.wave__top output { font: 600 18px/1 var(--font-num); color: var(--lav-dd); }
+.wave__bar { position: relative; height: 30px; border-radius: 15px; overflow: hidden; background: rgba(255,255,255,.75); box-shadow: inset 0 0 0 1.5px var(--edge), inset 0 4px 8px rgba(91,75,176,.08); }
+.wave__bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 15px; transition: width 1s var(--soft); animation: tide 3s linear infinite;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 30'%3E%3Cpath d='M0 12c10-8 10 8 20 0s10 8 20 0v18H0z' fill='%23fff' fill-opacity='.35'/%3E%3C/svg%3E") 0 0 / 40px 30px repeat-x, linear-gradient(90deg, #c9bdf3, #8f7fd6 60%, var(--lav-d)); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 0 14px rgba(169,155,230,.8); }
+@keyframes tide { to { background-position: 40px 0, 0 0; } }
+.wave__ticks { display: flex; justify-content: space-between; font: 600 13.5px/1 var(--font-num); color: var(--ink-3); }
+/* Steps: the stages of sleep, orbs along a gentle wave */
+.stages { position: relative; display: flex; width: 100%; margin: 0; padding: 0; list-style: none; }
+.stages::before { content: ""; position: absolute; left: 10%; right: 10%; top: 13px; height: 22px; opacity: .9;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 22'%3E%3Cpath d='M0 11c15-10 15 10 30 0s15 10 30 0' fill='none' stroke='%23a99be6' stroke-width='2' stroke-dasharray='2 5' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 60px 22px repeat-x; }
+.stages li { position: relative; flex: 1; min-width: 0; display: grid; justify-items: center; gap: 8px; text-align: center; font-size: 14.5px; line-height: 1.3; color: var(--ink-3); }
+.stages li span { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font: 600 16px/1 var(--font-num); color: var(--ink-2);
+  background: radial-gradient(circle at 32% 28%, #fff 0 3px, rgba(255,255,255,0) 7px), radial-gradient(circle, rgba(255,255,255,.85) 55%, rgba(214,204,255,.8) 100%); box-shadow: inset 0 0 0 1.5px #b9afe3, 0 10px 12px -10px rgba(74,58,150,.5); }
+.stages li.done { color: var(--ink-2); }
+.stages li.done span { color: #fff; background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.7) 0 3px, rgba(255,255,255,0) 7px), linear-gradient(160deg, #9483d9, var(--lav-d)); box-shadow: inset 0 0 0 1.5px var(--lav-dd), 0 10px 12px -10px rgba(74,58,150,.5); }
+.stages li.done span svg { width: 22px; height: 22px; }
+.stages li.now { color: var(--ink); }
+.stages li.now span { color: var(--ink); background: radial-gradient(circle at 38% 34%, #fffef4, #fff0b8 55%, #f2cf74); box-shadow: 0 0 0 1px rgba(200,155,60,.5), 0 0 24px rgba(255,224,138,.95); animation: bob 4s var(--float) infinite; --a: -4px; }
+.stages li.now::after { content: "지금"; position: absolute; top: -30px; padding: 2px 9px; border-radius: 10px; font-size: 13px; color: var(--moon-d); background: #fff; box-shadow: 0 0 0 1px #e8cf86; }
+
+/* Accordion: questions in bubbles that open */
+.qs { width: 100%; display: grid; gap: 14px; }
+.qs details { border-radius: 22px; background: rgba(255,255,255,.85); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px #d6cdf4, 0 16px 18px -16px rgba(74,58,150,.4); overflow: hidden; }
+.qs summary { position: relative; list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px; min-height: 60px; padding: 8px 20px 8px 60px; font: 700 17px/1.45 var(--font-head); }
+.qs summary::-webkit-details-marker { display: none; }
+.qs summary::before { content: ""; position: absolute; left: 18px; top: 50%; width: 26px; height: 26px; margin-top: -13px; border-radius: 50%; transition: all .6s var(--spring);
+  background: radial-gradient(circle at 32% 28%, #fff 0 2.5px, rgba(255,255,255,0) 5px), radial-gradient(circle, rgba(255,255,255,.7) 50%, rgba(214,204,255,.85) 80%, rgba(255,210,195,.85)); box-shadow: inset 0 0 0 1.5px #a99be6; }
+.qs summary::after { content: "+"; margin-left: auto; font: 500 30px/1 var(--font-disp); color: var(--lav-d); transition: transform .6s var(--soft); }
+.qs details[open] summary::after { transform: rotate(45deg); }
+.qs details[open] summary::before { background: radial-gradient(circle at 38% 34%, #fffef4, #fff0b8 55%, #f2cf74); box-shadow: 0 0 0 1px rgba(200,155,60,.4), 0 0 14px rgba(255,224,138,.9); }
+.qs summary:hover { background: rgba(232,226,251,.45); }
+.qs summary:focus-visible { outline-offset: -5px; border-radius: 22px; }
+.qs details > div { padding: 2px 22px 20px 60px; color: var(--ink-2); font-size: 16px; }
+@media (max-width: 480px) { .qs details > div { padding-left: 22px; } }
+
+/* Table: a dream log */
+.tablewrap { width: 100%; overflow-x: auto; border-radius: 22px; background: rgba(255,255,255,.88); box-shadow: inset 0 0 0 1px #d6cdf4, 0 16px 18px -16px rgba(74,58,150,.4); }
+table { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 16px; }
+th { text-align: left; padding: 6px 16px; background: linear-gradient(180deg, #f3effe, #e8e2fb); font: 700 15.5px/1.2 var(--font-head); color: var(--ink); white-space: nowrap; border-bottom: 1px solid #d0c6f2; }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; min-height: 44px; border-radius: 8px; }
+th button:focus-visible { outline: 3px solid var(--lav-d); outline-offset: 2px; }
+th button::after { content: "↕"; font-size: 13px; color: var(--ink-3); }
+th[aria-sort="ascending"] button::after { content: "▲"; font-size: 11px; color: var(--lav-d); } th[aria-sort="descending"] button::after { content: "▼"; font-size: 11px; color: var(--lav-d); }
+td { padding: 12px 16px; border-bottom: 1px solid rgba(169,155,230,.3); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: rgba(255,241,184,.35); }
+td.num, th.num { text-align: right; }
+td.num { font: 600 17px/1 var(--font-num); white-space: nowrap; }
+td.num i { font-style: normal; color: #d0a529; letter-spacing: 1px; margin-right: 6px; font-size: 13px; }
+td .nm { display: inline-flex; align-items: center; gap: 10px; }
+td .nm svg { width: 34px; height: 22px; flex: none; }
+td.date { font: 600 15.5px/1 var(--font-num); color: var(--ink-2); white-space: nowrap; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; font-size: 15px; color: var(--ink-2); }
+.pager ol { display: flex; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.pager button { width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; font: 600 16px/1 var(--font-num); color: var(--ink);
+  background: radial-gradient(circle at 32% 28%, #fff 0 3px, rgba(255,255,255,0) 6px), radial-gradient(circle, rgba(255,255,255,.85) 55%, rgba(214,204,255,.75)); box-shadow: inset 0 0 0 1.5px #b9afe3; transition: box-shadow .3s, transform .5s var(--spring); }
+.pager button:hover:not(:disabled) { transform: translateY(-2px); }
+.pager button[aria-current="page"] { background: var(--moonpill); box-shadow: 0 0 0 1px rgba(200,155,60,.45), 0 0 16px rgba(255,224,138,.85); }
+.pager button:disabled { opacity: .45; cursor: not-allowed; }
+.pager button:focus-visible { border-radius: 50%; }
+
+.empty { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 10px; }
+.empty svg { width: 180px; height: 120px; }
+.empty b { font: 700 21px/1.4 var(--font-head); }
+.empty p { color: var(--ink-2); max-width: 30ch; }
+
+/* ---------- Overlays ---------- */
+/* Dialog: a window open in the sky */
+dialog { padding: 0; border: 0; background: transparent; color: var(--ink); width: 100%; max-width: min(470px, calc(100vw - 32px)); overflow: visible; }
+dialog::backdrop { background: radial-gradient(circle at 50% 40%, rgba(255,241,200,.35), rgba(74,58,150,.42)); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+dialog[open] { animation: rise .7s var(--soft); }
+@keyframes rise { from { opacity: 0; transform: translateY(28px) scale(.97); } }
+.skywin { position: relative; border-radius: 240px 240px 30px 30px / 150px 150px 30px 30px; overflow: hidden;
+  background: linear-gradient(175deg, rgba(255,255,255,.97), rgba(247,244,255,.95)); box-shadow: inset 0 0 0 1px #fff, 0 0 0 1px rgba(150,135,215,.35), 0 60px 50px -40px rgba(42,36,80,.55); }
+.skywin__pane { position: relative; height: 150px; margin: 12px 12px 0; border-radius: 228px 228px 10px 10px / 140px 140px 10px 10px; overflow: hidden;
+  background: radial-gradient(circle at 70% 36%, rgba(255,246,214,.95) 0 6%, rgba(255,240,190,.5) 14%, transparent 30%), linear-gradient(180deg, #c9bdf0, #ecd8ee 60%, #f8dccd); box-shadow: inset 0 0 0 1px rgba(255,255,255,.9); }
+.skywin__pane::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 6px; margin-left: -3px; background: linear-gradient(#fff, #f1ecfd); box-shadow: 0 0 0 1px #d6cdf4; }
+.skywin__pane::after { content: ""; position: absolute; left: 0; right: 0; top: 62%; height: 6px; background: linear-gradient(#fff, #f1ecfd); box-shadow: 0 0 0 1px #d6cdf4; }
+.skywin__pane svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.skywin__body { padding: 22px 26px 26px; display: grid; justify-items: center; gap: 10px; text-align: center; }
+.skywin h3 { font: 800 25px/1.35 var(--font-head); }
+.skywin p { color: var(--ink-2); }
+.skywin__foot { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+
+/* Side panel: a curtain of mist sliding in from the right */
+.curtain { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(440px, 100vw); display: grid; grid-template-rows: auto 1fr auto;
+  background: linear-gradient(100deg, rgba(248,246,255,.9), rgba(255,255,255,.97) 30%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: -30px 0 60px -30px rgba(74,58,150,.5); transform: translateX(calc(100% + 60px)); visibility: hidden; transition: transform .8s var(--soft), visibility 0s .8s; }
+.curtain::before { content: ""; position: absolute; top: 0; bottom: 0; left: -34px; width: 36px; pointer-events: none;
+  background: radial-gradient(circle at 36px 30px, rgba(250,248,255,.95) 0 22px, rgba(250,248,255,0) 30px) 0 0 / 36px 56px repeat-y; }
+.curtain.open { transform: none; visibility: visible; transition: transform .8s var(--soft); }
+.curtain__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 26px 22px 18px; box-shadow: inset 0 -1px 0 rgba(169,155,230,.35); }
+.curtain__head small { font: italic 500 18px/1 var(--font-disp); color: var(--lav-d); }
+.curtain__head h3 { font: 800 24px/1.3 var(--font-head); }
+.curtain__body { padding: 24px 22px; overflow: auto; display: grid; gap: 22px; align-content: start; }
+.curtain__foot { padding: 16px 22px 24px; display: flex; gap: 14px; justify-content: flex-end; align-items: center; flex-wrap: wrap; box-shadow: inset 0 1px 0 rgba(169,155,230,.35); }
+.scrim { position: fixed; inset: 0; z-index: 59; background: radial-gradient(circle at 30% 50%, rgba(255,241,200,.25), rgba(74,58,150,.38)); opacity: 0; pointer-events: none; transition: opacity .6s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+/* Toasts: paper notes that drift in like boats */
+.boats { position: fixed; z-index: 70; top: 80px; right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; width: min(360px, calc(100vw - 32px)); }
+.boat { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 10px 12px 12px; border-radius: 20px 20px 20px 6px;
+  background: linear-gradient(170deg, #fffefa, #f6f1ff); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 1px #fff, 0 0 0 1px rgba(150,135,215,.3), 0 40px 30px -30px rgba(74,58,150,.5); animation: sail .9s var(--soft); }
+.boat > div { animation: bob 5s var(--float) 1s infinite; --a: -2px; }
+@keyframes sail { from { opacity: 0; transform: translate(70px, 16px) rotate(6deg); } }
+.boat.out { animation: away .6s var(--soft) forwards; }
+@keyframes away { to { opacity: 0; transform: translate(40px, -30px) rotate(-4deg); } }
+.boat__ico { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, #fff 45%, var(--n, var(--lav-l))); box-shadow: inset 0 0 0 1px rgba(150,135,215,.35); }
+.boat__ico svg { width: 38px; height: 26px; }
+.boat small { display: block; font: 600 13px/1.3 var(--font-num); letter-spacing: .06em; color: var(--ink-3); }
+.boat b { display: block; font: 700 17px/1.35 var(--font-head); }
+.boat span { display: block; font-size: 14.5px; color: var(--ink-2); line-height: 1.5; }
+.boat--aqua { --n: var(--aqua-l); } .boat--rose { --n: var(--rose-l); } .boat--rose b { color: var(--rose-d); }
+
+.menu { position: relative; }
+.menu__list { position: absolute; right: 0; top: calc(100% + 12px); z-index: 15; min-width: 230px; padding: 8px; margin: 0; list-style: none; border-radius: 20px;
+  background: rgba(255,255,255,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px #fff, 0 0 0 1px #d0c6f2, 0 30px 30px -20px rgba(74,58,150,.45); animation: rise .5s var(--soft); }
+.menu__list [role="menuitem"] { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; min-height: 44px; padding: 0 14px; border: 0; border-radius: 12px; background: none; cursor: pointer; text-align: left; font-size: 16px; color: var(--ink); }
+.menu__list [role="menuitem"]:hover, .menu__list [role="menuitem"]:focus { background: var(--moonpill); outline: none; box-shadow: 0 0 0 1px rgba(200,155,60,.35); }
+.menu__list .danger { color: var(--rose-d); }
+.menu__list .danger:hover, .menu__list .danger:focus { background: var(--rose-l); box-shadow: 0 0 0 1px #e3a9b8; }
+.menu__list kbd { font: 600 13px/1 var(--font-num); color: var(--ink-3); }
+.menu__sep { height: 3px; margin: 6px 10px; background: radial-gradient(circle, var(--lav) 0 1.2px, transparent 1.7px) 0 0 / 10px 3px repeat-x; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; max-width: 460px; padding: 12px 12px 12px 14px; border-radius: 22px; background: rgba(255,255,255,.88); box-shadow: inset 0 0 0 1px #fff, 0 0 0 1px #d6cdf4, 0 18px 18px -16px rgba(74,58,150,.4); }
+.row > div:first-child { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row svg.item { width: 56px; height: 34px; flex: none; }
+.row b { display: block; font: 700 17px/1.35 var(--font-head); }
+.row span { font-size: 14.5px; color: var(--ink-3); }
+
+/* ---------- Code ---------- */
+pre.code { margin: 0; padding: 24px; overflow: auto; max-height: 540px; border-radius: 22px; background: linear-gradient(170deg, #2e2856, #272149); color: #ece8ff; font: 400 13.5px/1.75 ui-monospace, Menlo, Consolas, monospace; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 30px 30px -24px rgba(42,36,80,.6); }
+pre.code .c { color: #b4acdc; } pre.code .p { color: #ffe08a; } pre.code .v { color: #a6e3de; }
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 30px 26px 0; }
+.codebar .flabel { font: 600 16px/1 var(--font-num); }
+.codewrap { padding: 16px 26px 30px; }
+@media (max-width: 560px) { .codebar { padding: 26px 16px 0; } .codewrap { padding: 14px 12px 22px; } pre.code { padding: 18px 16px; } }
+
+.foot { position: relative; z-index: 1; margin-top: 120px; padding-block: 30px 70px; display: grid; justify-items: center; gap: 8px; text-align: center; color: var(--ink-2); font-size: 15.5px; }
+.foot__clouds { width: min(560px, 100%); height: 90px; }
+.foot b { font: italic 600 44px/1 var(--font-disp); color: var(--ink); }
+.foot b small { font: 400 18px/1 var(--font-head); margin-left: 8px; color: var(--ink-2); }
+.foot nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 6px; }
+.foot nav a { display: inline-grid; place-items: center; min-height: 44px; padding: 0 10px; border-radius: 999px; }
+.foot nav a:hover { background: rgba(255,255,255,.6); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <radialGradient id="gMoon" cx=".38" cy=".34" r=".75"><stop offset="0" stop-color="#fffef4"/><stop offset=".55" stop-color="#fff0b8"/><stop offset="1" stop-color="#f2cf74"/></radialGradient>
+  <radialGradient id="gGlow"><stop offset="0" stop-color="#fff3c8" stop-opacity=".9"/><stop offset="1" stop-color="#fff3c8" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gBubble" cx=".5" cy=".5" r=".5"><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset=".78" stop-color="#d6ccff" stop-opacity=".8"/><stop offset=".9" stop-color="#aae1dc" stop-opacity=".75"/><stop offset="1" stop-color="#ffcdbe" stop-opacity=".85"/></radialGradient>
+  <linearGradient id="gCloud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ebe5fb"/></linearGradient>
+  <linearGradient id="gFish" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffeee4"/><stop offset="1" stop-color="#f3a68a"/></linearGradient>
+  <linearGradient id="gFish2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eefcfa"/><stop offset="1" stop-color="#7fc6c0"/></linearGradient>
+  <linearGradient id="gFin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fde6da"/><stop offset="1" stop-color="#f0b2c3"/></linearGradient>
+  <linearGradient id="gPaper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ece6fb"/></linearGradient>
+  <radialGradient id="gDoorLight" cx=".5" cy=".9" r=".9"><stop offset="0" stop-color="#fffef4"/><stop offset=".45" stop-color="#ffeaa6"/><stop offset="1" stop-color="#f4bfa8"/></radialGradient>
+  <linearGradient id="gLeaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c6b9ef"/><stop offset="1" stop-color="#7a69c9"/></linearGradient>
+  <linearGradient id="gClock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#fde6c6"/></linearGradient>
+  <linearGradient id="gStep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d9d0f3"/></linearGradient>
+  <linearGradient id="gJar" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset=".5" stop-color="#eef9f8" stop-opacity=".35"/><stop offset="1" stop-color="#d6ccff" stop-opacity=".6"/></linearGradient>
+
+  <symbol id="s-cloud" viewBox="0 0 120 50"><path d="M14 46C3 46 1 32 12 30 11 18 26 13 34 21 38 7 60 4 67 17 74 9 90 12 91 25 103 22 114 32 107 41 111 46 104 46 104 46Z" fill="url(#gCloud)" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="M22 28c2-5 8-7 12-4M64 18c4-3 10-2 12 3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="s-fish" viewBox="0 0 64 30"><path d="M2 5 16 15 2 25C6 19 6 11 2 5Z" fill="url(#gFin)" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/><path d="M14 15C24 2 48 2 62 15 48 28 24 28 14 15Z" fill="url(#gFish)" stroke="#fff" stroke-width="1.4"/><path d="M30 20c3 7 9 7 11 2" fill="url(#gFin)" stroke="#fff" stroke-width="1"/><path d="M28 9c4 3 4 9 0 12M36 8c4 4 4 10 0 14" stroke="#fff" stroke-opacity=".75" fill="none" stroke-width="1.2"/><circle cx="54" cy="13" r="1.9" fill="#3f3388"/></symbol>
+  <symbol id="s-fish2" viewBox="0 0 64 30"><path d="M2 5 16 15 2 25C6 19 6 11 2 5Z" fill="#cfeee9" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/><path d="M14 15C24 2 48 2 62 15 48 28 24 28 14 15Z" fill="url(#gFish2)" stroke="#fff" stroke-width="1.4"/><path d="M30 20c3 7 9 7 11 2" fill="#cfeee9" stroke="#fff" stroke-width="1"/><path d="M28 9c4 3 4 9 0 12M36 8c4 4 4 10 0 14" stroke="#fff" stroke-opacity=".75" fill="none" stroke-width="1.2"/><circle cx="54" cy="13" r="1.9" fill="#2a4f6c"/></symbol>
+  <symbol id="s-boat" viewBox="0 0 80 50"><path d="M40 4V31H21Z" fill="#fff" stroke="#9f93d8" stroke-width="1.4" stroke-linejoin="round"/><path d="M40 4 59 31H40Z" fill="url(#gPaper)" stroke="#9f93d8" stroke-width="1.4" stroke-linejoin="round"/><path d="M3 31H77L65 46H15Z" fill="url(#gPaper)" stroke="#9f93d8" stroke-width="1.4" stroke-linejoin="round"/><path d="M15 46 27 31M65 46 53 31" stroke="#d4ccf2" stroke-width="1.2"/></symbol>
+  <symbol id="s-door" viewBox="0 0 40 66"><path d="M2 64V20a18 18 0 0 1 36 0v44Z" fill="#f6f2ff" stroke="#9f93d8" stroke-width="1.2"/><path d="M6 64V21a14 14 0 0 1 28 0v43Z" fill="url(#gDoorLight)"/><path d="M6 21c0-7 4-12 9-13v54l-9 2Z" fill="url(#gLeaf)" stroke="#fff" stroke-width=".8"/><circle cx="12" cy="38" r="1.4" fill="#fff3b0"/></symbol>
+  <symbol id="s-clock" viewBox="0 0 60 70"><path d="M6 14C6 4 50 2 54 12c4 10 2 22-4 32-4 6-6 12-6 20 0 5-6 5-6 0 0-6-4-10-8-10s-6 6-7 10c-1 4-6 4-6-1 0-9-7-17-10-27C5 28 6 20 6 14Z" fill="url(#gClock)" stroke="#9f93d8" stroke-width="1.4" stroke-linejoin="round"/><path d="M12 16c0-7 34-8 36-1 3 9 0 19-6 25-8 6-22 4-27-4-3-6-3-14-3-20Z" fill="none" stroke="#d6ccf4" stroke-width="1.2"/><path d="M30 25V14M30 25l9 5" stroke="#5b4bb0" stroke-width="1.9" stroke-linecap="round"/><circle cx="30" cy="25" r="2" fill="#5b4bb0"/><g fill="#a99be6"><circle cx="30" cy="10" r="1.2"/><circle cx="46" cy="22" r="1.2"/><circle cx="16" cy="22" r="1.2"/><circle cx="31" cy="40" r="1.2"/></g></symbol>
+  <symbol id="i-moon" viewBox="0 0 48 48"><circle cx="24" cy="24" r="23" fill="url(#gGlow)"/><circle cx="24" cy="24" r="15" fill="url(#gMoon)" stroke="#fff" stroke-width="1.2"/><circle cx="19" cy="21" r="3" fill="#e9cf88" opacity=".45"/><circle cx="28" cy="29" r="2" fill="#e9cf88" opacity=".45"/><circle cx="29" cy="18" r="1.4" fill="#e9cf88" opacity=".45"/></symbol>
+  <symbol id="i-bubble" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19" fill="url(#gBubble)" stroke="#fff" stroke-width="1.4"/><ellipse cx="17" cy="15" rx="5" ry="3" transform="rotate(-30 17 15)" fill="#fff" opacity=".95"/><circle cx="38" cy="38" r="5" fill="url(#gBubble)" stroke="#fff"/><circle cx="8" cy="40" r="3" fill="url(#gBubble)" stroke="#fff"/></symbol>
+  <symbol id="i-jar" viewBox="0 0 48 48"><circle cx="24" cy="28" r="20" fill="url(#gGlow)"/><rect x="17" y="4" width="14" height="7" rx="3" fill="#e8d2b8" stroke="#b39a7e" stroke-width="1.2"/><path d="M15 12h18c0 4 5 6 5 14v12c0 4-3 6-7 6H17c-4 0-7-2-7-6V26c0-8 5-10 5-14Z" fill="url(#gJar)" stroke="#9f93d8" stroke-width="1.4"/><circle cx="20" cy="28" r="2.4" fill="#fff3b0"/><circle cx="28" cy="34" r="2" fill="#fff3b0"/><circle cx="27" cy="22" r="1.8" fill="#fff3b0"/><path d="M14 22c0-4 2-6 3-8" stroke="#fff" stroke-width="1.6" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="i-stairs" viewBox="0 0 48 48"><circle cx="40" cy="8" r="5" fill="url(#gMoon)"/><g fill="url(#gStep)" stroke="#9f93d8" stroke-width="1.1"><rect x="3" y="38" width="16" height="5" rx="2.5"/><rect x="11" y="30" width="14" height="5" rx="2.5"/><rect x="18" y="22" width="12" height="4.5" rx="2.2"/><rect x="25" y="15" width="10" height="4" rx="2"/><rect x="31" y="9" width="7" height="3.5" rx="1.7" opacity=".7"/></g></symbol>
+  <symbol id="i-feather" viewBox="0 0 48 48"><path d="M40 5C24 7 12 18 10 36l2 2C28 36 39 24 40 5Z" fill="url(#gPaper)" stroke="#9f93d8" stroke-width="1.4" stroke-linejoin="round"/><path d="M38 8 8 42" stroke="#9f93d8" stroke-width="1.4" stroke-linecap="round"/><path d="M30 14l-8 1M26 20l-9 2M22 26l-8 2M33 18l-1 7M28 24l-1 7" stroke="#d4ccf2" stroke-width="1.2" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="#ffe08a"/><circle cx="6" cy="20" r="1.2" fill="#fff"/></symbol>
+  <symbol id="i-star" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="url(#gGlow)"/><path d="M24 5 28.7 17.5 42.1 18.1 31.6 26.5 35.2 39.4 24 32 12.8 39.4 16.4 26.5 5.9 18.1 19.3 17.5Z" fill="url(#gMoon)" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+  <symbol id="i-boat" viewBox="0 0 48 48"><use href="#s-cloud" x="0" y="26" width="48" height="20"/><use href="#s-boat" x="6" y="8" width="36" height="24"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 48 48"><path d="M4 12h40" stroke="#b9a6e0" stroke-width="2.4" stroke-linecap="round"/><use href="#s-clock" x="8" y="6" width="32" height="38"/></symbol>
+  <symbol id="star" viewBox="0 0 48 48"><path d="M24 5 28.7 17.5 42.1 18.1 31.6 26.5 35.2 39.4 24 32 12.8 39.4 16.4 26.5 5.9 18.1 19.3 17.5Z"/></symbol>
+</defs></svg>
+
+<div class="sky" id="sky" aria-hidden="true">
+  <div class="sky__l" style="--d:12"><div class="dust"></div><div class="dust dust--b"></div><span class="bk" style="--s:340px;left:62%;top:-4%"></span><span class="bk" style="--s:220px;left:6%;top:58%;animation-delay:-5s"></span>
+    <span class="cl" style="--w:220px;--o:.55;left:4%;top:12%;--t:110s"></span><span class="cl" style="--w:180px;--o:.5;left:70%;top:44%;--t:95s;--dx:-14vw"></span></div>
+  <div class="sky__l" style="--d:26"><span class="cl" style="--w:340px;--o:.7;left:-6%;top:30%;--t:80s"></span><span class="cl" style="--w:300px;--o:.65;left:62%;top:8%;--t:100s;--dx:-12vw"></span><span class="cl" style="--w:260px;--o:.6;left:40%;top:70%;--t:90s"></span></div>
+  <div class="sky__l" style="--d:46"><span class="cl" style="--w:520px;--o:.5;left:-14%;top:84%;--t:70s;--dx:10vw"></span><span class="cl" style="--w:460px;--o:.45;left:70%;top:62%;--t:85s;--dx:-10vw"></span></div>
+</div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Reverie 꿈속, 맨 위로"><svg aria-hidden="true"><use href="#i-moon"/></svg><b>Reverie</b><small>꿈속</small></a>
+    <nav aria-label="섹션" id="nav"><a href="#base">기초</a><a href="#press">누르기</a><a href="#toggle">켜고 끄기</a><a href="#choose">고르기</a><a href="#type-in">입력</a><a href="#show">보여 주기</a><a href="#float">띄우기</a><a href="#code">코드</a></nav>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="wrap hero__grid">
+    <div>
+      <div class="hero__k">Design System · 꿈속</div>
+      <h1><span class="t">Reverie</span><span class="s">잠과 깸 사이에 떠 있는 화면<small>구름 유리 판, 달빛 버튼, 홀로 선 문</small></span></h1>
+      <p class="lead">모든 판은 바닥에 닿지 않고 떠 있고, 그림자는 저 아래 멀리 흐릿하게 떨어집니다. 켜진 것은 달빛을 머금고, 고른 것은 살짝 떠오릅니다. 꿈처럼 흐릿해도 글자만은 또렷하게 읽히도록 만들었습니다.</p>
+      <div class="hero__cta"><a class="btn" href="#press">둘러보기</a><a class="btn btn--cloud" href="#code">토큰 받기</a></div>
+    </div>
+    <div class="scene">
+      <svg viewBox="0 0 600 560" aria-hidden="true">
+        <g class="px" style="--d:8">
+          <circle cx="470" cy="120" r="150" fill="url(#gGlow)"/>
+          <circle cx="470" cy="120" r="54" fill="url(#gMoon)" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="452" cy="106" r="9" fill="#e9cf88" opacity=".35"/><circle cx="486" cy="138" r="6" fill="#e9cf88" opacity=".35"/><circle cx="488" cy="100" r="4" fill="#e9cf88" opacity=".35"/>
+          <g fill="#fff"><path class="tw" style="--i:0" d="M110 80l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/><path class="tw" style="--i:1" d="M330 60l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path class="tw" style="--i:2" d="M560 260l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z"/><path class="tw" style="--i:3" d="M60 420l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></g>
+          <use href="#s-cloud" x="14" y="118" width="150" height="62" opacity=".85"/>
+          <use href="#s-cloud" x="470" y="300" width="120" height="50" opacity=".8"/>
+        </g>
+        <g class="px" style="--d:16">
+          <g class="fish" style="--t:28s"><use href="#s-fish" x="60" y="200" width="70" height="33"/><circle cx="50" cy="210" r="3" fill="none" stroke="#fff" stroke-width="1.2"/><circle cx="40" cy="202" r="2" fill="none" stroke="#fff" stroke-width="1"/></g>
+          <g class="fish" style="--t:34s;--dl:-14s"><use href="#s-fish2" x="140" y="262" width="50" height="24"/></g>
+          <g class="fish" style="--t:30s;--dl:-22s"><use href="#s-fish" x="40" y="292" width="40" height="19"/></g>
+          <g class="fb"><use href="#s-cloud" x="40" y="330" width="120" height="50"/><use href="#s-boat" x="62" y="300" width="64" height="40"/></g>
+        </g>
+        <g class="px" style="--d:22">
+          <g fill="url(#gStep)" stroke="#fff" stroke-width="1.2">
+            <rect class="step" style="--i:0" x="372" y="342" width="46" height="10" rx="5"/><rect class="step" style="--i:1" x="388" y="318" width="43" height="9.5" rx="4.7"/>
+            <rect class="step" style="--i:2" x="402" y="295" width="40" height="9" rx="4.5" opacity=".95"/><rect class="step" style="--i:3" x="414" y="273" width="37" height="8.5" rx="4.2" opacity=".9"/>
+            <rect class="step" style="--i:4" x="424" y="252" width="34" height="8" rx="4" opacity=".85"/><rect class="step" style="--i:5" x="432" y="232" width="31" height="7.5" rx="3.7" opacity=".75"/>
+            <rect class="step" style="--i:6" x="439" y="213" width="28" height="7" rx="3.5" opacity=".65"/><rect class="step" style="--i:7" x="445" y="195" width="25" height="6.5" rx="3.2" opacity=".5"/>
+            <rect class="step" style="--i:8" x="450" y="178" width="22" height="6" rx="3" opacity=".35"/>
+          </g>
+          <g class="fa">
+            <path d="M148 372C150 360 450 360 452 372 446 410 402 440 362 470 332 494 316 528 300 550 284 528 268 500 238 474 198 442 154 410 148 372Z" fill="url(#rock)" stroke="#fff" stroke-opacity=".8" stroke-width="1.5"/>
+            <path d="M190 408c40 14 180 14 220 0M226 446c30 10 120 10 150 0M268 492c14 5 50 5 64 0" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>
+            <path d="M210 400c-2 18 4 30 0 46M392 404c4 14-2 26 2 38" fill="none" stroke="#9d8fd6" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M168 380c-6 30-2 80-8 124" fill="none" stroke="url(#fall)" stroke-width="6" stroke-linecap="round"/>
+            <ellipse cx="300" cy="370" rx="153" ry="18" fill="url(#grass)" stroke="#fff" stroke-width="1.5"/>
+            <path d="M176 366c3-6 6-6 8 0M412 364c2-6 6-6 8 0M240 360c2-5 5-5 7 0" fill="none" stroke="#7fc0b4" stroke-width="1.4" stroke-linecap="round"/>
+            <g><path d="M206 366V320" stroke="#9f93d8" stroke-width="2.4" stroke-linecap="round"/><path d="M198 322h16l-3-12h-10z" fill="#f6f2ff" stroke="#9f93d8" stroke-width="1.4" stroke-linejoin="round"/>
+              <circle class="lamp" cx="206" cy="316" r="16" fill="url(#gGlow)"/><circle cx="206" cy="316" r="4.5" fill="#fff3b0"/></g>
+            <use href="#s-clock" x="410" y="352" width="54" height="64"/>
+            <g fill="#f5b7c6"><circle cx="252" cy="366" r="2.6"/><circle cx="352" cy="368" r="2.6"/><circle cx="364" cy="364" r="2"/></g>
+          </g>
+        </g>
+        <g class="px" style="--d:34" opacity=".95">
+          <use href="#s-cloud" x="170" y="500" width="150" height="62"/><use href="#s-cloud" x="290" y="510" width="130" height="54"/>
+        </g>
+        <defs>
+          <linearGradient id="rock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6dff8"/><stop offset=".45" stop-color="#b9acE4"/><stop offset=".85" stop-color="#a395d9" stop-opacity=".7"/><stop offset="1" stop-color="#a395d9" stop-opacity="0"/></linearGradient>
+          <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eefaf6"/><stop offset="1" stop-color="#b6e2d7"/></linearGradient>
+          <linearGradient id="fall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+        </defs>
+      </svg>
+      <button class="door hero-door" data-door><span class="door__frame" aria-hidden="true"><span class="door__light"></span><span class="door__leaf"><i></i></span></span><span class="door__spill" aria-hidden="true"></span><span class="door__motes" aria-hidden="true"><span style="--mx:-20px"></span><span style="--mx:10px"></span><span style="--mx:-6px"></span><span style="--mx:24px"></span><span style="--mx:-28px"></span></span><span class="door__cloud" aria-hidden="true"></span><span class="door__label">꿈으로 들어가기</span></button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- 기초 -->
+<section class="sec" id="base">
+  <div class="sec__head"><svg class="sec__ico" aria-hidden="true"><use href="#i-moon"/></svg><p class="sec__k">Foundations</p><h2>기초</h2><p>그리는 방법은 하나. 둥글고 부드러운 모양, 안에서 번지는 빛, 반투명한 유리, 빛나는 얇은 테두리, 그리고 저 아래 멀리 떨어진 그림자.</p></div>
+
+  <div class="glass"><div class="swatches" id="swatches"></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>글자 <small>Type</small></h3><p>제목은 꿈 일기의 첫 줄처럼 나눔명조. 본문과 컨트롤은 둥근 고운돋움. 라틴 제목은 Cormorant 이탤릭, 숫자는 Quicksand.</p><ul><li>손글씨 하이멜로디는 꿈 일기에만.</li></ul></div>
+    <div class="stage col" id="typescale" style="display:block;padding:30px 28px"></div></div></div>
+
+  <ol class="rules">
+    <li><b>떠 있다</b><span>모든 판은 바닥에 닿지 않습니다. 그림자는 멀리 아래로, 흐릿하게 떨어뜨립니다.</span></li>
+    <li><b>빛이 곧 상태</b><span>켜진 것과 고른 것은 달빛을 머금습니다. 색만이 아니라 글자로도 말합니다.</span></li>
+    <li><b>천천히 숨 쉰다</b><span>움직임은 숨처럼 4초 이상. 움직임 줄이기 설정이면 모든 것이 멈춘 채 떠 있습니다.</span></li>
+    <li><b>흐려도 읽힌다</b><span>본문 16.5px, 글자 대비 4.5:1 이상, 누르는 곳 44px 이상. 꿈은 흐려도 글자는 또렷하게.</span></li>
+  </ol>
+</section>
+
+<!-- 누르기 -->
+<section class="sec" id="press">
+  <div class="sec__head"><svg class="sec__ico" aria-hidden="true"><use href="#i-bubble"/></svg><p class="sec__k">Press</p><h2>누르기</h2><p>주요 동작은 숨 쉬는 달빛, 보조는 구름, 되돌릴 수 없는 일은 시든 장미. 아이콘은 비눗방울, 가장 큰 행동은 구름 위에 홀로 선 문.</p></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>달빛 버튼과 친구들</h3><p>달빛 버튼은 한 화면에 하나. 천천히 숨을 쉬듯 빛이 부풀었다 가라앉습니다. 황혼은 두 번째로 중요한 일, 구름은 보조, 속삭임은 조용한 것.</p><ul><li>레이블은 짧은 동사: "기록하기".</li><li>새 것이 있으면 노을빛 숫자.</li></ul></div>
+    <div class="stage"><button class="btn">기록하기</button><span style="position:relative;display:inline-flex"><button class="btn btn--dusk">꿈 일기장</button><span class="count-badge" aria-label="새 꿈 3개">3</span></span><button class="btn btn--cloud">둘러보기</button><button class="btn btn--rose"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21c4-2 7-6 8-12"/><path d="M13 9c-3-1-6 1-5 4 3 1 6-1 5-4zM13 9c1-4 5-5 7-2-1 3-4 4-7 2z"/></svg>잊어버리기</button><button class="btn btn--whisper">나중에</button></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>크기와 상태</h3><p>흐려진 꿈은 점선 테두리만 남깁니다. 무엇이 모자란지 함께 적어 주세요. 기다리는 동안에는 z가 피어오릅니다.</p></div>
+    <div class="stage"><button class="btn btn--sm">작게</button><button class="btn">보통</button><button class="btn btn--lg">크게</button><button class="btn" disabled>아직 밤이 아니에요</button><button class="btn btn--dusk" id="busyBtn"><span>잠들기</span></button></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>비눗방울 버튼</h3><p>아이콘만 있는 버튼은 제자리에서 떠다니는 비눗방울. 올리면 무지갯빛 테두리가 밝아지고, 생각 풍선이 떠오릅니다.</p><ul><li>이름(aria-label)과 말풍선을 꼭 붙입니다.</li></ul></div>
+    <div class="stage" style="gap:30px;padding-top:70px">
+      <span class="tip"><button class="bubble" aria-label="달력"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="4"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button><span class="tip__b" role="tooltip">꿈 달력</span></span>
+      <span class="tip"><button class="bubble" aria-label="알람"><svg viewBox="0 0 24 24"><path d="M15 4a7 7 0 1 0 5 11A8 8 0 0 1 15 4z"/></svg></button><span class="tip__b" role="tooltip">깨울 시간</span></span>
+      <span class="tip"><button class="bubble" aria-label="소리"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button><span class="tip__b" role="tooltip">자장가</span></span>
+      <span class="tip"><button class="bubble" aria-label="나누기"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 9l5-5 5 5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg></button><span class="tip__b" role="tooltip">꿈 나누기</span></span>
+    </div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>구름 위의 문 <small>The door</small></h3><p>한 화면에 하나뿐인 가장 큰 행동. 구름 위에 홀로 선 문을 누르면 문이 안쪽으로 열리고 따뜻한 빛과 반딧불이 쏟아집니다.</p><ul><li>올리기만 해도 문이 살짝 열립니다.</li></ul></div>
+    <div class="stage" style="padding-top:64px"><button class="door" data-door><span class="door__frame" aria-hidden="true"><span class="door__light"></span><span class="door__leaf"><i></i></span></span><span class="door__spill" aria-hidden="true"></span><span class="door__motes" aria-hidden="true"><span style="--mx:-20px"></span><span style="--mx:10px"></span><span style="--mx:-6px"></span><span style="--mx:24px"></span><span style="--mx:-28px"></span></span><span class="door__cloud" aria-hidden="true"></span><span class="door__label">꿈으로 들어가기</span></button></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>더보기 메뉴</h3><p>자주 쓰지 않는 동작은 비눗방울 안에 접어 둡니다. ↑↓로 옮기고, Esc로 닫습니다.</p></div>
+    <div class="stage" style="min-height:340px;align-content:start;padding-top:50px"><div class="row"><div><svg class="item" aria-hidden="true" viewBox="0 0 64 30"><use href="#s-fish"/></svg><div><b>하늘을 헤엄친 물고기</b><span>어젯밤 · 선명도 5</span></div></div>
+      <div class="menu"><button class="bubble bubble--sm" aria-label="더보기" aria-haspopup="menu" aria-expanded="false" aria-controls="menuList" id="menuBtn"><svg viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+        <ul class="menu__list" role="menu" id="menuList" aria-label="꿈 동작" hidden><li role="none"><button role="menuitem" tabindex="-1">다시 꾸기 <kbd>R</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">친구에게 들려주기 <kbd>S</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">꿈 풀이 보기 <kbd>I</kbd></button></li><li role="none" class="menu__sep"></li><li role="none"><button role="menuitem" tabindex="-1" class="danger">잊어버리기…</button></li></ul></div></div></div></div></div>
+</section>
+
+<!-- 켜고 끄기 -->
+<section class="sec" id="toggle">
+  <div class="sec__head"><svg class="sec__ico" aria-hidden="true"><use href="#i-jar"/></svg><p class="sec__k">Toggle</p><h2>켜고 끄기</h2><p>켜면 초승달이 보름달로 차오르고, 유리병 속 반딧불이 깨어납니다. 고르는 것은 별을 밝히거나 비눗방울에 진주를 띄웁니다.</p></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>달 스위치</h3><p>작은 설정. 꺼져 있으면 가는 초승달, 켜면 달이 오른쪽으로 건너가며 보름달로 차오르고 밤하늘에 별이 돋습니다.</p><ul><li>켜짐/꺼짐을 글자로도 적습니다.</li></ul></div>
+    <div class="stage col" style="align-items:flex-start;gap:22px">
+      <button class="moonsw" role="switch" aria-checked="true"><span class="moonsw__t" aria-hidden="true"><span class="moonsw__m"></span></span><span class="lbl"><em>켜짐</em><b>자각몽 알림</b><small>꿈인 걸 알아차리면 살짝 알려 줍니다</small></span></button>
+      <button class="moonsw" role="switch" aria-checked="false"><span class="moonsw__t" aria-hidden="true"><span class="moonsw__m"></span></span><span class="lbl"><em>꺼짐</em><b>꿈 이어 꾸기</b><small>깨어도 다음 밤에 이어서 꿉니다</small></span></button>
+    </div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>반딧불 유리병</h3><p>화면 전체를 바꾸는 큰 설정. 병을 누르면 반딧불이 깨어나 빛나며 병 안을 맴돌고, 다시 누르면 잠듭니다.</p></div>
+    <div class="stage col" style="align-items:flex-start;gap:24px" id="jars"></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>별 체크박스</h3><p>여러 개를 고를 때. 작은 밤하늘 칸에 별이 켜집니다. 일부만 고르면 "전부"에 희미한 빛줄기가 남습니다.</p></div>
+    <div class="stage col" style="align-items:flex-start"><fieldset class="stack"><legend>꿈에 데려갈 것</legend>
+      <label class="check"><input type="checkbox" id="chkAll"><span class="star" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5 28.7 17.5 42.1 18.1 31.6 26.5 35.2 39.4 24 32 12.8 39.4 16.4 26.5 5.9 18.1 19.3 17.5Z"/></svg></span><span class="lbl"><b>전부</b></span></label>
+      <div class="stack" style="padding-left:46px">
+        <label class="check"><input type="checkbox" class="ci" checked><span class="star" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5 28.7 17.5 42.1 18.1 31.6 26.5 35.2 39.4 24 32 12.8 39.4 16.4 26.5 5.9 18.1 19.3 17.5Z"/></svg></span><span class="lbl"><b>종이배</b><small>구름 바다를 건널 때</small></span></label>
+        <label class="check"><input type="checkbox" class="ci"><span class="star" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5 28.7 17.5 42.1 18.1 31.6 26.5 35.2 39.4 24 32 12.8 39.4 16.4 26.5 5.9 18.1 19.3 17.5Z"/></svg></span><span class="lbl"><b>달 조각</b><small>어두운 계단을 비춥니다</small></span></label>
+        <label class="check"><input type="checkbox" class="ci" checked><span class="star" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5 28.7 17.5 42.1 18.1 31.6 26.5 35.2 39.4 24 32 12.8 39.4 16.4 26.5 5.9 18.1 19.3 17.5Z"/></svg></span><span class="lbl"><b>고양이</b><small>길을 잃으면 앞장섭니다</small></span></label>
+        <label class="check"><input type="checkbox" disabled><span class="star" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5 28.7 17.5 42.1 18.1 31.6 26.5 35.2 39.4 24 32 12.8 39.4 16.4 26.5 5.9 18.1 19.3 17.5Z"/></svg></span><span class="lbl"><b>날개</b><small>아직 다 자라지 않았어요</small></span></label>
+      </div></fieldset></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>비눗방울 라디오</h3><p>하나만 고를 때. 고른 비눗방울 안에 라벤더 진주가 떠오릅니다.</p></div>
+    <div class="stage col" style="align-items:flex-start"><fieldset class="stack"><legend>오늘 밤 꿀 꿈</legend>
+      <label class="check"><input type="radio" name="dream" checked><span class="orb" aria-hidden="true"></span><span class="lbl"><b>하늘을 나는 꿈</b><small>구름 사이로 · 가볍게</small></span></label>
+      <label class="check"><input type="radio" name="dream"><span class="orb" aria-hidden="true"></span><span class="lbl"><b>바다 밑 도서관</b><small>물고기가 책장을 넘깁니다</small></span></label>
+      <label class="check"><input type="radio" name="dream"><span class="orb" aria-hidden="true"></span><span class="lbl"><b>어린 시절의 집</b><small>문을 열면 여름 오후</small></span></label>
+    </fieldset></div></div></div>
+</section>
+
+<!-- 고르기 -->
+<section class="sec" id="choose">
+  <div class="sec__head"><svg class="sec__ico" aria-hidden="true"><use href="#i-stairs"/></svg><p class="sec__k">Choose</p><h2>고르기</h2><p>고른 것은 달빛을 받아 한 뼘 떠오릅니다. 탭은 줄지어 선 문, 사이드 메뉴는 하늘로 오르는 계단.</p></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>구름 띠 선택</h3><p>두셋 중 하나를 바로 바꿀 때. 구름 띠 위에 놓인 알약 중 고른 것만 달빛으로 떠오릅니다.</p><ul><li>←→ 키로 옮깁니다.</li></ul></div>
+    <div class="stage"><div class="seg" role="radiogroup" aria-label="밤의 시간"><button role="radio" aria-checked="false">초저녁</button><button role="radio" aria-checked="true">자정</button><button role="radio" aria-checked="false">새벽</button><button role="radio" aria-checked="false">동틀녘</button></div></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>문 탭</h3><p>들판에 나란히 선 문들. 고른 문은 활짝 열려 빛으로 가득 차고, 그 너머 이야기가 아래에 펼쳐집니다.</p><ul><li>←→ 키로 다른 문 앞으로.</li></ul></div>
+    <div class="stage col"><div class="doortabs">
+      <div class="doortabs__row" role="tablist" aria-label="꿈의 방"><button class="dtab" role="tab" aria-selected="true" aria-controls="tp1" id="t1">봄 정원</button><button class="dtab" role="tab" aria-selected="false" aria-controls="tp2" id="t2" tabindex="-1">바다 서재</button><button class="dtab" role="tab" aria-selected="false" aria-controls="tp3" id="t3" tabindex="-1">별 다락</button></div>
+      <div class="tabpanel" role="tabpanel" id="tp1" aria-labelledby="t1" tabindex="0"><b>봄 정원.</b> 벚꽃이 위로 떨어지는 정원. 벤치에 앉으면 오래전 친구가 말을 겁니다.</div>
+      <div class="tabpanel" role="tabpanel" id="tp2" aria-labelledby="t2" tabindex="0" hidden><b>바다 서재.</b> 책장 사이로 물고기가 헤엄칩니다. 펼친 책에서는 파도 소리가 납니다.</div>
+      <div class="tabpanel" role="tabpanel" id="tp3" aria-labelledby="t3" tabindex="0" hidden><b>별 다락.</b> 천장 창문으로 별이 쏟아져 들어옵니다. 손에 쥔 별은 아침이면 사탕이 됩니다.</div>
+    </div></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>구름 필터</h3><p>여러 개를 켜고 끄는 필터. 켜진 구름은 새벽 물빛으로 물들고 별 하나를 답니다.</p></div>
+    <div class="stage"><div class="chips"><button class="chip" aria-pressed="true">하늘</button><button class="chip" aria-pressed="false">바다</button><button class="chip" aria-pressed="true">숲</button><button class="chip" aria-pressed="false">도시</button><button class="chip" aria-pressed="false">어린 시절</button></div></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>드롭다운과 잠의 깊이</h3><p>목록이 길면 드롭다운. 값을 끌어서 정할 때는 지평선을 따라 작은 구름을 옮깁니다. 오른쪽으로 갈수록 잠이 깊어집니다.</p></div>
+    <div class="stage col" style="gap:30px">
+      <div class="field"><label for="sel1">꿈의 날씨 <small>밤마다 바꿀 수 있어요</small></label><div class="select"><select id="sel1"><option>노을</option><option>안개</option><option>별비</option><option>맑은 달밤</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+      <div class="range"><div class="range__top"><label class="flabel" for="rg">잠의 깊이</label><output id="rgOut" for="rg">3<small>깊은 잠</small></output></div><input type="range" id="rg" min="1" max="5" step="1" value="3" aria-valuetext="3단계, 깊은 잠"><div class="range__scale" aria-hidden="true"><span>선잠</span><span>얕은 잠</span><span>깊은 잠</span><span>더 깊이</span><span>렘</span></div></div>
+    </div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>하늘 계단</h3><p>사이드 메뉴는 하늘로 오르는 떠 있는 계단. 한 칸씩 숨 쉬듯 떠 있고, 지금 있는 칸은 달빛을 받습니다.</p></div>
+    <div class="stage"><nav class="stairs" aria-label="꿈 일기장" id="stairs">
+      <a href="#" style="--i:4">꿈 지도<em>12</em></a><a href="#" style="--i:3">악몽 보관함<em>2</em></a><a href="#" style="--i:2">자각몽<em class="new">새 꿈 1</em></a><a href="#" style="--i:1">지난 꿈<em>128</em></a><a href="#" style="--i:0" aria-current="page">오늘 밤<em>4</em></a>
+    </nav></div></div></div>
+</section>
+
+<!-- 입력 -->
+<section class="sec" id="type-in">
+  <div class="sec__head"><svg class="sec__ico" aria-hidden="true"><use href="#i-feather"/></svg><p class="sec__k">Input</p><h2>입력</h2><p>입력 칸은 반투명한 유리 우물. 쓰기 시작하면 테두리가 라벤더로 짙어지고 둘레에 달무리가 번집니다.</p></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>글자 입력</h3><p>이름은 칸 위에. 틀리면 시든 장미 빛 테두리와 함께 무엇을 어떻게 고칠지 한 문장으로 적습니다.</p></div>
+    <div class="stage col"><div class="grid2">
+      <div class="field"><label for="i1">꿈의 제목</label><div class="input"><input id="i1" placeholder="예: 하늘을 헤엄친 물고기"></div></div>
+      <div class="field"><label for="i2">꿈 편지 받을 곳</label><div class="input is-err"><input id="i2" type="email" value="moon@꿈" aria-invalid="true" aria-describedby="i2e" autocomplete="email"></div><span class="help err" id="i2e"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21c4-2 7-6 8-12"/><path d="M13 9c-3-1-6 1-5 4 3 1 6-1 5-4z"/></svg><span>이메일 형식이 아니에요. 예: dream@reverie.kr</span></span></div>
+      <div class="field"><label for="i3">꿈 찾기</label><div class="input"><span class="input__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></span><input id="i3" type="search" placeholder="물고기, 계단, 문"></div></div>
+      <div class="field"><label for="i4">일기장 자물쇠</label><div class="input is-ok"><input id="i4" type="password" value="moonlight" autocomplete="new-password" aria-describedby="i4h"><button class="input__btn" type="button" id="pwBtn" aria-pressed="false" aria-controls="i4">보기</button></div><span class="help ok" id="i4h">✓ 꿈만큼 단단해요</span></div>
+      <div class="field"><label for="i5">잔 시간</label><div class="input"><input id="i5" class="num" type="number" value="7" min="0" max="24"><span class="input__aff">시간</span></div></div>
+      <div class="field"><label for="i6">태어난 별 <small>바꿀 수 없음</small></label><div class="input is-off"><input id="i6" value="남쪽 하늘 세 번째 별" disabled></div></div>
+      <div class="field"><label for="i7">꿈꾼 날</label><div class="input"><input id="i7" type="date" value="2026-10-31"></div></div>
+      <div class="field"><label for="i8">깨어난 시각</label><div class="input"><input id="i8" type="time" value="04:12"></div></div>
+    </div></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>꿈 일기</h3><p>여러 줄 입력. 깨자마자 흐려지기 전에 적어 두세요. 남은 글자 수는 오른쪽 아래.</p></div>
+    <div class="stage col"><div class="field"><label for="ta">어젯밤 꿈</label><div class="input"><textarea id="ta" maxlength="200" aria-describedby="taCount" placeholder="예: 문을 열었더니 바다였다">들판 한가운데 문이 하나 서 있었다. 열어 보니 어릴 적 살던 집 거실이었고, 창밖으로 물고기들이 천천히 헤엄쳐 갔다.</textarea></div><div class="count" id="taCount" aria-live="polite"></div></div></div></div></div>
+</section>
+
+<!-- 보여 주기 -->
+<section class="sec" id="show">
+  <div class="sec__head"><svg class="sec__ico" aria-hidden="true"><use href="#i-star"/></svg><p class="sec__k">Display</p><h2>보여 주기</h2><p>꿈 일기 카드, 차오르는 달, 별가루 모래시계, 잠의 물결. 숫자도 꿈처럼, 그러나 정확하게.</p></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>빛 뱃지</h3><p>상태는 작은 빛 하나와 글자로. 잊힌 것은 점선만 남습니다.</p></div>
+    <div class="stage"><span class="badge badge--dream">꿈꾸는 중</span><span class="badge badge--aqua">자각몽</span><span class="badge badge--moon">또렷함</span><span class="badge badge--peach">새 꿈</span><span class="badge badge--rose">악몽</span><span class="badge badge--fade">잊힘</span></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>어젯밤 꿈 카드</h3><p>꿈 일기 한 장. 위에는 꿈의 한 장면, 아래에는 날짜와 제목, 그리고 깨자마자 적은 손글씨 한 줄.</p><ul><li>올리면 카드가 살짝 떠오릅니다.</li></ul></div>
+    <div class="stage"><div class="dreams">
+      <article class="dream"><div class="dream__art"><svg viewBox="0 0 240 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs><linearGradient id="ca" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cbbff0"/><stop offset="1" stop-color="#f8d9cc"/></linearGradient></defs>
+          <rect width="240" height="140" fill="url(#ca)"/><circle cx="198" cy="32" r="30" fill="url(#gGlow)"/><circle cx="198" cy="32" r="13" fill="url(#gMoon)"/>
+          <use href="#s-cloud" x="8" y="18" width="78" height="32" opacity=".9"/>
+          <path d="M0 140v-26c6-10 18-10 24 0v-12l14-12 14 12v20c6-8 16-8 22 0V96l16-12 16 12v44zM120 140v-34l14-10 14 10v8c8-10 20-10 26 0V92l14-12 14 12v12c6-8 14-8 20 0v36z" fill="#e1d8f6" stroke="#fff" stroke-width="1"/>
+          <g fill="#fff3b0"><rect x="34" y="104" width="5" height="6" rx="1"/><rect x="92" y="100" width="5" height="6" rx="1"/><rect x="186" y="98" width="5" height="6" rx="1"/><rect x="138" y="110" width="5" height="6" rx="1"/></g>
+          <g class="fl"><use href="#s-fish" x="62" y="46" width="64" height="30"/></g><g class="fl2"><use href="#s-fish2" x="140" y="70" width="44" height="21"/></g>
+          <g fill="none" stroke="#fff" stroke-width="1"><circle cx="52" cy="58" r="3"/><circle cx="44" cy="52" r="2"/><circle cx="132" cy="80" r="2"/></g></svg></div>
+        <div class="dream__body"><span class="dream__meta">10.31 · 새벽 4:12</span><h4>하늘을 헤엄친 물고기</h4><p class="dream__hand">지붕 위로 물고기들이 천천히 지나갔다</p><div class="dream__foot"><span class="badge badge--moon">또렷함</span><button class="btn btn--whisper" data-open-side>기록 열기</button></div></div></article>
+      <article class="dream"><div class="dream__art"><svg viewBox="0 0 240 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs><linearGradient id="cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7d6cb"/><stop offset=".7" stop-color="#fbe8dc"/><stop offset="1" stop-color="#d4ecec"/></linearGradient><linearGradient id="cbh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d2efe9"/><stop offset="1" stop-color="#a9dbd2"/></linearGradient></defs>
+          <rect width="240" height="140" fill="url(#cb)"/><circle cx="54" cy="36" r="34" fill="url(#gGlow)"/>
+          <use href="#s-cloud" x="150" y="14" width="70" height="29" opacity=".9"/>
+          <path d="M0 108c50-16 100-16 140-6s70 6 100-4v42H0z" fill="url(#cbh)" stroke="#fff" stroke-width="1"/>
+          <path d="M120 106c-8 10-30 16-60 34h40c14-14 24-24 24-34z" fill="#fff3b0" opacity=".6"/>
+          <path d="M124 104c4 12 20 22 40 36" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 5" stroke-linecap="round"/>
+          <g class="fl"><use href="#s-door" x="102" y="40" width="40" height="66"/></g>
+          <g fill="#f5b7c6"><circle cx="40" cy="118" r="2.2"/><circle cx="70" cy="124" r="2"/><circle cx="196" cy="116" r="2.2"/><circle cx="214" cy="126" r="2"/></g></svg></div>
+        <div class="dream__body"><span class="dream__meta">10.29 · 새벽 2:40</span><h4>들판 한가운데 선 문</h4><p class="dream__hand">문 너머는 어릴 적 살던 집 거실</p><div class="dream__foot"><span class="badge badge--aqua">자각몽</span><button class="btn btn--whisper" data-open-side>기록 열기</button></div></div></article>
+      <article class="dream"><div class="dream__art"><svg viewBox="0 0 240 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs><linearGradient id="cc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9cdf2"/><stop offset="1" stop-color="#f6d3dc"/></linearGradient></defs>
+          <rect width="240" height="140" fill="url(#cc)"/><circle cx="40" cy="30" r="12" fill="url(#gMoon)"/>
+          <use href="#s-cloud" x="150" y="96" width="90" height="38" opacity=".85"/><use href="#s-cloud" x="-10" y="104" width="80" height="33" opacity=".8"/>
+          <path d="M240 34c-40 2-80 8-110 22-20 9-40 14-70 12" fill="none" stroke="#b9a6e0" stroke-width="5" stroke-linecap="round"/><path d="M150 46c6-8 14-12 22-12" fill="none" stroke="#b9a6e0" stroke-width="3" stroke-linecap="round"/>
+          <ellipse cx="170" cy="32" rx="9" ry="5" fill="#bfe6dc" transform="rotate(-20 170 32)"/>
+          <g class="fl"><use href="#s-clock" x="98" y="46" width="56" height="66"/></g>
+          <g fill="#fff"><path class="tw" d="M200 70l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z"/><path d="M70 64l1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2 3-1.2z"/></g></svg></div>
+        <div class="dream__body"><span class="dream__meta">10.27 · 새벽 5:03</span><h4>녹아내린 시계</h4><p class="dream__hand">시간이 꿀처럼 흘러내리고 있었다</p><div class="dream__foot"><span class="badge badge--rose">악몽</span><button class="btn btn--whisper" data-open-side>기록 열기</button></div></div></article>
+      <article class="dream"><div class="dream__art"><svg viewBox="0 0 240 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs><linearGradient id="cd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9abe9"/><stop offset=".6" stop-color="#e2cdee"/><stop offset="1" stop-color="#f8dccd"/></linearGradient></defs>
+          <rect width="240" height="140" fill="url(#cd)"/>
+          <g fill="#fff"><circle cx="30" cy="22" r="1.4"/><circle cx="80" cy="12" r="1.2"/><circle cx="150" cy="26" r="1.6"/><circle cx="210" cy="16" r="1.2"/><circle cx="186" cy="44" r="1"/><circle cx="110" cy="40" r="1"/></g>
+          <path d="M180 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff6cf"/>
+          <g class="fl"><use href="#s-boat" x="84" y="54" width="74" height="46"/></g>
+          <use href="#s-cloud" x="-14" y="96" width="110" height="46"/><use href="#s-cloud" x="70" y="102" width="120" height="50"/><use href="#s-cloud" x="160" y="92" width="100" height="42"/></svg></div>
+        <div class="dream__body"><span class="dream__meta">10.24 · 새벽 3:30</span><h4>구름 위 종이배</h4><p class="dream__hand">노를 젓지 않아도 배는 달 쪽으로</p><div class="dream__foot"><span class="badge badge--fade">잊힘</span><button class="btn btn--whisper" data-open-side>기록 열기</button></div></div></article>
+    </div></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>달과 모래시계</h3><p>오늘 밤 꿈이 얼마나 지났는지는 차오르는 달로, 남은 꿈은 별가루 모래시계로, 잠의 길이는 물결 막대로 보여 줍니다.</p><ul><li>모두 role="progressbar"와 값 글자를 함께.</li></ul></div>
+    <div class="stage col" style="gap:34px">
+      <div class="gauges">
+        <div class="gauge"><div id="moonGauge" role="progressbar" aria-label="오늘 밤 꿈의 진행" aria-valuemin="0" aria-valuemax="100" aria-valuenow="62"></div><b>달이 차오르는 중</b><output id="moonOut">62%</output></div>
+        <div class="gauge"><div id="hourglass" role="progressbar" aria-label="이 꿈이 끝나기까지" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="40% 남음"></div><b>남은 꿈</b><span>약 24분</span></div>
+      </div>
+      <div class="wave"><div class="wave__top"><b>오늘 밤의 잠</b><output id="waveOut">5시간 20분 / 8시간</output></div><div class="wave__bar" role="progressbar" aria-label="오늘 밤 잔 시간" aria-valuemin="0" aria-valuemax="100" aria-valuenow="67" id="wave"><i style="width:67%"></i></div><div class="wave__ticks" aria-hidden="true"><span>0</span><span>2h</span><span>4h</span><span>6h</span><span>8h</span></div></div>
+      <ol class="stages" aria-label="잠의 단계" style="margin-top:20px">
+        <li class="done"><span><svg viewBox="0 0 48 48" aria-hidden="true" fill="#fff3c4"><use href="#star"/></svg></span>잠들기</li>
+        <li class="done"><span><svg viewBox="0 0 48 48" aria-hidden="true" fill="#fff3c4"><use href="#star"/></svg></span>얕은 잠</li>
+        <li class="done"><span><svg viewBox="0 0 48 48" aria-hidden="true" fill="#fff3c4"><use href="#star"/></svg></span>깊은 잠</li>
+        <li class="now" aria-current="step"><span>4</span>렘수면</li>
+        <li><span>5</span>깨어남</li>
+      </ol>
+    </div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>꿈 풀이 묻고 답하기</h3><p>긴 설명은 접어 두는 비눗방울. 열면 방울에 달빛이 찹니다.</p></div>
+    <div class="stage"><div class="qs">
+      <details open><summary>꿈을 자꾸 잊어버려요.</summary><div>깨자마자 눈을 뜨지 말고 한 장면만 떠올려 보세요. 그다음 꿈 일기에 단어 세 개만 적어도 하루 종일 기억이 남습니다.</div></details>
+      <details><summary>자각몽은 어떻게 꾸나요?</summary><div>낮에 가끔 손바닥을 보며 "꿈인가?" 하고 물어보세요. 습관이 되면 꿈속에서도 손을 보게 되고, 그때 꿈인 걸 알아차립니다.</div></details>
+      <details><summary>악몽 보관함은 무엇인가요?</summary><div>무서운 꿈을 따로 넣어 두는 곳입니다. 다른 꿈과 섞이지 않고, 원하면 언제든 잊어버릴 수 있습니다.</div></details>
+    </div></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>꿈 기록표</h3><p>지난 꿈을 한눈에. 줄 사이는 빛의 선으로 가볍게 나누고, 선명도는 별과 숫자로 함께.</p><ul><li>머리글을 누르면 정렬됩니다.</li></ul></div>
+    <div class="stage col">
+      <div class="tablewrap"><table id="tbl"><caption class="sr">꿈 기록, 머리글 버튼으로 정렬</caption><thead><tr><th scope="col" aria-sort="descending"><button data-k="0">날짜</button></th><th scope="col" aria-sort="none"><button data-k="1">꿈</button></th><th scope="col" class="num" aria-sort="none"><button data-k="2">선명도</button></th><th scope="col">기분</th></tr></thead>
+      <tbody>
+        <tr><td class="date">10.31</td><td><span class="nm"><svg aria-hidden="true" viewBox="0 0 64 30"><use href="#s-fish"/></svg>하늘을 헤엄친 물고기</span></td><td class="num" data-v="5"><i aria-hidden="true">★★★★★</i>5</td><td><span class="badge badge--peach">설렘</span></td></tr>
+        <tr><td class="date">10.29</td><td><span class="nm"><svg aria-hidden="true" viewBox="0 0 40 66" style="width:22px;height:34px"><use href="#s-door"/></svg>들판 한가운데 선 문</span></td><td class="num" data-v="4"><i aria-hidden="true">★★★★</i>4</td><td><span class="badge">몽롱</span></td></tr>
+        <tr><td class="date">10.27</td><td><span class="nm"><svg aria-hidden="true" viewBox="0 0 60 70" style="width:26px;height:30px"><use href="#s-clock"/></svg>녹아내린 시계</span></td><td class="num" data-v="3"><i aria-hidden="true">★★★</i>3</td><td><span class="badge badge--rose">불안</span></td></tr>
+        <tr><td class="date">10.24</td><td><span class="nm"><svg aria-hidden="true" viewBox="0 0 80 50"><use href="#s-boat"/></svg>구름 위 종이배</span></td><td class="num" data-v="2"><i aria-hidden="true">★★</i>2</td><td><span class="badge badge--aqua">평온</span></td></tr>
+      </tbody></table></div>
+      <div class="pager"><span id="pgInfo">꿈 12개 중 1–4</span><nav aria-label="쪽"><ol><li><button aria-label="이전 쪽" disabled>‹</button></li><li><button aria-current="page" aria-label="1쪽">1</button></li><li><button aria-label="2쪽">2</button></li><li><button aria-label="3쪽">3</button></li><li><button aria-label="다음 쪽">›</button></li></ol></nav></div>
+    </div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>비어 있음</h3><p>빈 곳에는 아무도 타지 않은 종이배 하나와 할 일 하나.</p></div>
+    <div class="stage"><div class="empty"><svg aria-hidden="true" viewBox="0 0 180 120"><circle cx="140" cy="26" r="22" fill="url(#gGlow)"/><circle cx="140" cy="26" r="9" fill="url(#gMoon)"/><g class="fl" style="animation:bob 6s var(--float) infinite;--a:-4px"><use href="#s-boat" x="52" y="34" width="76" height="48"/></g><use href="#s-cloud" x="20" y="72" width="140" height="48"/></svg><b>아직 적은 꿈이 없어요</b><p>깨자마자 떠오르는 장면 하나만 적어도 충분해요.</p><button class="btn btn--sm">첫 꿈 적기</button></div></div></div></div>
+</section>
+
+<!-- 띄우기 -->
+<section class="sec" id="float">
+  <div class="sec__head"><svg class="sec__ico" aria-hidden="true"><use href="#i-boat"/></svg><p class="sec__k">Overlay</p><h2>띄우기</h2><p>확인 창은 하늘에 열린 창문, 옆 판은 오른쪽에서 밀려오는 안개 커튼, 알림은 바람을 타고 흘러오는 종이배 쪽지.</p></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>하늘 창문</h3><p>되돌릴 수 없는 일 앞에서. 아치 창 너머로 달과 구름이 보이고, 버튼은 결과를 말합니다. Esc나 바깥을 누르면 닫힙니다.</p></div>
+    <div class="stage"><button class="btn btn--rose" id="dlgOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21c4-2 7-6 8-12"/><path d="M13 9c-3-1-6 1-5 4 3 1 6-1 5-4zM13 9c1-4 5-5 7-2-1 3-4 4-7 2z"/></svg>이 꿈 잊기…</button></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>안개 커튼</h3><p>지금 화면을 떠나지 않고 자세히 볼 때. 오른쪽에서 안개 커튼이 밀려옵니다. 초점은 커튼 안에 머물고, Esc로 걷힙니다.</p></div>
+    <div class="stage"><button class="btn btn--cloud" id="sideOpen">꿈 기록 고치기</button></div></div></div>
+
+  <div class="glass"><div class="spec"><div class="note"><h3>종이배 쪽지</h3><p>일이 끝난 순간. 오른쪽 위로 종이배 쪽지가 흘러와 5초 뒤 떠나갑니다. 잘못된 일은 role="alert"로 바로 알립니다.</p></div>
+    <div class="stage"><button class="btn" data-note="saved">꿈 저장</button><button class="btn btn--cloud" data-note="wake">깰 시간 알림</button><button class="btn btn--rose" data-note="fail">저장 실패 알림</button></div></div></div>
+</section>
+
+<!-- 코드 -->
+<section class="sec" id="code">
+  <div class="sec__head"><svg class="sec__ico" aria-hidden="true"><use href="#i-clock"/></svg><p class="sec__k">Tokens</p><h2>코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 구름 유리와 달빛 알약은 유틸리티 두 개로 만듭니다.</p></div>
+  <div class="glass"><div class="codebar"><span class="flabel">app/globals.css</span><button class="btn btn--sm btn--cloud" id="copyBtn">복사하기</button></div><div class="codewrap"><pre class="code" id="codeBlock" tabindex="0" aria-label="globals.css 토큰"></pre></div></div>
+</section>
+</main>
+
+<footer class="wrap foot">
+  <svg class="foot__clouds" viewBox="0 0 560 90" aria-hidden="true"><circle cx="280" cy="40" r="40" fill="url(#gGlow)"/><circle cx="280" cy="40" r="16" fill="url(#gMoon)"/><use href="#s-cloud" x="120" y="34" width="140" height="58"/><use href="#s-cloud" x="250" y="40" width="160" height="50"/></svg>
+  <b>Reverie<small>꿈속</small></b><span>Cormorant · Nanum Myeongjo · Gowun Dodum · Hi Melody · Quicksand</span>
+  <nav aria-label="다른 시스템"><a href="../">Oat</a><a href="../riso/">Riso</a><a href="../arcology/">Arcology</a><a href="../dal/">Dal</a><a href="../canopy/">Canopy</a><a href="../sansa/">Sansa</a></nav>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgT" aria-describedby="dlgD">
+  <div class="skywin">
+    <div class="skywin__pane" aria-hidden="true"><svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice"><use href="#s-cloud" x="30" y="80" width="130" height="54"/><use href="#s-cloud" x="250" y="96" width="110" height="46"/><circle cx="280" cy="54" r="18" fill="url(#gMoon)"/><g class="fl"><use href="#s-fish" x="110" y="40" width="54" height="25"/></g></svg></div>
+    <div class="skywin__body">
+      <h3 id="dlgT">"하늘을 헤엄친 물고기"를 잊을까요?</h3>
+      <p id="dlgD">잊은 꿈은 구름 너머로 흘러가 다시 찾을 수 없어요. 꿈 일기와 손글씨 메모도 함께 사라집니다.</p>
+      <div class="skywin__foot"><button class="btn btn--cloud" data-close>간직하기</button><button class="btn btn--rose" data-close data-after="forgot">잊어버리기</button></div>
+    </div>
+  </div>
+</dialog>
+
+<div class="scrim" id="scrim"></div>
+<aside class="curtain" id="side" role="dialog" aria-modal="true" aria-labelledby="sideT" aria-hidden="true">
+  <div class="curtain__head"><div><small>Dream log</small><h3 id="sideT">꿈 기록 고치기</h3></div><button class="bubble bubble--sm" aria-label="닫기" data-sclose><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
+  <div class="curtain__body">
+    <div class="field"><label for="s1">꿈의 제목</label><div class="input"><input id="s1" value="하늘을 헤엄친 물고기"></div></div>
+    <div class="field"><label for="s2">선명도 <small>1–5</small></label><div class="input"><input id="s2" class="num" type="number" value="5" min="1" max="5"><span class="input__aff">/ 5</span></div></div>
+    <div class="field"><label for="s3">한 줄 메모</label><div class="input"><textarea id="s3" style="min-height:100px">지붕 위로 물고기들이 천천히 지나갔다</textarea></div></div>
+    <button class="moonsw" role="switch" aria-checked="true"><span class="moonsw__t" aria-hidden="true"><span class="moonsw__m"></span></span><span class="lbl"><em>켜짐</em><b>자각몽이었어요</b><small>꿈속에서 꿈인 걸 알았어요</small></span></button>
+  </div>
+  <div class="curtain__foot"><button class="btn btn--whisper" data-sclose>닫기</button><button class="btn" data-sclose data-after="saved">저장</button></div>
+</aside>
+<div class="boats" id="boats" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Swatches
+  const G = [
+    ['하늘', '바탕, 위에서 아래로', [['라벤더 황혼', '#CEC4EF', '--sky-1', '하늘 맨 위'], ['노을', '#F7DCD0', '--sky-3', '하늘 가운데'], ['새벽 물빛', '#D4ECEC', '--sky-4', '하늘 맨 아래'], ['안개', '#F7F5FD', '--mist', '판, 커튼']]],
+    ['빛', '동작과 글자', [['달빛', '#FFF1B8', '--moon', '주요 버튼, 선택'], ['달무리', '#FFE08A', '--moon-glow', '빛, 초점 둘레'], ['깊은 라벤더', '#5B4BB0', '--lav-d', '황혼 버튼, 링크, 초점'], ['밤 잉크', '#2A2450', '--ink', '본문, 제목']]],
+    ['신호', '조금만', [['물빛', '#2A6F6C', '--aqua-d', '켜짐, 성공'], ['노을빛', '#A4502F', '--peach-d', '새 것'], ['시든 장미', '#9B3553', '--rose-d', '위험, 오류'], ['흐림', '#5D5682', '--ink-3', '보조 글자']]],
+  ];
+  $('#swatches').innerHTML = G.map(([g, s, it]) => `<div class="swhead">${g}<span>${s}</span></div>` + it.map(([n, hex, v, u]) => `<div class="sw"><i style="background:radial-gradient(circle at 34% 30%, rgba(255,255,255,.55), transparent 55%), ${hex}"></i><b>${n}</b><code>${v} · ${hex}</code><span>${u}</span></div>`).join('')).join('');
+  $('#typescale').innerHTML = [
+    ['디스플레이', 'Cormorant Italic 600 · 72–156', '<span style="font:italic 600 58px/1 var(--font-disp);color:var(--lav-dd)">Reverie</span>'],
+    ['제목', 'Nanum Myeongjo 800 · 22–48', '<span style="font:800 32px/1.3 var(--font-head)">어젯밤, 문 하나가 서 있었다</span>'],
+    ['본문 · 컨트롤', 'Gowun Dodum · 16.5 / 1.8', '<span>구름 사이로 계단이 이어졌다. 한 칸씩 오를 때마다 발밑에서 작은 빛이 피어났다.</span>'],
+    ['손글씨', 'Hi Melody · 21 · 꿈 일기에만', '<span style="font:400 26px/1.3 var(--font-hand);color:var(--ink-2)">물고기가 창문 밖을 헤엄쳐 갔다</span>'],
+    ['숫자 · 라벨', 'Quicksand 600', '<span style="font:600 28px/1 var(--font-num);color:var(--lav-dd)">04:12 · 62%</span>'],
+  ].map(([k, s, ex]) => `<div class="typerow"><div class="k"><b>${k}</b><span>${s}</span></div><div>${ex}</div></div>`).join('');
+
+  // Nav highlight
+  const links = $$('#nav a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute('aria-current', a.hash === '#' + e.target.id ? 'true' : 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.sec').forEach(s => io.observe(s));
+
+  // Cursor parallax for the sky and the hero scene
+  if (!reduce.matches) {
+    let tx = 0, ty = 0, raf = 0; const root = document.documentElement;
+    addEventListener('pointermove', e => { if (e.pointerType === 'touch') return; tx = e.clientX / innerWidth - .5; ty = e.clientY / innerHeight - .5;
+      if (!raf) raf = requestAnimationFrame(() => { raf = 0; root.style.setProperty('--px', tx.toFixed(3)); root.style.setProperty('--py', ty.toFixed(3)); }); }, { passive: true });
+  }
+
+  // Paper-boat toasts
+  const boatSvg = '<svg viewBox="0 0 80 50" aria-hidden="true"><use href="#s-boat"/></svg>';
+  const N = { door: ['들어감', '꿈속으로 들어왔어요', '문 너머는 따뜻한 빛이었어요', ''], saved: ['저장', '꿈을 적어 두었어요', '아침이 와도 잊지 않을 거예요', 'aqua'],
+    forgot: ['잊음', '꿈 하나를 놓아주었어요', '구름 너머로 천천히 흘러갔어요', 'rose'], wake: ['알림', '곧 동이 터요', '10분 뒤에 부드럽게 깨워 드릴게요', ''],
+    fail: ['오류', '꿈을 저장하지 못했어요', '연결이 흐려졌어요. 잠시 뒤 다시 해 주세요', 'rose', true], slept: ['잠듦', '스르르 잠들었어요', '좋은 꿈 꾸세요', ''] };
+  function note(key) { const [k, t, s, c, urgent] = N[key]; const el = document.createElement('div');
+    el.className = 'boat' + (c ? ' boat--' + c : ''); el.setAttribute('role', urgent ? 'alert' : 'status');
+    el.innerHTML = `<span class="boat__ico">${boatSvg}</span><div><small>${k}</small><b>${t}</b><span>${s}</span></div><button class="bubble bubble--sm" aria-label="쪽지 닫기" style="animation:none"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button>`;
+    let gone = false; const kill = () => { if (gone) return; gone = true; el.classList.add('out'); setTimeout(() => el.remove(), reduce.matches ? 0 : 600); };
+    $('button', el).onclick = kill; const box = $('#boats'); box.prepend(el); while (box.children.length > 3) box.lastChild.remove(); setTimeout(kill, 5000); }
+  $$('[data-note]').forEach(b => b.addEventListener('click', () => note(b.dataset.note)));
+
+  // Doors
+  $$('[data-door]').forEach(d => d.addEventListener('click', () => { if (d.classList.contains('is-open')) return; d.classList.add('is-open'); note('door'); setTimeout(() => d.classList.remove('is-open'), 2800); }));
+
+  // Busy button
+  $('#busyBtn').addEventListener('click', e => { const b = e.currentTarget; if (b.dataset.busy) return; b.dataset.busy = 1; b.setAttribute('aria-disabled', 'true');
+    b.innerHTML = '<span>잠드는 중 <span class="zzz" aria-hidden="true"><i>z</i><i>z</i><i>z</i></span></span>';
+    setTimeout(() => { b.innerHTML = '<span>잠들었어요</span>'; note('slept'); }, 1600); setTimeout(() => { delete b.dataset.busy; b.removeAttribute('aria-disabled'); b.innerHTML = '<span>잠들기</span>'; }, 3200); });
+
+  // More menu
+  const mb = $('#menuBtn'), ml = $('#menuList'), mi = $$('[role=menuitem]', ml);
+  const closeM = f => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); if (f) mb.focus(); };
+  const openM = (i = 0) => { ml.hidden = false; mb.setAttribute('aria-expanded', 'true'); mi[i].focus(); };
+  mb.addEventListener('click', () => ml.hidden ? openM() : closeM());
+  mb.addEventListener('keydown', e => { if (e.key === 'ArrowDown') { e.preventDefault(); openM(0); } if (e.key === 'ArrowUp') { e.preventDefault(); openM(mi.length - 1); } });
+  ml.addEventListener('keydown', e => { const i = mi.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); mi[(i + 1) % mi.length].focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); mi[(i - 1 + mi.length) % mi.length].focus(); }
+    if (e.key === 'Home') { e.preventDefault(); mi[0].focus(); } if (e.key === 'End') { e.preventDefault(); mi.at(-1).focus(); }
+    if (e.key === 'Escape') { e.preventDefault(); closeM(true); } if (e.key === 'Tab') closeM(); });
+  mi.forEach(m => m.addEventListener('click', () => { closeM(true); if (m.classList.contains('danger')) $('#dlg').showModal(); }));
+  document.addEventListener('click', e => { if (!ml.hidden && !e.target.closest('.menu')) closeM(); });
+
+  // Firefly jars
+  const jar = (t, s, on) => `<button class="jar" role="switch" aria-checked="${on}"><svg viewBox="0 0 62 86" aria-hidden="true">
+    <circle class="halo" cx="31" cy="52" r="34" fill="url(#gGlow)"/>
+    <rect x="20" y="4" width="22" height="10" rx="4" fill="#e8d2b8" stroke="#a88f74" stroke-width="1.3"/><path d="M22 8h18" stroke="#c9ad8e" stroke-width="1.2"/>
+    <path d="M19 15h24c0 6 9 8 9 20v34c0 7-5 11-12 11H22c-7 0-12-4-12-11V35c0-12 9-14 9-20Z" fill="url(#gJar)" stroke="#8c7fd0" stroke-width="1.5"/>
+    <g class="fly"><circle class="ffg" cx="24" cy="50" r="7" fill="url(#gGlow)"/><circle class="ff" cx="24" cy="50" r="3"/></g>
+    <g class="fly"><circle class="ffg" cx="38" cy="62" r="7" fill="url(#gGlow)"/><circle class="ff" cx="38" cy="62" r="2.6"/></g>
+    <g class="fly"><circle class="ffg" cx="34" cy="40" r="6" fill="url(#gGlow)"/><circle class="ff" cx="34" cy="40" r="2.3"/></g>
+    <path d="M16 34c0-6 3-10 5-12M15 44v20" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+    <span class="lbl"><em>${on ? '켜짐' : '꺼짐'}</em><b>${t}</b><small>${s}</small></span></button>`;
+  $('#jars').innerHTML = jar('밤 화면', '화면을 어둡고 따뜻하게 바꿉니다', true) + jar('반딧불 길잡이', '어두운 꿈에서 길을 밝힙니다', false);
+  document.addEventListener('click', e => {
+    const sw = e.target.closest('.jar, .moonsw'); if (sw) { const on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', on); const em = $('.lbl em', sw); if (em) em.textContent = on ? '켜짐' : '꺼짐'; }
+    const c = e.target.closest('.chip'); if (c) c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+  });
+
+  // Checkbox group with indeterminate "전부"
+  const all = $('#chkAll'), ci = $$('.ci'); const sync = () => { const n = ci.filter(c => c.checked).length; all.checked = n === ci.length; all.indeterminate = n > 0 && n < ci.length; };
+  ci.forEach(c => c.addEventListener('change', sync)); all.addEventListener('change', () => { ci.forEach(c => c.checked = all.checked); sync(); }); sync();
+
+  // Segmented radiogroup
+  $$('.seg').forEach(g => { const bs = $$('button', g);
+    const pick = (b, f = true) => { bs.forEach(x => { x.setAttribute('aria-checked', x === b); x.tabIndex = x === b ? 0 : -1; }); if (f) b.focus(); };
+    bs.forEach(b => { b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1; b.addEventListener('click', () => pick(b)); });
+    g.addEventListener('keydown', e => { const i = bs.indexOf(document.activeElement);
+      if (['ArrowRight', 'ArrowDown'].includes(e.key)) { e.preventDefault(); pick(bs[(i + 1) % bs.length]); }
+      if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); pick(bs[(i - 1 + bs.length) % bs.length]); } });
+  });
+
+  // Door tabs
+  const tabs = $$('[role=tab]'); const sel = t => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); };
+  tabs.forEach(t => t.addEventListener('click', () => sel(t)));
+  $('[role=tablist]').addEventListener('keydown', e => { const i = tabs.indexOf(document.activeElement);
+    if (e.key === 'ArrowRight') { e.preventDefault(); sel(tabs[(i + 1) % tabs.length]); } if (e.key === 'ArrowLeft') { e.preventDefault(); sel(tabs[(i - 1 + tabs.length) % tabs.length]); }
+    if (e.key === 'Home') { e.preventDefault(); sel(tabs[0]); } if (e.key === 'End') { e.preventDefault(); sel(tabs.at(-1)); } });
+
+  // Sleep-depth range
+  const depth = ['', '선잠', '얕은 잠', '깊은 잠', '아주 깊은 잠', '렘수면'];
+  const rg = $('#rg'), ro = $('#rgOut'); const upd = () => { const v = +rg.value; rg.style.setProperty('--p', ((v - rg.min) / (rg.max - rg.min) * 100) + '%'); ro.innerHTML = `${v}<small>${depth[v]}</small>`; rg.setAttribute('aria-valuetext', `${v}단계, ${depth[v]}`); };
+  rg.addEventListener('input', upd); upd();
+
+  // Staircase menu
+  $$('#stairs a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $$('#stairs a').forEach(x => x.removeAttribute('aria-current')); a.setAttribute('aria-current', 'page'); }));
+
+  // Inputs
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; e.currentTarget.textContent = on ? '숨기기' : '보기'; e.currentTarget.setAttribute('aria-pressed', on); });
+  const em = $('#i2'), emErr = $('#i2e');
+  em.addEventListener('input', () => { const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim()); const w = em.closest('.input'); w.classList.toggle('is-err', !ok); w.classList.toggle('is-ok', ok); em.setAttribute('aria-invalid', !ok); emErr.hidden = ok; });
+  const ta = $('#ta'), tc = $('#taCount'); const cnt = () => tc.textContent = `${ta.value.length} / 200`; ta.addEventListener('input', cnt); cnt();
+
+  // Moon-phase gauge
+  const moonPath = f => { const r = 46, cx = 70, cy = 70, rx = r * Math.abs(1 - 2 * f); return `M${cx} ${cy - r}A${r} ${r} 0 0 1 ${cx} ${cy + r}A${rx.toFixed(2)} ${r} 0 0 ${f < .5 ? 0 : 1} ${cx} ${cy - r}Z`; };
+  $('#moonGauge').innerHTML = `<svg viewBox="0 0 140 140" aria-hidden="true"><circle cx="70" cy="70" r="66" fill="url(#gGlow)"/><circle cx="70" cy="70" r="46" fill="#cfc6ee" stroke="#fff" stroke-width="1.5"/><circle cx="70" cy="70" r="46" fill="none" stroke="#8c7fd0" stroke-width="1" stroke-dasharray="2 4"/><path class="moonfill" fill="url(#gMoon)" stroke="#fff" stroke-width="1"/><circle cx="58" cy="60" r="6" fill="#e9cf88" opacity=".3"/><circle cx="82" cy="84" r="4" fill="#e9cf88" opacity=".3"/></svg>`;
+  let mv = 62; const setMoon = v => { $('#moonGauge .moonfill').setAttribute('d', moonPath(v / 100)); const g = $('#moonGauge'); g.setAttribute('aria-valuenow', v); g.setAttribute('aria-valuetext', `${v}%`); $('#moonOut').textContent = v + '%'; };
+  setMoon(mv); setInterval(() => { mv = mv >= 100 ? 6 : Math.min(100, mv + 4); setMoon(mv); }, 1600);
+
+  // Stardust hourglass
+  const hg = v => { const top = 14 + (1 - v / 100) * 46, bot = 128 - (1 - v / 100) * 42; $('#hourglass').innerHTML = `<svg class="hg" viewBox="0 0 96 140" aria-hidden="true">
+    <circle cx="48" cy="70" r="46" fill="url(#gGlow)"/><defs><clipPath id="hgc"><path d="M20 12h56c0 26-22 40-24 58 2 18 24 32 24 58H20c0-26 22-40 24-58-2-18-24-32-24-58Z"/></clipPath></defs>
+    <g clip-path="url(#hgc)"><rect x="0" y="${top}" width="96" height="${60 - top}" fill="#ffe9a6"/><path d="M14 ${bot}Q48 ${bot - 14} 82 ${bot}V140H14Z" fill="#ffe08a"/><path class="sand-fall" d="M48 64V${bot - 6}" stroke="#f6c94f" stroke-width="2.4" stroke-linecap="round"/></g>
+    <path d="M20 12h56c0 26-22 40-24 58 2 18 24 32 24 58H20c0-26 22-40 24-58-2-18-24-32-24-58Z" fill="rgba(255,255,255,.25)" stroke="#8c7fd0" stroke-width="1.6"/>
+    <path d="M26 20c2 12 8 20 14 28" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <rect x="12" y="4" width="72" height="9" rx="4.5" fill="url(#gStep)" stroke="#8c7fd0" stroke-width="1.3"/><rect x="12" y="127" width="72" height="9" rx="4.5" fill="url(#gStep)" stroke="#8c7fd0" stroke-width="1.3"/></svg>`; };
+  hg(40);
+
+  // REM wave bar
+  let mins = 320; setInterval(() => { mins = mins >= 480 ? 60 : mins + 20; const p = Math.round(mins / 480 * 100), w = $('#wave'); w.setAttribute('aria-valuenow', p); w.setAttribute('aria-valuetext', `${Math.floor(mins / 60)}시간 ${mins % 60}분, 8시간 중`); $('i', w).style.width = p + '%'; $('#waveOut').textContent = `${Math.floor(mins / 60)}시간 ${mins % 60 ? mins % 60 + '분 ' : ''}/ 8시간`; }, 1400);
+
+  // Sortable table
+  const tb = $('#tbl tbody');
+  $$('#tbl th button').forEach(b => b.addEventListener('click', () => { const th = b.parentElement, k = +b.dataset.k, dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    $$('#tbl th[aria-sort]').forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', dir);
+    const val = r => k === 2 ? +r.cells[2].dataset.v : r.cells[k].textContent.trim();
+    $$('tr', tb).sort((a, c) => { const x = val(a), y = val(c); const q = k === 2 ? x - y : x.localeCompare(y, 'ko'); return dir === 'ascending' ? q : -q; }).forEach(r => tb.appendChild(r)); }));
+  const pb = $$('.pager li button'), pages = pb.slice(1, -1); let cur = 1;
+  const go = n => { cur = n; pages.forEach((b, i) => i + 1 === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')); pb[0].disabled = n === 1; pb.at(-1).disabled = n === pages.length; $('#pgInfo').textContent = `꿈 12개 중 ${(n - 1) * 4 + 1}–${n * 4}`; };
+  pages.forEach((b, i) => b.addEventListener('click', () => go(i + 1))); pb[0].addEventListener('click', () => go(Math.max(1, cur - 1))); pb.at(-1).addEventListener('click', () => go(Math.min(pages.length, cur + 1)));
+
+  // Sky-window dialog
+  const dlg = $('#dlg'); $('#dlgOpen').addEventListener('click', () => dlg.showModal());
+  $$('[data-close]', dlg).forEach(b => b.addEventListener('click', () => { dlg.close(); if (b.dataset.after) note(b.dataset.after); }));
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // Mist curtain side panel
+  const sd = $('#side'), sc = $('#scrim'); let opener;
+  const focusables = () => $$('button, input, textarea, select, a[href]', sd).filter(x => !x.disabled);
+  const openS = () => { opener = document.activeElement; sd.classList.add('open'); sc.classList.add('open'); sd.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; setTimeout(() => $('#s1').focus(), 80); };
+  const closeS = () => { if (!sd.classList.contains('open')) return; sd.classList.remove('open'); sc.classList.remove('open'); sd.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; opener && opener.focus(); };
+  $('#sideOpen').addEventListener('click', openS); $$('[data-open-side]').forEach(b => b.addEventListener('click', openS)); sc.addEventListener('click', closeS);
+  $$('[data-sclose]', sd).forEach(b => b.addEventListener('click', () => { closeS(); if (b.dataset.after) note(b.dataset.after); }));
+  document.addEventListener('keydown', e => { if (!sd.classList.contains('open')) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeS(); return; }
+    if (e.key === 'Tab') { const f = focusables(), a = f[0], z = f.at(-1);
+      if (!sd.contains(document.activeElement)) { e.preventDefault(); a.focus(); }
+      else if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } } });
+
+  // Code
+  $('#codeBlock').innerHTML = `<span class="c">/* Reverie — 꿈속 · Tailwind v4 + shadcn */</span>
+@import "tailwindcss";
+
+<span class="p">:root</span> {
+  <span class="v">--background</span>: #f7f5fd;  <span class="v">--foreground</span>: #2a2450;      <span class="c">/* 안개 · 밤 잉크 */</span>
+  <span class="v">--card</span>: #fbfaff;  <span class="v">--card-foreground</span>: #2a2450;
+  <span class="v">--popover</span>: #ffffff;  <span class="v">--popover-foreground</span>: #2a2450;
+  <span class="v">--primary</span>: #fff1b8;  <span class="v">--primary-foreground</span>: #2a2450;    <span class="c">/* 달빛 */</span>
+  <span class="v">--secondary</span>: #e8e2fb;  <span class="v">--secondary-foreground</span>: #3f3388; <span class="c">/* 구름 */</span>
+  <span class="v">--muted</span>: #efeaf8;  <span class="v">--muted-foreground</span>: #5d5682;
+  <span class="v">--accent</span>: #e0f5f2;  <span class="v">--accent-foreground</span>: #2a6f6c;      <span class="c">/* 새벽 물빛 */</span>
+  <span class="v">--destructive</span>: #9b3553;                                      <span class="c">/* 시든 장미 */</span>
+  <span class="v">--border</span>: #c6bcee;  <span class="v">--input</span>: #b3a8e2;  <span class="v">--ring</span>: #5b4bb0;
+  <span class="v">--radius</span>: 1.5rem;
+  <span class="v">--glow</span>: 0 0 24px rgb(255 224 138 / .7);                  <span class="c">/* 달무리 */</span>
+  <span class="v">--float-shadow</span>: 0 50px 40px -40px rgb(74 58 150 / .42);   <span class="c">/* 멀리 떨어진 그림자 */</span>
+  <span class="v">--sky</span>: linear-gradient(#cec4ef, #e4d6f2 30%, #f7dcd0 62%, #d4ecec);
+}
+
+@theme inline {
+  <span class="v">--color-background</span>: var(--background);
+  <span class="v">--color-foreground</span>: var(--foreground);
+  <span class="v">--color-primary</span>: var(--primary);
+  <span class="v">--color-secondary</span>: var(--secondary);
+  <span class="v">--color-accent</span>: var(--accent);
+  <span class="v">--color-destructive</span>: var(--destructive);
+  <span class="v">--font-display</span>: "Cormorant", serif;
+  <span class="v">--font-heading</span>: "Nanum Myeongjo", serif;
+  <span class="v">--font-sans</span>: "Gowun Dodum", system-ui, sans-serif;
+  <span class="v">--font-hand</span>: "Hi Melody", sans-serif;
+}
+
+<span class="c">/* 구름 유리: 반투명 판 + 빛나는 얇은 테두리 + 멀리 떨어진 그림자 */</span>
+@utility <span class="p">cloud-glass</span> {
+  border-radius: calc(var(--radius) + 6px);
+  background: linear-gradient(165deg, rgb(255 255 255 / .88), rgb(250 247 255 / .72));
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgb(150 135 215 / .2), var(--float-shadow);
+}
+
+<span class="c">/* 달빛 알약: 주요 동작. 빛이 숨 쉬듯 부풀었다 가라앉는다 */</span>
+@utility <span class="p">moon-pill</span> {
+  border-radius: 9999px; color: var(--primary-foreground);
+  background: radial-gradient(120% 150% at 30% 0%, #fffef6, var(--primary) 45%, #f8d483);
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgb(200 155 60 / .38);
+  animation: breathe 4.8s cubic-bezier(.45,0,.25,1) infinite;
+}
+@keyframes breathe { 50% { box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgb(200 155 60 / .38), var(--glow); } }
+
+<span class="c">/* 꿈은 흐려도, 움직임 줄이기면 모든 것이 멈춘 채 떠 있다 */</span>
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}`;
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget; try { await navigator.clipboard.writeText($('#codeBlock').textContent); b.textContent = '복사했어요'; } catch { b.textContent = '직접 선택해 주세요'; } setTimeout(() => b.textContent = '복사하기', 1800); });
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

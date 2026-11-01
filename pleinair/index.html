@@ -1,0 +1,1354 @@
+<!doctype html>
+<html lang="ko" data-hour="noon">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plein Air 디자인 시스템</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,500;1,700&family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&family=Nanum+Pen+Script&display=swap">
+<style>
+/* Plein Air: an Impressionist painter working outdoors, chasing light that changes every twenty minutes.
+   Everything is built from one mark: the dab, a short rounded stroke of unmixed colour laid beside its neighbours.
+   Shadows are never grey. They take the complementary colour of the light, and they move with the sun:
+   pick a time of day and the whole page is repainted, its light, its shadows and the direction they fall.
+   Reading happens on calm cream canvas; the paint stays at the edges. */
+
+/* ---------- Fixed paint box ---------- */
+:root {
+  color-scheme: light;
+  --paper: #fbf6ea; --paper-2: #f3ecdc; --paper-3: #e6dcc6; --paper-4: #cdbf9f;
+  --ink: #29263d; --ink-2: #47435c; --ink-3: #5d5873;
+  --cobalt: #2c4a9e; --cobalt-d: #1d3274; --cobalt-l: #8aa2e0;
+  --chrome: #f2c434; --chrome-d: #8a6406;
+  --viridian: #24705f; --viridian-l: #9ccdb9;
+  --madder: #a62f3f; --madder-d: #771d2b; --madder-l: #f0b8bd;
+  --rose: #e8a0ad; --lilac: #b3a6de; --vermilion: #e2623d; --ochre: #d6a453; --wood: #9a6a3f; --wood-d: #6b4a2e;
+  --font-d: "Playfair Display", "Gowun Batang", serif;
+  --font-h: "Gowun Batang", "Nanum Myeongjo", serif;
+  --font: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-hand: "Nanum Pen Script", cursive;
+  --ease: cubic-bezier(.2,.8,.2,1); --squish: cubic-bezier(.3,1.55,.5,1); --slow: 1.2s;
+  --blob: 26px 18px 28px 16px / 20px 28px 18px 26px;
+  --blob-2: 18px 28px 16px 26px / 26px 18px 28px 20px;
+}
+
+/* ---------- The light: one block per time of day ---------- */
+:root, [data-hour="noon"] {
+  --bg: #dfe9ee; --sky: #a9cdea; --sky-1: #8dbde6; --sky-2: #d5e7f3; --sky-3: #f3f0d8;
+  --sun: #f7d548; --sun-2: #fff0a3; --shade: #5f6fc4; --shade-2: #4552a6; --shade-a: rgba(69,82,166,.34);
+  --leaf: #5c9f58; --leaf-2: #2f7d6b; --field-1: #a8cc69; --field-2: #e6d26a; --water-1: #5f9fd6; --water-2: #bfe0f0;
+  --hay-l: #f1cb58; --hay-r: #e2ad4c; --hay-m: #d49a46; --wash: #edf3f1;
+  --sx: 0px; --sy: 6px;
+  --o-morning: 0; --o-noon: 1; --o-dusk: 0; --o-night: 0;
+}
+[data-hour="morning"] {
+  --bg: #ebe2ec; --sky: #e9dbe6; --sky-1: #f4c8c2; --sky-2: #c8c4ea; --sky-3: #f7e6b8;
+  --sun: #f6cc66; --sun-2: #fde8b0; --shade: #8a85c8; --shade-2: #6c6ab0; --shade-a: rgba(108,106,176,.36);
+  --leaf: #82b07c; --leaf-2: #4e7e74; --field-1: #bcd193; --field-2: #ead193; --water-1: #a2b9e2; --water-2: #e2cfe6;
+  --hay-l: #f4c56c; --hay-r: #a891c2; --hay-m: #d9a77a; --wash: #f4eef3;
+  --sx: 7px; --sy: 5px;
+  --o-morning: 1; --o-noon: 0; --o-dusk: 0; --o-night: 0;
+}
+[data-hour="dusk"] {
+  --bg: #f0d9c9; --sky: #f2b487; --sky-1: #f2966b; --sky-2: #e2809a; --sky-3: #f7d27a;
+  --sun: #f07a3a; --sun-2: #fbc56b; --shade: #7a5aa8; --shade-2: #573c8a; --shade-a: rgba(87,60,138,.36);
+  --leaf: #8d8a4c; --leaf-2: #5e4f7d; --field-1: #d9a35b; --field-2: #c47c5a; --water-1: #e69b8a; --water-2: #9c85c5;
+  --hay-l: #a37bb7; --hay-r: #f2a14a; --hay-m: #c97f55; --wash: #f8ede5;
+  --sx: -7px; --sy: 5px;
+  --o-morning: 0; --o-noon: 0; --o-dusk: 1; --o-night: 0;
+}
+[data-hour="night"] {
+  --bg: #1f2851; --sky: #263468; --sky-1: #31468f; --sky-2: #4a3f86; --sky-3: #1b2452;
+  --sun: #f3cf6a; --sun-2: #fbe9b2; --shade: #3e3678; --shade-2: #2a2560; --shade-a: rgba(10,10,40,.45);
+  --leaf: #2f4e5c; --leaf-2: #22324f; --field-1: #384a70; --field-2: #4c4878; --water-1: #33508f; --water-2: #5e6db0;
+  --hay-l: #5b5f96; --hay-r: #6f6aa8; --hay-m: #4a4e86; --wash: #ebe8f1; --glint: #6a78b8;
+  --sx: 0px; --sy: 5px;
+  --o-morning: 0; --o-noon: 0; --o-dusk: 0; --o-night: 1;
+}
+/* only used for one canvas in the haystack series */
+[data-hour="snow"] {
+  --sky: #dfe3ee; --sky-1: #ebe5f0; --sky-2: #c6d1ea; --sky-3: #f4e4da; --sun: #f6d6ae; --sun-2: #fff3e3; --shade: #8e9bd6; --shade-2: #6f7ec4;
+  --leaf: #8a93b8; --leaf-2: #6e7aa8; --field-1: #eef0f6; --field-2: #dde3f2; --water-1: #b9c6e6; --water-2: #e6e9f4;
+  --hay-l: #f0caa8; --hay-r: #a3a9d8; --hay-m: #d9b590;
+  --o-morning: 0; --o-noon: 1; --o-dusk: 0; --o-night: 0;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--bg); transition: background-color var(--slow) var(--ease); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
+body { margin: 0; color: var(--ink); font: 400 16.5px/1.78 var(--font); word-break: keep-all; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  background: var(--tile, none) 0 0/300px 300px, var(--bg); transition: background-color var(--slow) var(--ease); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4 { margin: 0; font-weight: 700; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--cobalt); text-underline-offset: 4px; }
+code { font: .85em ui-monospace, Menlo, Consolas, monospace; background: var(--paper-2); padding: 1px 6px; border-radius: 4px; }
+i[lang="fr"] { font-family: var(--font-d); font-style: italic; font-weight: 500; }
+.wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 4px; border-radius: 8px; }
+.hand { font: 400 1.45em/1 var(--font-hand); color: var(--ink-2); }
+
+/* Canvas: the one surface. A cream board whose edge is painted in dabs of the current light.
+   The edge (with its cast shadow) is an SVG generated in JS and laid on as a 9-slice border-image. */
+.canvas { position: relative; border: 22px solid transparent; border-image: var(--edge, linear-gradient(var(--paper), var(--paper))) 40 fill / 22px round; }
+.canvas--sm { border-width: 13px; border-image-width: 13px; }
+
+/* the painting itself: every dab takes its colour from the light */
+.pa rect, .pa path, .pa ellipse { transition: fill var(--slow) var(--ease); }
+.k-sk { fill: var(--sky); } .k-s1 { fill: var(--sky-1); } .k-s2 { fill: var(--sky-2); } .k-s3 { fill: var(--sky-3); }
+.k-sun { fill: var(--sun); } .k-gl { fill: var(--glint, var(--sun)); } .k-sun2 { fill: var(--sun-2); } .k-sh { fill: var(--shade); } .k-sh2 { fill: var(--shade-2); }
+.k-l1 { fill: var(--leaf); } .k-l2 { fill: var(--leaf-2); } .k-f1 { fill: var(--field-1); } .k-f2 { fill: var(--field-2); }
+.k-w1 { fill: var(--water-1); } .k-w2 { fill: var(--water-2); } .k-hl { fill: var(--hay-l); } .k-hr { fill: var(--hay-r); } .k-hm { fill: var(--hay-m); }
+.at { transition: opacity var(--slow) var(--ease); }
+.at-morning { opacity: var(--o-morning); } .at-noon { opacity: var(--o-noon); } .at-dusk { opacity: var(--o-dusk); } .at-night { opacity: var(--o-night); }
+.shimmer { animation: shim 3.4s ease-in-out infinite alternate; }
+@keyframes shim { to { transform: translateX(7px); opacity: .55; } }
+
+/* ---------- Top bar: a strip of paper, its lower edge painted ---------- */
+.bar { position: sticky; top: 0; z-index: 40; background: var(--strip, none) 0 100%/240px 14px repeat-x, linear-gradient(var(--paper) 0 calc(100% - 7px), transparent calc(100% - 7px)); padding-bottom: 7px; }
+.bar .wrap { display: flex; align-items: center; gap: 18px; min-height: 64px; }
+.brand { flex: none; display: flex; align-items: baseline; gap: 8px; color: var(--ink); text-decoration: none; }
+.brand b { font: italic 700 23px/1 var(--font-d); }
+.brand small { font: 400 13px/1 var(--font-h); color: var(--ink-3); }
+.hours { display: flex; gap: 2px; flex: none; }
+.hours button { position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 44px; min-height: 44px; padding: 0 10px; border: 0; border-radius: var(--blob); background: none; cursor: pointer; font: 700 14.5px/1 var(--font-h); color: var(--ink-2); }
+.hours button svg { width: 24px; height: 24px; flex: none; position: relative; z-index: 1; }
+.hours button span { position: relative; z-index: 1; }
+.hours button::before { content: ""; position: absolute; inset: 4px 2px; border-radius: var(--blob); background: var(--sun); opacity: 0; transform: scale(.6) rotate(-6deg); transition: opacity .3s, transform .45s var(--squish); }
+.hours button:hover::before { opacity: .35; transform: scale(.9) rotate(-3deg); }
+.hours button[aria-checked="true"] { color: var(--ink); }
+.hours button[aria-checked="true"]::before { opacity: 1; transform: none; }
+.bar nav { margin-left: auto; display: flex; gap: 2px; flex: none; }
+.bar nav a { position: relative; display: grid; place-items: center; height: 42px; padding: 0 10px; color: var(--ink-2); text-decoration: none; font: 500 14.5px/1 var(--font); }
+.bar nav a:hover { color: var(--ink); }
+.bar nav a::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: 5px; height: 6px; border-radius: 6px 2px 5px 3px; background: var(--sun); transform: scaleX(0) rotate(-1.5deg); transform-origin: left; transition: transform .4s var(--ease); }
+.bar nav a[aria-current="true"] { color: var(--ink); font-weight: 700; }
+.bar nav a[aria-current="true"]::after { transform: scaleX(1) rotate(-1.5deg); }
+@media (max-width: 1120px) { .bar nav { display: none; } .hours { margin-left: auto; } }
+@media (max-width: 560px) { .hours button span { display: none; } .hours button { padding: 0 9px; } .brand small { display: none; } }
+
+/* ---------- Hero: a haystack in a field, painted live ---------- */
+.hero { position: relative; overflow-x: clip; min-height: 660px; padding-block: 70px 60px; display: grid; align-items: center; }
+.hero__paint { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero__in { display: grid; gap: 14px; justify-items: start; width: 100%; }
+.hero__card { width: min(560px, 100%); }
+.hero__card > div { padding: 22px 26px 26px; display: grid; gap: 14px; }
+.kicker { font: 500 13px/1.4 var(--font); letter-spacing: .18em; color: var(--ink-3); }
+.hero h1 { font: italic 700 clamp(58px, 10vw, 112px)/.92 var(--font-d); letter-spacing: -.01em; color: var(--ink); }
+.hero h1 em { font-style: italic; color: var(--cobalt); }
+.hero h1 small { display: block; margin-top: 14px; font: 700 clamp(20px, 2.6vw, 25px)/1.4 var(--font-h); letter-spacing: 0; color: var(--ink-2); }
+.hero p { color: var(--ink-2); max-width: 40ch; }
+.hero__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 26px; margin-top: 6px; }
+.hero__cap { display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 8px; border-radius: var(--blob-2); background: var(--paper); color: var(--ink-2); font-size: 14.5px; box-shadow: var(--sx) var(--sy) 0 var(--shade-a); transition: box-shadow var(--slow) var(--ease); }
+.hero__cap .hand { color: var(--ink); }
+@media (max-width: 760px) {
+  .hero { min-height: 0; padding-block: 250px 34px; align-items: start; }
+  .hero__paint { height: 300px; bottom: auto; }
+  .hero__card > div { padding: 14px 10px 18px; }
+}
+
+/* ---------- Rooms (sections) ---------- */
+section.room { padding-block: 100px 8px; scroll-margin-top: 80px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 34px; }
+.cartel { justify-self: center; width: min(680px, 100%); text-align: center; }
+.cartel > div { padding: 10px 20px 14px; display: grid; justify-items: center; gap: 6px; }
+.cartel__k { font: 500 14px/1.3 var(--font); letter-spacing: .14em; color: var(--ink-3); }
+.cartel__k i { letter-spacing: 0; font-size: 16px; }
+.cartel h2 { position: relative; isolation: isolate; font: 700 clamp(32px, 5vw, 44px)/1.2 var(--font-h); padding: 0 8px; }
+.cartel h2 svg { position: absolute; left: -6%; right: -6%; bottom: -4px; width: 112%; height: 18px; z-index: -1; }
+.cartel h2 span { position: relative; }
+.cartel p { color: var(--ink-2); max-width: 54ch; margin-top: 6px; }
+
+/* a canvas with a note on the left and a wash of light (the ground) on the right */
+.spec { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr); }
+.spec__note { padding: 18px 24px 22px 14px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.spec__note h3 { font: 700 22px/1.35 var(--font-h); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.spec__note h3 i { font-size: 16px; color: var(--ink-3); }
+.spec__note p { color: var(--ink-2); font-size: 16px; }
+.spec__note ul { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 15px; color: var(--ink-2); }
+.spec__note li { position: relative; padding-left: 20px; }
+.spec__note li::before { content: ""; position: absolute; left: 0; top: .62em; width: 12px; height: 7px; border-radius: 7px 3px 6px 2px; background: var(--sun); transform: rotate(-12deg); }
+.ground { position: relative; min-width: 0; padding: 40px 26px 36px; display: flex; flex-wrap: wrap; gap: 22px; align-items: center; justify-content: center; align-content: center; min-height: 170px;
+  border-radius: 6px 14px 8px 12px; background: var(--tile-soft, none) 0 0/220px 220px, var(--wash); transition: background-color var(--slow) var(--ease); }
+.ground.col { flex-direction: column; align-items: stretch; }
+.ground > * { min-width: 0; max-width: 100%; }
+@media (max-width: 820px) { .spec { grid-template-columns: minmax(0, 1fr); } .spec__note { padding: 10px 6px 20px; } .ground { padding: 34px 14px 30px; } .canvas { border-width: 14px; border-image-width: 14px; } }
+
+/* ---------- Foundations ---------- */
+.hourcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 18px; width: 100%; }
+.hourcard { display: grid; gap: 10px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; color: var(--ink); }
+.hourcard__sky { position: relative; height: 112px; border-radius: 10px 16px 8px 14px; overflow: hidden; background: var(--sky); }
+.hourcard__sky svg { width: 100%; height: 100%; display: block; }
+.hourcard b { font: 700 19px/1.3 var(--font-h); display: flex; align-items: center; gap: 8px; }
+.hourcard[aria-pressed="true"] b::after { content: "지금"; font: 500 12.5px/1 var(--font); padding: 4px 8px 5px; border-radius: 10px 4px 9px 5px; background: var(--ink); color: var(--paper); }
+.hourcard dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 13.5px; color: var(--ink-2); }
+.hourcard dt { display: flex; align-items: center; gap: 6px; }
+.hourcard dt i { width: 16px; height: 11px; border-radius: 9px 3px 8px 4px; transform: rotate(-10deg); }
+.hourcard dd { margin: 0; font: 12.5px/1.6 ui-monospace, Menlo, Consolas, monospace; color: var(--ink-3); }
+.hourcard:hover .hourcard__sky { transform: translateY(-3px); }
+.hourcard__sky { transition: transform .4s var(--squish); box-shadow: var(--sx) var(--sy) 0 var(--shade-a); }
+.hourcard:focus-visible { outline-offset: 6px; }
+
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 42%), 1fr)); gap: 22px 18px; width: 100%; }
+.sw { display: grid; gap: 4px; }
+.sw i { height: 66px; border-radius: var(--blob); background: var(--c); position: relative; overflow: hidden; box-shadow: inset 0 0 0 1.5px rgba(41,38,61,.12); }
+.sw i::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(-6deg, rgba(255,255,255,.14) 0 3px, transparent 3px 7px, rgba(0,0,0,.05) 7px 9px, transparent 9px 13px); }
+.sw:nth-child(3n) i { border-radius: var(--blob-2); }
+.sw b { font: 700 16.5px/1.3 var(--font-h); margin-top: 4px; }
+.sw code { background: none; padding: 0; font-size: 12px; color: var(--ink-3); }
+.sw span { font-size: 13.5px; color: var(--ink-2); line-height: 1.45; }
+.swhead { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 12px; font: 700 19px/1.2 var(--font-h); margin-top: 8px; }
+.swhead:first-child { margin-top: 0; }
+.swhead::after { content: ""; flex: 1; height: 5px; border-radius: 5px 2px 4px 1px; background: linear-gradient(90deg, var(--sky-1), var(--sun) 40%, var(--shade) 70%, transparent); align-self: center; opacity: .8; }
+.swhead span { font: 400 13.5px/1 var(--font); color: var(--ink-3); }
+
+.marks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 22px; width: 100%; }
+.marks figure { margin: 0; display: grid; gap: 6px; }
+.marks figure > div { height: 74px; border-radius: 8px 12px 6px 10px; background: var(--paper); display: grid; place-items: center; overflow: hidden; }
+.marks svg { width: 100%; height: 100%; }
+.marks b { font: 700 16px/1.3 var(--font-h); }
+.marks span { font-size: 13.5px; color: var(--ink-2); }
+.typerow { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 18px; align-items: baseline; padding: 14px 0; border-top: 1.5px dashed var(--paper-3); }
+.typerow:first-child { border-top: 0; }
+.typerow .k { display: grid; gap: 2px; } .typerow .k b { font: 700 15.5px/1.3 var(--font-h); } .typerow .k span { font-size: 12.5px; color: var(--ink-3); }
+@media (max-width: 560px) { .typerow { grid-template-columns: 1fr; gap: 4px; } }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 20px; margin: 0; padding: 0; list-style: none; counter-reset: r; }
+.rules li { counter-increment: r; display: grid; }
+.rules li > div { padding: 6px 8px 10px; display: grid; gap: 6px; align-content: start; }
+.rules li > div::before { content: counter(r); width: 40px; height: 34px; display: grid; place-items: center; border-radius: var(--blob); background: var(--c, var(--cobalt)); color: #fff; font: italic 700 20px/1 var(--font-d); }
+.rules li:nth-child(2) { --c: var(--viridian); } .rules li:nth-child(3) { --c: var(--madder); } .rules li:nth-child(4) { --c: var(--ink); }
+.rules b { font: 700 19px/1.35 var(--font-h); }
+.rules span { font-size: 15px; color: var(--ink-2); }
+
+/* ---------- Buttons ---------- */
+/* Impasto: a thick dab of paint with ridges, a stroke of the current light on its shoulder, and a coloured shadow */
+.btn { --f: var(--cobalt); --fd: var(--cobalt-d); --t: #fff;
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 30px; border: 0; border-radius: var(--blob); cursor: pointer; text-decoration: none;
+  font: 700 17px/1 var(--font-h); color: var(--t);
+  background: radial-gradient(ellipse 60% 70% at 28% 22%, rgba(255,255,255,.22), transparent 70%), repeating-linear-gradient(-7deg, transparent 0 4px, rgba(255,255,255,.09) 4px 6px, transparent 6px 9px, rgba(0,0,0,.08) 9px 11px), var(--f);
+  box-shadow: inset 0 -3px 0 var(--fd), var(--sx) var(--sy) 0 var(--shade-a);
+  transition: transform .35s var(--squish), box-shadow var(--slow) var(--ease); }
+.btn::before { content: ""; position: absolute; left: 16px; top: 7px; width: 34%; height: 5px; border-radius: 5px 2px 4px 1px; background: var(--sun); opacity: .9; transform: rotate(-3deg); transition: background-color var(--slow) var(--ease); pointer-events: none; }
+.btn > * { position: relative; }
+.btn:hover { transform: translateY(-2px) rotate(-.6deg); }
+.btn:active { transform: translateY(2px) scale(.98); box-shadow: inset 0 -1px 0 var(--fd), 0 1px 0 var(--shade-a); transition-duration: .06s; }
+.btn svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.btn--viridian { --f: var(--viridian); --fd: #17503f; }
+/* Wash: a thin transparent layer of colour, its edge a darker tide line */
+.btn--wash { --t: var(--ink); background: radial-gradient(ellipse 70% 80% at 30% 30%, rgba(255,255,255,.5), transparent 70%), color-mix(in srgb, var(--sky-1) 42%, var(--paper)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--sky-1) 70%, var(--ink) 18%), var(--sx) var(--sy) 0 color-mix(in srgb, var(--shade) 22%, transparent); }
+.btn--wash::before { display: none; }
+.btn--wash:active { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--sky-1) 70%, var(--ink) 18%); }
+/* Madder smear: dangerous things are dragged out in rose madder, the stroke trailing off */
+.btn--madder { --f: var(--madder); --fd: var(--madder-d); border-radius: 22px 10px 26px 12px / 26px 12px 22px 14px; margin-right: 14px; }
+.btn--madder::after { content: ""; position: absolute; right: -16px; top: 26%; width: 30px; height: 46%; border-radius: 2px 20px 16px 2px; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(255,255,255,.35) 2px 3px), linear-gradient(90deg, var(--madder) 30%, color-mix(in srgb, var(--madder) 0%, transparent)); }
+.btn--madder::before { background: #ffd9d4; }
+/* Sketch: charcoal, no paint yet */
+.btn--sketch { --t: var(--ink-2); background: none; box-shadow: none; padding: 0 10px; font-weight: 700;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='8' viewBox='0 0 60 8'%3E%3Cpath d='M0 5 Q 7.5 1 15 4.5 T 30 4 T 45 4.6 T 60 4' fill='none' stroke='%235d5873' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: repeat-x; background-position: 0 calc(100% - 10px); background-size: 60px 8px; }
+.btn--sketch::before { display: none; }
+.btn--sketch:hover { --t: var(--ink); transform: none; }
+.btn--sketch:active { box-shadow: none; transform: translateY(1px); }
+.btn--sm { min-height: 44px; padding: 0 22px; font-size: 15.5px; }
+.btn--sm::before { top: 6px; height: 4px; left: 12px; }
+.btn:disabled, .btn[aria-disabled="true"]:not([data-busy]) { cursor: not-allowed; --t: var(--ink-3); background: var(--paper-2); box-shadow: inset 0 0 0 1.5px var(--paper-4); transform: none; }
+.btn:disabled::before { display: none; }
+.btn:disabled { outline: 1.5px dashed var(--ink-3); outline-offset: -6px; }
+.mix { display: inline-flex; gap: 3px; }
+.mix i { width: 9px; height: 7px; border-radius: 6px 2px 5px 2px; animation: mix 1s ease-in-out infinite; }
+.mix i:nth-child(1) { background: var(--chrome); } .mix i:nth-child(2) { background: #fff; animation-delay: .15s; } .mix i:nth-child(3) { background: var(--rose); animation-delay: .3s; }
+@keyframes mix { 50% { transform: translateY(-5px) rotate(40deg); } }
+.count-badge { position: absolute; top: -12px; right: -8px; z-index: 2; min-width: 28px; height: 26px; padding: 0 7px; display: grid; place-items: center; border-radius: 12px 6px 13px 5px; background: var(--chrome); color: var(--ink); font: 700 14px/1 var(--font); }
+
+/* Palette: icon buttons are fresh blobs squeezed onto a wooden palette */
+.palette { position: relative; display: flex; gap: 14px; align-items: center; padding: 22px 30px 22px 74px; border-radius: 90px 120px 110px 80px / 70px 90px 80px 60px;
+  background: radial-gradient(ellipse 40% 30% at 70% 30%, rgba(255,255,255,.2), transparent), repeating-linear-gradient(8deg, transparent 0 9px, rgba(107,74,46,.12) 9px 10px), #c99a66; box-shadow: var(--sx) var(--sy) 0 var(--shade-a), inset 0 -4px 0 rgba(107,74,46,.35); }
+.palette::before { content: ""; position: absolute; left: 22px; top: 50%; width: 30px; height: 34px; margin-top: -17px; border-radius: 50%; background: var(--wash); box-shadow: inset 2px 3px 0 rgba(107,74,46,.45); }
+.blob { position: relative; width: 54px; height: 54px; display: grid; place-items: center; border: 0; padding: 0; cursor: pointer; border-radius: 52% 48% 55% 45% / 48% 56% 44% 52%; color: var(--ink);
+  background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.55) 0 4px, transparent 9px), repeating-conic-gradient(from 10deg, transparent 0 14deg, rgba(0,0,0,.05) 14deg 20deg), var(--c, var(--chrome)); box-shadow: inset 0 -3px 0 rgba(0,0,0,.14), 2px 3px 0 rgba(107,74,46,.35); transition: transform .4s var(--squish); }
+.blob:nth-child(2n) { border-radius: 46% 54% 42% 58% / 56% 44% 58% 42%; }
+.blob svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+.blob:hover { transform: scale(1.08) rotate(-6deg); }
+.blob:active { transform: scale(.92); transition-duration: .06s; }
+.blob:focus-visible { border-radius: 50%; }
+.blob--cobalt { --c: var(--cobalt); color: #fff; } .blob--viridian { --c: var(--viridian); color: #fff; } .blob--rose { --c: var(--rose); } .blob--white { --c: #fbf8f2; }
+@media (max-width: 480px) { .palette { padding: 18px 18px 18px 58px; gap: 8px; } .palette::before { left: 16px; width: 24px; height: 28px; margin-top: -14px; } .blob { width: 48px; height: 48px; } }
+
+.tip { position: relative; display: inline-flex; }
+.tip__b { position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%) translateY(4px) rotate(-2deg); z-index: 10; padding: 6px 12px 7px; border-radius: 10px 4px 12px 5px; background: var(--paper); color: var(--ink); box-shadow: 2px 3px 0 var(--shade-a); font: 700 14px/1.3 var(--font-h); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .2s, transform .35s var(--squish); }
+.tip__b::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--paper); }
+.tip:hover .tip__b, .tip:focus-within .tip__b { opacity: 1; transform: translateX(-50%) rotate(-2deg); }
+
+/* Go: the one big action. An easel with a little canvas showing this hour, and a parasol that spins open */
+.go { position: relative; display: grid; justify-items: center; gap: 4px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--ink); }
+.go svg { width: 170px; height: 150px; overflow: visible; }
+.go .canopy { transform-origin: 136px 44px; transition: transform .6s var(--squish); }
+.go:hover .canopy { transform: rotate(-8deg); }
+.go.hit .canopy { animation: twirl 1s var(--ease); }
+@keyframes twirl { 40% { transform: rotate(-200deg) scale(1.08); } to { transform: rotate(-360deg); } }
+.go .ground-sh { transform: translateX(calc(var(--sx) * 1.6)); transition: transform var(--slow) var(--ease); }
+.go .splash { opacity: 0; }
+.go.hit .splash { animation: splash .8s var(--ease); }
+@keyframes splash { from { opacity: 1; transform: scale(.4); } to { opacity: 0; transform: scale(1.3) translateY(-10px); } }
+.go .splash { transform-origin: 70px 46px; }
+.go b { position: relative; padding: 8px 20px 10px; font: 700 19px/1 var(--font-h); }
+.go b::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 30px 12px 28px 10px / 18px 26px 14px 24px; background: var(--sun); transform: rotate(-2deg); transition: transform .35s var(--squish), background-color var(--slow) var(--ease); box-shadow: var(--sx) var(--sy) 0 var(--shade-a); }
+.go b { z-index: 0; }
+.go:hover b::before { transform: rotate(1deg) scale(1.05); }
+.go:active svg { transform: translateY(2px); }
+.go:focus-visible { outline-offset: 8px; border-radius: 16px; }
+
+.menu { position: relative; }
+.menu__list { position: absolute; right: 0; top: calc(100% + 12px); z-index: 15; min-width: 220px; padding: 8px; margin: 0; list-style: none; border-radius: 6px 14px 8px 12px; background: var(--paper); box-shadow: inset 5px 0 0 var(--sun), var(--sx) var(--sy) 0 var(--shade-a), 0 14px 30px -12px rgba(41,38,61,.35); }
+.menu__list [role="menuitem"] { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; min-height: 44px; padding: 0 12px; border: 0; border-radius: var(--blob); background: none; cursor: pointer; text-align: left; font: 500 15.5px/1 var(--font); }
+.menu__list [role="menuitem"]:hover, .menu__list [role="menuitem"]:focus { background: color-mix(in srgb, var(--sky-1) 30%, var(--paper)); outline: none; }
+.menu__list .danger { color: var(--madder); font-weight: 700; }
+.menu__list .danger:hover, .menu__list .danger:focus { background: #f9e1e2; }
+.menu__list kbd { font: 400 12px/1 ui-monospace, monospace; color: var(--ink-3); }
+.menu__sep { height: 4px; margin: 6px 8px; border-radius: 4px 1px 3px 2px; background: var(--paper-3); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; max-width: 440px; padding: 12px 14px; border-radius: 8px 14px 10px 12px; background: var(--paper); box-shadow: var(--sx) var(--sy) 0 var(--shade-a); }
+.row > div:first-child { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row svg.thumb { width: 64px; height: 48px; border-radius: 4px; flex: none; }
+.row b { display: block; font: 700 17px/1.35 var(--font-h); }
+.row span { font-size: 13.5px; color: var(--ink-3); }
+.ibtn { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50% 46% 52% 48%; background: var(--paper-2); cursor: pointer; color: var(--ink); }
+.ibtn:hover { background: var(--paper-3); }
+.ibtn svg { width: 22px; height: 22px; }
+
+/* ---------- Toggles ---------- */
+/* Parasol: open it and it throws a coloured shade on the grass */
+.ombrelle { display: inline-flex; align-items: center; gap: 16px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; min-height: 48px; }
+.ombrelle svg { width: 64px; height: 74px; flex: none; overflow: visible; }
+.ombrelle .open { transform-origin: 32px 16px; transform: scale(.14, .9); opacity: 0; transition: transform .55s var(--squish), opacity .25s; }
+.ombrelle .furled { transition: opacity .2s; }
+.ombrelle .shade { opacity: 0; transform-origin: 32px 66px; transform: scaleX(.3); transition: opacity .5s, transform .6s var(--ease); }
+.ombrelle[aria-checked="true"] .open { transform: none; opacity: 1; }
+.ombrelle[aria-checked="true"] .furled { opacity: 0; }
+.ombrelle[aria-checked="true"] .shade { opacity: .75; transform: translateX(calc(var(--sx) * .6)); }
+.sw-t { display: grid; line-height: 1.5; }
+.sw-t em { font-style: normal; font: 700 13px/1.3 var(--font); color: var(--ink-3); letter-spacing: .04em; }
+[aria-checked="true"] > .sw-t em { color: var(--viridian); }
+.sw-t b { font: 700 18px/1.4 var(--font-h); }
+.sw-t small { font-size: 14px; color: var(--ink-2); }
+
+/* Nymphéa: a lily pad drifts across the pond and its flower opens */
+.lily { display: inline-flex; align-items: center; gap: 16px; min-height: 48px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.lily__pond { position: relative; width: 84px; height: 44px; flex: none; border-radius: 24px 20px 22px 26px / 22px 24px 20px 22px;
+  background: radial-gradient(ellipse 10px 3px at 30% 30%, rgba(255,255,255,.6) 60%, transparent 70%), radial-gradient(ellipse 8px 2.5px at 74% 74%, rgba(255,255,255,.5) 60%, transparent 70%), linear-gradient(170deg, #a4adbd, #7f8aa0);
+  box-shadow: inset 0 2px 5px rgba(41,38,61,.3); transition: background .4s; }
+.lily__pad { position: absolute; top: 5px; left: 5px; width: 34px; height: 34px; border-radius: 50%; transition: transform .55s var(--squish);
+  background: radial-gradient(circle at 50% 50%, transparent 0 3px, rgba(255,255,255,.0) 3px), conic-gradient(from 25deg, transparent 0 26deg, #6f9b5a 26deg 120deg, #5d8a4b 120deg 230deg, #78a862 230deg 360deg); filter: drop-shadow(2px 2px 0 rgba(41,38,61,.25)); }
+.lily__pad svg { position: absolute; inset: 3px; width: 28px; height: 28px; transform: scale(0) rotate(-60deg); transition: transform .55s var(--squish) .1s; }
+.lily[aria-checked="true"] .lily__pond { background: radial-gradient(ellipse 10px 3px at 30% 30%, rgba(255,255,255,.6) 60%, transparent 70%), radial-gradient(ellipse 8px 2.5px at 74% 74%, rgba(255,255,255,.5) 60%, transparent 70%), linear-gradient(170deg, #5f9fd6, #2f6a9e); }
+.lily[aria-checked="true"] .lily__pad { transform: translateX(40px) rotate(40deg); }
+.lily[aria-checked="true"] .lily__pad svg { transform: scale(1) rotate(-40deg); }
+
+/* Checkbox: a small canvas; the tick is one loaded brushstroke */
+.check { position: relative; display: flex; align-items: flex-start; gap: 14px; cursor: pointer; min-height: 32px; }
+.check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.check__box { position: relative; width: 28px; height: 28px; flex: none; margin-top: 1px; border-radius: 5px 8px 6px 9px; background: #fffdf6; box-shadow: inset 0 0 0 1.5px var(--ink-3), 2px 2px 0 var(--shade-a); }
+.check__box svg { position: absolute; left: -3px; top: -9px; width: 38px; height: 38px; overflow: visible; }
+.check__box path { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 52; stroke-dashoffset: 52; transition: stroke-dashoffset .4s var(--ease); }
+.check__box path:first-child { stroke: var(--cobalt); stroke-width: 5.5; }
+.check__box path:last-child { stroke: var(--cobalt-l); stroke-width: 1.6; transition-delay: .06s; }
+.check input:checked + .check__box path { stroke-dashoffset: 0; }
+.check input:indeterminate + .check__box::after { content: ""; position: absolute; left: 4px; right: 4px; top: 10px; height: 7px; border-radius: 6px 2px 5px 2px; background: var(--cobalt); transform: rotate(-4deg); }
+.check input:focus-visible + .check__box, .check input:focus-visible + .well { outline: 3px solid var(--cobalt); outline-offset: 4px; }
+.check input:disabled + .check__box { opacity: .5; box-shadow: inset 0 0 0 1.5px var(--ink-3); }
+.check input:disabled ~ .check__t { color: var(--ink-3); }
+.check__t { display: grid; line-height: 1.5; } .check__t b { font: 700 17px/1.4 var(--font-h); } .check__t small { font-size: 14px; color: var(--ink-2); }
+.check input:disabled ~ .check__t small { color: var(--ink-3); }
+/* Radio: wells on the palette; the chosen one is filled with a fresh blob of that colour */
+.well { position: relative; width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--paper-3); box-shadow: inset 2px 3px 0 rgba(107,74,46,.25), inset 0 0 0 1.5px var(--paper-4); }
+.well::after { content: ""; position: absolute; inset: 4px; border-radius: 52% 48% 56% 44% / 46% 54% 46% 54%; background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.6) 0 2px, transparent 5px), var(--c); transform: scale(0) rotate(-40deg); transition: transform .5s var(--squish); }
+.check input:checked + .well::after { transform: none; }
+.check input:checked + .well { box-shadow: inset 0 0 0 1.5px var(--ink-3); }
+.stack { display: grid; gap: 16px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 14px; font: 700 15px/1.3 var(--font-h); color: var(--ink-3); }
+
+/* ---------- Choosing ---------- */
+/* Brushes: the chosen option is a single loaded stroke */
+.brushes { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-radius: 16px 26px 18px 24px; background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--paper-3); }
+.brushes button { position: relative; min-height: 46px; min-width: 64px; padding: 0 16px; border: 0; background: none; cursor: pointer; font: 700 15.5px/1 var(--font-h); color: var(--ink-2); border-radius: 22px 8px 20px 10px / 14px 20px 12px 18px; transition: color .3s; }
+.brushes button::before { content: ""; position: absolute; inset: 3px 0; z-index: 0; border-radius: inherit; background: repeating-linear-gradient(176deg, rgba(255,255,255,.14) 0 2px, transparent 2px 5px, rgba(0,0,0,.08) 5px 6px), var(--cobalt); transform: scaleX(0); transform-origin: left; transition: transform .4s var(--ease); }
+.brushes button span { position: relative; }
+.brushes button:hover { color: var(--ink); }
+@media (max-width: 480px) { .brushes { flex-wrap: nowrap; gap: 2px; padding: 5px; } .brushes button { min-width: 0; padding: 0 11px; font-size: 15px; } }
+.brushes button[aria-checked="true"] { color: #fff; }
+.brushes button[aria-checked="true"]::before { transform: scaleX(1); }
+
+/* Tabs: the haystack series, four canvases leaning on each other; the chosen one stands up */
+.meules { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 2vw, 18px); align-items: end; padding: 10px 4px 0; }
+.meule { --tilt: -3deg; display: grid; gap: 8px; justify-items: center; padding: 0; border: 0; background: none; cursor: pointer; color: var(--ink-2); font: 700 15px/1.25 var(--font-h); text-align: center; }
+.meule:nth-child(2) { --tilt: 2.5deg; } .meule:nth-child(3) { --tilt: -1.8deg; } .meule:nth-child(4) { --tilt: 3deg; }
+.meule__c { display: block; width: 100%; aspect-ratio: 4 / 3; border: 4px solid #efe4cc; border-radius: 2px; overflow: hidden; background: var(--sky); transform: rotate(var(--tilt)) translateY(6px); box-shadow: 2px 3px 0 rgba(41,38,61,.18); transition: transform .45s var(--squish), box-shadow .45s; }
+.meule__c svg { width: 100%; height: 100%; display: block; }
+.meule:hover .meule__c { transform: rotate(0) translateY(0); }
+.meule[aria-selected="true"] { color: var(--ink); }
+.meule[aria-selected="true"] .meule__c { transform: translateY(-6px) scale(1.04); box-shadow: var(--sx) calc(var(--sy) + 4px) 0 var(--shade-a); border-color: #fffaf0; }
+.meule[aria-selected="true"] span { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--sun) 70%, transparent) 62% 92%, transparent 92%); }
+.meule:focus-visible { outline-offset: 6px; }
+.tabpanel { margin-top: 18px; padding: 16px 18px; border-radius: 8px 14px 10px 12px; background: var(--paper); font-size: 16px; color: var(--ink-2); display: grid; gap: 10px; }
+.tabpanel[hidden] { display: none; }
+.tabpanel b { color: var(--ink); font-family: var(--font-h); }
+.dots { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 13.5px; color: var(--ink-3); }
+.dots i { width: 22px; height: 14px; border-radius: 10px 3px 9px 4px; transform: rotate(-8deg); }
+
+/* Chips: motifs; when pressed a dab of the motif's colour appears */
+.motifs { display: flex; flex-wrap: wrap; gap: 10px; }
+.motif { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 12px; border: 0; border-radius: var(--blob); cursor: pointer; font: 500 15.5px/1 var(--font); color: var(--ink-2); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--paper-4); transition: background .3s, box-shadow .3s; }
+.motif:nth-child(2n) { border-radius: var(--blob-2); }
+.motif i { width: 16px; height: 12px; border-radius: 9px 3px 8px 4px; box-shadow: inset 0 0 0 1.5px var(--paper-4); transform: rotate(-12deg) scale(.8); transition: transform .4s var(--squish), background .3s; }
+.motif:hover { box-shadow: inset 0 0 0 1.5px var(--ink-3); }
+.motif[aria-pressed="true"] { color: var(--ink); font-weight: 700; background: color-mix(in srgb, var(--c) 24%, var(--paper)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 70%, var(--ink) 20%); }
+.motif[aria-pressed="true"] i { background: var(--c); box-shadow: none; transform: rotate(-12deg) scale(1.15); }
+
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; width: 100%; }
+.field > label, .flabel { font: 700 16px/1.3 var(--font-h); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.field > label small, .flabel small { font: 400 13px/1.3 var(--font); color: var(--ink-3); }
+.help { font-size: 14px; color: var(--ink-2); }
+.help.err { color: var(--madder); font-weight: 500; display: flex; gap: 8px; align-items: flex-start; }
+.help.err::before { content: ""; flex: none; width: 14px; height: 10px; margin-top: 6px; border-radius: 8px 2px 7px 3px; background: var(--madder); transform: rotate(-12deg); }
+.help.ok { color: var(--viridian); font-weight: 500; }
+
+/* Inputs: a strip of primed canvas; focus draws a cobalt stroke underneath */
+.input { position: relative; display: flex; align-items: stretch; min-height: 52px; border-radius: 10px 14px 9px 13px / 13px 9px 14px 10px; background: #fffdf6; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink-3) 60%, transparent); transition: box-shadow .3s; }
+.input::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -3px; height: 5px; border-radius: 5px 2px 4px 2px; background: var(--cobalt); transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease); pointer-events: none; }
+.input:focus-within { box-shadow: inset 0 0 0 2px var(--cobalt), 0 0 0 4px color-mix(in srgb, var(--cobalt) 16%, transparent); }
+.input:focus-within::after { transform: scaleX(1); }
+.input input, .input textarea, .input select { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; padding: 0 16px; font: 400 16.5px/1.5 var(--font); }
+.input textarea { padding: 14px 16px; min-height: 120px; resize: vertical; line-height: 1.8; }
+.input select { appearance: none; cursor: pointer; padding-right: 48px; font-weight: 500; }
+.input input::placeholder, .input textarea::placeholder { color: var(--ink-3); opacity: .85; }
+.input__ico { display: grid; place-items: center; padding-left: 14px; }
+.input__ico svg { width: 19px; height: 19px; stroke: var(--ink-3); fill: none; stroke-width: 2; stroke-linecap: round; }
+.input__aff { display: grid; place-items: center; padding: 0 16px; font: 700 15.5px/1 var(--font-h); color: var(--ink-2); }
+.input__btn { margin: 6px; min-width: 64px; padding: 0 12px; border: 0; border-radius: var(--blob); cursor: pointer; font: 700 14px/1 var(--font-h); background: color-mix(in srgb, var(--sky-1) 35%, var(--paper)); color: var(--ink); }
+.input__btn:hover { background: color-mix(in srgb, var(--sky-1) 55%, var(--paper)); }
+.input.is-err { background: #fff5f3; box-shadow: inset 0 0 0 2px var(--madder); }
+.input.is-err::after { background: var(--madder); transform: scaleX(1); }
+.input.is-ok { box-shadow: inset 0 0 0 1.5px var(--viridian); }
+.input.is-off { background: var(--paper-2); box-shadow: inset 0 0 0 1.5px var(--paper-4); }
+.input.is-off input { color: var(--ink-3); cursor: not-allowed; }
+.input .num { text-align: right; font: 600 19px/1 var(--font-d); }
+.input .chev { position: absolute; right: 16px; top: 50%; width: 22px; height: 14px; margin-top: -7px; pointer-events: none; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 22px; width: 100%; }
+.count { text-align: right; font: 500 13.5px/1 var(--font); color: var(--ink-3); }
+
+/* Range: drag the sun across the sky; the haystack's shadow swings and changes colour */
+.sunrange { display: grid; gap: 10px; width: 100%; }
+.sunrange__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sunrange output { display: inline-flex; align-items: center; gap: 8px; font: 700 17px/1.2 var(--font-h); }
+.sunrange output i { width: 26px; height: 16px; border-radius: 12px 3px 10px 4px; transform: rotate(-8deg); }
+.sunrange__scene { width: 100%; height: auto; aspect-ratio: 32 / 11; border-radius: 8px 14px 10px 12px; display: block; }
+.sunrange input { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; cursor: pointer; }
+.sunrange input::-webkit-slider-runnable-track { height: 16px; border-radius: 10px 4px 12px 5px; background: repeating-linear-gradient(92deg, transparent 0 7px, rgba(255,255,255,.25) 7px 9px), linear-gradient(90deg, #f4c8c2, #c8c4ea 22%, #8dbde6 50%, #f7d27a 76%, #f2966b 90%, #7a5aa8); }
+.sunrange input::-moz-range-track { height: 16px; border-radius: 10px; background: linear-gradient(90deg, #f4c8c2, #8dbde6 50%, #f2966b 90%, #7a5aa8); }
+.sunrange input::-webkit-slider-thumb { -webkit-appearance: none; width: 32px; height: 32px; margin-top: -8px; border: 0; border-radius: 50%; background: radial-gradient(circle at 40% 36%, #fff6c8 0 4px, var(--chrome) 9px, #e8902c 15px); box-shadow: 0 0 0 5px rgba(242,196,52,.32), 2px 3px 0 var(--shade-a); }
+.sunrange input::-moz-range-thumb { width: 30px; height: 30px; border: 0; border-radius: 50%; background: radial-gradient(circle at 40% 36%, #fff6c8 0 4px, var(--chrome) 9px, #e8902c 15px); }
+.sunrange input:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 4px; }
+.sunrange__scale { display: flex; justify-content: space-between; font: 500 13.5px/1 var(--font); color: var(--ink-3); }
+
+/* Side menu: places to set up the easel */
+.spots { width: 100%; max-width: 330px; margin: 0; padding: 10px; list-style: none; display: grid; gap: 4px; border-radius: 10px 16px 12px 14px; background: var(--paper); }
+.spots a { position: relative; display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px 0 12px; border-radius: var(--blob); color: var(--ink-2); text-decoration: none; font: 700 16px/1.25 var(--font-h); }
+.spots a > i { width: 18px; height: 13px; border-radius: 9px 3px 8px 4px; background: var(--c); transform: rotate(-12deg); }
+.spots a em { font-style: normal; font: 500 13px/1 var(--font); color: var(--ink-3); }
+.spots a::before { content: ""; position: absolute; inset: 4px 0; z-index: -1; border-radius: inherit; background: color-mix(in srgb, var(--sun) 55%, var(--paper)); transform: scaleX(0); transform-origin: left; transition: transform .4s var(--ease); }
+.spots a { z-index: 0; }
+.spots a:hover { color: var(--ink); background: var(--paper-2); }
+.spots a[aria-current="page"] { color: var(--ink); }
+.spots a[aria-current="page"]::before { transform: scaleX(1); }
+.spots a[aria-current="page"] > i { transform: rotate(-12deg) scale(1.35); }
+.spots a .new { padding: 3px 8px 4px; border-radius: 8px 3px 7px 4px; background: var(--madder); color: #fff; }
+
+/* ---------- Display ---------- */
+.tags { display: flex; flex-wrap: wrap; gap: 12px; }
+.tag { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 13px 0 10px; border-radius: var(--blob); font: 500 14px/1 var(--font); color: var(--ink); background: color-mix(in srgb, var(--c) 24%, var(--paper)); }
+.tag::before { content: ""; width: 13px; height: 9px; border-radius: 7px 2px 6px 3px; background: var(--c); transform: rotate(-14deg); }
+.tag:nth-child(2n) { border-radius: var(--blob-2); }
+.tag--sketch { --c: var(--ink-3); background: transparent; box-shadow: inset 0 0 0 1.5px var(--paper-4); }
+.tag--ochre { --c: var(--ochre); } .tag--sky { --c: #5f8fd0; } .tag--viridian { --c: var(--viridian); } .tag--chrome { --c: var(--chrome); } .tag--madder { --c: var(--madder); } .tag--lilac { --c: #8a7cc8; }
+
+/* Cards: small painted canvases with a museum label */
+.toiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 28px 22px; width: 100%; }
+.toile { display: grid; gap: 10px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; color: var(--ink); }
+.toile__art { display: block; aspect-ratio: 24 / 17; }
+.toile__art svg { width: 100%; height: 100%; display: block; }
+.toile .canvas { transition: transform .45s var(--squish); }
+.toile:hover .canvas { transform: translateY(-4px) rotate(-.8deg); }
+.toile__label { display: grid; gap: 3px; padding: 10px 12px 12px; border-radius: 3px; background: var(--paper); box-shadow: 0 0 0 1px var(--paper-3); }
+.toile__label b { font: 700 18px/1.3 var(--font-h); }
+.toile__label i { font-size: 15px; color: var(--ink-3); }
+.toile__label span { font-size: 13.5px; color: var(--ink-2); }
+.toile__label .tag { margin-top: 6px; justify-self: start; }
+.toile:focus-visible { outline-offset: 6px; }
+
+/* Progress: a painting filling in, a brushstroke dragged across, and the light that's left */
+.seances { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px; width: 100%; align-items: center; }
+@media (max-width: 640px) { .seances { grid-template-columns: minmax(0, 1fr); } }
+.seance { display: grid; gap: 10px; justify-items: center; }
+.seance__c { width: 100%; max-width: 280px; }
+.seance__c svg { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; }
+.seance b, .arc b { font: 700 16.5px/1.3 var(--font-h); }
+.seance span, .arc span { font-size: 14px; color: var(--ink-2); }
+.progcol { display: grid; gap: 26px; }
+.sbar { display: grid; gap: 8px; }
+.sbar__top { display: flex; justify-content: space-between; align-items: baseline; }
+.sbar__top b { font: 700 16.5px/1.3 var(--font-h); }
+.sbar__top output { font: 600 22px/1 var(--font-d); color: var(--viridian); }
+.sbar__track { position: relative; height: 22px; border-radius: 12px 5px 14px 4px / 9px 12px 8px 12px; background: repeating-linear-gradient(90deg, transparent 0 6px, rgba(107,74,46,.07) 6px 7px), var(--paper-3); overflow: hidden; }
+.sbar__track i { position: absolute; left: 0; top: 2px; bottom: 2px; border-radius: 4px 12px 10px 4px / 4px 9px 12px 4px; background: repeating-linear-gradient(178deg, rgba(255,255,255,.18) 0 2px, transparent 2px 5px, rgba(0,0,0,.1) 5px 6px), var(--viridian); transition: width .7s var(--ease); }
+.arc { display: grid; justify-items: center; gap: 4px; }
+.arc svg { width: 200px; height: 112px; overflow: visible; }
+
+/* Steps: sketch, underpainting, catching the light, finishing */
+.etapes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; margin: 0; padding: 0; list-style: none; }
+.etapes li { position: relative; display: grid; justify-items: center; gap: 8px; text-align: center; font: 700 15px/1.3 var(--font-h); color: var(--ink-3); }
+.etapes li::before { content: ""; position: absolute; top: 26px; left: calc(-50% + 40px); right: calc(50% + 40px); height: 4px; border-radius: 4px 1px 3px 1px; background: repeating-linear-gradient(90deg, var(--paper-4) 0 8px, transparent 8px 13px); }
+.etapes li:first-child::before { display: none; }
+.etapes li.done::before, .etapes li.now::before { background: var(--cobalt); }
+.etapes svg { width: 68px; height: 52px; border-radius: 2px; background: #fffdf6; box-shadow: 0 0 0 3px #efe4cc, 2px 3px 0 4px rgba(41,38,61,.12); }
+.etapes li.done, .etapes li.now { color: var(--ink); }
+.etapes li.now svg { box-shadow: 0 0 0 3px #fffaf0, var(--sx) calc(var(--sy) + 2px) 0 4px var(--shade-a); transform: translateY(-4px); }
+.etapes li small { font: 500 12.5px/1.2 var(--font); color: var(--ink-3); }
+.etapes li.now small { color: var(--cobalt); font-weight: 700; }
+@media (max-width: 480px) { .etapes svg { width: 56px; height: 44px; } .etapes li::before { top: 22px; left: calc(-50% + 32px); right: calc(50% + 32px); } }
+
+/* Accordion: letters from the field */
+.lettres { width: 100%; display: grid; gap: 12px; }
+.lettres details { border-radius: 8px 14px 10px 12px; background: var(--paper); box-shadow: inset 5px 0 0 var(--c, var(--cobalt)); }
+.lettres details:nth-child(2) { --c: var(--viridian); } .lettres details:nth-child(3) { --c: var(--madder); }
+.lettres summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px; min-height: 58px; padding: 8px 18px 8px 22px; font: 700 17px/1.4 var(--font-h); border-radius: inherit; }
+.lettres summary::-webkit-details-marker { display: none; }
+.lettres summary::after { content: ""; margin-left: auto; flex: none; width: 18px; height: 13px; border-radius: 9px 3px 8px 4px; background: var(--paper-4); transform: rotate(-12deg); transition: transform .45s var(--squish), background .3s; }
+.lettres details[open] summary::after { background: var(--c, var(--cobalt)); transform: rotate(78deg) scale(1.2); }
+.lettres summary:hover { background: var(--paper-2); }
+.lettres summary:focus-visible { outline-offset: -3px; }
+.lettres details > div { padding: 0 22px 18px 22px; color: var(--ink-2); font-size: 16px; }
+
+/* Table: the catalogue */
+.catalogue { width: 100%; overflow-x: auto; border-radius: 8px 14px 10px 12px; background: var(--paper); }
+table { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 15.5px; }
+caption { padding: 14px 16px 6px; text-align: left; font: 700 15px/1 var(--font-h); color: var(--ink-3); }
+th { text-align: left; padding: 12px 16px 14px; font: 700 15px/1.2 var(--font-h); color: var(--ink); white-space: nowrap; background: var(--strip, none) 0 100%/240px 8px repeat-x; }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; min-height: 28px; }
+th button:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; border-radius: 4px; }
+th[aria-sort] button::after { content: "↕"; font-size: 12px; color: var(--ink-3); }
+th[aria-sort="ascending"] button::after { content: "▲"; font-size: 10px; color: var(--ink); } th[aria-sort="descending"] button::after { content: "▼"; font-size: 10px; color: var(--ink); }
+td { padding: 12px 16px; border-bottom: 1.5px dashed var(--paper-3); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: color-mix(in srgb, var(--sky-2) 30%, var(--paper)); }
+td.num, th.num { text-align: right; } td.num { font: 600 17px/1 var(--font-d); }
+td .nm { display: inline-flex; align-items: center; gap: 10px; font: 700 16px/1.3 var(--font-h); }
+td .nm i { width: 30px; height: 22px; border-radius: 2px; box-shadow: 0 0 0 2px #efe4cc; background: var(--c); }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; font: 500 14.5px/1 var(--font); color: var(--ink-2); }
+.pager ol { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.pager button { width: 44px; height: 44px; border: 0; border-radius: var(--blob); cursor: pointer; font: 600 17px/1 var(--font-d); background: var(--paper); color: var(--ink); transition: transform .35s var(--squish); }
+.pager li:nth-child(2n) button { border-radius: var(--blob-2); }
+.pager button:hover:not(:disabled) { transform: rotate(-6deg); background: var(--paper-2); }
+.pager button[aria-current="page"] { background: var(--cobalt); color: #fff; }
+.pager button:disabled { opacity: .4; cursor: not-allowed; }
+
+.empty { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 10px; }
+.empty svg { width: 140px; height: 130px; }
+.empty b { font: 700 22px/1.3 var(--font-h); }
+.empty p { color: var(--ink-2); max-width: 34ch; }
+
+/* ---------- Overlays ---------- */
+/* Dialog: a canvas set on an easel */
+dialog { padding: 0; border: 0; background: transparent; color: var(--ink); width: 100%; max-width: min(520px, calc(100vw - 32px)); overflow: visible; }
+dialog::backdrop { background: color-mix(in srgb, var(--shade-2) 55%, transparent); backdrop-filter: blur(3px); }
+dialog[open] { animation: setdown .55s var(--squish); }
+@keyframes setdown { from { opacity: 0; transform: translateY(-24px) rotate(-1.5deg); } }
+.dlg { position: relative; z-index: 1; }
+.dlg__body { padding: 14px 14px 18px; display: grid; justify-items: center; gap: 12px; text-align: center; }
+.dlg__icon { width: 72px; height: 56px; }
+.dlg h3 { font: 700 25px/1.35 var(--font-h); }
+.dlg p { color: var(--ink-2); font-size: 16px; }
+.dlg__foot { display: flex; justify-content: center; gap: 14px 18px; flex-wrap: wrap; margin-top: 10px; }
+.legs { display: block; width: 72%; height: 110px; margin: -26px auto 0; position: relative; z-index: 0; overflow: visible; }
+
+/* Side panel: a field paint box sliding in */
+.boite { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(430px, 100vw); display: grid; grid-template-rows: auto auto 1fr auto; background: var(--paper);
+  border-left: 14px solid var(--wood); border-image: repeating-linear-gradient(0deg, #a87648 0 7px, #9a6a3f 7px 15px, #8b5d35 15px 18px) 14; box-shadow: -18px 0 40px -18px rgba(41,38,61,.5);
+  transform: translateX(105%); visibility: hidden; transition: transform .6s var(--ease), visibility 0s .6s; }
+.boite.open { transform: none; visibility: visible; transition: transform .6s var(--ease); }
+.boite__tubes { height: 58px; background: linear-gradient(#b07d4c, #8b5d35); border-bottom: 4px solid var(--wood-d); overflow: hidden; }
+.boite__tubes svg { width: 100%; height: 100%; display: block; }
+.boite__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px 14px; border-bottom: 1.5px dashed var(--paper-3); }
+.boite__head small { font: 500 13px/1 var(--font); color: var(--ink-3); letter-spacing: .06em; }
+.boite__head h3 { font: 700 24px/1.3 var(--font-h); }
+.boite__body { padding: 22px 20px; overflow: auto; display: grid; gap: 22px; align-content: start; }
+.boite__foot { padding: 14px 20px 22px; display: flex; gap: 16px; justify-content: flex-end; align-items: center; flex-wrap: wrap; border-top: 1.5px dashed var(--paper-3); }
+.scrim { position: fixed; inset: 0; z-index: 59; background: color-mix(in srgb, var(--shade-2) 45%, transparent); opacity: 0; pointer-events: none; transition: opacity .4s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+/* Toasts: notes pinned up with tape and a dab of colour */
+.billets { position: fixed; z-index: 70; top: 86px; right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; width: min(350px, calc(100vw - 32px)); }
+.billet { position: relative; animation: pin .55s var(--squish); }
+.billet > div { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 4px 0 4px 2px; }
+.billet::before { content: ""; position: absolute; z-index: 2; top: -18px; left: 50%; width: 64px; height: 20px; margin-left: -32px; background: rgba(255,250,235,.72); box-shadow: 0 0 0 1px rgba(205,191,159,.6); transform: rotate(-4deg); }
+@keyframes pin { from { opacity: 0; transform: translateX(50px) rotate(6deg); } }
+.billet.out { animation: unpin .35s var(--ease) forwards; }
+@keyframes unpin { to { opacity: 0; transform: translateX(50px) rotate(4deg); } }
+.billet__dab { width: 44px; height: 38px; display: grid; place-items: center; border-radius: var(--blob); background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.45) 0 3px, transparent 8px), var(--c, var(--viridian)); color: #fff; font: 700 18px/1 var(--font-h); }
+.billet small { display: block; font: 500 12.5px/1.3 var(--font); color: var(--ink-3); letter-spacing: .06em; }
+.billet b { display: block; font: 700 17px/1.4 var(--font-h); }
+.billet span { font-size: 14px; color: var(--ink-2); }
+.billet .x { width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--ink-3); font-size: 20px; }
+.billet .x:hover { background: var(--paper-2); color: var(--ink); }
+.billet .billet__dab { color: #fff; font: 700 19px/1 var(--font-h); }
+.billet--madder { --c: var(--madder); } .billet--chrome { --c: #c68a12; } .billet--cobalt { --c: var(--cobalt); }
+
+/* ---------- Code ---------- */
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; padding: 6px 4px 14px; }
+pre.code { margin: 0; padding: 22px; overflow: auto; max-height: 540px; border-radius: 6px 12px 8px 10px; background: #23264a; color: #efe8d6; font: 400 13px/1.75 ui-monospace, Menlo, Consolas, monospace; }
+pre.code .c { color: #a7a3c9; } pre.code .p { color: #f6cf6a; } pre.code .v { color: #9fd6c2; }
+
+.foot { margin-top: 110px; padding-block: 0 50px; display: grid; justify-items: center; }
+.foot .canvas { width: min(640px, 100%); }
+.foot .canvas > div { padding: 8px 14px 12px; display: grid; justify-items: center; gap: 6px; text-align: center; font-size: 15px; color: var(--ink-2); }
+.foot b { font: italic 700 32px/1.1 var(--font-d); color: var(--ink); }
+.foot nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; }
+.foot nav a { display: inline-grid; place-items: center; min-height: 44px; padding: 0 4px; }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top"><b>Plein Air</b><small>외광 · 인상주의</small></a>
+    <div class="hours" role="radiogroup" aria-label="하루의 시간" id="hours">
+      <button role="radio" data-h="morning" aria-checked="false" aria-label="아침"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h20" stroke="#5d5873" stroke-width="2" stroke-linecap="round"/><circle cx="7" cy="14" r="4" fill="#f6cc66" stroke="#29263d" stroke-width="1.5"/><path d="M14 10l3-1M13 6l2-2" stroke="#29263d" stroke-width="1.5" stroke-linecap="round"/></svg><span>아침</span></button>
+      <button role="radio" data-h="noon" aria-checked="true" aria-label="정오"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h20" stroke="#5d5873" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="8" r="4.5" fill="#f7d548" stroke="#29263d" stroke-width="1.5"/><path d="M12 1v1.5M5 8H3.5M20.5 8H19M7 3l1 1M17 3l-1 1" stroke="#29263d" stroke-width="1.5" stroke-linecap="round"/></svg><span>정오</span></button>
+      <button role="radio" data-h="dusk" aria-checked="false" aria-label="해질녘"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h20" stroke="#5d5873" stroke-width="2" stroke-linecap="round"/><path d="M12 18a5 5 0 0 1 10 0" fill="#f07a3a" stroke="#29263d" stroke-width="1.5"/><path d="M4 14h5M6 10h4" stroke="#7a5aa8" stroke-width="2" stroke-linecap="round"/></svg><span>해질녘</span></button>
+      <button role="radio" data-h="night" aria-checked="false" aria-label="밤"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3a8 8 0 1 0 6 12 6.5 6.5 0 0 1-6-12z" fill="#f3cf6a" stroke="#29263d" stroke-width="1.5" stroke-linejoin="round"/><path d="M5 5v2M4 6h2" stroke="#29263d" stroke-width="1.3" stroke-linecap="round"/></svg><span>밤</span></button>
+    </div>
+    <nav aria-label="섹션" id="nav"><a href="#base">기초</a><a href="#press">누르기</a><a href="#toggle">켜고 끄기</a><a href="#choose">고르기</a><a href="#type-in">입력</a><a href="#show">보여 주기</a><a href="#float">띄우기</a><a href="#code">코드</a></nav>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <svg class="pa hero__paint" id="heroPaint" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap hero__in">
+    <div class="canvas hero__card"><div>
+      <p class="kicker">DESIGN SYSTEM · 인상주의</p>
+      <h1>Plein <em>Air</em><small>빛이 바뀌기 전에, 밖으로</small></h1>
+      <p>캔버스를 들고 들판에 나가 20분마다 바뀌는 빛을 그립니다. 버튼은 두껍게 올린 물감, 그림자는 회색이 아닌 보라와 파랑. 위에서 하루의 시간을 바꾸면 페이지 전체가 다시 칠해집니다.</p>
+      <div class="hero__cta">
+        <button class="go" data-go type="button">
+          <svg viewBox="0 0 170 150" aria-hidden="true">
+            <ellipse class="ground-sh" cx="86" cy="142" rx="66" ry="6" style="fill:var(--shade);opacity:.45"/>
+            <path d="M52 24L28 142M88 24L112 142M70 30v112" stroke="#6b4a2e" stroke-width="5" stroke-linecap="round"/>
+            <path d="M52 24L28 142M88 24L112 142" stroke="#b07d4c" stroke-width="2" stroke-linecap="round"/>
+            <rect x="34" y="74" width="72" height="6" rx="2" fill="#8b5d35"/>
+            <rect x="38" y="20" width="64" height="54" fill="#fbf6ea" stroke="#efe4cc" stroke-width="3"/>
+            <g class="pa"><rect x="41" y="23" width="58" height="26" class="k-sk"/><rect x="41" y="47" width="58" height="24" class="k-f1"/>
+              <rect x="44" y="27" width="20" height="5" rx="2.5" class="k-s1"/><rect x="66" y="32" width="18" height="5" rx="2.5" class="k-s2"/><rect x="80" y="26" width="13" height="10" rx="5" class="k-sun"/>
+              <rect x="46" y="52" width="22" height="5" rx="2.5" class="k-f2"/><rect x="72" y="58" width="22" height="5" rx="2.5" class="k-sun"/><rect x="46" y="62" width="16" height="5" rx="2.5" class="k-sh"/>
+              <path d="M60 52q8-16 16 0z" class="k-hl"/><path d="M68 52q4-9 8 0z" class="k-hr"/></g>
+            <g class="splash"><rect x="58" y="28" width="12" height="5" rx="2.5" fill="#2c4a9e" transform="rotate(-30 64 30)"/><rect x="88" y="40" width="10" height="5" rx="2.5" fill="#e8a0ad" transform="rotate(20 93 42)"/><rect x="50" y="50" width="10" height="5" rx="2.5" fill="#f2c434"/></g>
+            <path d="M136 44L124 140" stroke="#6b4a2e" stroke-width="3" stroke-linecap="round"/>
+            <g class="canopy"><path d="M106 44Q136 6 166 44Q158 38 151 44Q143 38 136 44Q129 38 121 44Q114 38 106 44Z" fill="#e8a0ad"/>
+              <path d="M136 10Q129 26 121 44M136 10Q143 26 151 44M136 10V44" stroke="#fbf6ea" stroke-width="2.4" fill="none"/><circle cx="136" cy="9" r="3" fill="#6b4a2e"/></g>
+          </svg>
+          <b>그리러 나가기</b>
+        </button>
+        <a class="btn btn--wash" href="#code"><span>토큰 받기</span></a>
+      </div>
+    </div></div>
+    <p class="hero__cap"><span class="hand" id="heroCap">건초더미, 정오.</span> <span>위에서 시간을 바꿔 보세요</span></p>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- 기초 -->
+<section class="room" id="base">
+  <header class="canvas cartel"><div><span class="cartel__k">I · <i lang="fr">Les fondations</i></span><h2><span>기초</span><svg viewBox="0 0 240 22" preserveAspectRatio="none" aria-hidden="true"><path class="k-sun" d="M4 13C60 5 140 4 236 9c3 2 2 6-5 6C150 12 70 14 9 19c-6 0-8-4-5-6z"/></svg></h2><p>색은 섞지 않고 나란히 놓습니다. 빛은 시간마다 바뀌고, 그늘은 회색이 아니라 빛의 반대색. 글은 언제나 맑은 크림색 캔버스 위에서 읽습니다.</p></div></header>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>하루의 빛 <i lang="fr">Les heures</i></h3><p>같은 건초더미도 아침, 정오, 해질녘, 밤에 전혀 다른 색입니다. 시간대마다 하늘·빛·그림자 토큰과 그림자가 떨어지는 방향이 함께 바뀝니다.</p><ul><li>카드를 누르면 그 시간으로 바뀝니다.</li><li>그림자는 해 반대편으로, 해가 낮으면 길게.</li></ul></div>
+    <div class="ground"><div class="hourcards" id="hourcards"></div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>물감 <i lang="fr">La boîte</i></h3><p>빛의 색은 시간을 따라 움직이고, 물감 상자의 색은 그대로입니다. 동작은 코발트, 위험은 매더 레드, 완료는 비리디언. 검정은 쓰지 않고 보랏빛 먹으로 대신합니다.</p></div>
+    <div class="ground col"><div class="swatches" id="swatches"></div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>붓 자국 <i lang="fr">La touche</i></h3><p>모든 모양은 같은 붓 자국 넷에서 나옵니다. 짧게 찍는 점, 길게 끄는 획, 캔버스 가장자리, 색이 있는 그림자.</p></div>
+    <div class="ground"><div class="marks" id="marks"></div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>글자</h3><p>큰 제목의 라틴 글자는 Playfair Display 이탤릭, 한글 제목은 고운바탕. 본문은 또렷한 Noto Sans KR. 손글씨는 나눔펜으로 아주 조금만.</p></div>
+    <div class="ground col" id="typescale" style="display:block;padding:24px 26px"></div></div></div>
+
+  <ol class="rules">
+    <li class="canvas"><div><b>그늘에도 색이 있다</b><span>노란 햇빛 아래 그늘은 보라, 주황 노을 아래 그늘은 남보라. 그림자는 언제나 <code>--shade</code>로 칠합니다.</span></div></li>
+    <li class="canvas"><div><b>섞지 말고 나란히</b><span>팔레트에서 섞지 않고 순색 점을 나란히 찍습니다. 눈이 멀리서 섞어 줍니다.</span></div></li>
+    <li class="canvas"><div><b>빛은 20분</b><span>시간대를 바꾸면 하늘, 빛, 그림자 색과 그림자 방향이 함께 바뀝니다. 컴포넌트는 토큰만 씁니다.</span></div></li>
+    <li class="canvas"><div><b>읽는 곳은 맑게</b><span>물감은 가장자리에만. 본문 16.5px, 누르는 곳 44px 이상, 대비 4.5:1 이상. 움직임 줄이기면 반짝임을 멈춥니다.</span></div></li>
+  </ol>
+</section>
+
+<!-- 누르기 -->
+<section class="room" id="press">
+  <header class="canvas cartel"><div><span class="cartel__k">II · <i lang="fr">Appuyer</i></span><h2><span>누르기</span><svg viewBox="0 0 240 22" preserveAspectRatio="none" aria-hidden="true"><path class="k-sun" d="M4 13C60 5 140 4 236 9c3 2 2 6-5 6C150 12 70 14 9 19c-6 0-8-4-5-6z"/></svg></h2><p>주요 버튼은 두껍게 올린 물감 한 덩이. 어깨에는 지금 시간의 빛이 한 획 걸리고, 아래로는 색 있는 그림자가 떨어집니다.</p></div></header>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>임파스토 버튼 <i lang="fr">Empâtement</i></h3><p>코발트 덩이는 한 화면에 하나. 보조는 묽게 편 물감, 위험은 매더 레드를 끌어 바른 자국, 가장 조용한 것은 아직 칠하지 않은 목탄 선.</p><ul><li>레이블은 짧은 동사: "저장하기".</li><li>버튼 위 빛 한 획은 시간대를 따라 색이 바뀝니다.</li></ul></div>
+    <div class="ground"><button class="btn"><span>저장하기</span></button><span style="position:relative;display:inline-flex"><button class="btn btn--viridian"><span>스케치북</span></button><span class="count-badge" aria-label="새 스케치 3장">3</span></span><button class="btn btn--wash"><span>미리 보기</span></button><button class="btn btn--madder"><span>지우기</span></button><button class="btn btn--sketch"><span>나중에</span></button></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>크기와 상태</h3><p>쓸 수 없을 때는 물감을 걷어 낸 빈 캔버스와 점선 밑그림만. 기다리는 동안에는 팔레트 위 세 가지 색이 섞입니다.</p></div>
+    <div class="ground"><button class="btn btn--sm"><span>작게</span></button><button class="btn" disabled><span>물감 부족</span></button><button class="btn" id="busyBtn"><span>그림 올리기</span></button></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>팔레트 버튼 <i lang="fr">La palette</i></h3><p>아이콘만 있는 버튼은 팔레트 위에 막 짜 놓은 물감 덩이. 올리면 살짝 눌려 돌아갑니다.</p><ul><li>이름(aria-label)과 말풍선을 꼭 붙입니다.</li></ul></div>
+    <div class="ground"><div class="palette">
+      <span class="tip"><button class="blob" aria-label="붓 고르기"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-8 8-4 1 1-4z"/><path d="M4 20c2 0 3-1 3-3"/></svg></button><span class="tip__b" role="tooltip">붓 고르기</span></span>
+      <span class="tip"><button class="blob blob--cobalt" aria-label="색 섞기"><svg viewBox="0 0 24 24"><circle cx="9" cy="10" r="5"/><circle cx="15" cy="14" r="5"/></svg></button><span class="tip__b" role="tooltip">색 섞기</span></span>
+      <span class="tip"><button class="blob blob--rose" aria-label="빛 재기"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M5 19l2-2"/></svg></button><span class="tip__b" role="tooltip">빛 재기</span></span>
+      <span class="tip"><button class="blob blob--viridian" aria-label="작업 위치"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.4"/></svg></button><span class="tip__b" role="tooltip">작업 위치</span></span>
+    </div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>그리러 나가기 <i lang="fr">Sur le motif</i></h3><p>한 화면에 하나뿐인 가장 큰 행동. 이젤 위 작은 캔버스는 지금 시간대의 색으로 칠해져 있고, 누르면 양산이 한 바퀴 돌며 펼쳐집니다.</p></div>
+    <div class="ground" id="goYard"></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>더보기 메뉴 <i lang="fr">Carnet</i></h3><p>자주 쓰지 않는 동작은 스케치북 한 장에 접어 둡니다. ↑↓로 이동, Esc로 닫기.</p></div>
+    <div class="ground" style="min-height:340px;align-content:start;padding-top:46px"><div class="row"><div><svg class="thumb pa" id="rowThumb" viewBox="560 200 640 400" preserveAspectRatio="xMidYMid slice" data-hour="dusk" aria-hidden="true"></svg><div><b>건초더미, 해질녘</b><span>캔버스에 유채 · 오늘 18:40</span></div></div>
+      <div class="menu"><button class="ibtn" aria-label="더보기" aria-haspopup="menu" aria-expanded="false" id="menuBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="10" width="5" height="4" rx="2" fill="#29263d"/><rect x="10" y="10" width="5" height="4" rx="2" fill="#29263d" transform="rotate(-12 12 12)"/><rect x="17" y="10" width="5" height="4" rx="2" fill="#29263d"/></svg></button>
+        <ul class="menu__list" role="menu" id="menuList" hidden><li role="none"><button role="menuitem" tabindex="-1">크게 보기 <kbd>V</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">연작에 넣기 <kbd>S</kbd></button></li><li role="none"><button role="menuitem" tabindex="-1">액자 고르기 <kbd>F</kbd></button></li><li role="none" class="menu__sep"></li><li role="none"><button role="menuitem" tabindex="-1" class="danger">긁어내기</button></li></ul></div></div></div></div></div>
+</section>
+
+<!-- 켜고 끄기 -->
+<section class="room" id="toggle">
+  <header class="canvas cartel"><div><span class="cartel__k">III · <i lang="fr">Allumer</i></span><h2><span>켜고 끄기</span><svg viewBox="0 0 240 22" preserveAspectRatio="none" aria-hidden="true"><path class="k-sun" d="M4 13C60 5 140 4 236 9c3 2 2 6-5 6C150 12 70 14 9 19c-6 0-8-4-5-6z"/></svg></h2><p>양산을 펴면 풀밭에 보랏빛 그늘이 생기고, 연못에 수련 잎이 떠가면 꽃이 핍니다. 고르는 것은 붓 한 획과 팔레트의 물감.</p></div></header>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>양산 스위치 <i lang="fr">L'ombrelle</i></h3><p>큰 설정. 누르면 접힌 양산이 펼쳐지고 그 아래로 지금 시간의 그림자 색이 깔립니다. 켜짐/꺼짐을 글자로도 적습니다.</p></div>
+    <div class="ground col" style="align-items:flex-start;gap:22px" id="ombrelles"></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>수련 스위치 <i lang="fr">Nymphéa</i></h3><p>작은 설정. 잿빛 연못이 켜지면 푸르게 맑아지고, 수련 잎이 건너가 분홍 꽃을 피웁니다.</p></div>
+    <div class="ground col" style="align-items:flex-start">
+      <button class="lily" role="switch" aria-checked="true"><span class="lily__pond" aria-hidden="true"><span class="lily__pad"><svg viewBox="0 0 28 28"><g fill="#f2b6c6" stroke="#c9667f" stroke-width=".8"><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(72 14 14)"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(144 14 14)"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(216 14 14)"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(288 14 14)"/></g><circle cx="14" cy="14" r="2.6" fill="#f2c434"/></svg></span></span><span class="sw-t"><b>젖은 그림 보호</b><small>마르기 전 캔버스를 가려 둡니다</small></span></button>
+      <button class="lily" role="switch" aria-checked="false"><span class="lily__pond" aria-hidden="true"><span class="lily__pad"><svg viewBox="0 0 28 28"><g fill="#fbeef2" stroke="#c9667f" stroke-width=".8"><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(72 14 14)"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(144 14 14)"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(216 14 14)"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(288 14 14)"/></g><circle cx="14" cy="14" r="2.6" fill="#f2c434"/></svg></span></span><span class="sw-t"><b>해 지기 30분 전 알림</b><small>빛이 바뀌기 전에 붓을 정리합니다</small></span></button>
+    </div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>붓 체크 <i lang="fr">Touche</i></h3><p>여러 개를 고를 때. 작은 캔버스 위에 코발트를 듬뿍 묻힌 붓으로 한 번에 긋습니다. 일부만 고르면 "전부"에는 가로 한 획.</p></div>
+    <div class="ground col" style="align-items:flex-start"><fieldset class="stack"><legend>사생 가방에 챙길 것</legend>
+      <label class="check"><input type="checkbox" id="chkAll"><span class="check__box"><svg viewBox="0 0 38 38"><path d="M8 20c3 2 6 5 8 9 5-9 10-16 16-22"/><path d="M9 21c3 2 5 4 7 7 5-8 10-15 15-20"/></svg></span><span class="check__t"><b>전부</b></span></label>
+      <div class="stack" style="padding-left:42px">
+        <label class="check"><input type="checkbox" class="ci" checked><span class="check__box"><svg viewBox="0 0 38 38"><path d="M8 20c3 2 6 5 8 9 5-9 10-16 16-22"/><path d="M9 21c3 2 5 4 7 7 5-8 10-15 15-20"/></svg></span><span class="check__t"><b>튜브 물감 12색</b><small>검정은 빼고</small></span></label>
+        <label class="check"><input type="checkbox" class="ci"><span class="check__box"><svg viewBox="0 0 38 38"><path d="M8 20c3 2 6 5 8 9 5-9 10-16 16-22"/><path d="M9 21c3 2 5 4 7 7 5-8 10-15 15-20"/></svg></span><span class="check__t"><b>접이식 이젤</b><small>바람 부는 날엔 돌로 눌러 둡니다</small></span></label>
+        <label class="check"><input type="checkbox" disabled><span class="check__box"><svg viewBox="0 0 38 38"><path d="M8 20c3 2 6 5 8 9 5-9 10-16 16-22"/><path d="M9 21c3 2 5 4 7 7 5-8 10-15 15-20"/></svg></span><span class="check__t"><b>큰 캔버스 (F50)</b><small>작업실에 두고 갑니다</small></span></label>
+      </div></fieldset></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>팔레트 라디오 <i lang="fr">Couleurs pures</i></h3><p>하나만 고를 때. 팔레트의 빈 칸 중 고른 칸에 물감이 짜입니다.</p></div>
+    <div class="ground col" style="align-items:flex-start"><fieldset class="stack"><legend>오늘의 주 색</legend>
+      <label class="check"><input type="radio" name="hue" checked><span class="well" style="--c:var(--cobalt)"></span><span class="check__t"><b>코발트 블루</b><small>하늘과 그늘</small></span></label>
+      <label class="check"><input type="radio" name="hue"><span class="well" style="--c:var(--chrome)"></span><span class="check__t"><b>크롬 옐로</b><small>햇빛이 닿은 곳</small></span></label>
+      <label class="check"><input type="radio" name="hue"><span class="well" style="--c:var(--viridian)"></span><span class="check__t"><b>비리디언</b><small>물과 잎</small></span></label>
+    </fieldset></div></div></div>
+</section>
+
+<!-- 고르기 -->
+<section class="room" id="choose">
+  <header class="canvas cartel"><div><span class="cartel__k">IV · <i lang="fr">Choisir</i></span><h2><span>고르기</span><svg viewBox="0 0 240 22" preserveAspectRatio="none" aria-hidden="true"><path class="k-sun" d="M4 13C60 5 140 4 236 9c3 2 2 6-5 6C150 12 70 14 9 19c-6 0-8-4-5-6z"/></svg></h2><p>고른 것은 한 획으로 칠해지거나, 기대 있던 캔버스가 바로 섭니다.</p></div></header>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>붓 고르기 <i lang="fr">Pinceaux</i></h3><p>두셋 중 하나를 바로 바꿀 때. 고른 칸에 코발트 한 획이 왼쪽에서 오른쪽으로 그어집니다. ←→ 키로 옮깁니다.</p></div>
+    <div class="ground"><div class="brushes" role="radiogroup" aria-label="붓"><button role="radio" aria-checked="false"><span>납작붓</span></button><button role="radio" aria-checked="true"><span>둥근붓</span></button><button role="radio" aria-checked="false"><span>부채붓</span></button><button role="radio" aria-checked="false"><span>나이프</span></button></div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>연작 탭 <i lang="fr">Les meules</i></h3><p>같은 건초더미를 시간마다 다시 그린 연작. 서로 기대 있던 캔버스 중 고른 것이 똑바로 서고 그림자를 드리웁니다.</p><ul><li>←→, Home, End 키로 넘깁니다.</li></ul></div>
+    <div class="ground col"><div>
+      <div class="meules" role="tablist" aria-label="건초더미 연작" id="meules"></div>
+      <div id="meulePanels"></div>
+    </div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>모티프 필터 <i lang="fr">Motifs</i></h3><p>여러 개를 켜고 끄는 필터. 켜면 그 모티프의 색이 한 점 찍힙니다.</p></div>
+    <div class="ground"><div class="motifs"><button class="motif" aria-pressed="true" style="--c:#e57d9a"><i></i>수련</button><button class="motif" aria-pressed="false" style="--c:#4f8a52"><i></i>포플러</button><button class="motif" aria-pressed="true" style="--c:#2f8f6f"><i></i>정원 다리</button><button class="motif" aria-pressed="false" style="--c:#8a7cc8"><i></i>성당</button><button class="motif" aria-pressed="false" style="--c:#6e7896"><i></i>비 오는 대로</button><button class="motif" aria-pressed="false" style="--c:#d6a453"><i></i>풀밭 소풍</button></div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>드롭다운과 해 <i lang="fr">Le soleil</i></h3><p>목록이 길면 드롭다운. 해의 위치를 끌면 건초더미의 그림자가 반대편으로 돌고, 길이와 색이 함께 바뀝니다. 아침엔 라일락, 한낮엔 코발트, 저녁엔 보라.</p></div>
+    <div class="ground col">
+      <div class="field"><label for="sel1">캔버스 크기 <small>호수 기준</small></label><div class="input"><select id="sel1"><option>F6 · 41×32cm (소품)</option><option selected>F15 · 65×54cm</option><option>F30 · 91×73cm</option><option>F50 · 117×91cm (대작)</option></select><svg class="chev" viewBox="0 0 22 14" aria-hidden="true"><path d="M2 3c4 3 7 6 9 9 3-4 6-7 9-9" fill="none" stroke="#2c4a9e" stroke-width="3" stroke-linecap="round"/></svg></div></div>
+      <div class="sunrange"><div class="sunrange__top"><label class="flabel" for="rg">해의 위치</label><output id="rgOut" for="rg"></output></div>
+        <svg class="sunrange__scene" id="sunScene" viewBox="0 0 320 110" aria-hidden="true"></svg>
+        <input type="range" id="rg" min="6" max="20" step="0.5" value="15"><div class="sunrange__scale" aria-hidden="true"><span>06시</span><span>13시</span><span>20시</span></div></div>
+    </div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>그리러 갈 곳 <i lang="fr">Les lieux</i></h3><p>사이드 메뉴는 이젤을 펼 장소 목록. 지금 있는 곳은 햇빛 한 획으로 칠합니다.</p></div>
+    <div class="ground"><nav aria-label="그리러 갈 곳"><ul class="spots" id="spots">
+      <li><a href="#" aria-current="page"><i style="--c:#2f8f6f"></i>정원 연못<em>수련 6점</em></a></li>
+      <li><a href="#"><i style="--c:#5f9fd6"></i>강변 둑길<em>4점</em></a></li>
+      <li><a href="#"><i style="--c:#8a7cc8"></i>성당 앞 광장<em>12점</em></a></li>
+      <li><a href="#"><i style="--c:#4f8a52"></i>포플러 길<em></em></a></li>
+      <li><a href="#"><i style="--c:#6e7896"></i>비 오는 대로<em class="new">새 2</em></a></li>
+      <li><a href="#"><i style="--c:#d6a453"></i>기차역<em>2점</em></a></li>
+    </ul></nav></div></div></div>
+</section>
+
+<!-- 입력 -->
+<section class="room" id="type-in">
+  <header class="canvas cartel"><div><span class="cartel__k">V · <i lang="fr">Écrire</i></span><h2><span>입력</span><svg viewBox="0 0 240 22" preserveAspectRatio="none" aria-hidden="true"><path class="k-sun" d="M4 13C60 5 140 4 236 9c3 2 2 6-5 6C150 12 70 14 9 19c-6 0-8-4-5-6z"/></svg></h2><p>입력 칸은 젯소를 바른 캔버스 띠. 쓰는 동안 아래로 코발트 한 획이 그어집니다.</p></div></header>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>글자 입력 <i lang="fr">Notes</i></h3><p>이름은 칸 위에. 틀리면 칸이 매더 레드로 바뀌고, 무엇을 어떻게 고칠지 한 문장으로 적습니다.</p></div>
+    <div class="ground col"><div class="grid2">
+      <div class="field"><label for="i1">화가 이름</label><div class="input"><input id="i1" placeholder="예: 한여름" autocomplete="name"></div></div>
+      <div class="field"><label for="i2">이메일</label><div class="input is-err"><input id="i2" type="email" value="sunlight.studio" aria-invalid="true" aria-describedby="i2e" autocomplete="email"></div><span class="help err" id="i2e">@가 빠졌어요. 예: name@atelier.kr</span></div>
+      <div class="field"><label for="i3">찾기</label><div class="input"><span class="input__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></span><input id="i3" type="search" placeholder="모티프, 장소"></div></div>
+      <div class="field"><label for="i4">비밀번호</label><div class="input is-ok"><input id="i4" type="password" value="morningmist" autocomplete="new-password" aria-describedby="i4h"><button class="input__btn" type="button" id="pwBtn" aria-pressed="false" aria-controls="i4">보기</button></div><span class="help ok" id="i4h">충분히 깁니다</span></div>
+      <div class="field"><label for="i5">챙길 캔버스</label><div class="input"><input id="i5" class="num" type="number" value="3" min="1" max="12"><span class="input__aff">점</span></div></div>
+      <div class="field"><label for="i6">작업실 주소 <small>바꿀 수 없음</small></label><div class="input is-off"><input id="i6" value="강변 마을 3번지" disabled></div></div>
+    </div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>날짜와 긴 글 <i lang="fr">Carnet</i></h3><p>날짜와 시각은 기본 달력으로. 여러 줄 메모는 남은 글자 수를 오른쪽 아래에.</p></div>
+    <div class="ground col">
+      <div class="grid2"><div class="field"><label for="d1">나갈 날</label><div class="input"><input id="d1" type="date" value="2026-11-08"></div></div><div class="field"><label for="d2">해 뜨는 시각</label><div class="input"><input id="d2" type="time" value="07:02"></div></div></div>
+      <div class="field"><label for="ta">오늘의 빛 메모</label><div class="input"><textarea id="ta" maxlength="160" placeholder="예: 11시쯤 그늘이 코발트로 바뀜">안개가 걷히자 건초더미 왼쪽이 분홍빛, 그늘은 라일락. 20분 뒤엔 벌써 노랗게 바뀌었다.</textarea></div><div class="count" id="taCount" aria-live="polite"></div></div>
+    </div></div></div>
+</section>
+
+<!-- 보여 주기 -->
+<section class="room" id="show">
+  <header class="canvas cartel"><div><span class="cartel__k">VI · <i lang="fr">Montrer</i></span><h2><span>보여 주기</span><svg viewBox="0 0 240 22" preserveAspectRatio="none" aria-hidden="true"><path class="k-sun" d="M4 13C60 5 140 4 236 9c3 2 2 6-5 6C150 12 70 14 9 19c-6 0-8-4-5-6z"/></svg></h2><p>작은 그림 카드와 미술관 라벨, 한 획씩 채워지는 그림, 스케치에서 마무리까지의 단계.</p></div></header>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>물감 라벨 <i lang="fr">Étiquettes</i></h3><p>상태는 물감 한 점과 묽은 바탕. 색과 글자를 함께 씁니다.</p></div>
+    <div class="ground"><div class="tags"><span class="tag tag--sketch">스케치</span><span class="tag tag--ochre">밑칠</span><span class="tag tag--sky">그리는 중</span><span class="tag tag--viridian">완성</span><span class="tag tag--chrome">전시 중</span><span class="tag tag--lilac">연작</span><span class="tag tag--madder">낙선</span></div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>작은 캔버스 <i lang="fr">Petites toiles</i></h3><p>카드는 물감이 덜 마른 작은 캔버스와 그 아래 미술관 라벨. 제목, 재료와 크기, 그린 시간을 적습니다. 누르면 사생 상자가 열립니다.</p></div>
+    <div class="ground"><div class="toiles" id="toiles"></div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>진행 <i lang="fr">La séance</i></h3><p>오래 걸리는 일은 그림이 한 획씩 채워지는 모습으로. 짧은 일은 붓 한 획이 끌려가는 막대로, 남은 빛은 해의 호로 보여 줍니다.</p></div>
+    <div class="ground col" style="gap:30px">
+      <div class="seances">
+        <div class="seance" role="progressbar" aria-label="포플러 길 그리는 중" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="seance"><div class="canvas canvas--sm seance__c"><svg viewBox="0 0 240 160" id="seanceSvg" aria-hidden="true"></svg></div><b id="seanceT">빛 잡는 중</b><span id="seanceS"></span></div>
+        <div class="progcol">
+          <div class="sbar"><div class="sbar__top"><b>물감 마르는 중</b><output id="sbarOut">36%</output></div><div class="sbar__track" role="progressbar" aria-label="물감 마르는 중" aria-valuemin="0" aria-valuemax="100" aria-valuenow="36" id="sbar"><i style="width:36%"></i></div></div>
+          <div class="arc" role="progressbar" aria-label="남은 빛" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" aria-valuetext="남은 빛 40분" id="arc"></div>
+        </div>
+      </div>
+      <ol class="etapes" aria-label="한 점을 그리는 순서">
+        <li class="done"><svg viewBox="0 0 68 52" aria-hidden="true"><path d="M8 34c10-2 18-3 26-2s18 3 26 1M24 32c2-12 10-16 16 0M12 16c8-2 14-1 20 1" stroke="#5d5873" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>스케치<small>목탄</small></li>
+        <li class="done"><svg viewBox="0 0 68 52" aria-hidden="true"><rect x="4" y="4" width="60" height="28" fill="#e9d6b4"/><rect x="4" y="30" width="60" height="18" fill="#d9b98a"/><path d="M24 32c2-12 10-16 16 0z" fill="#c7955a"/><path d="M8 34c10-2 18-3 26-2s18 3 26 1" stroke="#8b5d35" stroke-width="1" fill="none"/></svg>밑칠<small>묽은 황토</small></li>
+        <li class="now" aria-current="step"><svg viewBox="0 0 68 52" aria-hidden="true"><rect x="4" y="4" width="60" height="28" fill="#cfe2f2"/><rect x="4" y="30" width="60" height="18" fill="#c6d77f"/><g><rect x="8" y="8" width="12" height="4" rx="2" fill="#8dbde6"/><rect x="24" y="12" width="14" height="4" rx="2" fill="#f3f0d8"/><rect x="44" y="8" width="10" height="7" rx="3.5" fill="#f7d548"/><rect x="40" y="18" width="14" height="4" rx="2" fill="#d5e7f3"/><rect x="10" y="36" width="14" height="4" rx="2" fill="#e6d26a"/><rect x="40" y="38" width="16" height="4" rx="2" fill="#5f6fc4"/></g><path d="M24 32c2-12 10-16 16 0z" fill="#f1cb58"/><path d="M32 32c1-8 5-10 8 0z" fill="#e2ad4c"/></svg>빛 잡기<small>지금 · 20분 남음</small></li>
+        <li><svg viewBox="0 0 68 52" aria-hidden="true"><path d="M8 34c10-2 18-3 26-2s18 3 26 1M24 32c2-12 10-16 16 0" stroke="#cdbf9f" stroke-width="1.2" fill="none" stroke-dasharray="3 3"/><path d="M48 44c2-3 4-3 5 0s3 2 5-1" stroke="#cdbf9f" stroke-width="1.2" fill="none"/></svg>마무리<small>서명과 액자</small></li>
+      </ol>
+    </div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>들판에서 온 편지 <i lang="fr">Lettres</i></h3><p>긴 설명은 접어 둔 편지처럼. 펼치면 오른쪽 물감 점이 돌아서며 색이 듭니다.</p></div>
+    <div class="ground"><div class="lettres">
+      <details open><summary>그림자는 왜 보라색인가요?</summary><div>햇빛이 노랗고 따뜻할수록 그늘은 그 반대인 푸른 보라로 보입니다. 그래서 이 시스템의 모든 그림자는 회색 대신 <code>--shade</code>를 쓰고, 시간대마다 색과 방향이 바뀝니다.</div></details>
+      <details><summary>검은색은 왜 쓰지 않나요?</summary><div>자연에는 완전한 검정이 거의 없습니다. 가장 어두운 곳도 짙은 남색이나 보라. 글자색도 보랏빛이 도는 먹(<code>#29263D</code>)입니다.</div></details>
+      <details><summary>한 점에 얼마나 걸리나요?</summary><div>같은 빛은 20분 남짓. 그래서 캔버스를 여러 개 두고 빛이 바뀔 때마다 다음 캔버스로 옮겨 그립니다. 연작 탭이 그 방식입니다.</div></details>
+    </div></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>작품 목록 <i lang="fr">Catalogue</i></h3><p>그린 그림을 한눈에. 머리 아래로 붓 자국 한 줄, 줄 사이는 점선.</p><ul><li>머리글을 누르면 정렬됩니다.</li></ul></div>
+    <div class="ground col">
+      <div class="catalogue"><table id="tbl"><caption>11월 사생 기록</caption><thead><tr><th scope="col" aria-sort="none"><button data-k="0">작품</button></th><th scope="col">장소</th><th scope="col">시간대</th><th scope="col" class="num" aria-sort="descending"><button data-k="3">걸린 시간</button></th></tr></thead>
+      <tbody>
+        <tr><td><span class="nm"><i style="--c:linear-gradient(#f4c8c2 50%,#bcd193 50%)"></i>건초더미, 아침</span></td><td>들판</td><td><span class="tag tag--lilac">아침</span></td><td class="num">95분</td></tr>
+        <tr><td><span class="nm"><i style="--c:linear-gradient(#3f6f8a 40%,#5d8f4f 40% 60%,#4c86a3 60%)"></i>수련 연못</span></td><td>정원 연못</td><td><span class="tag tag--sky">정오</span></td><td class="num">140분</td></tr>
+        <tr><td><span class="nm"><i style="--c:linear-gradient(#a9a9c4 45%,#6e6f8f 45%)"></i>비 오는 대로</span></td><td>대로</td><td><span class="tag tag--sketch">흐림</span></td><td class="num">60분</td></tr>
+        <tr><td><span class="nm"><i style="--c:linear-gradient(#bcd6ee 55%,#c9d36f 55%)"></i>포플러 세 그루</span></td><td>포플러 길</td><td><span class="tag tag--chrome">해질녘</span></td><td class="num">45분</td></tr>
+      </tbody></table></div>
+      <div class="pager"><span id="pgInfo">작품 12점 중 1–4</span><nav aria-label="쪽"><ol><li><button aria-label="이전 쪽" disabled>‹</button></li><li><button aria-current="page">1</button></li><li><button>2</button></li><li><button>3</button></li><li><button aria-label="다음 쪽">›</button></li></ol></nav></div>
+    </div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>빈 캔버스 <i lang="fr">Toile blanche</i></h3><p>빈 곳에는 이젤 위 하얀 캔버스 하나와 할 일 하나.</p></div>
+    <div class="ground"><div class="empty"><svg viewBox="0 0 140 130" aria-hidden="true"><ellipse cx="74" cy="124" rx="50" ry="5" class="k-sh" opacity=".35"/><path d="M48 18L26 124M92 18l22 106M70 24v100" stroke="#9a6a3f" stroke-width="4" stroke-linecap="round"/><rect x="30" y="76" width="80" height="6" rx="2" fill="#8b5d35"/><rect x="36" y="12" width="68" height="64" fill="#fffdf6" stroke="#e6dcc6" stroke-width="3"/><path d="M50 60c6-3 10-3 14 0" stroke="#cdbf9f" stroke-width="1.4" fill="none" stroke-dasharray="3 3"/></svg><b>아직 빈 캔버스예요</b><p>첫 붓질이 가장 어렵습니다. 빛이 좋을 때 밖으로 나가 보세요.</p><button class="btn btn--sm" type="button" data-go-small><span>이젤 펴기</span></button></div></div></div></div>
+</section>
+
+<!-- 띄우기 -->
+<section class="room" id="float">
+  <header class="canvas cartel"><div><span class="cartel__k">VII · <i lang="fr">Flotter</i></span><h2><span>띄우기</span><svg viewBox="0 0 240 22" preserveAspectRatio="none" aria-hidden="true"><path class="k-sun" d="M4 13C60 5 140 4 236 9c3 2 2 6-5 6C150 12 70 14 9 19c-6 0-8-4-5-6z"/></svg></h2><p>확인 창은 이젤에 세운 캔버스, 옆 판은 밀려 들어오는 사생 상자, 알림은 테이프로 붙인 쪽지.</p></div></header>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>이젤 확인 창 <i lang="fr">Le chevalet</i></h3><p>되돌릴 수 없는 일 앞에서. 뒤는 그늘 색으로 가라앉고, 버튼은 결과를 말합니다.</p></div>
+    <div class="ground"><button class="btn btn--madder" id="dlgOpen"><span>그림 긁어내기…</span></button></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>사생 상자 옆 판 <i lang="fr">Boîte de campagne</i></h3><p>지금 화면을 떠나지 않고 자세히 볼 때. 뚜껑 안쪽에 물감 튜브가 줄지어 있는 나무 상자가 오른쪽에서 밀려옵니다.</p></div>
+    <div class="ground"><button class="btn btn--wash" id="sideOpen"><span>그림 자세히</span></button></div></div></div>
+
+  <div class="canvas"><div class="spec"><div class="spec__note"><h3>쪽지 알림 <i lang="fr">Billets</i></h3><p>방금 일어난 일. 테이프로 붙인 쪽지가 오른쪽 위에 붙었다가 5초 뒤 떨어집니다. 잘못된 일은 매더 레드 쪽지로, 화면 읽기에 바로 알립니다.</p></div>
+    <div class="ground"><button class="btn btn--viridian" data-toast="saved"><span>저장 알림</span></button><button class="btn btn--wash" data-toast="light"><span>빛 알림</span></button><button class="btn btn--madder" data-toast="rain"><span>오류 알림</span></button></div></div></div>
+</section>
+
+<!-- 코드 -->
+<section class="room" id="code">
+  <header class="canvas cartel"><div><span class="cartel__k">VIII · <i lang="fr">Le code</i></span><h2><span>코드</span><svg viewBox="0 0 240 22" preserveAspectRatio="none" aria-hidden="true"><path class="k-sun" d="M4 13C60 5 140 4 236 9c3 2 2 6-5 6C150 12 70 14 9 19c-6 0-8-4-5-6z"/></svg></h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. <code>&lt;html data-hour="dusk"&gt;</code>처럼 시간대를 바꾸면 빛과 그림자가 함께 바뀝니다.</p></div></header>
+  <div class="canvas"><div style="padding:6px 4px 8px"><div class="codebar"><span class="flabel">app/globals.css</span><button class="btn btn--sm btn--wash" id="copyBtn"><span>복사하기</span></button></div><pre class="code" id="codeBlock"></pre></div></div>
+</section>
+</main>
+
+<footer class="wrap foot"><div class="canvas"><div><b>Plein Air</b><span>Playfair Display · Gowun Batang · Noto Sans KR · Nanum Pen Script</span><span>다른 시스템</span><nav aria-label="다른 디자인 시스템"><a href="../">Oat</a><a href="../riso/">Riso</a><a href="../arcology/">Arcology</a><a href="../dal/">Dal</a><a href="../canopy/">Canopy</a><a href="../sansa/">Sansa</a></nav></div></div></footer>
+
+<dialog id="dlg" aria-labelledby="dlgT" aria-describedby="dlgD">
+  <div class="canvas dlg"><div class="dlg__body">
+    <svg class="dlg__icon" viewBox="0 0 72 56" aria-hidden="true"><path d="M6 46L40 20l6 4-30 28z" fill="#c9ccd8" stroke="#5d5873" stroke-width="1.6" stroke-linejoin="round"/><path d="M40 20l8-6 16-6-10 14-8 2z" fill="#9a6a3f" stroke="#6b4a2e" stroke-width="1.6" stroke-linejoin="round"/><rect x="8" y="40" width="22" height="6" rx="3" fill="#a62f3f" transform="rotate(-36 19 43)"/><rect x="20" y="48" width="14" height="4" rx="2" fill="#f2c434" transform="rotate(-12 27 50)"/></svg>
+    <h3 id="dlgT">이 그림을 긁어낼까요?</h3>
+    <p id="dlgD">「건초더미, 해질녘」의 물감을 팔레트 나이프로 걷어 냅니다. 오늘 18시 40분의 빛도 함께 사라지고, 되돌릴 수 없어요.</p>
+    <div class="dlg__foot"><button class="btn btn--wash" data-close><span>그대로 두기</span></button><button class="btn btn--madder" data-close data-after="scraped"><span>긁어내기</span></button></div>
+  </div></div>
+  <svg class="legs" viewBox="0 0 300 110" preserveAspectRatio="none" aria-hidden="true"><path d="M80 0L30 108M220 0l50 108M150 0v108" stroke="#6b4a2e" stroke-width="7" stroke-linecap="round"/><path d="M80 0L30 108M220 0l50 108" stroke="#b07d4c" stroke-width="2.5" stroke-linecap="round"/><rect x="40" y="0" width="220" height="12" rx="3" fill="#8b5d35"/></svg>
+</dialog>
+
+<div class="scrim" id="scrim"></div>
+<aside class="boite" id="side" role="dialog" aria-modal="true" aria-labelledby="sideT" aria-hidden="true">
+  <div class="boite__tubes" aria-hidden="true"><svg viewBox="0 0 420 58" preserveAspectRatio="xMinYMid slice" id="tubes"></svg></div>
+  <div class="boite__head"><div><small>캔버스에 유채 · F15</small><h3 id="sideT">포플러 세 그루</h3></div><button class="ibtn" aria-label="닫기" data-sclose><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#29263d" stroke-width="2.4" stroke-linecap="round"><path d="M6 6c4 4 8 8 12 12M18 6c-4 3-8 8-12 12"/></svg></button></div>
+  <div class="boite__body">
+    <div class="field"><label for="s1">그림 이름</label><div class="input"><input id="s1" value="포플러 세 그루"></div></div>
+    <div class="field"><label for="s2">그린 시간</label><div class="input"><input id="s2" class="num" type="number" value="45"><span class="input__aff">분</span></div></div>
+    <button class="lily" role="switch" aria-checked="true"><span class="lily__pond" aria-hidden="true"><span class="lily__pad"><svg viewBox="0 0 28 28"><g fill="#f2b6c6" stroke="#c9667f" stroke-width=".8"><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(72 14 14)"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(144 14 14)"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(216 14 14)"/><path d="M14 3c3 4 3 8 0 11-3-3-3-7 0-11z" transform="rotate(288 14 14)"/></g><circle cx="14" cy="14" r="2.6" fill="#f2c434"/></svg></span></span><span class="sw-t"><b>연작에 넣기</b><small>같은 자리의 다른 시간 그림과 묶습니다</small></span></button>
+  </div>
+  <div class="boite__foot"><button class="btn btn--sketch" data-sclose><span>닫기</span></button><button class="btn" data-sclose data-after="saved"><span>저장</span></button></div>
+</aside>
+<div class="billets" id="billets"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const root = document.documentElement;
+  const css = (n, el = root) => getComputedStyle(el).getPropertyValue(n).trim();
+
+  /* ---------- The painter: seeded random dabs ---------- */
+  const rng = s => () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const f1 = n => Math.round(n * 10) / 10;
+  function Painter(seed) {
+    const r = rng(seed); let out = '';
+    const R = (a, b) => a + r() * (b - a);
+    const pick = a => a[Math.floor(r() * a.length)];
+    const pickW = ws => { let t = 0; ws.forEach(w => t += Math.max(0, w[1])); let x = r() * t; for (const [c, w] of ws) { x -= Math.max(0, w); if (x <= 0) return c; } return ws[0][0]; };
+    const paint = c => c[0] === '#' || c.startsWith('rgb') ? `fill="${c}"` : `class="${c}"`;
+    const dab = (x, y, w, h, a, c, o = 1) => { out += `<rect x="${f1(x - w / 2)}" y="${f1(y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(h / 2)}" transform="rotate(${Math.round(a)} ${f1(x)} ${f1(y)})" ${paint(c)}${o < 1 ? ` opacity="${o}"` : ''}/>`; };
+    const fill = (n, [x0, y0, x1, y1], test, fn) => { let k = 0, t = 0; while (k < n && t < n * 30) { t++; const x = R(x0, x1), y = R(y0, y1); if (test && !test(x, y)) continue; k++; fn(x, y); } };
+    return { R, pick, pickW, dab, fill, paint, add: s => out += s, take: () => { const s = out; out = ''; return s; } };
+  }
+
+  /* ---------- Haystack scene, coloured entirely by the hour tokens ---------- */
+  function haystacks(seed, d = 1) {
+    const P = Painter(seed), { R, pickW, dab, fill } = P, W = 1200, H = 620, hz = 340;
+    P.add(`<rect width="${W}" height="${hz + 12}" class="k-sk"/><rect y="${hz}" width="${W}" height="${H - hz}" class="k-f1"/>`);
+    // sky
+    fill(760 * d, [-20, -10, W + 20, hz + 6], null, (x, y) => { const t = y / hz; dab(x, y, R(18, 46), R(6, 12), R(-9, 6), pickW([['k-s1', 3], ['k-s2', 3 - t * 1.6], ['k-s3', .4 + t * 2.2], ['k-sun2', .5], ['k-sk', 1]])); });
+    // the sun of each hour, and the moon with stars
+    [['morning', 600, 170, 52], ['noon', 820, 80, 48], ['dusk', 930, 262, 66]].forEach(([h, cx, cy, rad]) => {
+      P.add(`<g class="at at-${h}">`);
+      fill(120 * d, [cx - rad * 2.2, cy - rad * 1.6, cx + rad * 2.2, cy + rad * 1.6], (x, y) => Math.hypot((x - cx) / 1.4, y - cy) < rad * 1.6, (x, y) => {
+        const dd = Math.hypot((x - cx) / 1.4, y - cy) / rad; dab(x, y, R(12, 30), R(6, 10), dd < 1 ? R(-40, 40) : R(-12, 8), dd < .6 ? 'k-sun2' : dd < 1 ? 'k-sun' : pickW([['k-sun', 2], ['k-s3', 2], ['k-sun2', 1]]), dd < 1 ? 1 : .85); });
+      P.add('</g>');
+    });
+    P.add('<g class="at at-night">');
+    fill(60 * d, [660, 50, 760, 150], (x, y) => Math.hypot(x - 710, y - 100) < 40, (x, y) => dab(x, y, R(8, 20), R(5, 9), R(-60, 60), Math.hypot(x - 710, y - 100) < 26 ? 'k-sun2' : 'k-sun'));
+    fill(70 * d, [0, 0, W, hz - 60], null, (x, y) => dab(x, y, R(3, 6), R(3, 4), R(0, 90), 'k-sun2', .9));
+    P.add('</g>');
+    // distant tree line
+    const top = x => hz - 22 - 14 * Math.sin(x / 70) - 9 * Math.sin(x / 23 + 1);
+    let tl = `M0 ${hz + 8}`; for (let x = 0; x <= W; x += 20) tl += `L${x} ${f1(top(x) + 6)}`; P.add(`<path d="${tl}L${W} ${hz + 8}Z" class="k-l2"/>`);
+    fill(340 * d, [0, hz - 50, W, hz + 8], (x, y) => y > top(x), (x, y) => dab(x, y, R(10, 20), R(6, 9), R(70, 110), pickW([['k-l2', 3], ['k-sh', 2], ['k-l1', 1.4], ['k-sh2', 1]])));
+    // poplars on the right
+    [[1096, 1], [1138, 1.1], [1178, .95]].forEach(([cx, s]) => {
+      const cy = hz - 100 * s, rx = 17 * s, ry = 104 * s;
+      P.add(`<ellipse cx="${cx}" cy="${f1(cy)}" rx="${f1(rx)}" ry="${f1(ry)}" class="k-l2"/>`);
+      fill(80 * d, [cx - rx, cy - ry, cx + rx, cy + ry], (x, y) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 1, (x, y) => dab(x, y, R(12, 24), R(6, 9), R(78, 102), x < cx ? pickW([['k-l1', 3], ['k-f2', .6], ['k-l2', 1]]) : pickW([['k-l2', 2], ['k-sh', 2], ['k-l1', .6]])));
+    });
+    // field, larger dabs toward the front
+    fill(1050 * d, [-20, hz, W + 20, H + 10], null, (x, y) => { const s = .5 + (y - hz) / (H - hz) * 1.1; dab(x, y, R(18, 40) * s, R(5, 10) * s, R(-7, 7), pickW([['k-f1', 3], ['k-f2', 2.4], ['k-gl', .9], ['k-s3', .4], ['k-l1', .9], ['k-sh', .45]])); });
+    // pond, its glints shimmer
+    const pond = (x, y) => ((x - 250) / 330) ** 2 + ((y - 572) / 52) ** 2 < 1;
+    P.add(`<ellipse cx="250" cy="572" rx="330" ry="52" class="k-w1"/>`);
+    fill(260 * d, [-80, 520, 580, 624], pond, (x, y) => dab(x, y, R(14, 34), R(4, 7), R(-3, 3), pickW([['k-w1', 3], ['k-w2', 2], ['k-s1', 1.2], ['k-s2', 1], ['k-sh', .9]])));
+    P.add('<g class="shimmer">'); fill(34 * d, [-80, 530, 580, 620], pond, (x, y) => dab(x, y, R(10, 22), R(3, 5), 0, 'k-sun2', .9)); P.add('</g>');
+    // haystacks: coloured shadows per hour, then the stacks
+    const stacks = [[1000, 402, .62], [770, 452, 1]];
+    stacks.forEach(([cx, base, sc]) => {
+      [['morning', 1, 1], ['noon', 0, .62], ['dusk', -1, 1.15], ['night', 0, .62]].forEach(([h, dir, len]) => {
+        const ex = cx + dir * 150 * sc * len, rx = (dir ? 190 : 118) * sc * len, ry = 15 * sc;
+        P.add(`<g class="at at-${h}"><ellipse cx="${f1(ex)}" cy="${f1(base + 3)}" rx="${f1(rx * .92)}" ry="${f1(ry * .8)}" class="k-sh" opacity=".55"/>`);
+        fill(80 * d * sc, [ex - rx, base - ry, ex + rx, base + ry], (x, y) => ((x - ex) / rx) ** 2 + ((y - base - 3) / ry) ** 2 < 1, (x, y) => dab(x, y, R(16, 36) * sc, R(5, 8) * sc, R(-5, 5), pickW([['k-sh', 3], ['k-sh2', 2], ['k-s2', .4]])));
+        P.add('</g>');
+      });
+      const rt = base - 170 * sc, rb = base - 96 * sc;
+      const hw = y => y < rb ? 114 * sc * Math.pow(Math.max(0, (y - rt) / (rb - rt)), .72) : (102 + (y - rb) / (base - rb) * 6) * sc;
+      let p = `M${cx} ${f1(rt)}`; for (let y = rt; y <= base; y += 6) p += `L${f1(cx + hw(y))} ${f1(y)}`; for (let y = base; y >= rt; y -= 6) p += `L${f1(cx - hw(y))} ${f1(y)}`;
+      P.add(`<path d="${p}Z" class="k-hm"/>`);
+      fill(300 * d * sc, [cx - 116 * sc, rt, cx + 116 * sc, base], (x, y) => Math.abs(x - cx) < hw(y) - 3 * sc, (x, y) => {
+        const u = (x - cx) / Math.max(1, hw(y)); const roof = y < rb;
+        const a = roof ? (x < cx ? -R(22, 42) : R(22, 42)) : R(76, 104);
+        const low = y > base - 16 * sc;
+        dab(x, y, R(14, 28) * sc, R(6, 10) * sc, a, pickW([['k-hl', u < -.25 ? 4 : u < .25 ? 1.4 : .3], ['k-hm', 1.3], ['k-hr', u > .25 ? 4 : u > -.25 ? 1.4 : .3], ['k-sh', low ? 2.4 : .25], ['k-sun', roof && u < 0 ? .5 : .1]]));
+      });
+      fill(26 * d * sc, [cx - 104 * sc, rb + 2, cx + 104 * sc, rb + 12 * sc], (x, y) => Math.abs(x - cx) < hw(y) - 6 * sc, (x, y) => dab(x, y, R(16, 26) * sc, R(5, 7) * sc, R(-6, 6), pickW([['k-sh2', 2], ['k-sh', 1]])));
+    });
+    // grass in front of the stacks
+    fill(140 * d, [520, 440, 1200, 470], null, (x, y) => dab(x, y, R(18, 34), R(5, 9), R(-60, -20), pickW([['k-l1', 2], ['k-f2', 1.4], ['k-gl', .6]])));
+    return P.take();
+  }
+
+  /* ---------- Fixed-palette little canvases ---------- */
+  const scenes = {
+    lilies(seed) { const P = Painter(seed), { R, pickW, dab, fill } = P;
+      P.add('<rect width="240" height="170" fill="#3f6f8a"/>');
+      fill(320, [-10, -6, 250, 176], null, (x, y) => dab(x, y, R(12, 30), R(4, 7), R(-4, 4), pickW([['#2f5d7a', 2], ['#4c86a3', 3], ['#7fb3c4', 1.6], ['#a8c9d6', 1], ['#5c7f5e', y < 50 ? 2.2 : .5], ['#c7d9e8', .8], ['#7a6fb0', 1]])));
+      [[60, 50, 34], [170, 74, 40], [92, 124, 46], [200, 140, 30], [30, 150, 26]].forEach(([cx, cy, rad]) => {
+        fill(rad * 1.5, [cx - rad, cy - rad / 2.6, cx + rad, cy + rad / 2.6], (x, y) => ((x - cx) / rad) ** 2 + ((y - cy) / (rad / 2.6)) ** 2 < 1, (x, y) => dab(x, y, R(10, 18), R(4, 6), R(-10, 10), pickW([['#5d8f4f', 3], ['#86b36a', 2], ['#3f6e45', 1.5], ['#c2d47a', .6]])));
+        const fx = cx + R(-rad / 3, rad / 3), fy = cy - 4;
+        for (let i = 0; i < 7; i++) dab(fx + R(-6, 6), fy + R(-4, 2), R(6, 10), R(4, 6), R(-70, 70), pickW([['#f2b6c6', 3], ['#fbe9ef', 2], ['#e57d9a', 1.5]]));
+        dab(fx, fy - 1, 4, 4, 0, '#f2c434');
+      });
+      P.add('<g class="shimmer">'); fill(26, [0, 0, 240, 170], null, (x, y) => dab(x, y, R(8, 16), R(2.5, 4), 0, '#eef6fa', .85)); P.add('</g>');
+      return P.take(); },
+    poplars(seed) { const P = Painter(seed), { R, pickW, dab, fill } = P;
+      P.add('<rect width="240" height="170" fill="#bcd6ee"/><rect y="118" width="240" height="52" fill="#c9d36f"/>');
+      fill(260, [-10, -6, 250, 122], null, (x, y) => dab(x, y, R(12, 26), R(4, 8), R(-8, 6), pickW([['#bcd6ee', 2], ['#e8eef2', 2.4], ['#f6e7c5', y > 80 ? 2 : .6], ['#a9c3e6', 1.6], ['#d8cdea', .8]])));
+      fill(60, [0, 108, 240, 124], null, (x, y) => dab(x, y, R(8, 14), R(4, 6), R(70, 110), pickW([['#7d9a62', 2], ['#8b85c8', 1.4], ['#a7b86a', 1]])));
+      [[70, 1], [120, 1.12], [168, .95]].forEach(([cx, s]) => { const cy = 70 / s + 4, rx = 13 * s, ry = 56 * s;
+        fill(110 * s, [cx - rx, cy - ry, cx + rx, cy + ry], (x, y) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 1, (x, y) => dab(x, y, R(8, 16), R(4, 6), R(78, 102), x < cx ? pickW([['#6aa060', 3], ['#c7d27a', 1.4], ['#3f7a52', 1]]) : pickW([['#2e5a48', 2.4], ['#5f6fc4', 1.4], ['#3f7a52', 1.4]])));
+        fill(20, [cx - 4, cy + ry - 6, cx + 50, cy + ry + 6], null, (x, y) => dab(x, y, R(10, 18), R(3, 5), R(-4, 4), pickW([['#5f6fc4', 2], ['#8b85c8', 1.5]])));
+      });
+      fill(170, [-10, 116, 250, 176], null, (x, y) => dab(x, y, R(12, 24), R(4, 7), R(-6, 6), pickW([['#c9d36f', 3], ['#e3c96a', 2.4], ['#9fbf6b', 1.6], ['#f2d64f', .8], ['#e57d6a', .3]])));
+      return P.take(); },
+    bridge(seed) { const P = Painter(seed), { R, pickW, dab, fill } = P;
+      P.add('<rect width="240" height="170" fill="#3d6b45"/>');
+      fill(360, [-10, -6, 250, 110], null, (x, y) => dab(x, y, R(8, 18), R(4, 7), R(-60, 60), pickW([['#3d6b45', 2], ['#5f9156', 3], ['#86b56a', 2], ['#2e4f3c', 1.4], ['#c3d77a', .8], ['#b8a2dc', y < 40 ? 1.4 : .3], ['#9d86c9', y < 40 ? 1 : .2]])));
+      fill(230, [-10, 104, 250, 176], null, (x, y) => dab(x, y, R(10, 24), R(3.5, 6), R(-3, 3), pickW([['#2f5f62', 2], ['#4f8a7a', 2], ['#86b56a', 1.4], ['#5f9156', 1.4], ['#f2b6c6', .4], ['#c7d9e8', .6]])));
+      for (let i = 0; i <= 34; i++) { const t = i / 34, x = 14 + t * 212, y = 98 - Math.sin(t * Math.PI) * 34, a = -Math.cos(t * Math.PI) * 32; dab(x, y + 9, 13, 6, a, '#1f4f3e'); dab(x, y, 14, 8, a, i % 2 ? '#8fd0a6' : '#5fb38a'); dab(x, y - 16, 12, 4, a, '#7cc39a'); if (i % 3 === 0) dab(x, y - 8, 14, 3.5, 90, '#6fbf95'); }
+      for (let i = 0; i <= 26; i++) { const t = i / 26, x = 20 + t * 200, y = 106 + Math.sin(t * Math.PI) * 26; dab(x, y, 10, 4, Math.cos(t * Math.PI) * 30, '#3f8a68', .7); }
+      return P.take(); },
+    rain(seed) { const P = Painter(seed), { R, pickW, dab, fill } = P;
+      P.add('<rect width="240" height="170" fill="#a9a9c4"/>');
+      fill(160, [-10, -6, 250, 60], null, (x, y) => dab(x, y, R(12, 26), R(4, 7), R(-6, 6), pickW([['#a9a9c4', 2], ['#c4c2d6', 2], ['#8f92b5', 1.4], ['#d9d2df', 1]])));
+      [[0, 30, 70], [70, 22, 50], [120, 38, 60], [180, 26, 70]].forEach(([x0, y0, w]) => fill(w * 1.4, [x0, y0, x0 + w, 96], null, (x, y) => dab(x, y, R(6, 12), R(4, 6), (y | 0) % 2 ? 90 : 0, pickW([['#c8b9a6', 3], ['#a99d93', 2], ['#8c8aa5', 1.6], ['#e8dccb', 1], ['#f2c86a', y > 60 ? .5 : .05]]))));
+      fill(260, [-10, 92, 250, 176], null, (x, y) => dab(x, y, R(10, 26), R(3, 6), R(-4, 4), pickW([['#6e6f8f', 3], ['#9a9ab5', 2], ['#585a7a', 1.6], ['#c4c2d6', 1]])));
+      [[46, 86], [150, 84]].forEach(([lx, ly]) => { for (let i = 0; i < 9; i++) dab(lx + R(-3, 3), ly + 30 + i * 6, R(2, 4), R(6, 10), 90, '#f2c86a', .8); });
+      [[46, 52], [150, 50]].forEach(([lx, ly]) => { P.add(`<path d="M${lx} ${ly + 8}V${ly + 40}" stroke="#3c3a52" stroke-width="2"/>`); dab(lx, ly + 6, 8, 8, 0, '#f2c86a'); });
+      [[30, 112], [92, 118], [120, 108], [190, 120], [212, 110]].forEach(([x, y]) => { dab(x, y - 8, 18, 7, R(-6, 6), '#3c3a52'); dab(x, y + 2, 4, 14, 90, '#3c3a52'); dab(x + 2, y + 22, 4, 12, 90, '#585a7a', .6); });
+      for (let i = 0; i < 40; i++) { const x = R(0, 240), y = R(0, 170); P.add(`<path d="M${f1(x)} ${f1(y)}l-4 12" stroke="#eef0f6" stroke-width=".8" opacity=".55"/>`); }
+      return P.take(); },
+  };
+
+  /* ---------- Generated textures: canvas edge, background tile, painted strip ---------- */
+  const enc = s => `url("data:image/svg+xml,${encodeURIComponent(s)}")`;
+  function edgeURI() {
+    const P = Painter(11), { R, pick, pickW, dab } = P, S = 400, I = 13;
+    const cols = ['--sky-1', '--sun', '--shade', '--leaf', '--sky-2', '--sun-2', '--field-2'].map(n => css(n));
+    const paper = css('--paper'), shade = css('--shade');
+    const sx = parseFloat(css('--sx')) || 0, sy = parseFloat(css('--sy')) || 0;
+    // the canvas outline wavers with periods that divide the repeated middle slice (320 units), so tiles meet cleanly
+    const wob = t => 2.2 * Math.sin(t * Math.PI / 40) + 1.4 * Math.sin(t * Math.PI / 20 + 1) + .9 * Math.sin(t * Math.PI / 32 + 2);
+    const pts = [];
+    for (let x = I; x <= S - I; x += 5) pts.push([x, I + wob(x)]);
+    for (let y = I; y <= S - I; y += 5) pts.push([S - I - wob(y + 7), y]);
+    for (let x = S - I; x >= I; x -= 5) pts.push([x, S - I - wob(x + 13)]);
+    for (let y = S - I; y >= I; y -= 5) pts.push([I + wob(y + 21), y]);
+    const path = (dx, dy) => 'M' + pts.map(([x, y]) => `${f1(x + dx)} ${f1(y + dy)}`).join('L') + 'Z';
+    P.add(`<path d="${path(sx * 1.1, sy * 1.1)}" fill="${shade}" opacity=".3"/><path d="${path(0, 0)}" fill="${paper}"/>`);
+    // loose dabs laid over the canvas edge: a few long ones, fewer short ones, never a tidy band
+    for (let side = 0; side < 4; side++) for (let i = 0; i < 46; i++) {
+      const t = R(-10, S + 10), d = pickW([[R(6, 16), 3], [R(14, 26), 2], [R(24, 33), .8]]), len = R(14, 40), th = R(5, 10), a = R(-28, 28) + (side % 2 ? 90 : 0);
+      const [x, y] = side === 0 ? [t, d] : side === 1 ? [S - d, t] : side === 2 ? [t, S - d] : [d, t];
+      dab(x, y, len, th, a, pick(cols), R(.75, 1) > .9 ? 1 : .88);
+    }
+    return enc(`<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">${P.take()}</svg>`);
+  }
+  function tileURI(seed, n, size, alpha, names) {
+    const P = Painter(seed), { R, pick, dab } = P, cols = names.map(x => css(x));
+    for (let i = 0; i < n; i++) { const x = R(0, size), y = R(0, size), w = R(18, 44), h = R(6, 11), a = R(-16, 12), c = pick(cols);
+      [[0, 0], [size, 0], [-size, 0], [0, size], [0, -size]].forEach(([ox, oy]) => { if (x + ox > -40 && x + ox < size + 40 && y + oy > -40 && y + oy < size + 40) dab(x + ox, y + oy, w, h, a, c, alpha); }); }
+    return enc(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${P.take()}</svg>`);
+  }
+  function stripURI() {
+    const P = Painter(5), { R, pick, dab } = P, cols = ['--sky-1', '--sun', '--shade', '--leaf', '--sky-2'].map(n => css(n));
+    for (let i = 0; i < 46; i++) { const x = R(0, 240), w = R(10, 22), c = pick(cols), y = R(5, 9), a = R(-10, 10); [0, 240, -240].forEach(o => dab(x + o, y, w, R(3.5, 5.5), a, c, .95)); }
+    return enc(`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="14" viewBox="0 0 240 14">${P.take()}</svg>`);
+  }
+
+  /* ---------- Toasts ---------- */
+  const T = {
+    saved: ['저장', '그림을 저장했어요', '물감이 마를 때까지 상자에 둡니다', '✓', ''],
+    light: ['빛', '20분 뒤 빛이 바뀝니다', '다음 캔버스를 준비해 두세요', '☀', 'chrome'],
+    rain: ['오류', '비가 와서 저장하지 못했어요', '캔버스가 젖었습니다. 처마 밑에서 다시 시도해 주세요', '!', 'madder'],
+    scraped: ['긁어냄', '그림을 긁어냈어요', '캔버스는 다시 흰 바탕입니다', '—', 'madder'],
+    go: ['출발', '밖으로 나갑니다', '', '✦', 'cobalt'],
+    done: ['올림', '그림을 올렸어요', '전시실 둘째 벽에 걸렸습니다', '✓', ''],
+  };
+  function toast(k, extra) {
+    const [kk, t, s, ch, c] = T[k]; const el = document.createElement('div');
+    el.className = 'billet canvas canvas--sm' + (c ? ' billet--' + c : ''); el.setAttribute('role', c === 'madder' ? 'alert' : 'status');
+    el.innerHTML = `<div><span class="billet__dab" aria-hidden="true">${ch}</span><div><small>${kk}</small><b>${t}</b><span>${extra || s}</span></div><button class="x" aria-label="쪽지 닫기">×</button></div>`;
+    const kill = () => { if (el.classList.contains('out')) return; el.classList.add('out'); setTimeout(() => el.remove(), 350); }; $('.x', el).onclick = kill;
+    const box = $('#billets'); box.prepend(el); while (box.children.length > 3) box.lastChild.remove(); setTimeout(kill, 5000);
+  }
+  $$('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+
+  /* ---------- Hours ---------- */
+  const HOURS = { morning: ['아침', '건초더미, 아침 안개.'], noon: ['정오', '건초더미, 한낮.'], dusk: ['해질녘', '건초더미, 해질녘.'], night: ['밤', '건초더미, 달밤.'] };
+  const hourBtns = $$('#hours [role=radio]');
+  let hour = 'noon';
+  function setHour(h, focus) {
+    hour = h; root.dataset.hour = h;
+    hourBtns.forEach(b => { const on = b.dataset.h === h; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
+    try { localStorage.setItem('pleinair-hour', h); } catch {}
+    root.style.setProperty('--edge', edgeURI());
+    root.style.setProperty('--tile', tileURI(3, 150, 300, h === 'night' ? .3 : .3, ['--sky-1', '--sky-2', '--sky-3', '--sun-2', '--shade']));
+    root.style.setProperty('--tile-soft', tileURI(9, 22, 220, h === 'night' ? .12 : .26, ['--sky-1', '--sky-2', '--sun-2', '--field-2']));
+    root.style.setProperty('--strip', stripURI());
+    $('#heroCap').textContent = HOURS[h][1];
+    $$('.hourcard').forEach(c => c.setAttribute('aria-pressed', c.dataset.h === h));
+    swatches();
+  }
+  hourBtns.forEach(b => b.addEventListener('click', () => setHour(b.dataset.h)));
+  $('#hours').addEventListener('keydown', e => { const i = hourBtns.findIndex(b => b.dataset.h === hour), n = hourBtns.length;
+    const k = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]; if (k) { e.preventDefault(); setHour(hourBtns[(i + k + n) % n].dataset.h, true); } });
+
+  /* ---------- Hero and foundation pieces ---------- */
+  $('#heroPaint').innerHTML = haystacks(42, 1);
+  $('#rowThumb').innerHTML = haystacks(7, .3);
+
+  $('#hourcards').innerHTML = Object.entries(HOURS).map(([h, [name]], i) => `<button class="hourcard" data-hour="${h}" data-h="${h}" aria-pressed="false"><span class="hourcard__sky"><svg class="pa" viewBox="520 180 680 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${haystacks(20 + i, .26)}</svg></span><b>${name}</b><dl data-tok></dl></button>`).join('');
+  $$('.hourcard').forEach(c => { c.addEventListener('click', () => setHour(c.dataset.h));
+    $('[data-tok]', c).innerHTML = [['하늘', '--sky-1'], ['빛', '--sun'], ['그림자', '--shade']].map(([n, v]) => `<dt><i style="background:var(${v})"></i>${n}</dt><dd>${css(v, c).toUpperCase()}</dd>`).join('') + `<dt>방향</dt><dd>${css('--sx', c)} ${css('--sy', c)}</dd>`; });
+
+  function swatches() {
+    const G = [
+      ['지금의 빛', `${HOURS[hour][0]} · 시간대를 따라 바뀜`, [['하늘', '--sky-1', '하늘, 묽은 버튼'], ['빛', '--sun', '버튼 위 빛 한 획, 현재 위치'], ['그림자', '--shade', '모든 그림자, 그늘'], ['풀', '--leaf', '잎, 풀밭'], ['바탕 물빛', '--wash', '시연 바탕']]],
+      ['물감 상자', '바뀌지 않음', [['코발트 블루', '--cobalt', '주요 동작, 선택, 포커스'], ['비리디언', '--viridian', '완료, 성공'], ['매더 레드', '--madder', '위험, 오류'], ['크롬 옐로', '--chrome', '새 것, 강조'], ['로즈', '--rose', '수련, 양산']]],
+      ['캔버스와 먹', '읽는 곳', [['캔버스', '--paper', '모든 판의 바탕'], ['젯소', '--paper-2', '눌린 칸, 머리'], ['보랏빛 먹', '--ink', '본문, 제목'], ['연한 먹', '--ink-3', '보조 글자']]],
+    ];
+    $('#swatches').innerHTML = G.map(([g, s, it]) => `<div class="swhead">${g}<span>${s}</span></div>` + it.map(([n, v, u]) => `<div class="sw"><i style="--c:var(${v})"></i><b>${n}</b><code>${v} · ${css(v).toUpperCase()}</code><span>${u}</span></div>`).join('')).join('');
+  }
+
+  $('#marks').innerHTML = [
+    ['점 찍기', '짧고 둥근 획 하나. 모든 그림의 단위.', (() => { const P = Painter(3); for (let i = 0; i < 26; i++) P.dab(P.R(14, 166), P.R(12, 62), P.R(14, 26), P.R(6, 10), P.R(-20, 20), P.pick(['k-s1', 'k-sun', 'k-sh', 'k-l1', 'k-s2'])); return P.take(); })()],
+    ['끌기', '붓을 길게 끈 획. 선택과 진행.', '<path d="M12 40C50 30 110 28 170 34c4 1 4 8-2 8C110 40 50 44 14 50c-6 1-8-8-2-10z" fill="#2c4a9e"/><path d="M20 41c40-6 90-8 140-5M24 46c40-5 80-6 120-4" stroke="rgba(255,255,255,.35)" stroke-width="1.4" fill="none"/>'],
+    ['가장자리', '판의 테두리를 칠한 점들.', '<rect x="20" y="10" width="140" height="56" fill="#fbf6ea"/>' + (() => { const P = Painter(8); for (let i = 0; i < 40; i++) { const t = P.R(0, 1); const side = i % 4; const [x, y, a] = side === 0 ? [20 + t * 140, 10, 0] : side === 1 ? [160, 10 + t * 56, 90] : side === 2 ? [20 + t * 140, 66, 0] : [20, 10 + t * 56, 90]; P.dab(x + P.R(-3, 3), y + P.R(-3, 3), P.R(10, 18), P.R(4, 6), a + P.R(-20, 20), P.pick(['k-s1', 'k-sun', 'k-sh', 'k-l1'])); } return P.take(); })()],
+    ['색 그림자', '회색 대신 빛의 반대색.', '<g style="transform:translate(calc(var(--sx)*1.4),0);transition:transform 1.2s"><ellipse cx="96" cy="60" rx="54" ry="7" class="k-sh" opacity=".7"/></g><path d="M66 60c4-30 26-40 40-40s28 14 30 40z" class="k-hm"/><path d="M66 60c4-30 26-40 40-40 0 14-6 30-8 40z" class="k-hl"/><path d="M106 20c14 0 28 14 30 40h-34c2-10 4-26 4-40z" class="k-hr"/>'],
+  ].map(([b, s, svg]) => `<figure><div><svg class="pa" viewBox="0 0 180 76" aria-hidden="true">${svg}</svg></div><b>${b}</b><span>${s}</span></figure>`).join('');
+
+  $('#typescale').innerHTML = [
+    ['표제', 'Playfair Display 이탤릭 700', '<span style="font:italic 700 50px/1.05 var(--font-d)">Plein <span style="color:var(--cobalt)">Air</span></span>'],
+    ['제목', 'Gowun Batang 700 · 22–44', '<span style="font:700 30px/1.3 var(--font-h)">빛이 바뀌기 전에</span>'],
+    ['본문', 'Noto Sans KR 400 · 16.5/1.78', '<span>안개가 걷히자 건초더미 왼쪽이 분홍빛으로 물들었다. 그늘은 회색이 아니라 라일락이었다.</span>'],
+    ['손글씨', 'Nanum Pen Script · 메모에만', '<span class="hand" style="font-size:30px">20분 뒤면 빛이 바뀐다</span>'],
+    ['숫자', 'Playfair Display 600', '<span style="font:600 30px/1 var(--font-d);color:var(--cobalt)">07:02 · 18:40 · F15</span>'],
+  ].map(([k, s, ex]) => `<div class="typerow"><div class="k"><b>${k}</b><span>${s}</span></div><div>${ex}</div></div>`).join('');
+
+  /* ---------- Nav ---------- */
+  const links = $$('#nav a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute('aria-current', a.hash === '#' + e.target.id ? 'true' : 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.room').forEach(s => io.observe(s));
+
+  /* ---------- Go ---------- */
+  $('#goYard').innerHTML = $('[data-go]').outerHTML;
+  $$('[data-go]').forEach(g => g.addEventListener('click', () => { g.classList.remove('hit'); void g.offsetWidth; g.classList.add('hit'); toast('go', `${HOURS[hour][0]}의 빛이 20분 남았어요. 이젤을 펴세요`); }));
+  $('[data-go-small]').addEventListener('click', () => toast('go', `${HOURS[hour][0]}의 빛이 20분 남았어요. 이젤을 펴세요`));
+
+  /* ---------- Busy ---------- */
+  $('#busyBtn').addEventListener('click', e => { const b = e.currentTarget; if (b.dataset.busy) return; b.dataset.busy = 1; b.setAttribute('aria-disabled', 'true');
+    b.innerHTML = '<span class="mix" aria-hidden="true"><i></i><i></i><i></i></span><span>물감 섞는 중</span>';
+    setTimeout(() => { b.innerHTML = '<span>올렸어요</span>'; toast('done'); }, 1600); setTimeout(() => { delete b.dataset.busy; b.removeAttribute('aria-disabled'); b.innerHTML = '<span>그림 올리기</span>'; }, 3200); });
+
+  /* ---------- Menu ---------- */
+  const mb = $('#menuBtn'), ml = $('#menuList'), mi = $$('[role=menuitem]', ml);
+  const closeM = f => { ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); if (f) mb.focus(); };
+  mb.addEventListener('click', () => { if (ml.hidden) { ml.hidden = false; mb.setAttribute('aria-expanded', 'true'); mi[0].focus(); } else closeM(); });
+  ml.addEventListener('keydown', e => { const i = mi.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); mi[(i + 1) % mi.length].focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); mi[(i - 1 + mi.length) % mi.length].focus(); }
+    if (e.key === 'Home') { e.preventDefault(); mi[0].focus(); } if (e.key === 'End') { e.preventDefault(); mi.at(-1).focus(); }
+    if (e.key === 'Escape') closeM(true); if (e.key === 'Tab') closeM(); });
+  mi.forEach(m => m.addEventListener('click', () => { closeM(true); if (m.classList.contains('danger')) $('#dlg').showModal(); }));
+  document.addEventListener('click', e => { if (!ml.hidden && !e.target.closest('.menu')) closeM(); });
+
+  /* ---------- Switches ---------- */
+  const ombrelle = (t, s, on) => `<button class="ombrelle" role="switch" aria-checked="${on}"><svg viewBox="0 0 64 74" aria-hidden="true">
+      <ellipse class="shade k-sh" cx="32" cy="68" rx="28" ry="5"/>
+      <path d="M32 14v52c0 4-6 4-6 0" stroke="#6b4a2e" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <path class="furled" d="M32 10c4 8 5 22 3 34l-3 4-3-4c-2-12-1-26 3-34z" fill="#e8a0ad" stroke="#b55f78" stroke-width="1.2"/>
+      <g class="open"><path d="M2 32Q32 0 62 32Q55 27 47 32Q40 27 32 32Q24 27 17 32Q9 27 2 32Z" fill="#e8a0ad"/><path d="M2 32Q32 0 62 32Q55 27 47 32Q40 27 32 32Q24 27 17 32Q9 27 2 32Z" fill="none" stroke="#b55f78" stroke-width="1.2"/>
+        <path d="M32 7Q24 18 17 32M32 7Q40 18 47 32M32 7V32" stroke="#fbf6ea" stroke-width="2.2" fill="none"/><path d="M8 26c8-8 16-12 24-13" stroke="rgba(255,255,255,.55)" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>
+      <circle cx="32" cy="7" r="2.6" fill="#6b4a2e"/></svg>
+    <span class="sw-t"><em>${on ? '켜짐 · 그늘' : '꺼짐 · 햇볕'}</em><b>${t}</b><small>${s}</small></span></button>`;
+  $('#ombrelles').innerHTML = ombrelle('캔버스에 그늘 만들기', '직사광선이 들면 색이 실제보다 밝아 보입니다', true) + ombrelle('눈부심 줄이기', '하얀 캔버스의 반사를 낮춥니다', false);
+  document.addEventListener('click', e => {
+    const o = e.target.closest('.ombrelle'); if (o) { const on = o.getAttribute('aria-checked') !== 'true'; o.setAttribute('aria-checked', on); $('em', o).textContent = on ? '켜짐 · 그늘' : '꺼짐 · 햇볕'; }
+    const l = e.target.closest('.lily'); if (l) l.setAttribute('aria-checked', l.getAttribute('aria-checked') !== 'true');
+    const m = e.target.closest('.motif'); if (m) m.setAttribute('aria-pressed', m.getAttribute('aria-pressed') !== 'true');
+  });
+
+  /* ---------- Checkbox group ---------- */
+  const all = $('#chkAll'), ci = $$('.ci'); const sync = () => { const n = ci.filter(c => c.checked).length; all.checked = n === ci.length; all.indeterminate = n > 0 && n < ci.length; };
+  ci.forEach(c => c.addEventListener('change', sync)); all.addEventListener('change', () => { ci.forEach(c => c.checked = all.checked); sync(); }); sync();
+
+  /* ---------- Segmented ---------- */
+  $$('.brushes').forEach(g => { const bs = $$('button', g);
+    const pick = b => { bs.forEach(x => { x.setAttribute('aria-checked', x === b); x.tabIndex = x === b ? 0 : -1; }); b.focus(); };
+    bs.forEach(b => { b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1; b.addEventListener('click', () => pick(b)); });
+    g.addEventListener('keydown', e => { const i = bs.indexOf(document.activeElement); if (['ArrowRight', 'ArrowDown'].includes(e.key)) { e.preventDefault(); pick(bs[(i + 1) % bs.length]); } if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); pick(bs[(i - 1 + bs.length) % bs.length]); } });
+  });
+
+  /* ---------- Tabs: the haystack series ---------- */
+  const SERIES = [['morning', '아침 안개', '해가 왼쪽 낮게 떠서 건초더미 왼쪽이 분홍과 금빛, 그늘은 오른쪽으로 길게 라일락.', ['#f4c8c2', '#c8c4ea', '#f6cc66', '#8a85c8']],
+    ['noon', '한낮', '해가 머리 위에. 그림자는 짧고 발밑에 고이며, 노란 햇빛의 반대인 코발트 보라.', ['#8dbde6', '#f7d548', '#a8cc69', '#5f6fc4']],
+    ['dusk', '해질녘', '해가 오른쪽으로 지며 건초더미 한쪽이 주황으로 타오르고, 그림자는 왼쪽으로 가장 길게 남보라.', ['#f2966b', '#e2809a', '#f07a3a', '#7a5aa8']],
+    ['snow', '눈 온 날', '흰 눈은 하얗지 않습니다. 해가 닿은 곳은 살구빛, 그늘은 하늘을 비춘 파랑.', ['#ebe5f0', '#f6d6ae', '#c6d1ea', '#8e9bd6']]];
+  $('#meules').innerHTML = SERIES.map(([h, n], i) => `<button class="meule" role="tab" id="mt${i}" aria-controls="mp${i}" aria-selected="${i === 2}" tabindex="${i === 2 ? 0 : -1}"><span class="meule__c"><svg class="pa" viewBox="540 170 660 400" preserveAspectRatio="xMidYMid slice" data-hour="${h}" aria-hidden="true">${haystacks(60 + i, .3)}</svg></span><span>${n}</span></button>`).join('');
+  $('#meulePanels').innerHTML = SERIES.map(([h, n, d, cs], i) => `<div class="tabpanel" role="tabpanel" id="mp${i}" aria-labelledby="mt${i}" tabindex="0"${i === 2 ? '' : ' hidden'}><p><b>건초더미, ${n}.</b> ${d}</p><div class="dots">이 그림의 팔레트 ${cs.map(c => `<i style="background:${c}"></i>`).join('')}</div></div>`).join('');
+  const tabs = $$('#meules [role=tab]'); const sel = t => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); };
+  tabs.forEach(t => t.addEventListener('click', () => sel(t)));
+  $('#meules').addEventListener('keydown', e => { const i = tabs.indexOf(document.activeElement), n = tabs.length;
+    const to = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: n - 1 }[e.key]; if (to !== undefined) { e.preventDefault(); sel(tabs[(to + n) % n]); } });
+
+  /* ---------- Sun range ---------- */
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mixc = (stops, t) => { for (let i = 0; i < stops.length - 1; i++) { const [t0, c0] = stops[i], [t1, c1] = stops[i + 1]; if (t <= t1) { const u = (t - t0) / (t1 - t0), A = hex(c0), B = hex(c1); return '#' + A.map((v, k) => Math.round(lerp(v, B[k], u)).toString(16).padStart(2, '0')).join(''); } } return stops.at(-1)[1]; };
+  const SH = [[6, '#9a8fd0'], [10, '#6c78c8'], [13, '#4f63c4'], [16, '#5a5ab8'], [18.5, '#6e4aa8'], [20, '#4a3f86']];
+  const SKY = [[6, '#f2cfd0'], [9, '#c8d6ef'], [13, '#9cc8ec'], [16.5, '#b8d3e8'], [18.5, '#f2a37a'], [20, '#6a5a9c']];
+  const SUNC = [[6, '#f6c46a'], [13, '#f7d548'], [17, '#f6b13e'], [20, '#e8602c']];
+  const SHNAME = [[8, '라일락'], [11.5, '푸른 보라'], [15, '코발트 보라'], [18, '울트라마린'], [21, '남보라']];
+  const rg = $('#rg'), ro = $('#rgOut'), scene = $('#sunScene');
+  const P0 = Painter(77); const fieldDabs = (() => { for (let i = 0; i < 60; i++) P0.dab(P0.R(0, 320), P0.R(80, 110), P0.R(12, 26), P0.R(4, 7), P0.R(-6, 6), P0.pick(['#a8cc69', '#e6d26a', '#bcd193', '#8fb85a'])); return P0.take(); })();
+  const updSun = () => {
+    const h = +rg.value, t = (h - 6) / 14, sx = 18 + t * 284, sy = 74 - Math.sin(t * Math.PI) * 60;
+    const shc = mixc(SH, h), dx = (160 - sx) * .9, len = 34 + Math.abs(dx) * .55;
+    const lit = sx < 160 ? 'l' : 'r', sunc = mixc(SUNC, h);
+    scene.innerHTML = `<rect width="320" height="84" fill="${mixc(SKY, h)}"/><circle cx="${f1(sx)}" cy="${f1(sy)}" r="13" fill="${sunc}"/><circle cx="${f1(sx)}" cy="${f1(sy)}" r="20" fill="${sunc}" opacity=".3"/><rect y="80" width="320" height="30" fill="#bcd193"/>${fieldDabs}
+      <ellipse cx="${f1(160 + dx * .62)}" cy="94" rx="${f1(len)}" ry="6" fill="${shc}" opacity=".85"/>
+      <path d="M128 94c0-22 12-42 32-46 20 4 32 24 32 46z" fill="#d49a46"/>
+      <path d="${lit === 'l' ? 'M192 94c0-22-12-42-32-46v46z' : 'M128 94c0-22 12-42 32-46v46z'}" fill="${shc}" opacity="${Math.abs(sx - 160) < 30 ? .25 : .6}"/>
+      <path d="${lit === 'l' ? 'M128 94c0-22 12-42 32-46v46z' : 'M192 94c0-22-12-42-32-46v46z'}" fill="#f4cb5e"/>
+      <path d="M134 70c8-2 16-2 26-1M134 82c10-2 30-2 52 0" stroke="#b9823a" stroke-width="2" fill="none" opacity=".5"/>`;
+    const hh = Math.floor(h), mm = h % 1 ? '30분' : '', label = `${hh < 12 ? '오전' : '오후'} ${hh > 12 ? hh - 12 : hh}시${mm ? ' ' + mm : ''}`;
+    const nm = SHNAME.find(([lim]) => h <= lim)[1];
+    ro.innerHTML = `${label} · 그림자 <i style="background:${shc}"></i>${nm}`;
+    rg.setAttribute('aria-valuetext', `${label}, 그림자 ${nm}`);
+  };
+  rg.addEventListener('input', updSun); updSun();
+
+  /* ---------- Side menu ---------- */
+  $$('#spots a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $$('#spots a').forEach(x => x.removeAttribute('aria-current')); a.setAttribute('aria-current', 'page'); }));
+
+  /* ---------- Inputs ---------- */
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; e.currentTarget.textContent = on ? '숨기기' : '보기'; e.currentTarget.setAttribute('aria-pressed', on); });
+  $('#i2').addEventListener('input', e => { const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value.trim()); const w = e.target.closest('.input'); w.classList.toggle('is-err', !ok); w.classList.toggle('is-ok', ok); e.target.setAttribute('aria-invalid', !ok); $('#i2e').hidden = ok; });
+  const ta = $('#ta'), tc = $('#taCount'); const cnt = () => tc.textContent = `${ta.value.length} / 160`; ta.addEventListener('input', cnt); cnt();
+
+  /* ---------- Cards ---------- */
+  const TOILES = [['lilies', '수련 연못', 'Nymphéas', '캔버스에 유채 · 46×38 · 정오', ['완성', 'viridian']], ['poplars', '포플러 세 그루', 'Les peupliers', '캔버스에 유채 · 41×32 · 해질녘', ['전시 중', 'chrome']], ['bridge', '정원의 다리', 'Le pont', '캔버스에 유채 · 65×54 · 아침', ['그리는 중', 'sky']], ['rain', '비 오는 대로', 'Boulevard', '판지에 유채 · 33×24 · 흐림', ['연작', 'lilac']]];
+  $('#toiles').innerHTML = TOILES.map(([k, n, fr, m, [tg, tc2]], i) => `<button class="toile" type="button" aria-label="${n}, ${m}, ${tg}. 자세히 보기"><span class="canvas canvas--sm"><span class="toile__art"><svg viewBox="0 0 240 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${scenes[k](100 + i)}</svg></span></span><span class="toile__label"><b>${n}</b><i lang="fr">${fr}</i><span>${m}</span><span class="tag tag--${tc2}">${tg}</span></span></button>`).join('');
+  $$('.toile').forEach(b => b.addEventListener('click', () => openS(b)));
+
+  /* ---------- Progress ---------- */
+  const SP = Painter(31), sd = [];
+  const sdab = (x, y, w, h, a, c) => sd.push([x, y, w, h, a, c]);
+  for (let i = 0; i < 110; i++) sdab(SP.R(0, 240), SP.R(0, 96), SP.R(12, 26), SP.R(5, 8), SP.R(-8, 6), SP.pick(['#bcd6ee', '#e8eef2', '#f6e7c5', '#a9c3e6', '#d8cdea']));
+  for (let i = 0; i < 90; i++) sdab(SP.R(0, 240), SP.R(96, 160), SP.R(12, 26), SP.R(5, 8), SP.R(-6, 6), SP.pick(['#c9d36f', '#e3c96a', '#9fbf6b', '#f2d64f']));
+  [[78, 1], [124, 1.1], [168, .95]].forEach(([cx, s]) => { for (let i = 0; i < 44; i++) { const y = SP.R(18, 100) / s * .9 + 10, w = 12 * s * Math.sin(Math.min(1, (y - 10) / 90) * Math.PI) + 2; sdab(cx + SP.R(-w, w), y, SP.R(8, 15), SP.R(4, 6), SP.R(78, 102), SP.pick(['#6aa060', '#3f7a52', '#2e5a48', '#5f6fc4', '#c7d27a'])); } });
+  for (let i = 0; i < 26; i++) sdab(SP.R(60, 230), SP.R(102, 112), SP.R(12, 22), SP.R(3, 5), 0, SP.pick(['#5f6fc4', '#8b85c8']));
+  $('#seanceSvg').innerHTML = '<rect width="240" height="160" fill="#fffdf6"/><path d="M0 96c60-4 120-6 240-2M78 100V20M124 100V14M168 100V24" stroke="#cdbf9f" stroke-width="1" fill="none" stroke-dasharray="3 3"/>' + sd.map(([x, y, w, h, a, c]) => `<rect x="${f1(x - w / 2)}" y="${f1(y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(h / 2)}" transform="rotate(${Math.round(a)} ${f1(x)} ${f1(y)})" fill="${c}" opacity="0"/>`).join('');
+  const sRects = $$('#seanceSvg rect').slice(1);
+  let sp = 0;
+  const stage = v => v < 35 ? ['하늘 칠하는 중', '먼저 가장 넓은 하늘부터'] : v < 62 ? ['풀밭 칠하는 중', '노랑과 초록을 나란히'] : v < 92 ? ['빛 잡는 중', '포플러 한쪽에 빛, 반대쪽에 보라'] : ['마무리', '그림자를 한 번 더 얹습니다'];
+  const tickS = () => { const n = Math.round(sRects.length * sp / 100); sRects.forEach((r, i) => r.setAttribute('opacity', i < n ? 1 : 0)); const s = $('#seance'); s.setAttribute('aria-valuenow', sp); const [a, b] = stage(sp); s.setAttribute('aria-valuetext', `${sp}%, ${a}`); $('#seanceT').textContent = `${sp}% · ${a}`; $('#seanceS').textContent = b; };
+  sp = 58; tickS();
+  let sb = 36;
+  const arc = v => { const a = Math.PI * (1 - v / 100), x = 100 + Math.cos(a) * 80, y = 96 - Math.sin(a) * 80;
+    $('#arc').innerHTML = `<svg viewBox="0 0 200 112" aria-hidden="true"><path d="M20 96A80 80 0 0 1 180 96" fill="none" stroke="#e6dcc6" stroke-width="12" stroke-linecap="round" stroke-dasharray="2 7"/><path d="M20 96A80 80 0 0 1 180 96" pathLength="100" fill="none" class="k-sun" style="stroke:var(--sun);fill:none" stroke-width="12" stroke-linecap="round" stroke-dasharray="${v} 100"/><circle cx="${f1(x)}" cy="${f1(y)}" r="11" fill="#f2c434" stroke="#fff6c8" stroke-width="3"/><text x="100" y="92" text-anchor="middle" font-family="Playfair Display, serif" font-weight="600" font-size="28" fill="#29263d">${Math.round(v * .667)}분</text></svg><b>남은 빛</b><span>그림자가 바뀌기 전까지</span>`; };
+  arc(60);
+  setInterval(() => {
+    sp = sp >= 100 ? 0 : Math.min(100, sp + 3); tickS();
+    sb = sb >= 100 ? 6 : sb + 4; const b = $('#sbar'); b.setAttribute('aria-valuenow', sb); $('i', b).style.width = sb + '%'; $('#sbarOut').textContent = sb + '%';
+  }, 900);
+
+  /* ---------- Table ---------- */
+  const tb = $('#tbl tbody');
+  $$('#tbl th button').forEach(b => b.addEventListener('click', () => { const th = b.parentElement, k = +b.dataset.k, dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    $$('#tbl th[aria-sort]').forEach(x => x.setAttribute('aria-sort', 'none')); th.setAttribute('aria-sort', dir);
+    $$('tr', tb).sort((a, c) => { const x = a.cells[k].textContent.trim(), y = c.cells[k].textContent.trim(); const q = k === 3 ? parseInt(x) - parseInt(y) : x.localeCompare(y, 'ko'); return dir === 'ascending' ? q : -q; }).forEach(r => tb.appendChild(r)); }));
+  const pb = $$('.pager li button'), pages = pb.slice(1, -1); let cur = 1;
+  const go = n => { cur = n; pages.forEach((b, i) => i + 1 === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')); pb[0].disabled = n === 1; pb.at(-1).disabled = n === pages.length; $('#pgInfo').textContent = `작품 12점 중 ${(n - 1) * 4 + 1}–${n * 4}`; };
+  pages.forEach((b, i) => b.addEventListener('click', () => go(i + 1))); pb[0].addEventListener('click', () => go(Math.max(1, cur - 1))); pb.at(-1).addEventListener('click', () => go(Math.min(pages.length, cur + 1)));
+
+  /* ---------- Dialog ---------- */
+  const dlg = $('#dlg'); $('#dlgOpen').addEventListener('click', () => dlg.showModal());
+  $$('[data-close]', dlg).forEach(b => b.addEventListener('click', () => { dlg.close(); if (b.dataset.after) toast(b.dataset.after); }));
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  /* ---------- Side panel ---------- */
+  const tubes = Painter(4); let tx = 14;
+  ['#2c4a9e', '#f2c434', '#a62f3f', '#24705f', '#e8a0ad', '#fbf6ea', '#d6a453', '#8a7cc8', '#e2623d', '#5f9fd6'].forEach(c => { tubes.add(`<g transform="translate(${tx} 8) rotate(${f1(tubes.R(-6, 6))} 15 21)"><rect x="4" y="0" width="22" height="34" rx="3" fill="#e8e6ee" stroke="#8c8aa5" stroke-width="1"/><rect x="4" y="10" width="22" height="16" fill="${c}"/><rect x="9" y="34" width="12" height="8" rx="2" fill="#3c3a52"/><path d="M4 3h22" stroke="#8c8aa5" stroke-width="2" stroke-dasharray="2 2"/></g>`); tx += 40; });
+  $('#tubes').innerHTML = tubes.take();
+  const side = $('#side'), sc = $('#scrim'); let opener;
+  const openS = b => { opener = b || document.activeElement; side.classList.add('open'); sc.classList.add('open'); side.setAttribute('aria-hidden', 'false'); if (b && b.classList && b.classList.contains('toile')) { const n = $('b', b).textContent; $('#sideT').textContent = n; $('#s1').value = n; } setTimeout(() => $('#s1').focus(), 120); };
+  const closeS = () => { side.classList.remove('open'); sc.classList.remove('open'); side.setAttribute('aria-hidden', 'true'); opener && opener.focus(); };
+  $('#sideOpen').addEventListener('click', e => openS(e.currentTarget)); sc.addEventListener('click', closeS);
+  $$('[data-sclose]', side).forEach(b => b.addEventListener('click', () => { closeS(); if (b.dataset.after) toast(b.dataset.after); }));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && side.classList.contains('open')) closeS(); });
+  side.addEventListener('keydown', e => {
+    if (e.key === 'Tab') { const f = $$('button, input', side).filter(x => !x.disabled), a = f[0], z = f.at(-1);
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } } });
+
+  /* ---------- Code ---------- */
+  $('#codeBlock').innerHTML = `<span class="c">/* Plein Air — 외광 · Tailwind v4 + shadcn */</span>
+@import "tailwindcss";
+
+<span class="p">:root</span> {
+  <span class="v">--background</span>: #dfe9ee;  <span class="v">--foreground</span>: #29263d;     <span class="c">/* 보랏빛 먹, 검정은 쓰지 않음 */</span>
+  <span class="v">--card</span>: #fbf6ea;  <span class="v">--card-foreground</span>: #29263d;        <span class="c">/* 캔버스 */</span>
+  <span class="v">--popover</span>: #fbf6ea;  <span class="v">--popover-foreground</span>: #29263d;
+  <span class="v">--primary</span>: #2c4a9e;  <span class="v">--primary-foreground</span>: #ffffff;    <span class="c">/* 코발트 블루 */</span>
+  <span class="v">--secondary</span>: #d5e7f3;  <span class="v">--secondary-foreground</span>: #29263d; <span class="c">/* 묽은 하늘 */</span>
+  <span class="v">--muted</span>: #f3ecdc;  <span class="v">--muted-foreground</span>: #5d5873;
+  <span class="v">--accent</span>: #f2c434;  <span class="v">--accent-foreground</span>: #29263d;     <span class="c">/* 크롬 옐로 */</span>
+  <span class="v">--destructive</span>: #a62f3f;                                    <span class="c">/* 매더 레드 */</span>
+  <span class="v">--border</span>: #e6dcc6;  <span class="v">--input</span>: #8c88a0;  <span class="v">--ring</span>: #2c4a9e;
+  <span class="v">--radius</span>: 1.25rem;
+
+  <span class="c">/* 빛: 시간대마다 바뀌는 토큰 (기본 = 정오) */</span>
+  <span class="v">--sky</span>: #8dbde6;  <span class="v">--sun</span>: #f7d548;  <span class="v">--shade</span>: #5f6fc4;
+  <span class="v">--shade-a</span>: rgb(69 82 166 / .34);  <span class="v">--sx</span>: 0px;  <span class="v">--sy</span>: 6px;
+}
+<span class="p">[data-hour="morning"]</span> { <span class="v">--sky</span>: #f4c8c2; <span class="v">--sun</span>: #f6cc66; <span class="v">--shade</span>: #8a85c8; <span class="v">--shade-a</span>: rgb(108 106 176 / .36); <span class="v">--sx</span>: 7px;  <span class="v">--sy</span>: 5px; }
+<span class="p">[data-hour="dusk"]</span>    { <span class="v">--sky</span>: #f2966b; <span class="v">--sun</span>: #f07a3a; <span class="v">--shade</span>: #7a5aa8; <span class="v">--shade-a</span>: rgb(87 60 138 / .36);   <span class="v">--sx</span>: -7px; <span class="v">--sy</span>: 5px; }
+<span class="p">[data-hour="night"]</span>   { <span class="v">--background</span>: #1f2851; <span class="v">--sky</span>: #31468f; <span class="v">--sun</span>: #f3cf6a; <span class="v">--shade</span>: #3e3678; <span class="v">--shade-a</span>: rgb(10 10 40 / .45); <span class="v">--sx</span>: 0px; <span class="v">--sy</span>: 5px; }
+
+@theme inline {
+  <span class="v">--color-background</span>: var(--background);
+  <span class="v">--color-foreground</span>: var(--foreground);
+  <span class="v">--color-card</span>: var(--card);
+  <span class="v">--color-primary</span>: var(--primary);
+  <span class="v">--color-secondary</span>: var(--secondary);
+  <span class="v">--color-accent</span>: var(--accent);
+  <span class="v">--color-destructive</span>: var(--destructive);
+  <span class="v">--color-sky</span>: var(--sky);
+  <span class="v">--color-sun</span>: var(--sun);
+  <span class="v">--color-shade</span>: var(--shade);
+  <span class="v">--font-display</span>: "Playfair Display", serif;
+  <span class="v">--font-heading</span>: "Gowun Batang", serif;
+  <span class="v">--font-sans</span>: "Noto Sans KR", system-ui, sans-serif;
+}
+
+<span class="c">/* 색 그림자: 회색 대신 빛의 반대색, 해 반대편으로 */</span>
+@utility <span class="p">shadow-plein</span> { box-shadow: var(--sx) var(--sy) 0 var(--shade-a); }
+
+<span class="c">/* 임파스토: 두껍게 올린 물감 + 어깨에 지금의 빛 한 획 */</span>
+@utility <span class="p">impasto</span> {
+  position: relative; color: var(--primary-foreground);
+  border-radius: 26px 18px 28px 16px / 20px 28px 18px 26px;
+  background: repeating-linear-gradient(-7deg, transparent 0 4px, rgb(255 255 255 / .09) 4px 6px,
+              transparent 6px 9px, rgb(0 0 0 / .08) 9px 11px), var(--primary);
+  box-shadow: inset 0 -3px 0 color-mix(in oklab, var(--primary), black 30%), var(--sx) var(--sy) 0 var(--shade-a);
+  &::before { content: ""; position: absolute; left: 16px; top: 7px; width: 34%; height: 5px;
+              border-radius: 5px 2px 4px 1px; background: var(--sun); rotate: -3deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}`;
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget; try { await navigator.clipboard.writeText($('#codeBlock').textContent); b.innerHTML = '<span>복사했어요</span>'; } catch { b.innerHTML = '<span>직접 선택해 주세요</span>'; } setTimeout(() => b.innerHTML = '<span>복사하기</span>', 1800); });
+
+  /* ---------- Start at the light of the viewer's own hour ---------- */
+  let start; try { start = localStorage.getItem('pleinair-hour'); } catch {}
+  if (!HOURS[start]) { const h = new Date().getHours(); start = h >= 5 && h < 10 ? 'morning' : h >= 10 && h < 16 ? 'noon' : h >= 16 && h < 20 ? 'dusk' : 'night'; }
+  setHour(start);
+})();
+</script>
+<script src="../systems-nav.js" defer></script>
+</body>
+</html>

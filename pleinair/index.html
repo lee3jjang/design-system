@@ -392,6 +392,7 @@ legend { padding: 0; margin-bottom: 14px; font: 700 15px/1.3 var(--font-h); colo
 .meule[aria-selected="true"] span { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--sun) 70%, transparent) 62% 92%, transparent 92%); }
 .meule:focus-visible { outline-offset: 6px; }
 .tabpanel { margin-top: 18px; padding: 16px 18px; border-radius: 8px 14px 10px 12px; background: var(--paper); font-size: 16px; color: var(--ink-2); display: grid; gap: 10px; }
+.tabpanel[hidden] { display: none; }
 .tabpanel b { color: var(--ink); font-family: var(--font-h); }
 .dots { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 13.5px; color: var(--ink-3); }
 .dots i { width: 22px; height: 14px; border-radius: 10px 3px 9px 4px; transform: rotate(-8deg); }
@@ -1207,7 +1208,10 @@ pre.code .c { color: #a7a3c9; } pre.code .p { color: #f6cf6a; } pre.code .v { co
     const lit = sx < 160 ? 'l' : 'r', sunc = mixc(SUNC, h);
     scene.innerHTML = `<rect width="320" height="84" fill="${mixc(SKY, h)}"/><circle cx="${f1(sx)}" cy="${f1(sy)}" r="13" fill="${sunc}"/><circle cx="${f1(sx)}" cy="${f1(sy)}" r="20" fill="${sunc}" opacity=".3"/><rect y="80" width="320" height="30" fill="#bcd193"/>${fieldDabs}
       <ellipse cx="${f1(160 + dx * .62)}" cy="94" rx="${f1(len)}" ry="6" fill="${shc}" opacity=".85"/>
-      <path d="M128 94c0-22 12-42 32-46 20 4 32 24 32 46z" fill="#d49a46"/><path d="M160 48c-20 4-32 24-32 46h${lit === 'l' ? 30 : 14}c0-20 1-34 2-46z" fill="${lit === 'l' ? '#f4cb5e' : shc}" opacity="${lit === 'l' ? 1 : .55}"/><path d="M160 48c20 4 32 24 32 46h-${lit === 'r' ? 30 : 14}c0-20-1-34-2-46z" fill="${lit === 'r' ? '#f4cb5e' : shc}" opacity="${lit === 'r' ? 1 : .55}"/>`;
+      <path d="M128 94c0-22 12-42 32-46 20 4 32 24 32 46z" fill="#d49a46"/>
+      <path d="${lit === 'l' ? 'M192 94c0-22-12-42-32-46v46z' : 'M128 94c0-22 12-42 32-46v46z'}" fill="${shc}" opacity="${Math.abs(sx - 160) < 30 ? .25 : .6}"/>
+      <path d="${lit === 'l' ? 'M128 94c0-22 12-42 32-46v46z' : 'M192 94c0-22-12-42-32-46v46z'}" fill="#f4cb5e"/>
+      <path d="M134 70c8-2 16-2 26-1M134 82c10-2 30-2 52 0" stroke="#b9823a" stroke-width="2" fill="none" opacity=".5"/>`;
     const hh = Math.floor(h), mm = h % 1 ? '30분' : '', label = `${hh < 12 ? '오전' : '오후'} ${hh > 12 ? hh - 12 : hh}시${mm ? ' ' + mm : ''}`;
     const nm = SHNAME.find(([lim]) => h <= lim)[1];
     ro.innerHTML = `${label} · 그림자 <i style="background:${shc}"></i>${nm}`;

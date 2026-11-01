@@ -552,8 +552,7 @@ dialog[open] { animation: surface .5s var(--spring); }
 @keyframes surface { from { opacity: 0; transform: translateY(30px) scale(.94); } }
 .dlg { margin: 70px 8px 10px; position: relative; padding: 78px 26px 30px; display: grid; justify-items: center; gap: 12px; text-align: center; border-radius: 22px;
   background: linear-gradient(var(--hull), var(--abyss-3)); box-shadow: 0 0 0 2px var(--hull-line), 0 0 0 3.5px var(--ol), 0 0 0 7px var(--brass-d), 0 0 0 8.5px var(--ol), 0 30px 60px -10px rgba(0,0,0,.9); }
-.dlg::before, .dlg::after { content: ""; position: absolute; left: 28px; right: 28px; height: 10px; background: var(--rivet) 0 50% / 28px 10px space no-repeat; }
-.dlg::before { bottom: 6px; } .dlg::after { top: 6px; left: calc(50% + 70px); }
+.dlg::before { content: ""; position: absolute; left: 28px; right: 28px; bottom: 6px; height: 10px; background: var(--rivet) 0 50% / 28px 10px space no-repeat; }
 .dlg__port { position: absolute; top: -66px; left: 50%; width: 132px; height: 132px; margin-left: -66px; border-radius: 50%; display: grid; place-items: center;
   background: radial-gradient(circle at 40% 35%, #3a0d0b, #12040a 70%); box-shadow: 0 0 0 8px var(--brass), 0 0 0 10px var(--ol), 0 0 0 12px var(--brass-d), 0 0 0 13.5px var(--ol), inset 0 0 30px rgba(255,90,70,.45), 0 12px 24px rgba(0,0,0,.6); }
 .dlg__port svg { width: 64px; height: 64px; filter: drop-shadow(0 0 10px rgba(255,90,70,.8)); animation: blink 1.6s ease-in-out infinite; }

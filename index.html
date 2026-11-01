@@ -12,7 +12,7 @@
   --tint: #e8b45a; --tint-glow: rgba(232,180,90,.55); --stripe: #8fae6b;
   --destructive: #a8402d; --destructive-wall: #6f2519; --destructive-soft: #f5d9d2;
   --primary-soft: #e3ece2; --primary-200: #b9d0b8; --primary-400: #4f7d5a; --tint-soft: #fbf0d6; --tint-wall: #b9862f; --faceplate: #2a352d;
-  --success: #3f7a4a; --success-soft: #e2efdc; --warning: #b7791f; --warning-soft: #f8ead0; --info: #2f6177; --info-soft: #dbe8ee; --paper-rule: #c9d6e3;
+  --success: #3f7a4a; --success-soft: #e2efdc; --warning: #b7791f; --warning-soft: #f8ead0; --info: #2f6177; --info-soft: #dbe8ee;
   --border: #d3d3c0; --input: #6f7a6c; --ring: #17221a;
   --depth: 6px;
   --radius: 8px; --radius-lg: 10px; --radius-xl: 14px; --radius-full: 9999px;
@@ -489,7 +489,7 @@ textarea.input { min-height: 96px; padding: 12px 14px; line-height: 1.6; resize:
 .win__corner.br { right: -3px; bottom: -3px; border-left: 0; border-top: 0; border-radius: 0 0 10px 0; } .win__corner.br::after { right: 3px; bottom: 3px; }
 .win__bar { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; margin: 4px 6px 10px 6px; cursor: grab; touch-action: none; }
 .win.drag .win__bar { cursor: grabbing; }
-.win__title, .sidepanel h4 { position: relative; padding: 7px 18px; border: 1.5px solid var(--foreground); border-radius: 6px; background: var(--tint); color: var(--foreground); font: 900 16px/1 var(--font-sans); box-shadow: 2px 3px 0 -1.5px #b9862f, 2px 3px 0 0 var(--foreground); }
+.win__title, .sidepanel h4, .dialog h4 { justify-self: start; position: relative; padding: 7px 18px; border: 1.5px solid var(--foreground); border-radius: 6px; background: var(--tint); color: var(--foreground); font: 900 16px/1 var(--font-sans); box-shadow: 2px 3px 0 -1.5px #b9862f, 2px 3px 0 0 var(--foreground); }
 .win__body { padding: 12px; border: 1.5px solid var(--foreground); border-radius: 6px; background: var(--panel); box-shadow: var(--shadow-inset); }
 .slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .slot { position: relative; aspect-ratio: 1; display: grid; place-items: center; padding: 0; border: 1.5px solid var(--input); border-radius: 6px; background: var(--panel-deep); box-shadow: inset 1.5px 2.5px 0 rgba(23,34,26,.14); cursor: pointer; color: var(--foreground); }
@@ -547,6 +547,22 @@ footer.end { padding-block: 64px 48px; color: var(--muted-foreground); font-size
 .bank, .flap:not(:focus-visible) { outline: 1px solid var(--rim-on-dark); outline-offset: -4px; }
 .codebox::before { border-color: var(--rim-on-dark); }
 .cabinet { outline: 1px solid var(--rim); outline-offset: -5px; }
+/* Consistency pass: dark meters and pills get the same inner line as every other surface. */
+.led__meter { outline: 1px solid var(--rim-on-dark); outline-offset: -4px; }
+.badge { outline: 1px solid var(--rim); outline-offset: -4px; }
+.dialog p { margin-top: -2px; }
+/* Swatch cards wear the same frame as the doc panels: thin slab wall, inner rim, small amber brackets; the colour chip is a sunken well. */
+.sw { position: relative; border-color: #a9a892; box-shadow: .9px 1.5px 0 -1.5px var(--cap-wall), 1.8px 3px 0 -1.5px var(--cap-wall), .9px 1.5px 0 0 #a9a892, 1.8px 3px 0 0 #a9a892; }
+.sw::before { content: ""; position: absolute; inset: 4px; z-index: 2; pointer-events: none; border: 1px solid var(--rim); border-radius: calc(var(--radius-lg) - 4px); }
+.sw::after { content: ""; position: absolute; inset: 3px; z-index: 3; pointer-events: none; --k: 9px; --t: 2px;
+  background: linear-gradient(var(--bracket) 0 0) left top / var(--k) var(--t), linear-gradient(var(--bracket) 0 0) left top / var(--t) var(--k),
+    linear-gradient(var(--bracket) 0 0) right top / var(--k) var(--t), linear-gradient(var(--bracket) 0 0) right top / var(--t) var(--k),
+    linear-gradient(var(--bracket) 0 0) left bottom / var(--k) var(--t), linear-gradient(var(--bracket) 0 0) left bottom / var(--t) var(--k),
+    linear-gradient(var(--bracket) 0 0) right bottom / var(--k) var(--t), linear-gradient(var(--bracket) 0 0) right bottom / var(--t) var(--k);
+  background-repeat: no-repeat; }
+.sw i { margin: 8px 8px 0; height: 64px; border: 1.5px solid var(--foreground); border-radius: 6px; box-shadow: inset 1.5px 2.5px 0 rgba(0,0,0,.18); }
+.swgroup { text-shadow: .5px .8px 0 rgba(23,34,26,.13); }
+
 /* Drawer fronts follow the key language: a short wall when shut, the inner rim, a stamped label. */
 .drawer-i__front { position: relative; box-shadow: 1.2px 2px 0 -1.5px var(--cap-wall), 2.4px 4px 0 -1.5px var(--cap-wall), 1.2px 2px 0 0 var(--foreground), 2.4px 4px 0 0 var(--foreground); text-shadow: 0 1px 0 rgba(255,255,255,.7); }
 .drawer-i__front::after { content: ""; position: absolute; inset: 3px; pointer-events: none; border: 1px solid var(--rim); border-radius: calc(var(--radius) - 3px); }
@@ -797,7 +813,18 @@ html.motion-off *, html.motion-off *::before, html.motion-off *::after { animati
               box-shadow var(--dur-spring) var(--ease-press);
 }
 .key:active { --travel: calc(var(--depth) - 1px); transition-duration: var(--dur-press); }
-.key[aria-pressed="true"] { --travel: calc(var(--depth) - 2.5px); } /* 걸린 상태 */</pre></div>
+.key[aria-pressed="true"] { --travel: calc(var(--depth) - 2.5px); } /* 걸린 상태 */
+
+/* 틀: 모든 면에 안쪽 선 한 줄, 물건을 담는 판에는 호박색 모서리 쇠붙이 */
+:root { --rim: rgba(23, 34, 26, .2); --rim-on-dark: rgba(255, 255, 255, .28); --bracket: var(--tint); }
+.key::after { content: ""; position: absolute; inset: 3px; border: 1px solid var(--rim); border-radius: inherit; pointer-events: none; }
+.panel::before { content: ""; position: absolute; inset: 6px; border: 1px solid var(--rim); border-radius: 8px; pointer-events: none; }
+.panel::after { /* 네 모서리에 12px × 2px ㄱ자 + 리벳: linear-gradient 8겹 + radial-gradient 4겹 */ }
+
+/* 글자 입체감: 제목만 아주 살짝 */
+h1, h2 { text-shadow: 1.2px 2px 0 rgba(23, 34, 26, .2); }
+h3, h4, label { text-shadow: .8px 1.2px 0 rgba(23, 34, 26, .17); }
+</pre></div>
 </section>
 </main>
 
@@ -850,7 +877,7 @@ html.motion-off *, html.motion-off *::before, html.motion-off *::after { animati
     ['상태', '글자로도 함께 알립니다'],
     ['#8fae6b', '새순', '--stripe', '진행 막대, LED'], ['#3f7a4a', '성공', '--success', '저장됨, 완료'], ['#e2efdc', '성공 배경', '--success-soft', '완료 안내 칸'], ['#b7791f', '주의', '--warning', '곧 만료, 확인 필요'], ['#f8ead0', '주의 배경', '--warning-soft', '주의 안내 칸'], ['#2f6177', '안내', '--info', '도움말, 새 소식'], ['#dbe8ee', '안내 배경', '--info-soft', '안내 칸'], ['#a8402d', '벽돌', '--destructive', '위험한 동작, 오류'], ['#f5d9d2', '벽돌 배경', '--destructive-soft', '오류 안내 칸'], ['#6f2519', '벽돌 옆면', '--destructive-wall', '위험 키의 두께'],
     ['선 · 두께 · 초점', ''],
-    ['#d3d3c0', '구분선', '--border', '카드 테두리, 줄 사이'], ['#6f7a6c', '입력 테두리', '--input', '입력 칸 윤곽 · 3:1'], ['#b9b8a5', '키 옆면', '--cap-wall', '흰 키의 두께'], ['#17221a', '초점 고리', '--ring', '키보드 초점 3px 테두리'], ['#c9d6e3', '종이 줄', '--paper-rule', '색인 카드의 줄']
+    ['#d3d3c0', '구분선', '--border', '카드 테두리, 줄 사이'], ['#6f7a6c', '입력 테두리', '--input', '입력 칸 윤곽 · 3:1'], ['#b9b8a5', '키 옆면', '--cap-wall', '흰 키의 두께'], ['#17221a', '초점 고리', '--ring', '키보드 초점 3px 테두리']
   ].map(function (c) {
     if (c.length === 2) return '<div class="swgroup"><b>' + c[0] + '</b>' + c[1] + '</div>';
     return '<div class="sw"><i style="background:' + c[0] + '"></i><div><b>' + c[1] + '</b>' + c[3] + '<code>' + c[2] + ' ' + c[0] + '</code></div></div>';

@@ -1420,6 +1420,6 @@ pre.code .c { color: #b9a58c; } pre.code .p { color: var(--mustard-l); } pre.cod
   $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget, s = $('span', b); try { await navigator.clipboard.writeText($('#codeBlock').textContent); s.textContent = '복사했어요!'; } catch { s.textContent = '직접 골라 복사해 주세요'; } setTimeout(() => s.textContent = '복사하기', 1800); });
 })();
 </script>
-<script src="../systems-nav.js?v=20261101" defer></script>
+<script src="../systems-nav.js?v=20261101b" defer></script>
 </body>
 </html>

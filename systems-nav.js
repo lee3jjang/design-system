@@ -34,9 +34,9 @@
     { id: 'mix4', path: 'mix4/index.html', name: 'Verso', ko: '추상 크로스오버 · 뒷면에서 본 새벽', c: ['#040915', '#d3b561', '#59d0c0'], m: true },
     { id: 'mix5', path: 'mix5/index.html', name: 'Natrium', ko: '추상 크로스오버 · 꺼진 나트륨등', c: ['#ff8a1f', '#0d0e0f', '#00e5ff'], m: true },
     { id: 'field', path: 'field/index.html', name: 'Field', ko: '극추상 · 색면', c: ['#3b2a5e', '#c2553a', '#e8c9a0'], a: true },
-    { id: 'score', path: 'score/index.html', name: 'Score', ko: '극추상 · 도형 악보', c: ['#efe8da', '#141414', '#c23a2b'], a: true },
+    { id: 'score', path: 'score/index.html', name: 'Tacet', ko: '도형 악보, 여섯 장', c: ['#efe8da', '#141414', '#c23a2b'], a: true },
     { id: 'glyph', path: 'glyph/index.html', name: 'Glyph', ko: '극추상 · 발명된 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },
-    { id: 'poom', path: 'poom/index.html', name: 'Poom', ko: '품 · 두 살 딸을 안을 때', c: ['#fbefe4', '#f2b9a0', '#e88a74'], a: true },
+    { id: 'poom', path: 'poom/index.html', name: '품', ko: '두 살 딸을 꼭 안았을 때', c: ['#fbefe4', '#f2b9a0', '#e88a74'], a: true },
   ];
 
   const me = document.currentScript;
@@ -95,7 +95,7 @@
     ${SYSTEMS.filter(s => s.x).map(link).join('')}
     <div class="group">추상 크로스오버</div>
     ${SYSTEMS.filter(s => s.m).map(link).join('')}
-    <div class="group">극추상</div>
+    <div class="group">작품</div>
     ${SYSTEMS.filter(s => s.a).map(link).join('')}
   </nav>
   <div class="foot"><kbd>Esc</kbd> 닫기 · <kbd>[</kbd> <kbd>]</kbd> 이전 / 다음 시스템</div>

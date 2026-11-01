@@ -339,7 +339,7 @@ footer { max-width: 980px; margin: 140px auto 0; padding: 28px 0 56px; border-to
     }
   };
   const tick = t => {
-    raf = 0;
+    raf = 0; if (!box) measure();
     if (drifting && !reduce) { const w = t / 1000; tx = box.width * (.5 + .36 * Math.sin(w * .23)); ty = box.height * (.45 + .3 * Math.sin(w * .31 + 1)); }
     const k = reduce ? 1 : .12; lx += (tx - lx) * k; ly += (ty - ly) * k; shade();
     if (drifting || Math.abs(tx - lx) + Math.abs(ty - ly) > .5) raf = requestAnimationFrame(tick);

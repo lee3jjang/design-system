@@ -31,7 +31,7 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: var(--wall); }
 body { margin: 0; color: var(--ink); font: 400 17px/1.9 var(--f-body); word-break: keep-all; overflow-wrap: break-word; -webkit-font-smoothing: antialiased;
-  background: var(--paper) 0 0/220px 220px, var(--wall); }
+  background: var(--paper) 0 0/220px 220px, var(--wall); background-blend-mode: normal; }
 h1, h2, h3, p, figure { margin: 0; }
 h1, h2 { font-weight: 400; }
 button { font: inherit; color: inherit; }
@@ -277,11 +277,11 @@ svg { display: block; }
   /* ---------- paper and pigment grain (tiny noise tiles, rasterised once) ---------- */
   const tile = (freq, matrix, seed, size = 180) => 'data:image/svg+xml,' + encodeURIComponent(
     `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'><filter id='f' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='${freq}' numOctaves='3' seed='${seed}' stitchTiles='stitch'/><feColorMatrix values='${matrix}'/></filter><rect width='100%' height='100%' filter='url(#f)'/></svg>`);
-  const GRAIN = tile('.85', '0 0 0 0 .22 0 0 0 0 .1 0 0 0 0 .1 3.4 0 0 0 -1.95', 4);
-  const SPARK = tile('.9', '0 0 0 0 1 0 0 0 0 .97 0 0 0 0 .96 -3.6 0 0 0 1.38', 9);
-  const PAPER = tile('.55', '0 0 0 0 .45 0 0 0 0 .37 0 0 0 0 .29 1.05 0 0 0 -.44', 2, 220);
+  const GRAIN = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='f' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' seed='4' stitchTiles='stitch' result='a'/><feTurbulence type='fractalNoise' baseFrequency='.014' numOctaves='2' seed='8' stitchTiles='stitch' result='b'/><feComposite in='a' in2='b' operator='arithmetic' k2='1' k3='.9' k4='-.45'/><feColorMatrix values='0 0 0 0 .22 0 0 0 0 .08 0 0 0 0 .1 3.2 0 0 0 -1.78'/></filter><rect width='100%' height='100%' filter='url(#f)'/></svg>`);
+  const SPARK = tile('.9', '0 0 0 0 1 0 0 0 0 .97 0 0 0 0 .96 -4.2 0 0 0 1.42', 9);
+  const PAPER = tile('.55', '0 0 0 0 .45 0 0 0 0 .37 0 0 0 0 .29 .62 0 0 0 -.27', 2, 220);
   document.documentElement.style.setProperty('--paper', `url("${PAPER}")`);
-  $('#lib').innerHTML = [['pgDark', GRAIN, 150], ['pgSpark', SPARK, 150], ['pgPaper', PAPER, 220]]
+  $('#lib').innerHTML = [['pgDark', GRAIN, 300], ['pgSpark', SPARK, 150], ['pgPaper', PAPER, 220]]
     .map(([id, u, s]) => `<pattern id="${id}" width="${s}" height="${s}" patternUnits="userSpaceOnUse"><image href="${u}" width="${s}" height="${s}"/></pattern>`).join('');
 
   /* ---------- a hand: seeded randomness, smooth noise, wavering curves ---------- */
@@ -336,8 +336,8 @@ svg { display: block; }
 
   /* ---------- pigments ---------- */
   const PAL = {
-    red:  { base: '#d4505f', mid: '#b3243a', deep: '#8a1229', line: '#600b1d', hi: '#f2aab4', spark: true, name: '연지', latin: 'Carmine' },
-    red2: { base: '#cc4256', mid: '#a91f36', deep: '#7c0f24', line: '#5a0a1b', hi: '#ee9aa6', spark: true },
+    red:  { base: '#c93d52', mid: '#ad2037', deep: '#7f0f25', line: '#5c0a1c', hi: '#ef9fab', spark: true, name: '연지', latin: 'Carmine' },
+    red2: { base: '#d24e62', mid: '#b3243a', deep: '#86132a', line: '#600b1d', hi: '#f3b0ba', spark: true },
     pink: { base: '#f2c5cf', mid: '#e09db0', deep: '#c87590', line: '#9e3d58', hi: '#fde9ed', name: '분홍', latin: 'Rose' },
     lav:  { base: '#e0b9cb', mid: '#c38fab', deep: '#9a6283', line: '#713d5b', hi: '#f3e1e9', name: '자분홍', latin: 'Mauve' },
     leaf: { base: '#b4cb6a', mid: '#5e9142', deep: '#2b5934', line: '#22432a', hi: '#dfeaa8', name: '녹청', latin: 'Malachite' },
@@ -354,8 +354,8 @@ svg { display: block; }
     let s = `<path class="wa" data-k="1" d="${smooth(jitter(o.out, ctx.j * 1.4, true, r), true)}" fill="${c.base}" opacity="${o.baseOp || .93}"/>`
       + `<path class="wb" data-k="2" d="${smooth(jitter(o.out, ctx.j * 2.1, true, r), true)}" fill="url(#ga${id})"/>`
       + (ctx.study ? `<path class="wb2" data-k="3" d="${smooth(jitter(o.out, ctx.j * 1.8, true, r), true)}" fill="url(#gc${id})"/>` : '')
-      + `<g class="wc" data-k="4" clip-path="url(#c${id})"><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 11}" opacity=".07"/><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 5.5}" opacity=".09"/><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 2.2}" opacity=".13"/>`
-      + (o.hi ? `<path d="${brush(jitter(o.hi, ctx.j, false, r), o.hiW, r)}" fill="${c.hi}" opacity=".38"/>` : '') + '</g>'
+      + `<g class="wc" data-k="4" clip-path="url(#c${id})"><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 24}" opacity=".07"/><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 11}" opacity=".09"/><path d="${ex}" fill="none" stroke="${c.deep}" stroke-width="${ctx.j * 4}" opacity=".14"/>`
+      + (o.hi ? `<path d="${brush(jitter(o.hi, ctx.j, false, r), o.hiW, r)}" fill="${c.hi}" opacity=".2"/>` : '') + '</g>'
       + `<path class="wb2" data-k="5" d="${smooth(jitter(o.out, ctx.j * 1.6, true, r), true)}" fill="url(#gb${id})"/>`
       + `<g class="wg" data-k="6"><path d="${ex}" fill="url(#pgDark)" opacity=".5"/>${c.spark ? `<path d="${ex}" fill="url(#pgSpark)" opacity=".55"/>` : ''}</g>`
       + (o.young ? `<path class="wy" d="${smooth(jitter(o.out, ctx.j * 1.2, true, r), true)}" fill="url(#gy${id})"/>` : '')
@@ -384,7 +384,7 @@ svg { display: block; }
       const g = shape(ctx, {
         r, c, d: d + i * .1, out: sample(P.d, T, pre).slice(0, -1), g: P.ax.map(p => xf(p, T, pre)), young: opt.young,
         lines: P.ln.map(l => ({ pts: sample(l, T, pre) })).concat((P.vn || []).map(l => ({ pts: sample(l, T, pre), w: ctx.lw * .6, op: .5 }))),
-        hi: P.hi ? sample(P.hi, T, pre) : null, hiW: 16 * T.s,
+        hi: P.hi ? sample(P.hi, T, pre) : null, hiW: 34 * T.s,
       });
       const o = xf([0, 0], T);
       return opt.wrap ? `<g class="pw ${k}" style="transform-origin:${fx(o[0])}px ${fx(o[1])}px">${g}</g>` : g;
@@ -419,7 +419,7 @@ svg { display: block; }
     const d = smooth(pts, true), id = 'sh' + (++UID);
     ctx.defs += `<clipPath id="${id}"><path d="${d}"/></clipPath>`;
     ctx.clip = id; ctx.sheetD = d;
-    return `<path d="${d}" fill="#5a4030" opacity=".05" transform="translate(2 6)"/><path d="${d}" fill="#5a4030" opacity=".06" transform="translate(1 2)"/><path d="${d}" fill="#f7f4ee"/><path d="${d}" fill="url(#pgPaper)" opacity=".7"/>`;
+    return `<path d="${d}" fill="#5a4030" opacity=".05" transform="translate(2 6)"/><path d="${d}" fill="#5a4030" opacity=".06" transform="translate(1 2)"/><path d="${d}" fill="#f7f4ee"/><path d="${d}" fill="url(#pgPaper)" opacity=".8"/>`;
   }
   const finish = (svg, ctx, body) => {
     svg.innerHTML = `<defs>${ctx.defs}</defs>${body}`;
@@ -428,7 +428,7 @@ svg { display: block; }
 
   /* ---------- the painting ---------- */
   (function hero() {
-    const ctx = { defs: '', lw: 2.6, j: 1.25 }, back = sheet(ctx, 26, 26, 874, 1124, 11);
+    const ctx = { defs: '', lw: 1.9, j: 1.05 }, back = sheet(ctx, 26, 26, 874, 1124, 11);
     const steps = [
       c => leaf(c, 430, 1180, -40, 600, 48, 70, 0),
       c => leaf(c, 470, 1180, 38, 640, 50, -80, 0, true),
@@ -457,7 +457,7 @@ svg { display: block; }
     // paint order is also time order, but each element starts a little after the one behind it
     let inner = '';
     steps.forEach((f, i) => { ctx.li = 0; inner += f(ctx).replace(/--d:0\.(\d\d)s/g, (_, v) => `--d:${(i / steps.length * 3.6 + +('0.' + v)).toFixed(2)}s`); });
-    finish($('#art'), ctx, framed(ctx, back, inner));
+    finish($('#art'), ctx, framed(ctx, back, `<g transform="translate(450 1210) scale(1.2) translate(-450 -1210)">${inner}</g>`));
   })();
 
   /* hero: the line delays live in defs (masks); match each mask to its shape's delay */

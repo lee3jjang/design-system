@@ -431,7 +431,7 @@ body.holding .clock { filter: blur(.6px); }
   /* ---------- the loop ---------- */
   let lastSec = -1;
   function frame(t) {
-    const dt = Math.min(.05, (t - S.last) / 1000);
+    const dt = Math.min(.12, (t - S.last) / 1000);
     S.last = t; S.now = t / 1000;
     step(dt);
     drawWorld(dt);
@@ -444,7 +444,7 @@ body.holding .clock { filter: blur(.6px); }
     S.h += ((S.holding ? 1 : 0) - S.h) * (1 - Math.exp(-dt / (S.holding ? 1.1 : 3.2)));
     S.w += ((S.holding ? 1 : 0) - S.w) * (1 - Math.exp(-dt / (S.holding ? 5.5 : 7.5)));
     S.nestle += ((S.holding ? 1 : 0) - S.nestle) * (1 - Math.exp(-dt / (S.holding ? 1.6 : 4.5)));
-    if (S.holding) { S.holdT += dt; S.c = Math.min(1, S.c + dt / 16); }
+    if (S.holding) { S.holdT = S.now - S.holdStart; S.c = Math.min(1, S.c + dt / 16); }
     else S.c = Math.max(0, S.c - dt / 11);
     S.growthShown += (S.growth - S.growthShown) * (1 - Math.exp(-dt / 4));
     S.lingerRing = Math.max(0, S.lingerRing - dt / 9);

@@ -26,6 +26,7 @@
     { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },
     { id: 'mix1', path: 'mix1/index.html', name: 'Lacuna', ko: '추상 크로스오버 · 바탕 없는 겹테 장치', c: ['#ffffff', '#111111', '#2457d6'], m: true },
     { id: 'mix2', path: 'mix2/index.html', name: 'Halide', ko: '추상 크로스오버 · 느리게 현상되는 회색 선체', c: ['#1a1a1a', '#f2f2f2', '#8a8a8a'], m: true },
+    { id: 'mix3', path: 'mix3/index.html', name: 'Plumb', ko: '추상 크로스오버 · 고르면 반듯해지는 귀리밭', c: ['#e4d3aa', '#902f3b', '#0a40c3'], m: true },
     { id: 'mix5', path: 'mix5/index.html', name: 'Natrium', ko: '추상 크로스오버 · 꺼진 나트륨등', c: ['#ff8a1f', '#0d0e0f', '#00e5ff'], m: true },
   ];
 

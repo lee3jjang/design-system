@@ -24,6 +24,7 @@
     { id: 'absurd', path: 'absurd/index.html', name: 'Absurd', ko: '포스트모던 × 실존', c: ['#f2f0eb', '#111111', '#e5322d'] },
     { id: 'inkstone', path: 'inkstone/index.html', name: 'Inkstone', ko: '크로스오버 · Sansa×Dal×Riso', c: ['#f3eee2', '#24418f', '#8e3b2a'], x: true },
     { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },
+    { id: 'mix5', path: 'mix5/index.html', name: 'Natrium', ko: '추상 크로스오버 · 꺼진 나트륨등', c: ['#ff8a1f', '#0d0e0f', '#00e5ff'], m: true },
   ];
 
   const me = document.currentScript;
@@ -77,9 +78,11 @@
   <div class="head"><div><b>디자인 시스템</b><small>${SYSTEMS.length}개 · 다른 시스템으로 이동</small></div><button class="x" type="button" aria-label="닫기">✕</button></div>
   <nav aria-label="디자인 시스템">
     <div class="group">시스템</div>
-    ${SYSTEMS.filter(s => !s.x).map(link).join('')}
+    ${SYSTEMS.filter(s => !s.x && !s.m).map(link).join('')}
     <div class="group">크로스오버</div>
     ${SYSTEMS.filter(s => s.x).map(link).join('')}
+    <div class="group">추상 크로스오버</div>
+    ${SYSTEMS.filter(s => s.m).map(link).join('')}
   </nav>
   <div class="foot"><kbd>Esc</kbd> 닫기 · <kbd>[</kbd> <kbd>]</kbd> 이전 / 다음 시스템</div>
 </aside>`;

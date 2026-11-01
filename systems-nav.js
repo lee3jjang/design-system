@@ -35,6 +35,7 @@
     { id: 'field', path: 'field/index.html', name: 'Field', ko: '극추상 · 색면', c: ['#3b2a5e', '#c2553a', '#e8c9a0'], a: true },
     { id: 'score', path: 'score/index.html', name: 'Score', ko: '극추상 · 도형 악보', c: ['#efe8da', '#141414', '#c23a2b'], a: true },
     { id: 'glyph', path: 'glyph/index.html', name: 'Glyph', ko: '극추상 · 발명된 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },
+    { id: 'poom', path: 'poom/index.html', name: 'Poom', ko: '품 · 두 살 딸을 안을 때', c: ['#fbefe4', '#f2b9a0', '#e88a74'], a: true },
   ];
 
   const me = document.currentScript;

@@ -382,7 +382,7 @@ svg { display: block; }
     const body = ['pc', 'pl', 'pr', 'pf'].map((k, i) => {
       const P = PET[k], pre = { r: k === 'pl' ? -open : k === 'pr' ? open : 0, sx: opt.sx || 1 };
       const g = shape(ctx, {
-        r, c, d: d + i * .1, out: sample(P.d, T, pre).slice(0, -1), g: P.ax.map(p => xf(p, T, pre)), young: opt.young,
+        r, c, d: d + i * .1, baseOp: k === 'pf' ? 1 : .93, out: sample(P.d, T, pre).slice(0, -1), g: P.ax.map(p => xf(p, T, pre)), young: opt.young,
         lines: P.ln.map(l => ({ pts: sample(l, T, pre) })).concat((P.vn || []).map(l => ({ pts: sample(l, T, pre), w: ctx.lw * .6, op: .5 }))),
         hi: P.hi ? sample(P.hi, T, pre) : null, hiW: 34 * T.s,
       });

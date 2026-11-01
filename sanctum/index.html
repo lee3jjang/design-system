@@ -337,9 +337,10 @@ legend { padding: 0; margin-bottom: 14px; font: 700 13px/1.3 var(--font-latin); 
 .tarot[aria-selected="true"] { transform: translateY(-10px); color: var(--acc-l); box-shadow: inset 0 0 0 1px var(--acc), inset 0 0 0 5px #141116, inset 0 0 0 6px var(--acc-d), 0 0 26px -6px var(--acc-glow), 0 14px 20px -8px #000; }
 .tarot[aria-selected="true"] i { color: var(--acc); }
 .tarot[aria-selected="true"] svg { filter: drop-shadow(0 0 5px var(--acc)); }
-.tome { padding: 18px; border: 2px solid var(--ol); border-radius: 3px; background: #0f0c11; box-shadow: 0 0 0 1px var(--iron), inset 0 2px 10px rgba(0,0,0,.6); display: grid; gap: 14px; }
+.tome { align-content: start; padding: 18px; border: 2px solid var(--ol); border-radius: 3px; background: #0f0c11; box-shadow: 0 0 0 1px var(--iron), inset 0 2px 10px rgba(0,0,0,.6); display: grid; gap: 14px; }
 .tome p { font-size: 15.5px; color: var(--bone-2); }
-.bag { display: grid; grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 8px; }
+.bag { display: grid; grid-template-columns: repeat(auto-fill, 58px); justify-content: center; gap: 8px; }
+.bag .slot { width: 58px; height: 58px; aspect-ratio: auto; }
 
 .slot { --r: transparent; position: relative; aspect-ratio: 1; display: grid; place-items: center; border: 2px solid var(--ol); border-radius: 3px;
   background: radial-gradient(circle at 50% 62%, color-mix(in srgb, var(--r) 26%, transparent), transparent 70%), linear-gradient(#17131a, #0b090d);
@@ -356,7 +357,7 @@ legend { padding: 0; margin-bottom: 14px; font: 700 13px/1.3 var(--font-latin); 
 .chip[aria-pressed="true"]::before { background: var(--r); box-shadow: 0 0 6px var(--r); }
 .chips-out { text-align: center; font-size: 15px; color: var(--bone-3); }
 
-.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; width: 100%; }
+.field { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 8px; min-width: 0; width: 100%; }
 .field > label, .flabel { font: 800 16.5px/1.3 var(--font-title); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 .field > label small, .flabel small { font: 400 14px/1.3 var(--font); color: var(--bone-3); }
 .help { font-size: 15px; color: var(--bone-3); }

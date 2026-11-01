@@ -35,7 +35,7 @@
     { id: 'mix5', path: 'mix5/index.html', name: 'Natrium', ko: '추상 크로스오버 · 꺼진 나트륨등', c: ['#ff8a1f', '#0d0e0f', '#00e5ff'], m: true },
     { id: 'field', path: 'field/index.html', name: 'Halitus', ko: '숨 쉬는 색면', c: ['#3b2a5e', '#c2553a', '#e8c9a0'], a: true },
     { id: 'score', path: 'score/index.html', name: 'Tacet', ko: '도형 악보, 여섯 장', c: ['#efe8da', '#141414', '#c23a2b'], a: true },
-    { id: 'glyph', path: 'glyph/index.html', name: 'Glyph', ko: '극추상 · 발명된 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },
+    { id: 'glyph', path: 'glyph/index.html', name: 'Ignota', ko: '해독되지 않은 문자', c: ['#d9cdb4', '#3a2e22', '#8a6a3a'], a: true },
     { id: 'poom', path: 'poom/index.html', name: '품', ko: '두 살 딸을 꼭 안았을 때', c: ['#fbefe4', '#f2b9a0', '#e88a74'], a: true },
   ];
 

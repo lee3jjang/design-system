@@ -1,0 +1,1661 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unruh · 쉬지 않는 바퀴</title>
+<meta name="description" content="Unruh: 전생에 알프스 골짜기의 시계공이었던 한국 디자이너가 꿈속에서 쓰는 물건들의 디자인 체계. 앙글라주, 페를라주, 푸른 나사, 루비 보석 — 손은 기억하지만 머리는 잊은 마감.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600&display=swap">
+<style>
+/* Unruh — the balance wheel, and restlessness.
+   A Korean designer who, in a past life, was a watch artisan in an Alpine valley cabin.
+   His mind forgot what the finishes were for; his hands did not. So in his dreams the everyday
+   things he uses are bevelled, grained, blued and jewelled — a little wrongly, very precisely.
+   The palette is the cabin at dawn (larch, snow, slate, fog) meeting what he grew up with
+   (hanji, ott-chil lacquer, bangjja brass, bojagi cloth) under a warm ondol floor. */
+:root {
+  color-scheme: light;
+  --snow: #f5f2ec;
+  --paper: #fbf9f4;
+  --hanji: #f1e9da;
+  --ink: #1d2328;
+  --ink-2: #444e57;          /* 7.6:1 on snow */
+  --slate: #34404b;
+  --rhod: #dfe1e0;
+  --rhod-2: #c4c8ca;
+  --steel: #8b9399;
+  --edge: #a3a9ad;
+  --larch: #b07a4a;
+  --larch-2: #87582f;
+  --larch-3: #d6ab7e;
+  --gentian: #1b4ca3;        /* 7.6:1 on snow */
+  --gentian-2: #133b82;
+  --ruby: #a3163a;           /* 7.0:1 on snow */
+  --blued: #22409a;
+  --amber: #c8752a;
+  --amber-ink: #8a4a12;
+  --ott: #4a1e16;            /* 옻칠 */
+  --nod: #a88d58;            /* 놋 */
+  --serif: "EB Garamond", "Gowun Batang", serif;
+  --serif-ko: "Gowun Batang", "EB Garamond", serif;
+  --sans: "Schibsted Grotesk", "IBM Plex Sans KR", system-ui, sans-serif;
+  --perlage: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cdefs%3E%3CradialGradient id='g' cx='.4' cy='.36' r='.62'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='.34'/%3E%3Cstop offset='.5' stop-color='%23fff' stop-opacity='.06'/%3E%3Cstop offset='.86' stop-color='%23000' stop-opacity='.035'/%3E%3Cstop offset='1' stop-color='%23000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='url(%23g)'%3E%3Ccircle cx='0' cy='0' r='10.5'/%3E%3Ccircle cx='26' cy='0' r='10.5'/%3E%3Ccircle cx='13' cy='13' r='10.5'/%3E%3Ccircle cx='0' cy='26' r='10.5'/%3E%3Ccircle cx='26' cy='26' r='10.5'/%3E%3C/g%3E%3C/svg%3E");
+  --geneva: repeating-linear-gradient(104deg, rgba(255,255,255,0) 0 5px, rgba(255,255,255,.3) 10px, rgba(255,255,255,0) 15px, rgba(0,0,0,.025) 19px, rgba(255,255,255,0) 22px);
+  --anglage: inset 0 0 0 1px rgba(255,255,255,.9), inset 0 0 0 3px rgba(255,255,255,.35), 0 1px 0 rgba(255,255,255,.8);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--snow); color: var(--ink);
+  font: 400 17px/1.75 var(--sans); overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { margin: 0; font-weight: 500; }
+p { margin: 0 0 1em; }
+a { color: var(--gentian); text-underline-offset: 4px; text-decoration-thickness: 1px; }
+:focus-visible { outline: 2px solid var(--gentian); outline-offset: 3px; border-radius: 6px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+.skip { position: absolute; left: 12px; top: -60px; background: var(--ink); color: #fff; padding: 10px 14px; z-index: 50; border-radius: 6px; }
+.skip:focus { top: 12px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- top bar ---------- */
+.bar { position: relative; z-index: 3; border-bottom: 1px solid #d9d3c8; background: var(--paper); }
+.bar .wrap { display: flex; align-items: center; gap: 14px 22px; min-height: 64px; flex-wrap: wrap; }
+.mark { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font: 500 21px/1 var(--serif); letter-spacing: .04em; min-height: 44px; }
+.mark svg { width: 30px; height: 30px; }
+.clocks { display: flex; gap: 18px; margin-left: auto; font-size: 15px; color: var(--ink-2); }
+.clocks b { font-weight: 500; color: var(--ink); }
+.clocks span { white-space: nowrap; }
+.snd { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px 0 12px; border-radius: 22px; border: 1px solid var(--edge); background: var(--rhod) var(--perlage); box-shadow: var(--anglage); cursor: pointer; font-size: 15px; }
+.snd i { width: 12px; height: 12px; border-radius: 50%; background: #9aa1a6; box-shadow: inset 0 1px 2px rgba(0,0,0,.35); }
+.snd[aria-pressed="true"] i { background: radial-gradient(circle at 35% 30%, #ff9fb0, var(--ruby) 55%, #5e0a1f); }
+
+/* ---------- edge rails ---------- */
+.reg, .hours { display: none; }
+@media (min-width: 1200px) and (min-height: 720px) {
+  .reg { display: block; position: fixed; z-index: 4; left: 22px; top: 110px; bottom: 112px; width: 44px; }
+  .reg .strip { position: absolute; left: 13px; top: 34px; bottom: 34px; width: 18px; border-radius: 9px; border: 1px solid var(--edge);
+    background: repeating-linear-gradient(to bottom, rgba(29,35,40,.55) 0 1px, transparent 1px 7px), var(--geneva), var(--rhod);
+    background-size: 7px 100%, auto, auto; background-repeat: repeat-y, repeat, repeat; box-shadow: var(--anglage); }
+  .reg .strip::after { content: ""; position: absolute; left: 7px; top: 0; bottom: 0; width: 11px; background: repeating-linear-gradient(to bottom, rgba(29,35,40,.6) 0 1px, transparent 1px 35px); }
+  .reg .end { position: absolute; left: 50%; font: italic 400 15px/1 var(--serif); color: var(--ink-2); transform: translateX(-50%); }
+  .reg .end.t { top: 0; } .reg .end.b { bottom: 0; }
+  .reg .ptr { position: absolute; left: -4px; width: 52px; height: 2px; background: var(--blued); top: 34px; transition: top .2s linear; }
+  .reg .ptr::before { content: ""; position: absolute; right: -2px; top: -5px; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff9fb0, var(--ruby) 55%, #5e0a1f); box-shadow: 0 0 0 2px #e9ebeb, 0 0 0 3px var(--edge); }
+  .reg .ptr::after { content: ""; position: absolute; left: 0; top: -4px; border: 5px solid transparent; border-left: 8px solid var(--blued); border-right: 0; }
+  .reg .lbl { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); white-space: nowrap; font: 400 13px/1 var(--serif); letter-spacing: .3em; color: var(--ink-2); background: var(--snow); padding: 4px 8px; }
+  .hours { display: block; position: fixed; z-index: 4; right: 16px; top: 50%; transform: translateY(-50%); }
+  .hours ol { list-style: none; margin: 0; padding: 10px 4px; border-radius: 30px; border: 1px solid var(--edge); background: var(--rhod) var(--perlage); box-shadow: var(--anglage), 0 12px 30px -20px rgba(29,35,40,.5); }
+  .hours a { position: relative; display: flex; align-items: center; justify-content: center; width: 52px; height: 44px; text-decoration: none; color: var(--ink-2); font: 400 17px/1 var(--serif); border-radius: 22px; }
+  .hours a::after { content: attr(data-l); position: absolute; right: 60px; top: 50%; transform: translateY(-50%); white-space: nowrap; background: var(--slate); color: #fff; font: 500 14px/1 var(--sans); padding: 8px 10px; border-radius: 6px; opacity: 0; pointer-events: none; transition: opacity .15s; }
+  .hours a:hover::after, .hours a:focus-visible::after, .hours a[aria-current]::after { opacity: 1; }
+  .hours a[aria-current] { color: var(--gentian); font-weight: 500; }
+  .hours a[aria-current]::before { content: ""; position: absolute; left: -26px; top: 50%; width: 30px; height: 2px; background: var(--blued); border-radius: 2px; }
+  .hours a[aria-current]::after { background: var(--gentian); }
+}
+@media (max-width: 1199px) {
+  body::before, body::after { content: ""; position: fixed; top: 0; bottom: 80px; width: 5px; z-index: 4; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(29,35,40,.5) 0 1px, transparent 1px 8px), var(--larch-3); }
+  body::before { left: 0; } body::after { right: 0; bottom: 0; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.7) 0 1px, transparent 1px 40px), var(--gentian); }
+}
+
+/* ---------- hero ---------- */
+.hero-top { padding: 54px 0 30px; }
+.hero-top .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 28px 56px; align-items: end; }
+.eyebrow { font: italic 400 18px/1.4 var(--serif); color: var(--ink-2); margin: 0 0 22px; }
+.eyebrow s { text-decoration-thickness: 1px; color: #6b747b; }
+h1 { font: 500 clamp(76px, 13vw, 150px)/.86 var(--serif); letter-spacing: .01em; color: var(--slate); text-shadow: 0 1px 0 #fff, 0 -1px 0 rgba(29,35,40,.18); position: relative; display: inline-block; }
+h1 .fix { position: absolute; right: -.2em; top: -.18em; font: italic 400 22px/1 var(--serif); color: var(--ruby); transform: rotate(-6deg); letter-spacing: 0; text-shadow: none; }
+h1 .fix s { color: #6b747b; }
+.sub { font: 700 clamp(21px, 2.6vw, 27px)/1.45 var(--serif-ko); margin: 18px 0 0; color: var(--ink); }
+.lede { color: var(--ink-2); max-width: 46ch; }
+.spec { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 18px; font: 400 15px/1.4 var(--sans); color: var(--ink-2); }
+.spec span::before { content: "·"; margin-right: 8px; color: var(--ruby); }
+.scene { position: relative; background: #e9e3d8; border-top: 1px solid #d9d3c8; border-bottom: 1px solid #b8a48c; }
+.scene svg { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 700; }
+.scene-cap { position: absolute; right: 24px; bottom: 14px; font: italic 400 15px/1.3 var(--serif); color: #f4e6d2; }
+.ruler { height: 14px; background:
+  repeating-linear-gradient(to right, var(--ink) 0 1px, transparent 1px 60px) 0 0 / 100% 14px no-repeat,
+  repeating-linear-gradient(to right, var(--ink-2) 0 1px, transparent 1px 12px) 0 0 / 100% 8px no-repeat,
+  repeating-linear-gradient(to right, #8b9399 0 1px, transparent 1px 3px) 0 0 / 100% 4px no-repeat; opacity: .55; }
+
+/* SVG life */
+.osc { transform-box: fill-box; transform-origin: center; animation: breathe 2.8s ease-in-out infinite alternate; }
+@keyframes breathe { from { transform: rotate(-160deg); } to { transform: rotate(160deg); } }
+.esc { transform-box: fill-box; transform-origin: center; animation: spin 12s steps(30) infinite; }
+.spin { transform-box: fill-box; transform-origin: center; animation: spin 24s linear infinite; }
+.spinr { transform-box: fill-box; transform-origin: center; animation: spin 16s linear infinite reverse; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pallet { animation: rock .4s steps(1) infinite; }
+@keyframes rock { 0% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+.cone { animation: lighttick .8s steps(1) infinite; }
+@keyframes lighttick { 0% { opacity: .58; } 50% { opacity: .74; } }
+.lamp-off .cone { animation: none; opacity: 0; }
+.lamp-off .pallet, .lamp-off .esc { animation-play-state: paused; }
+.fog { animation: drift 22s ease-in-out infinite alternate; }
+.fog.b { animation-duration: 31s; animation-direction: alternate-reverse; }
+@keyframes drift { from { transform: translateX(-40px); } to { transform: translateX(40px); } }
+.flake { animation: fall var(--d, 14s) linear infinite; animation-delay: var(--dl, 0s); }
+.flake.up { animation-name: rise; }
+.snowup .flake { animation-name: rise; }
+@keyframes fall { from { transform: translateY(-40px); opacity: 0; } 10% { opacity: .9; } 90% { opacity: .9; } to { transform: translateY(380px); opacity: 0; } }
+@keyframes rise { from { transform: translateY(380px); opacity: 0; } 10% { opacity: .9; } 90% { opacity: .9; } to { transform: translateY(-40px); opacity: 0; } }
+.steam { animation: steam 5s ease-in-out infinite; }
+.steam.b { animation-delay: -2.4s; }
+@keyframes steam { 0% { transform: translateY(8px); opacity: 0; } 40% { opacity: .55; } 100% { transform: translateY(-26px); opacity: 0; } }
+.sweep { transform-box: view-box; animation: spin 47s linear infinite; }
+.bell { cursor: pointer; }
+.bell:focus { outline: none; }
+.bell:focus-visible .bell-ring { stroke: var(--gentian); stroke-width: 3; stroke-dasharray: 4 3; }
+.bell-swing { transform-origin: 0 0; }
+.bell.ring .bell-swing { animation: swing 1.6s ease-out; }
+@keyframes swing { 0% { transform: rotate(0); } 15% { transform: rotate(16deg); } 35% { transform: rotate(-11deg); } 55% { transform: rotate(7deg); } 75% { transform: rotate(-3deg); } 100% { transform: rotate(0); } }
+
+/* ---------- pieces (sections) ---------- */
+main { position: relative; }
+.piece { padding: 84px 0 0; scroll-margin-top: 10px; }
+.piece-head { display: grid; grid-template-columns: 120px 1fr; gap: 6px 28px; align-items: start; margin-bottom: 30px; }
+.hour { font: 400 64px/.9 var(--serif); color: var(--larch-2); text-align: right; position: relative; padding-top: 4px; }
+.hour::after { content: ""; display: block; margin: 14px 0 0 auto; width: 60px; height: 9px; background: repeating-linear-gradient(to right, var(--larch-2) 0 1px, transparent 1px 6px); opacity: .7; }
+.kicker { font: italic 400 17px/1.3 var(--serif); color: var(--ink-2); margin: 0 0 4px; }
+h2 { font: 700 clamp(28px, 3.4vw, 38px)/1.25 var(--serif-ko); letter-spacing: -.01em; }
+.desc { max-width: 60ch; color: var(--ink-2); margin: 10px 0 0; }
+
+/* plate */
+.plate { position: relative; border-radius: 22px; padding: 38px 40px; background-color: var(--rhod); background-image: var(--perlage); border: 1px solid var(--edge); box-shadow: var(--anglage), 0 20px 40px -30px rgba(29,35,40,.55); }
+.plate.geneva { background-image: var(--geneva); background-color: #d9dcdc; }
+.plate.hanji { background: var(--hanji); border-color: #d2c6b0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), 0 20px 40px -30px rgba(29,35,40,.4); }
+.screw { position: absolute; width: 13px; height: 13px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #9db4ec 0 10%, #3355b4 42%, #172d6c 100%); box-shadow: 0 0 0 2px #eef0f0, 0 0 0 3px #9ca3a8; }
+.screw::after { content: ""; position: absolute; left: 2px; right: 2px; top: 50%; height: 2px; margin-top: -1px; background: #0c1a44; border-radius: 1px; transform: rotate(var(--r, 24deg)); }
+.screw.tl { left: 14px; top: 14px; } .screw.tr { right: 14px; top: 14px; --r: -38deg; } .screw.bl { left: 14px; bottom: 14px; --r: 70deg; } .screw.br { right: 14px; bottom: 14px; --r: 8deg; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 34px 40px; }
+.cell h3 { font: 500 15px/1.4 var(--sans); letter-spacing: .06em; color: var(--ink-2); margin: 0 0 14px; display: flex; gap: 10px; align-items: baseline; }
+.cell h3 i { font: italic 400 16px/1 var(--serif); letter-spacing: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.note-s { font-size: 15px; color: var(--ink-2); margin: 12px 0 0; }
+
+/* ---------- 노트 ---------- */
+.note-wrap { display: grid; grid-template-columns: 1.3fr .9fr; gap: 40px; align-items: start; }
+.note { position: relative; background: var(--hanji); padding: 46px 48px 40px; border-radius: 3px; box-shadow: 0 1px 0 #fff inset, 0 24px 40px -28px rgba(60,40,20,.5); font: 400 19px/2 var(--serif-ko); color: #2b2622; border: 1px solid #e0d4bf;
+  background-image: radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.6), transparent 60%); }
+.note::before { content: ""; position: absolute; left: 22px; top: 0; bottom: 0; width: 1px; background: rgba(163,22,58,.28); }
+.note p { margin: 0 0 1.05em; }
+.note .unruh { font: italic 400 20px/1 var(--serif); }
+.note .unruh s { color: #7a6f63; }
+.note footer { margin-top: 20px; text-align: right; font: 400 16px/1.6 var(--serif-ko); color: #5a5047; }
+.note .seal { position: absolute; left: 48px; bottom: 30px; width: 40px; height: 40px; border: 1.5px solid var(--ruby); border-radius: 6px; color: var(--ruby); font: 700 20px/1 var(--serif-ko); display: grid; place-items: center; text-align: center; transform: rotate(-4deg); opacity: .85; }
+.margin-notes { display: grid; gap: 18px; font-size: 16px; color: var(--ink-2); }
+.margin-notes div { border-left: 2px solid var(--larch-3); padding: 2px 0 2px 16px; }
+.margin-notes b { display: block; font: 500 15px/1.4 var(--sans); color: var(--ink); letter-spacing: .04em; }
+
+/* ---------- materials ---------- */
+.mats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 26px 22px; }
+.mat { text-align: left; }
+.disc { width: 96px; height: 96px; border-radius: 50%; position: relative; box-shadow: 0 0 0 4px #eef0f0, 0 0 0 5px var(--edge), 0 10px 18px -10px rgba(0,0,0,.45); margin: 6px 0 16px 6px; }
+.disc::after { content: ""; position: absolute; inset: 0; border-radius: 50%; box-shadow: inset 0 2px 3px rgba(255,255,255,.55), inset 0 -3px 6px rgba(0,0,0,.18); }
+.mat b { display: block; font: 700 17px/1.3 var(--serif-ko); }
+.mat span { display: block; font-size: 15px; color: var(--ink-2); }
+.mat code { font: 400 14px/1.4 var(--sans); color: var(--ink-2); letter-spacing: .03em; }
+.d-larch { background: repeating-linear-gradient(88deg, #b98352 0 9px, #b07a4a 9px 13px, #a87245 13px 26px), #b07a4a; }
+.d-snow { background: radial-gradient(circle at 40% 35%, #fff, #eef1f4 70%); }
+.d-slate { background: #34404b var(--perlage); }
+.d-gentian { background: radial-gradient(circle at 38% 32%, #4f7fd6, #1b4ca3 55%, #0f2f6e); }
+.d-ruby { background: radial-gradient(circle at 36% 30%, #ffc2cc 0 6%, #d8435f 16%, #a3163a 44%, #4e0819); }
+.d-rhod { background: var(--perlage), #dfe1e0; }
+.d-blued { background: var(--geneva), radial-gradient(circle at 36% 30%, #6f8ede, #22409a 55%, #12286a); }
+.d-amber { background: radial-gradient(circle at 50% 70%, #ffd29a, #c8752a 60%, #7e3f10); }
+.d-ott { background: radial-gradient(ellipse at 30% 25%, rgba(255,255,255,.28), transparent 35%), #4a1e16; }
+.d-nod { background: var(--perlage), #a88d58; }
+.d-hanji { background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.7), transparent 55%), repeating-linear-gradient(12deg, rgba(150,120,80,.06) 0 1px, transparent 1px 9px), #f1e9da; }
+.d-bojagi { background: conic-gradient(from 45deg, #1b4ca3 0 25%, #f1e9da 0 50%, #2e6b5a 0 75%, #e8c9a2 0); }
+
+.type { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 40px; }
+.type .sp { border-top: 1px solid #c9c2b6; padding-top: 16px; }
+.type .big1 { font: 500 52px/1.1 var(--serif); color: var(--slate); }
+.type .big2 { font: 700 40px/1.3 var(--serif-ko); }
+.type .big3 { font: 600 34px/1.3 var(--sans); letter-spacing: -.01em; }
+.type small { display: block; font-size: 15px; color: var(--ink-2); margin-top: 8px; }
+
+/* ---------- pushers ---------- */
+.pusher { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 12px; cursor: pointer; font-weight: 500; font-size: 16px; letter-spacing: .02em;
+  border: 1px solid #8f979d; color: var(--ink);
+  background: linear-gradient(to bottom, #f4f5f5, #d5d9db 48%, #c8cdcf 52%, #e4e7e8);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(0,0,0,.12), 0 3px 0 #9aa1a6, 0 5px 10px -4px rgba(0,0,0,.35);
+  transition: transform .06s, box-shadow .06s; -webkit-tap-highlight-color: transparent; }
+.pusher::before { content: ""; position: absolute; left: 50%; top: -7px; width: 22px; height: 6px; margin-left: -11px; border-radius: 3px 3px 0 0; background: repeating-linear-gradient(to right, #b8bec2 0 2px, #e8eaeb 2px 4px); border: 1px solid #9aa1a6; border-bottom: 0; }
+.pusher:active, .pusher.down { transform: translateY(3px); box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(0,0,0,.12), 0 0 0 #9aa1a6, 0 2px 4px -2px rgba(0,0,0,.35); }
+.pusher.enamel { color: #fff; border-color: #0f2f6e; background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.28), transparent 60%), linear-gradient(#2a5cb8, #1b4ca3 55%, #163f8b); box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 0 #0f2f6e, 0 5px 10px -4px rgba(0,0,0,.45); }
+.pusher.enamel:active, .pusher.enamel.down { box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 0 0 #0f2f6e; }
+.pusher.ott { color: #fbefe6; border-color: #2a0f0a; background: radial-gradient(ellipse at 30% 0%, rgba(255,255,255,.22), transparent 55%), #4a1e16; box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 3px 0 #250c08, 0 5px 10px -4px rgba(0,0,0,.45); }
+.pusher.ott:active { box-shadow: 0 0 0 #250c08; }
+.pusher.quiet { background: transparent; border-color: transparent; box-shadow: none; text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--edge); color: var(--gentian); }
+.pusher.quiet::before { display: none; }
+.pusher.quiet:active { transform: none; }
+.pusher.ruby { color: var(--ruby); border-color: #b9848f; }
+.pusher[disabled] { cursor: not-allowed; opacity: .55; transform: none; box-shadow: inset 0 1px 0 #fff; }
+.pusher.round { width: 52px; padding: 0; border-radius: 50%; min-height: 52px; }
+.pusher svg { width: 20px; height: 20px; }
+.pusher.sm { min-height: 44px; padding: 0 16px; font-size: 15px; }
+.chrono { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; }
+.chrono-face { width: 150px; height: 150px; }
+.readout { font: 500 32px/1 var(--sans); letter-spacing: .02em; color: var(--slate); }
+.readout small { font: italic 400 16px/1.4 var(--serif); color: var(--ink-2); display: block; margin-top: 6px; letter-spacing: 0; }
+
+/* ---------- crown / range ---------- */
+.crown-wrap { display: grid; grid-template-columns: 1fr auto; gap: 16px 22px; align-items: center; }
+.crown-big { width: 44px; height: 72px; border-radius: 9px; border: 1px solid #7f878d; background: repeating-linear-gradient(to bottom, #9ca3a8 0 2px, #f1f2f2 2px 5px, #c3c8cb 5px 7px); background-position: 0 var(--kn, 0px); box-shadow: inset 6px 0 6px -4px rgba(255,255,255,.9), inset -8px 0 8px -4px rgba(0,0,0,.35), 0 6px 10px -6px rgba(0,0,0,.4); position: relative; transition: background-position .25s; }
+.crown-big::after { content: ""; position: absolute; left: -14px; top: 50%; width: 14px; height: 18px; margin-top: -9px; background: linear-gradient(#e7e9ea, #a9b0b4); border: 1px solid #8f979d; border-right: 0; }
+.range { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; margin: 0; cursor: pointer; }
+.range::-webkit-slider-runnable-track { height: 22px; border-radius: 4px; border: 1px solid var(--edge);
+  background: repeating-linear-gradient(to right, rgba(29,35,40,.7) 0 1px, transparent 1px 10%) 0 0 / 100% 10px no-repeat, repeating-linear-gradient(to right, rgba(29,35,40,.4) 0 1px, transparent 1px 2.5%) 0 0 / 100% 5px no-repeat, linear-gradient(#f3f4f4, #dde0e1); }
+.range::-moz-range-track { height: 22px; border-radius: 4px; border: 1px solid var(--edge); background: repeating-linear-gradient(to right, rgba(29,35,40,.7) 0 1px, transparent 1px 10%) 0 0 / 100% 10px no-repeat, linear-gradient(#f3f4f4, #dde0e1); }
+.range::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 40px; margin-top: -10px; border-radius: 6px; border: 1px solid #6f777d; background: repeating-linear-gradient(to right, #8c9499 0 2px, #f2f3f3 2px 4px), #ccc; box-shadow: inset 0 0 0 1px rgba(255,255,255,.5), 0 3px 6px -2px rgba(0,0,0,.45); }
+.range::-moz-range-thumb { width: 24px; height: 38px; border-radius: 6px; border: 1px solid #6f777d; background: repeating-linear-gradient(to right, #8c9499 0 2px, #f2f3f3 2px 4px); }
+.range:focus-visible { outline: none; }
+.range:focus-visible::-webkit-slider-thumb { outline: 3px solid var(--gentian); outline-offset: 2px; }
+.range:focus-visible::-moz-range-thumb { outline: 3px solid var(--gentian); outline-offset: 2px; }
+.scale-lbl { display: flex; justify-content: space-between; font: italic 400 15px/1 var(--serif); color: var(--ink-2); margin-top: 6px; }
+.val { font: 500 26px/1.1 var(--sans); color: var(--slate); }
+.val small { font: 400 15px/1 var(--sans); color: var(--ink-2); margin-left: 4px; }
+.stepper { display: inline-grid; grid-template-columns: auto 92px auto; align-items: center; gap: 12px; }
+.stepper output { text-align: center; font: 500 30px/1 var(--sans); color: var(--slate); padding: 10px 0; border-radius: 10px; background: #fbfbfa; box-shadow: inset 0 2px 4px rgba(0,0,0,.15), 0 1px 0 #fff; }
+
+/* ---------- lever switch ---------- */
+.lever { display: inline-flex; align-items: center; gap: 16px; min-height: 52px; background: none; border: 0; padding: 4px 6px 4px 0; cursor: pointer; text-align: left; }
+.lever-slot { position: relative; flex: none; width: 92px; height: 46px; border-radius: 23px; background: #c9cdcf; box-shadow: inset 0 2px 5px rgba(0,0,0,.28), inset 0 -1px 0 rgba(255,255,255,.7), 0 1px 0 #fff; }
+.lever-slot::before { content: "I"; position: absolute; right: 13px; top: 4px; font: 500 14px/1 var(--serif); color: var(--ink-2); }
+.lever-slot::after { content: "0"; position: absolute; right: 12px; bottom: 4px; font: 500 14px/1 var(--serif); color: var(--ink-2); }
+.lever-arm { position: absolute; left: 20px; top: 50%; width: 62px; height: 12px; margin-top: -6px; border-radius: 6px 10px 10px 6px; transform-origin: 3px 6px; transform: rotate(13deg);
+  background: linear-gradient(#f6f7f7, #b9bfc3); border: 1px solid #7f878d; box-shadow: 0 3px 4px -2px rgba(0,0,0,.45); transition: transform .32s cubic-bezier(.5,1.6,.5,1); }
+.lever-arm::after { content: ""; position: absolute; right: 2px; top: 1px; width: 8px; height: 8px; border-radius: 50%; background: #8b9399; transition: background .2s; }
+.lever-jewel { position: absolute; left: 13px; top: 50%; width: 15px; height: 15px; margin-top: -7.5px; border-radius: 50%; background: radial-gradient(circle at 36% 30%, #ffc2cc 0 8%, #d8435f 22%, #a3163a 52%, #4e0819); box-shadow: 0 0 0 2.5px #eef0f0, 0 0 0 3.5px #8f979d; }
+.lever[aria-checked="true"] .lever-arm { transform: rotate(-13deg); }
+.lever[aria-checked="true"] .lever-arm::after { background: var(--gentian); }
+.lever-text b { display: block; font-weight: 500; }
+.lever-text span { font-size: 15px; color: var(--ink-2); }
+.lever-text span::before { content: "꺼짐"; }
+.lever[aria-checked="true"] .lever-text span::before { content: "켜짐"; color: var(--gentian); }
+.lever[disabled] { opacity: .5; cursor: not-allowed; }
+.lever:focus-visible { outline: none; }
+.lever:focus-visible .lever-slot { outline: 2px solid var(--gentian); outline-offset: 3px; }
+
+/* ---------- jewel checkbox ---------- */
+.jrow { display: flex; align-items: center; gap: 14px; min-height: 46px; cursor: pointer; }
+.jrow input { -webkit-appearance: none; appearance: none; flex: none; margin: 0; width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  background: radial-gradient(circle, #59616a 0 15%, #b3b9bd 17% 54%, #f2f3f3 57% 64%, #9aa1a6 67% 100%);
+  box-shadow: 0 1px 0 #fff, 0 0 0 1px #8f979d; transition: transform .15s; }
+.jrow input:checked { background: radial-gradient(circle at 40% 36%, #ffd2da 0 5%, #e0506b 13%, #a3163a 34%, #5a0a1e 52%, transparent 54%), radial-gradient(circle, transparent 0 54%, #f2f3f3 57% 64%, #9aa1a6 67% 100%); transform: scale(1.04); }
+.jrow input:indeterminate { background: radial-gradient(circle, #59616a 0 10%, transparent 11%), radial-gradient(circle, transparent 0 54%, #f2f3f3 57% 64%, #9aa1a6 67% 100%), linear-gradient(transparent 0 52%, #c03a57 52%), #b3b9bd; }
+.jrow input:focus-visible { outline: 2px solid var(--gentian); outline-offset: 3px; }
+.jrow.parent { border-bottom: 1px solid #b9bec1; padding-bottom: 6px; margin-bottom: 4px; font-weight: 500; }
+.jrow.child { padding-left: 22px; }
+.jcount { font: italic 400 16px/1 var(--serif); color: var(--ink-2); margin-left: auto; }
+
+/* ---------- radio subdial ---------- */
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; }
+.subdial { display: grid; grid-template-columns: 136px 1fr; gap: 20px; align-items: center; }
+.subdial svg { width: 136px; height: 136px; }
+.rrow { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.rrow input { -webkit-appearance: none; appearance: none; margin: 0; flex: none; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle, #eef0f0 0 30%, #9aa1a6 34% 100%); box-shadow: 0 1px 0 #fff; cursor: pointer; }
+.rrow input:checked { background: radial-gradient(circle at 36% 30%, #9db4ec 0 8%, #3355b4 32%, #172d6c 52%, transparent 54%), radial-gradient(circle, transparent 0 54%, #eef0f0 56% 66%, #8f979d 70%); }
+.rrow input:focus-visible { outline: 2px solid var(--gentian); outline-offset: 3px; }
+.hand { transition: transform .5s cubic-bezier(.4,1.5,.5,1); }
+
+/* ---------- segmented (crown positions) ---------- */
+.seg { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding: 5px; border-radius: 14px; background: #c9cdcf; box-shadow: inset 0 2px 5px rgba(0,0,0,.25), 0 1px 0 #fff; }
+.seg button { position: relative; z-index: 1; min-height: 48px; border: 0; background: none; border-radius: 10px; cursor: pointer; font-size: 15px; color: var(--ink-2); padding: 0 6px; }
+.seg button b { font: 500 18px/1 var(--serif); display: block; color: var(--ink); }
+.seg button[aria-checked="true"] { color: var(--ink); }
+.seg button[aria-checked="true"] b { color: var(--gentian); }
+.seg .thumb { position: absolute; z-index: 0; top: 5px; bottom: 5px; left: 5px; width: calc((100% - 10px) / 3); border-radius: 10px; background: var(--rhod) var(--perlage); border: 1px solid #a3a9ad; box-shadow: var(--anglage), 0 3px 6px -3px rgba(0,0,0,.4); transition: transform .3s cubic-bezier(.4,1.4,.5,1); }
+.stem { position: relative; height: 34px; margin-top: 18px; }
+.stem::before { content: ""; position: absolute; left: 0; right: 60px; top: 50%; height: 6px; margin-top: -3px; background: linear-gradient(#eef0f0, #9aa1a6); border-radius: 3px; }
+.stem .notch { position: absolute; top: 50%; width: 2px; height: 16px; margin-top: -8px; background: var(--ink-2); }
+.stem .cr { position: absolute; top: 0; left: 0; width: 26px; height: 34px; border-radius: 6px; border: 1px solid #6f777d; background: repeating-linear-gradient(to bottom, #8c9499 0 2px, #f2f3f3 2px 4px); transition: transform .35s cubic-bezier(.4,1.5,.5,1); }
+
+/* ---------- chips & badges ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px 0 8px; border-radius: 22px; border: 1px solid #a3a9ad; background: #eef0f0; cursor: pointer; font-size: 15px; box-shadow: 0 1px 0 #fff; }
+.chip i { width: 28px; height: 28px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,.18), inset 0 1px 2px rgba(255,255,255,.6); }
+.chip[aria-pressed="true"] { border-color: var(--gentian); background: #e3e9f5; box-shadow: inset 0 0 0 1px var(--gentian), inset 0 2px 4px rgba(19,59,130,.18); color: var(--gentian-2); font-weight: 500; }
+.chip[aria-pressed="true"]::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ruby); margin-left: 2px; }
+.badges { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.hall { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border: 1px solid currentColor; border-radius: 999px; font: 400 15px/1.3 var(--serif-ko); color: var(--slate); background: rgba(255,255,255,.4); }
+.hall.oval { border-radius: 50% / 60%; padding: 6px 16px; }
+.hall.sq { border-radius: 3px; outline: 1px solid currentColor; outline-offset: 2px; }
+.stat { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; padding: 6px 12px 6px 10px; border-radius: 6px; background: #fbfbfa; border: 1px solid #c4c8ca; }
+.stat::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--steel)); box-shadow: 0 0 0 2px #e4e6e6; }
+.stat.ok { --c: var(--gentian); } .stat.adj { --c: var(--amber); } .stat.low { --c: var(--ruby); } .stat.dream { --c: #7a6fb0; }
+
+/* ---------- bezel select ---------- */
+.bezel { display: grid; grid-template-columns: 150px 1fr; gap: 22px; align-items: center; }
+.bezel-btn { width: 150px; height: 150px; border-radius: 50%; border: 0; padding: 0; background: none; cursor: pointer; }
+.bezel-btn svg { width: 100%; height: 100%; }
+.bezel-ring { transition: transform .6s cubic-bezier(.3,1.3,.5,1); transform-origin: 75px 75px; }
+.field { display: grid; gap: 8px; }
+.field label, .lbl { font-weight: 500; font-size: 16px; }
+.field .hint { font-size: 15px; color: var(--ink-2); }
+.sel { -webkit-appearance: none; appearance: none; min-height: 48px; padding: 0 44px 0 14px; border-radius: 10px; border: 1px solid #8f979d; cursor: pointer;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%2334404b' stroke-width='1.6'/%3E%3C/svg%3E") right 16px center no-repeat, linear-gradient(#fbfbfa, #e9ebeb); box-shadow: inset 0 1px 0 #fff; width: 100%; }
+
+/* ---------- inputs ---------- */
+.inp, .txa { width: 100%; min-height: 50px; padding: 12px 14px; border-radius: 4px; border: 0; border-bottom: 2px solid var(--slate); background: rgba(255,255,255,.72); box-shadow: inset 0 2px 3px rgba(0,0,0,.08); font-size: 17px; }
+.txa { min-height: 110px; resize: vertical; font: 400 18px/1.7 var(--serif-ko); }
+.inp:focus, .txa:focus { outline: none; border-bottom-color: var(--gentian); background: #fff; box-shadow: inset 0 2px 3px rgba(0,0,0,.08), 0 2px 0 var(--gentian); }
+.inp[aria-invalid="true"] { border-bottom-color: var(--ruby); }
+.err { color: var(--ruby); font-size: 15px; min-height: 1.5em; margin: 0; }
+.err:not(:empty)::before { content: "◆ "; font-size: 11px; }
+.engrave-grid { display: grid; grid-template-columns: 1fr 230px; gap: 34px; align-items: center; }
+.caseback { width: 230px; height: 230px; }
+
+/* ---------- power reserve & steps ---------- */
+.reserve { display: grid; grid-template-columns: 220px 1fr; gap: 26px; align-items: center; }
+.reserve svg { width: 220px; height: 160px; }
+.reserve-hand { transition: transform .6s cubic-bezier(.3,1.4,.5,1); transform-origin: 110px 110px; }
+.lin { height: 14px; border-radius: 7px; background: #c9cdcf; box-shadow: inset 0 2px 3px rgba(0,0,0,.22); overflow: hidden; margin: 14px 0 6px; }
+.lin span { display: block; height: 100%; width: var(--p, 50%); background: var(--geneva), linear-gradient(#3e6cc4, #1b4ca3); border-radius: 7px; transition: width .5s; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; counter-reset: s; }
+.steps li { position: relative; text-align: center; font-size: 15px; color: var(--ink-2); padding-top: 64px; }
+.steps li svg { position: absolute; left: 50%; top: 0; width: 56px; height: 56px; margin-left: -28px; }
+.steps li::after { content: ""; position: absolute; top: 27px; left: calc(50% + 30px); right: calc(-50% + 30px); height: 2px; background: repeating-linear-gradient(to right, var(--steel) 0 3px, transparent 3px 6px); }
+.steps li:last-child::after { display: none; }
+.steps li .g { fill: #c4c8ca; stroke: #8f979d; }
+.steps li.done .g { fill: #9db0d8; stroke: var(--blued); }
+.steps li.done::after { background: var(--blued); }
+.steps li[aria-current="step"] { color: var(--ink); font-weight: 600; }
+.steps li[aria-current="step"] .g { fill: #e0506b; stroke: var(--ruby); }
+.steps li[aria-current="step"] svg g { transform-origin: 50% 50%; transform-box: fill-box; animation: spin 10s linear infinite; }
+
+/* ---------- tabs ---------- */
+.tabs [role="tablist"] { display: flex; gap: 4px; border-bottom: 1px solid #9aa1a6; overflow-x: auto; scrollbar-width: none; }
+.tabs [role="tab"] { min-height: 50px; padding: 0 20px; border: 1px solid transparent; border-bottom: 0; border-radius: 12px 12px 0 0; background: none; cursor: pointer; color: var(--ink-2); font: 700 17px/1 var(--serif-ko); white-space: nowrap; position: relative; top: 1px; }
+.tabs [role="tab"] i { font: italic 400 15px/1 var(--serif); margin-left: 6px; }
+.tabs [role="tab"][aria-selected="true"] { background: var(--rhod) var(--geneva); border-color: #9aa1a6; color: var(--ink); box-shadow: inset 0 1px 0 #fff; }
+.tabs [role="tab"][aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: #dcdfdf; }
+.tabs [role="tabpanel"] { padding: 24px 4px 0; }
+.tabs [role="tabpanel"] p { max-width: 62ch; }
+
+/* ---------- accordion bridges ---------- */
+.bridges { display: grid; gap: 14px; }
+.bridge > h3 { margin: 0; }
+.bridge button { width: 100%; display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 10px 22px 10px 46px; cursor: pointer; text-align: left; position: relative;
+  border: 1px solid #8f979d; background: var(--geneva), #d6d9da; box-shadow: var(--anglage), 0 6px 12px -10px rgba(0,0,0,.5); font: 700 18px/1.35 var(--serif-ko); color: var(--ink); }
+.bridge:nth-child(1) button { border-radius: 40px 14px 14px 40px; }
+.bridge:nth-child(2) button { border-radius: 14px 40px 14px 40px; }
+.bridge:nth-child(3) button { border-radius: 14px 14px 40px 40px; }
+.bridge button::before { content: ""; position: absolute; left: 18px; top: 50%; width: 13px; height: 13px; margin-top: -6.5px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #9db4ec 0 10%, #3355b4 42%, #172d6c 100%); box-shadow: 0 0 0 2px #eef0f0, 0 0 0 3px #9ca3a8; }
+.bridge button span.lt { font: italic 400 16px/1 var(--serif); color: var(--ink-2); margin-left: auto; }
+.bridge button .jw { width: 16px; height: 16px; border-radius: 50%; flex: none; background: radial-gradient(circle, #59616a 0 18%, #b3b9bd 20% 100%); box-shadow: 0 0 0 2px #eef0f0, 0 0 0 3px #9ca3a8; transition: background .2s; }
+.bridge button[aria-expanded="true"] .jw { background: radial-gradient(circle at 36% 30%, #ffc2cc 0 8%, #d8435f 22%, #a3163a 52%, #4e0819); }
+.bridge .panel { padding: 18px 26px 8px 46px; color: var(--ink-2); }
+.bridge .panel p { max-width: 62ch; }
+
+/* ---------- cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(228px, 100%), 1fr)); gap: 22px; }
+.card { position: relative; display: flex; flex-direction: column; border-radius: 18px; background: var(--paper); border: 1px solid #d3cdc2; padding: 22px 22px 20px; box-shadow: 0 1px 0 #fff inset, 0 18px 30px -26px rgba(29,35,40,.6); transition: transform .3s; }
+.card:hover { transform: translateY(-3px); }
+.card .ap { width: 132px; height: 132px; border-radius: 50%; margin: 4px auto 16px; background: var(--rhod) var(--perlage); box-shadow: 0 0 0 5px #eef0f0, 0 0 0 6px #a3a9ad, inset 0 3px 8px rgba(0,0,0,.25); display: grid; place-items: center; }
+.card .ap svg { width: 112px; height: 112px; }
+.card h3 { font: 700 20px/1.35 var(--serif-ko); }
+.card .lt { font: italic 400 16px/1.3 var(--serif); color: var(--ink-2); margin: 2px 0 10px; }
+.card dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 15px; margin: 0 0 16px; }
+.card dt { color: var(--ink-2); }
+.card dd { margin: 0; text-align: right; }
+.card .pusher { margin-top: auto; }
+.card .sig { position: absolute; right: 18px; top: 18px; font: 400 13px/1 var(--serif-ko); color: #8a8178; writing-mode: vertical-rl; letter-spacing: .2em; }
+
+/* ---------- ledger table ---------- */
+.ledger-wrap { overflow-x: auto; border-radius: 6px; border: 1px solid #c9b79f; background: var(--hanji); }
+.ledger { width: 100%; border-collapse: collapse; min-width: 620px; font-size: 16px; }
+.ledger caption { text-align: left; padding: 16px 18px 6px; font: italic 400 17px/1.4 var(--serif); color: var(--ink-2); }
+.ledger th, .ledger td { padding: 0 16px; height: 50px; border-bottom: 1px solid #ded2bd; text-align: left; }
+.ledger td.n, .ledger th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.ledger thead th { border-bottom: 2px solid var(--larch-2); padding: 0 6px; }
+.ledger thead button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 10px; border: 0; background: none; cursor: pointer; font: 500 15px/1 var(--sans); letter-spacing: .04em; color: var(--ink); border-radius: 6px; }
+.ledger thead th.n button { flex-direction: row-reverse; }
+.ledger thead button::after { content: ""; width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--steel); }
+.ledger th[aria-sort="ascending"] button::after { border: 0; width: 0; height: 0; border-radius: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 7px solid var(--gentian); }
+.ledger th[aria-sort="descending"] button::after { border: 0; width: 0; height: 0; border-radius: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid var(--gentian); }
+.ledger tbody tr:hover { background: rgba(176,122,74,.08); }
+.ledger td:first-child { font: italic 400 17px/1 var(--serif); color: var(--ink-2); }
+.ledger td.nm { font: 700 17px/1.3 var(--serif-ko); }
+
+/* ---------- dialog ---------- */
+dialog.cb { border: 0; padding: 0; width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); border-radius: 26px; background: var(--paper); color: var(--ink); box-shadow: 0 30px 70px -20px rgba(10,15,20,.6); overflow: auto; }
+dialog.cb::backdrop { background: rgba(32,40,48,.55); backdrop-filter: blur(3px); }
+.cb-stage { position: relative; height: 290px; background: radial-gradient(circle at 50% 50%, #3a4550, #1d2328 70%); display: grid; place-items: center; overflow: hidden; }
+.cb-stage svg { position: absolute; width: 250px; height: 250px; left: 50%; top: 50%; margin: -125px 0 0 -125px; }
+dialog[open] .lid { animation: lidoff 1.3s .35s cubic-bezier(.5,0,.3,1) forwards; }
+@keyframes lidoff { 0% { transform: rotate(0); opacity: 1; } 35% { transform: rotate(-40deg); opacity: 1; } 100% { transform: rotate(-60deg) translate(280px, -80px) scale(.85); opacity: 0; } }
+.cb-body { padding: 24px 28px 26px; }
+.cb-body h2 { font-size: 28px; }
+.cb-body .lt { font: italic 400 17px/1.4 var(--serif); color: var(--ink-2); margin: 2px 0 12px; }
+
+/* ---------- tags (toasts) ---------- */
+.tags { position: fixed; z-index: 30; right: 18px; bottom: 18px; display: grid; gap: 12px; justify-items: end; max-width: min(360px, calc(100vw - 110px)); pointer-events: none; }
+.tag { position: relative; pointer-events: auto; display: grid; gap: 2px; padding: 12px 18px 12px 40px; background: var(--hanji); border: 1px solid #cbb998; border-radius: 6px 22px 22px 6px; box-shadow: 0 14px 26px -16px rgba(29,35,40,.6); font-size: 16px; line-height: 1.45; color: var(--ink); animation: tagin .45s cubic-bezier(.3,1.4,.5,1); transform-origin: 100% 0; }
+.tag::before { content: ""; position: absolute; left: 14px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: var(--snow); box-shadow: inset 0 1px 2px rgba(0,0,0,.4), 0 0 0 2px #b8a68a; }
+.tag::after { content: ""; position: absolute; left: -26px; top: 50%; width: 34px; height: 1px; background: var(--ruby); transform: rotate(-12deg); }
+.tag-k { font: italic 400 14px/1.3 var(--serif); color: var(--ruby); }
+.tag.out { animation: tagout .4s forwards; }
+@keyframes tagin { from { transform: rotate(-6deg) translateY(16px); opacity: 0; } }
+@keyframes tagout { to { transform: rotate(4deg) translateY(10px); opacity: 0; } }
+
+/* ---------- footer ---------- */
+.foot { margin-top: 110px; background: #262e35; color: #dfe3e6; position: relative; }
+.foot::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 10px; background: repeating-linear-gradient(to right, rgba(255,255,255,.5) 0 1px, transparent 1px 12px); }
+.foot .wrap { display: flex; flex-wrap: wrap; gap: 14px 30px; justify-content: space-between; align-items: center; padding-top: 40px; padding-bottom: 48px; font-size: 16px; }
+.foot a { color: #fff; display: inline-flex; align-items: center; min-height: 44px; }
+.foot :focus-visible { outline-color: #fff; }
+.foot em { font: italic 400 18px/1.4 var(--serif); color: #c4ccd2; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 860px) {
+  .hero-top .wrap, .note-wrap, .type { grid-template-columns: 1fr; }
+  .engrave-grid { grid-template-columns: 1fr; }
+  .caseback { margin: 0 auto; }
+}
+@media (max-width: 640px) {
+  body { font-size: 16.5px; }
+  .wrap { padding: 0 16px; }
+  .hero-top { padding-top: 34px; }
+  .scene svg { aspect-ratio: 1 / 1; }
+  .piece { padding-top: 64px; }
+  .piece-head { grid-template-columns: 1fr; }
+  .hour { text-align: left; font-size: 44px; display: flex; align-items: center; gap: 14px; }
+  .hour::after { margin: 0; }
+  .plate { padding: 32px 18px 30px; border-radius: 18px; }
+  .note { padding: 36px 22px 30px 34px; font-size: 17.5px; }
+  .note .seal { left: 34px; bottom: 26px; }
+  .clocks { order: 3; width: 100%; margin-left: 0; gap: 14px; font-size: 14px; padding-bottom: 8px; }
+  .snd { margin-left: auto; }
+  .chrono { grid-template-columns: 1fr; justify-items: start; }
+  .subdial, .bezel { grid-template-columns: 1fr; }
+  .reserve { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: repeat(3, 1fr); row-gap: 22px; }
+  .steps li:nth-child(3)::after { display: none; }
+  .foot .wrap { padding-left: 86px; padding-bottom: 92px; }
+  .scene-cap { right: 14px; bottom: 8px; font-size: 14px; }
+  .bridge button { padding-left: 42px; font-size: 17px; }
+  .bridge .panel { padding: 16px 8px 6px 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .flake { opacity: .8; }
+  .steam { opacity: .4; }
+  dialog[open] .lid { opacity: 0; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<!-- shared SVG paint -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gSteel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f5f5"/><stop offset=".5" stop-color="#9ea6ab"/><stop offset="1" stop-color="#e2e5e6"/></linearGradient>
+    <linearGradient id="gBlued" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6f8ede"/><stop offset=".55" stop-color="#22409a"/><stop offset="1" stop-color="#3a5cb9"/></linearGradient>
+    <radialGradient id="gRuby" cx=".36" cy=".3" r=".75"><stop offset="0" stop-color="#ffd0d8"/><stop offset=".2" stop-color="#e0506b"/><stop offset=".6" stop-color="#a3163a"/><stop offset="1" stop-color="#4e0819"/></radialGradient>
+    <radialGradient id="gEnamel" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#fffefb"/><stop offset="1" stop-color="#e9e4d9"/></radialGradient>
+    <radialGradient id="gPearl" cx=".4" cy=".36" r=".62"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset=".5" stop-color="#fff" stop-opacity=".12"/><stop offset=".86" stop-color="#000" stop-opacity=".1"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <pattern id="pPerl" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#d9dbda"/><g fill="url(#gPearl)" opacity=".7"><circle r="5"/><circle cx="12" r="5"/><circle cx="6" cy="6" r="5"/><circle cy="12" r="5"/><circle cx="12" cy="12" r="5"/></g></pattern>
+    <pattern id="pPerlNod" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#a88d58"/><g fill="url(#gPearl)"><circle r="4.2"/><circle cx="10" r="4.2"/><circle cx="5" cy="5" r="4.2"/><circle cy="10" r="4.2"/><circle cx="10" cy="10" r="4.2"/></g></pattern>
+    <linearGradient id="gStripe" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".65"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <pattern id="pGeneva" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(18)"><rect width="14" height="14" fill="#cfd3d4"/><rect width="9" height="14" fill="url(#gStripe)"/></pattern>
+    <linearGradient id="gCone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe6b8" stop-opacity=".9"/><stop offset="1" stop-color="#ffd59a" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gPorc" x1="0" x2="1"><stop offset="0" stop-color="#e8e5de"/><stop offset=".35" stop-color="#fffefb"/><stop offset="1" stop-color="#d9d4ca"/></linearGradient>
+  </defs>
+</svg>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Unruh 맨 위로">
+      <svg viewBox="-20 -20 40 40" aria-hidden="true"><circle r="15" fill="none" stroke="#34404b" stroke-width="3"/><path d="M0 0L0 -15M0 0L13 7.5M0 0L-13 7.5" stroke="#34404b" stroke-width="2"/><circle r="3.4" fill="url(#gRuby)"/></svg>
+      Unruh
+    </a>
+    <div class="clocks" aria-label="두 시계">
+      <span>서울 <b class="num" id="cSeoul">--:--</b></span>
+      <span>골짜기 <b class="num" id="cTal">--시 --분</b> <small>(열세 시간제)</small></span>
+    </div>
+    <button class="snd" type="button" id="snd" aria-pressed="false"><i aria-hidden="true"></i>소리</button>
+  </div>
+</header>
+
+<aside class="reg" aria-hidden="true">
+  <span class="end t">+</span>
+  <div class="strip"></div>
+  <span class="lbl">빠르게 · 느리게</span>
+  <span class="ptr" id="ptr"></span>
+  <span class="end b">−</span>
+</aside>
+
+<nav class="hours" aria-label="열세 시간 목차">
+  <ol>
+    <li><a href="#h1" data-l="그의 노트">I</a></li>
+    <li><a href="#h2" data-l="재료">II</a></li>
+    <li><a href="#h3" data-l="활자">III</a></li>
+    <li><a href="#h4" data-l="푸셔">IV</a></li>
+    <li><a href="#h5" data-l="크라운">V</a></li>
+    <li><a href="#h6" data-l="레버와 보석">VI</a></li>
+    <li><a href="#h7" data-l="다이얼">VII</a></li>
+    <li><a href="#h8" data-l="마감 표식">VIII</a></li>
+    <li><a href="#h9" data-l="각인">IX</a></li>
+    <li><a href="#h10" data-l="동력">X</a></li>
+    <li><a href="#h11" data-l="브리지">XI</a></li>
+    <li><a href="#h12" data-l="작업 장부">XII</a></li>
+    <li><a href="#h13" data-l="뒷덮개">XIII</a></li>
+  </ol>
+</nav>
+
+<main id="main">
+  <section class="hero-top" id="top">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">어느 디자이너의 꿈 장비 · <s>Calibre</s> 열세 번째</p>
+        <h1>Unruh<span class="fix" aria-hidden="true"><s>Unruhe</s>?</span></h1>
+        <p class="sub">전생이 시계공이었던 디자이너가<br>꿈에서 쓰는 물건들</p>
+      </div>
+      <div>
+        <p class="lede">알프스 깊은 골짜기, 낙엽송 오두막. 그곳에서 평생 시계를 깎던 사람이 이번 생에는 서울의 디자이너로 태어났다. 시계가 무엇이었는지는 잊었지만, 손은 아직 모서리를 깎고, 진주 무늬를 찍고, 나사를 파랗게 굽는다. 이것은 그가 꿈속에서 쓰는 물건들로 만든 디자인 체계다.</p>
+        <div class="spec"><span>루비 스물한 알</span><span>공차 백분의 일 밀리미터</span><span>진동 꿈 기준 2.5 Hz</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="scene" id="scene">
+    <svg viewBox="0 30 1200 700" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="sceneT">
+      <title id="sceneT">새벽의 오두막 창문. 창밖으로 안개 낀 골짜기와 눈 덮인 봉우리, 눈송이 몇 개는 위로 떠오른다. 창 아래 작업대에는 바퀴가 숨 쉬는 찻잔, 서울과 골짜기를 가리키는 두 시계, 톱니가 빛을 째깍이게 하는 스탠드, 페를라주를 찍은 놋그릇과 숟가락이 놓여 있다.</title>
+      <defs>
+        <linearGradient id="hWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ebe5da"/><stop offset="1" stop-color="#dfd6c7"/></linearGradient>
+        <radialGradient id="hOndol" cx=".5" cy="1" r=".9"><stop offset="0" stop-color="#f0a35a" stop-opacity=".55"/><stop offset=".5" stop-color="#f0a35a" stop-opacity=".12"/><stop offset="1" stop-color="#f0a35a" stop-opacity="0"/></radialGradient>
+        <linearGradient id="hSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b9fb7"/><stop offset=".42" stop-color="#c7ced6"/><stop offset=".78" stop-color="#efd8c2"/><stop offset="1" stop-color="#f6e5d1"/></linearGradient>
+        <radialGradient id="hSun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff4de"/><stop offset="1" stop-color="#fff4de" stop-opacity="0"/></radialGradient>
+        <linearGradient id="hFar" x1="0" y1="160" x2="0" y2="320" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f7f8f9"/><stop offset=".45" stop-color="#d9e0e7"/><stop offset="1" stop-color="#a6b5c5"/></linearGradient>
+        <linearGradient id="hMid" x1="0" y1="285" x2="0" y2="400" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e9edf0"/><stop offset=".4" stop-color="#9fadbb"/><stop offset="1" stop-color="#6f8091"/></linearGradient>
+        <linearGradient id="hLarch" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a6703f"/><stop offset=".5" stop-color="#b9834f"/><stop offset="1" stop-color="#a26c3c"/></linearGradient>
+        <linearGradient id="hTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c79461"/><stop offset="1" stop-color="#d9ab79"/></linearGradient>
+        <linearGradient id="hFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d5c33"/><stop offset="1" stop-color="#6c4325"/></linearGradient>
+        <linearGradient id="hOtt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a2b1e"/><stop offset="1" stop-color="#3a160f"/></linearGradient>
+        <filter id="hBlur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+        <filter id="hSoft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+        <clipPath id="hGlass"><rect x="266" y="90" width="668" height="360"/></clipPath>
+      </defs>
+
+      <!-- wall -->
+      <rect x="0" y="0" width="1200" height="760" fill="url(#hWall)"/>
+      <rect x="0" y="30" width="1200" height="26" fill="#9a6a3f"/>
+      <rect x="0" y="54" width="1200" height="2" fill="#c99a69"/>
+      <rect x="0" y="300" width="1200" height="460" fill="url(#hOndol)"/>
+
+      <!-- hanji calendar: 13월 32일 -->
+      <g transform="translate(78 150)">
+        <rect x="0" y="0" width="112" height="144" rx="2" fill="#f4ecdc" stroke="#d6c8ae"/>
+        <rect x="0" y="0" width="112" height="16" fill="#4a1e16"/>
+        <text x="56" y="44" text-anchor="middle" font-family="Gowun Batang" font-size="15" fill="#5a5047">열세 번째 달</text>
+        <text x="56" y="106" text-anchor="middle" font-family="EB Garamond" font-size="58" fill="#a3163a">32</text>
+        <text x="56" y="130" text-anchor="middle" font-family="Gowun Batang" font-size="13" fill="#5a5047">눈 위로 오는 날</text>
+      </g>
+
+      <!-- shelf with bojagi bundle and folded wool -->
+      <g transform="translate(1010 0)">
+        <rect x="0" y="318" width="170" height="12" fill="#b07a4a"/>
+        <rect x="0" y="328" width="170" height="3" fill="#7a4d29"/>
+        <rect x="10" y="296" width="96" height="22" rx="5" fill="#ece5d6" stroke="#cfc4ad"/>
+        <rect x="10" y="304" width="96" height="4" fill="#1b4ca3" opacity=".75"/>
+        <rect x="16" y="276" width="86" height="20" rx="5" fill="#e4dccb" stroke="#cfc4ad"/>
+        <path d="M118 318 Q114 284 140 270 Q166 284 162 318 Z" fill="#2e6b5a"/>
+        <path d="M118 318 L140 286 L162 318" fill="none" stroke="#24574a"/>
+        <path d="M132 272 q-12 -14 -2 -18 q8 4 10 14 q4 -12 12 -12 q6 6 -8 16" fill="#1b4ca3"/>
+      </g>
+
+      <!-- window -->
+      <rect x="240" y="64" width="720" height="412" fill="url(#hLarch)"/>
+      <g clip-path="url(#hGlass)">
+        <rect x="266" y="90" width="668" height="360" fill="url(#hSky)"/>
+        <circle cx="700" cy="296" r="150" fill="url(#hSun)"/>
+        <path d="M266 300 L320 262 L372 276 L452 188 L520 254 L566 226 L642 152 L704 226 L760 198 L822 246 L880 214 L934 252 V450 H266 Z" fill="url(#hFar)"/>
+        <path d="M452 188 L470 214 L458 210 L446 222 L436 206 Z M642 152 L664 184 L648 178 L636 192 L624 176 Z" fill="#fff" opacity=".9"/>
+        <ellipse class="fog" cx="600" cy="318" rx="430" ry="20" fill="#fff" opacity=".7" filter="url(#hBlur)"/>
+        <path d="M266 340 L318 304 L398 332 L468 286 L540 330 L606 302 L680 346 L752 292 L830 330 L934 300 V450 H266 Z" fill="url(#hMid)"/>
+        <ellipse class="fog b" cx="600" cy="372" rx="400" ry="24" fill="#fff" opacity=".75" filter="url(#hBlur)"/>
+        <path d="M266 450 V398 Q370 372 470 398 T700 392 T934 380 V450 Z" fill="#5d6d7b"/>
+        <g fill="#3f4d59"><path d="M330 396 l8 -24 l8 24z M350 392 l6 -18 l6 18z M610 398 l9 -26 l9 26z M632 396 l6 -18 l6 18z M840 388 l8 -24 l8 24z M862 384 l6 -16 l6 16z"/></g>
+        <ellipse class="fog" cx="560" cy="426" rx="360" ry="16" fill="#fff" opacity=".6" filter="url(#hBlur)"/>
+        <!-- stream glint -->
+        <path d="M486 450 Q520 430 560 428 Q600 426 640 436" fill="none" stroke="#e6eef4" stroke-width="2" opacity=".7"/>
+        <g id="flakes" fill="#fff"></g>
+        <path d="M266 450 V438 q22 -10 46 -3 q30 -12 64 -1 q36 -8 70 2 q40 -12 80 -2 q34 -8 66 1 q40 -10 82 -1 q32 -8 60 2 q34 -10 64 -2 q40 -8 70 0 q24 -6 46 0 V450 Z" fill="#fbfcfd"/>
+        <polygon points="300,90 420,90 300,250" fill="#fff" opacity=".08"/>
+        <polygon points="640,90 700,90 610,254 580,254" fill="#fff" opacity=".07"/>
+        <!-- lower-left pane papered with hanji: a dream mistake -->
+        <rect x="266" y="254" width="328" height="196" fill="#f3ebdc" opacity=".86"/>
+        <g stroke="#cdbf9f" stroke-width=".6" opacity=".7"><path d="M266 290h328M266 330h328M266 370h328M266 410h328M330 254v196M410 254v196M490 254v196"/></g>
+      </g>
+      <!-- glass edge anglage -->
+      <rect x="265" y="89" width="670" height="362" fill="none" stroke="#e7c193" stroke-width="2"/>
+      <rect x="594" y="90" width="12" height="360" fill="url(#hLarch)"/>
+      <rect x="266" y="244" width="668" height="10" fill="#b07a4a"/>
+      <path d="M594 90v360M266 244h668" stroke="#e7c193" stroke-width="1" opacity=".8"/>
+      <!-- sill -->
+      <rect x="222" y="470" width="756" height="20" fill="#d1a272"/>
+      <rect x="222" y="470" width="756" height="2" fill="#f1d3ad"/>
+      <rect x="222" y="490" width="756" height="8" fill="#8a5a32"/>
+
+      <!-- cowbell on the window frame -->
+      <g class="bell" id="bell" tabindex="0" role="button" aria-label="소방울 흔들기">
+        <circle cx="934" cy="118" r="4" fill="#3a4550"/>
+        <g class="bell-swing" transform="translate(934 118)">
+          <path d="M0 0 C-14 30 -12 60 -2 78 M0 0 C14 30 12 60 2 78" fill="none" stroke="#6b3f22" stroke-width="6"/>
+          <path d="M-22 80 L22 80 L30 136 Q0 146 -30 136 Z" fill="#4a5056"/>
+          <path d="M-18 84 L-10 84 L-16 134 L-25 132 Z" fill="#7d858b" opacity=".7"/>
+          <path d="M-30 136 Q0 146 30 136" fill="none" stroke="#2b3035" stroke-width="3"/>
+          <circle cx="2" cy="144" r="5" fill="#2b3035"/>
+          <circle class="bell-ring" cx="0" cy="110" r="42" fill="none" stroke="none"/>
+        </g>
+      </g>
+
+      <!-- workbench, larch -->
+      <rect x="0" y="556" width="1200" height="46" fill="url(#hTop)"/>
+      <rect x="0" y="600" width="1200" height="3" fill="#f2d1a8"/>
+      <rect x="0" y="603" width="1200" height="157" fill="url(#hFront)"/>
+      <g id="benchRuler"></g>
+      <text x="600" y="690" text-anchor="middle" font-family="Gowun Batang" font-size="14" fill="#e7c193" opacity=".75" letter-spacing="6">골짜기 작업대 · 바닥은 온돌처럼 따뜻함</text>
+      <rect x="0" y="700" width="1200" height="60" fill="url(#hOndol)" opacity=".8"/>
+
+      <!-- light cone of the escapement lamp -->
+      <polygon class="cone" points="664,372 728,370 800,566 520,566" fill="url(#gCone)"/>
+
+      <!-- shadows -->
+      <g fill="#3a2410" opacity=".18" filter="url(#hSoft)">
+        <ellipse cx="398" cy="570" rx="78" ry="9"/><ellipse cx="540" cy="568" rx="44" ry="6"/><ellipse cx="636" cy="566" rx="40" ry="6"/><ellipse cx="760" cy="568" rx="46" ry="7"/><ellipse cx="878" cy="584" rx="44" ry="7"/>
+      </g>
+
+      <!-- teacup with a breathing balance wheel -->
+      <g>
+        <path class="steam" d="M384 470 q-10 -14 2 -26 q10 -12 -2 -26" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <path class="steam b" d="M408 470 q-10 -14 2 -26 q10 -12 -2 -26" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="398" cy="566" rx="70" ry="11" fill="#f7f5f0" stroke="#cfc8bc"/>
+        <ellipse cx="398" cy="564" rx="38" ry="5" fill="#e6e1d7"/>
+        <path d="M348 478 L448 478 L441 538 Q437 562 398 562 Q359 562 355 538 Z" fill="url(#gPorc)" stroke="#cfc8bc"/>
+        <path d="M446 494 C478 492 482 530 440 534" fill="none" stroke="url(#gBlued)" stroke-width="7" stroke-linecap="round"/>
+        <ellipse cx="398" cy="478" rx="50" ry="7" fill="#faf8f3" stroke="#cfc8bc"/>
+        <ellipse cx="398" cy="479" rx="44" ry="5" fill="#7a4f2c"/>
+        <circle cx="398" cy="518" r="25" fill="#e6e8e8" stroke="#9aa1a6" stroke-width="1.5"/>
+        <circle cx="398" cy="518" r="22" fill="url(#pPerl)"/>
+        <g transform="translate(398 518)" data-draw="balance" data-r="19"></g>
+      </g>
+
+      <!-- two clocks that never agree -->
+      <g transform="translate(540 512)">
+        <path d="M-26 46 L-32 56 M26 46 L32 56" stroke="#7f878d" stroke-width="5" stroke-linecap="round"/>
+        <g data-draw="clock" data-r="44" data-kind="seoul"></g>
+      </g>
+      <g transform="translate(636 528)">
+        <path d="M-18 30 L-22 38 M18 30 L22 38" stroke="#4a1e16" stroke-width="4" stroke-linecap="round"/>
+        <g data-draw="clock" data-r="32" data-kind="tal"></g>
+      </g>
+
+      <!-- escapement lamp -->
+      <g>
+        <ellipse cx="760" cy="564" rx="42" ry="8" fill="url(#hOtt)"/>
+        <rect x="718" y="556" width="84" height="8" rx="3" fill="url(#hOtt)"/>
+        <rect x="756" y="470" width="8" height="90" fill="#c4c9cc"/>
+        <rect x="756" y="470" width="2" height="90" fill="#f4f5f5"/>
+        <path d="M760 470 L700 352" stroke="#c4c9cc" stroke-width="7" stroke-linecap="round"/>
+        <path d="M758 468 L698 350" stroke="#f4f5f5" stroke-width="1.5"/>
+        <path d="M672 336 Q692 316 716 330 L732 370 Q700 384 660 372 Z" fill="#34404b"/>
+        <path d="M676 338 Q690 326 704 332 L700 372 L666 368 Z" fill="#4c5a67"/>
+        <ellipse cx="696" cy="372" rx="36" ry="7" fill="#ffe8c2"/>
+        <g transform="translate(760 470)"><g data-draw="escape" data-r="22"></g></g>
+        <g transform="translate(790 444)"><g class="pallet"><path d="M0 0 L-14 16 M0 0 L12 16 M0 0 L0 -16" stroke="#aab1b5" stroke-width="3.2" stroke-linecap="round" fill="none"/><rect x="-17" y="14" width="5" height="6" fill="url(#gRuby)"/><rect x="10" y="14" width="5" height="6" fill="url(#gRuby)"/><circle r="3" fill="url(#gRuby)"/></g></g>
+        <circle cx="760" cy="470" r="3.5" fill="url(#gRuby)"/>
+      </g>
+
+      <!-- bangjja bowl with perlage, and a spoon -->
+      <g>
+        <path d="M836 552 Q878 600 920 552 Z" fill="url(#pPerlNod)" stroke="#7d6639"/>
+        <ellipse cx="878" cy="552" rx="42" ry="8" fill="#c2a86f" stroke="#7d6639"/>
+        <ellipse cx="878" cy="553" rx="36" ry="5.5" fill="#8e7444"/>
+        <path d="M850 574 Q878 586 906 574" fill="none" stroke="#e6d3a3" stroke-width="1.2" opacity=".7"/>
+      </g>
+      <g transform="translate(470 590) rotate(-4)">
+        <ellipse cx="0" cy="0" rx="22" ry="9" fill="url(#gSteel)" stroke="#8b9399"/>
+        <ellipse cx="-2" cy="-1" rx="15" ry="5" fill="#f3f4f4" opacity=".7"/>
+        <path d="M20 -2 L150 -5 Q156 0 150 5 L20 2 Z" fill="url(#gSteel)" stroke="#8b9399" stroke-width=".8"/>
+        <g id="spoonPerl"></g>
+      </g>
+      <!-- tweezers and loupe -->
+      <path d="M240 596 L340 584 M240 600 L340 590" stroke="#9aa1a6" stroke-width="2.4" stroke-linecap="round"/>
+      <g transform="translate(980 578)"><path d="M-22 -6 L22 -10 L18 12 L-18 10 Z" fill="#2b3238"/><ellipse cx="-20" cy="2" rx="5" ry="8" fill="#9fb4c8" stroke="#1d2328"/></g>
+    </svg>
+    <span class="scene-cap" aria-hidden="true">— 꿈, 새벽 다섯 시 열세 분</span>
+  </div>
+  <div class="ruler" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <!-- I. note -->
+    <section class="piece" id="h1" aria-labelledby="t1">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">I</span>
+        <div>
+          <p class="kicker">그의 노트 · 수첩 귀퉁이</p>
+          <h2 id="t1">왜인지 모르게, 손이 먼저 안다</h2>
+        </div>
+      </div>
+      <div class="note-wrap">
+        <article class="note">
+          <span class="seal" aria-hidden="true">꿈</span>
+          <p>왜인지 모르게 손이 자꾸 모서리를 깎고 싶어 한다. 빛이 거기서 한 번 접히는 게 좋아서, 라고 말하지만 사실은 나도 잘 모르겠다.</p>
+          <p>찻잔 옆구리에 작은 바퀴를 달았다. 바퀴가 숨을 쉰다. 차가 식는 속도랑 비슷하다.</p>
+          <p>스탠드에는 톱니를 물렸다. 불빛이 째깍, 한 칸씩 내려온다. 그래야 밤이 덜 길다.</p>
+          <p>시계에는 숫자를 하나 더 넣었다. 열셋. 어디서 왔는지 모르는데, 빼면 어딘가 비어 보인다.</p>
+          <p>꿈에서는 늘 같은 오두막이다. 창밖은 눈 덮인 산인데 바닥은 온돌처럼 뜨끈하다. 눈은 가끔 위로 내린다. 서울 시계와 그 골짜기 시계는 한 번도 맞은 적이 없다.</p>
+          <p>백분의 일 밀리미터. 그 숫자만큼은 손가락이 먼저 안다.</p>
+          <p>수첩 귀퉁이에 자꾸 <span class="unruh"><s>Unrue</s> Unruh</span>라고 쓴다. 무슨 뜻인지는 찾아보지 않기로 했다.</p>
+          <footer>— 눈이 위로 내리던 아침, 작업대에서</footer>
+        </article>
+        <div class="margin-notes">
+          <div><b>정밀하게, 그러나 조용히</b>마감은 보여주려고 하는 게 아니다. 가까이 와야 보이는 정도가 맞다.</div>
+          <div><b>조금 틀리게</b>바퀴는 찻잔에, 톱니는 불빛에, 크라운은 문고리에. 원래 자리를 잊은 부품이 새 자리에서 더 다정하다.</div>
+          <div><b>두 기억이 같은 방에</b>낙엽송 옆에 한지, 로듐 옆에 옻칠, 페를라주를 찍은 놋그릇. 섞으려 하지 않고 그냥 같이 둔다.</div>
+          <div><b>시간은 맞지 않아도 된다</b>열세 시간, 서른두 번째 날. 바늘이 조금 흘러도 그대로 둔다.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- II. materials -->
+    <section class="piece" id="h2" aria-labelledby="t2">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">II</span>
+        <div>
+          <p class="kicker">재료 · 두 생의 서랍</p>
+          <h2 id="t2">골짜기의 재료, 서울의 재료</h2>
+          <p class="desc">색은 칠한 것이 아니라 재료에서 온다. 넓은 면은 눈과 한지, 글자는 슬레이트, 손대는 곳은 용담 파랑. 루비는 아주 작게, 한 화면에 한두 알.</p>
+        </div>
+      </div>
+      <div class="plate">
+        <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+        <div class="mats">
+          <div class="mat"><div class="disc d-snow"></div><b>눈</b><span>바탕, 넓은 면</span><code>#F5F2EC</code></div>
+          <div class="mat"><div class="disc d-hanji"></div><b>한지</b><span>노트, 장부, 꼬리표</span><code>#F1E9DA</code></div>
+          <div class="mat"><div class="disc d-larch"></div><b>낙엽송</b><span>창틀, 작업대</span><code>#B07A4A</code></div>
+          <div class="mat"><div class="disc d-slate"></div><b>슬레이트</b><span>글자, 제목</span><code>#34404B</code></div>
+          <div class="mat"><div class="disc d-rhod"></div><b>로듐 · 페를라주</b><span>판, 패널</span><code>#DFE1E0</code></div>
+          <div class="mat"><div class="disc d-gentian"></div><b>용담 파랑</b><span>강조, 선택, 초점</span><code>#1B4CA3</code></div>
+          <div class="mat"><div class="disc d-blued"></div><b>푸른 강철</b><span>나사, 바늘</span><code>#22409A</code></div>
+          <div class="mat"><div class="disc d-ruby"></div><b>루비</b><span>보석, 오류 · 아주 작게</span><code>#A3163A</code></div>
+          <div class="mat"><div class="disc d-ott"></div><b>옻칠</b><span>로듐 옆의 깊은 색</span><code>#4A1E16</code></div>
+          <div class="mat"><div class="disc d-nod"></div><b>방짜 놋</b><span>페를라주를 찍은 그릇</span><code>#A88D58</code></div>
+          <div class="mat"><div class="disc d-amber"></div><b>온돌 불빛</b><span>바닥의 온기, 조정 중</span><code>#C8752A</code></div>
+          <div class="mat"><div class="disc d-bojagi"></div><b>보자기</b><span>조각을 잇는 방식</span><code>#2E6B5A</code></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- III. type -->
+    <section class="piece" id="h3" aria-labelledby="t3">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">III</span>
+        <div>
+          <p class="kicker">활자 · 새김과 쓰임</p>
+          <h2 id="t3">새기는 글씨와 읽는 글씨</h2>
+          <p class="desc">새김은 세리프로 — 한글은 고운바탕, 지난 생에서 흘러든 라틴 글자는 EB Garamond. 읽고 누르는 글씨는 단정한 그로테스크와 IBM Plex Sans KR. 본문은 17px, 숫자는 표 숫자로 맞춘다.</p>
+        </div>
+      </div>
+      <div class="type">
+        <div class="sp"><div class="big2">쉬지 않는 바퀴</div><small>고운바탕 700 · 제목, 각인</small></div>
+        <div class="sp"><div class="big1"><i>Unruh</i> · 0,01 mm</div><small>EB Garamond · 전생의 흔적, 숫자 새김</small></div>
+        <div class="sp"><div class="big3">태엽 42시간 남음</div><small>Schibsted Grotesk + IBM Plex Sans KR · 조작과 표시</small></div>
+        <div class="sp"><p style="margin:0">본문 17px / 1.75. 문장은 짧게, 손으로 말하듯. 버튼 이름은 동사로 — “감기”, “열기”, “새기기”. 단위는 붙여 쓴다: 0.01mm, 2.5Hz, 42시간.</p><small>IBM Plex Sans KR 400 · 본문</small></div>
+      </div>
+    </section>
+
+    <!-- IV. pushers -->
+    <section class="piece" id="h4" aria-labelledby="t4">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">IV</span>
+        <div>
+          <p class="kicker">푸셔 · Drücker, 였던 것</p>
+          <h2 id="t4">누르면 케이스 안으로 3픽셀 들어간다</h2>
+          <p class="desc">버튼은 크로노그래프 푸셔다. 위에 작은 줄무늬 기둥이 있고, 누르면 정확히 3px 들어갔다 돌아온다. 주된 동작은 용담 에나멜, 보조는 로듐, 깊은 동작은 옻칠.</p>
+        </div>
+      </div>
+      <div class="plate">
+        <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+        <div class="grid">
+          <div class="cell">
+            <h3>종류 <i>variants</i></h3>
+            <div class="row" style="padding-top:8px">
+              <button class="pusher enamel" type="button" data-toast="태엽을 한 바퀴 감았습니다.">감기</button>
+              <button class="pusher" type="button" data-toast="뒷덮개 나사를 반 바퀴 풀었습니다.">풀기</button>
+              <button class="pusher ott" type="button" data-toast="옻칠이 마르려면 하룻밤이 필요합니다.">옻칠하기</button>
+            </div>
+            <div class="row" style="margin-top:22px">
+              <button class="pusher quiet" type="button" data-toast="나중에 다시 깎기로 했습니다.">나중에</button>
+              <button class="pusher ruby sm" type="button" data-toast="부품 하나를 서랍에 돌려놓았습니다.">부품 빼기</button>
+              <button class="pusher sm" type="button" disabled>감는 중</button>
+              <button class="pusher round" type="button" aria-label="확대경 들기" data-toast="확대경을 눈에 끼웠습니다."><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="8" r="5.5" fill="none" stroke="#34404b" stroke-width="2"/><path d="M12 12l5 5" stroke="#34404b" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+            </div>
+          </div>
+          <div class="cell">
+            <h3>크로노그래프 <i>start · reset</i></h3>
+            <div class="chrono">
+              <svg class="chrono-face" viewBox="-60 -60 120 120" aria-hidden="true">
+                <circle r="56" fill="#eef0f0" stroke="#9aa1a6" stroke-width="2"/>
+                <circle r="50" fill="url(#gEnamel)"/>
+                <g id="chronoTicks"></g>
+                <line id="chronoHand" x1="0" y1="10" x2="0" y2="-44" stroke="#22409a" stroke-width="2" stroke-linecap="round"/>
+                <circle r="3.5" fill="url(#gRuby)"/>
+              </svg>
+              <div>
+                <div class="readout num" id="chronoOut" role="timer" aria-label="크로노그래프">00:00.0<small>열세 번째 분에서 다시 0</small></div>
+                <div class="row" style="margin-top:18px">
+                  <button class="pusher enamel sm" type="button" id="chStart">시작</button>
+                  <button class="pusher sm" type="button" id="chReset">0으로</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- V. crown -->
+    <section class="piece" id="h5" aria-labelledby="t5">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">V</span>
+        <div>
+          <p class="kicker">크라운 · 범위와 단계</p>
+          <h2 id="t5">손끝으로 돌리는 값</h2>
+          <p class="desc">슬라이더의 손잡이는 톱니 모양 크라운이다. 값을 바꾸면 옆의 큰 크라운도 그만큼 돌아간다. 화살표 키는 한 칸, Page 키는 다섯 칸.</p>
+        </div>
+      </div>
+      <div class="plate geneva">
+        <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+        <div class="grid">
+          <div class="cell">
+            <h3>조속 <i>regulation</i></h3>
+            <div class="crown-wrap">
+              <div>
+                <label class="lbl" for="reg">하루에 빠르거나 느린 정도</label>
+                <input class="range" id="reg" type="range" min="-10" max="10" step="1" value="2" aria-describedby="regOut">
+                <div class="scale-lbl" aria-hidden="true"><span>− 느리게</span><span>0</span><span>빠르게 +</span></div>
+              </div>
+              <div class="crown-big" id="crownBig" aria-hidden="true"></div>
+            </div>
+            <p class="val num" style="margin-top:14px"><output id="regOut" for="reg">+2</output><small>초 / 하루</small></p>
+          </div>
+          <div class="cell">
+            <h3>태엽 감은 횟수 <i>stepper</i></h3>
+            <div class="stepper" role="group" aria-labelledby="stLbl">
+              <span id="stLbl" class="sr">태엽 감은 횟수</span>
+              <button class="pusher round" type="button" id="stDown" aria-label="한 번 덜 감기"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" stroke="#34404b" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+              <output class="num" id="stOut" aria-live="polite">12</output>
+              <button class="pusher round" type="button" id="stUp" aria-label="한 번 더 감기"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4v12" stroke="#34404b" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+            </div>
+            <p class="note-s">0부터 40까지. 마흔 번이 넘으면 손이 먼저 멈춘다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VI. lever & jewels -->
+    <section class="piece" id="h6" aria-labelledby="t6">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">VI</span>
+        <div>
+          <p class="kicker">레버와 보석 · 스위치, 체크박스</p>
+          <h2 id="t6">켜는 것은 레버, 고르는 것은 보석</h2>
+          <p class="desc">스위치는 루비 축에 걸린 세팅 레버다. 체크박스는 빈 보석 자리에 루비를 박는 일. 반만 박힌 것은 ‘일부 선택’이다.</p>
+        </div>
+      </div>
+      <div class="plate">
+        <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+        <div class="grid">
+          <div class="cell">
+            <h3>레버 <i>switch</i></h3>
+            <div style="display:grid;gap:10px">
+              <button class="lever" type="button" role="switch" aria-checked="true" id="swLamp"><span class="lever-slot" aria-hidden="true"><span class="lever-arm"></span><span class="lever-jewel"></span></span><span class="lever-text"><b>스탠드 탈진기</b><span aria-hidden="true"></span></span></button>
+              <button class="lever" type="button" role="switch" aria-checked="false" id="swSnow"><span class="lever-slot" aria-hidden="true"><span class="lever-arm"></span><span class="lever-jewel"></span></span><span class="lever-text"><b>눈이 위로 내리기</b><span aria-hidden="true"></span></span></button>
+              <button class="lever" type="button" role="switch" aria-checked="false" disabled><span class="lever-slot" aria-hidden="true"><span class="lever-arm"></span><span class="lever-jewel"></span></span><span class="lever-text"><b>서울 시계 맞추기</b><span aria-hidden="true"></span></span></button>
+            </div>
+          </div>
+          <div class="cell">
+            <h3>보석 박기 <i>checkbox</i></h3>
+            <label class="jrow parent"><input type="checkbox" id="jAll"> 모든 보석 자리 <span class="jcount num" id="jCount">2 / 4</span></label>
+            <label class="jrow child"><input type="checkbox" class="jc" checked> 밸런스 축</label>
+            <label class="jrow child"><input type="checkbox" class="jc" checked> 앵커 팔레트</label>
+            <label class="jrow child"><input type="checkbox" class="jc"> 찻잔 손잡이</label>
+            <label class="jrow child"><input type="checkbox" class="jc"> 문고리 크라운</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VII. dials -->
+    <section class="piece" id="h7" aria-labelledby="t7">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">VII</span>
+        <div>
+          <p class="kicker">다이얼 · 라디오, 분할, 선택</p>
+          <h2 id="t7">하나만 고를 때는 바늘이 가리킨다</h2>
+          <p class="desc">라디오는 되돌아가는 보조 다이얼, 분할 컨트롤은 크라운을 당기는 세 단계, 선택 상자는 도는 베젤. 모두 화살표 키로 움직인다.</p>
+        </div>
+      </div>
+      <div class="plate">
+        <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+        <div class="grid">
+          <div class="cell">
+            <h3>보조 다이얼 <i>radio</i></h3>
+            <fieldset class="subdial">
+              <legend class="sr">작업할 빛</legend>
+              <svg viewBox="-68 -68 136 136" aria-hidden="true">
+                <circle r="64" fill="#eef0f0" stroke="#9aa1a6" stroke-width="2"/>
+                <circle r="58" fill="url(#pPerl)"/>
+                <path id="subArc" d="M-46 -26 A53 53 0 0 1 46 -26" fill="none" stroke="#34404b" stroke-width="1"/>
+                <g id="subMarks"></g>
+                <g class="hand" id="subHand"><path d="M0 8 L0 -48" stroke="#22409a" stroke-width="3" stroke-linecap="round"/><circle cy="-40" r="3" fill="none" stroke="#22409a" stroke-width="1.5"/></g>
+                <circle r="5" fill="url(#gRuby)" stroke="#eef0f0" stroke-width="2"/>
+              </svg>
+              <div>
+                <label class="rrow"><input type="radio" name="light" value="0" checked> 새벽 안개</label>
+                <label class="rrow"><input type="radio" name="light" value="1"> 한낮의 눈빛</label>
+                <label class="rrow"><input type="radio" name="light" value="2"> 온돌 저녁</label>
+                <label class="rrow"><input type="radio" name="light" value="3"> 열세 시</label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="cell">
+            <h3 id="segL">크라운 위치 <i>segmented</i></h3>
+            <div class="seg" role="radiogroup" aria-labelledby="segL" id="seg">
+              <span class="thumb" aria-hidden="true"></span>
+              <button type="button" role="radio" aria-checked="true" tabindex="0"><b>0</b>감기</button>
+              <button type="button" role="radio" aria-checked="false" tabindex="-1"><b>1</b>날짜</button>
+              <button type="button" role="radio" aria-checked="false" tabindex="-1"><b>2</b>시간</button>
+            </div>
+            <div class="stem" aria-hidden="true"><span class="notch" style="left:20%"></span><span class="notch" style="left:45%"></span><span class="notch" style="left:70%"></span><span class="cr" id="stemCr"></span></div>
+            <p class="note-s" id="segDesc" aria-live="polite">0 — 감기. 태엽을 감는다. 저항이 느껴지면 멈춘다.</p>
+          </div>
+          <div class="cell">
+            <h3>베젤 <i>select</i></h3>
+            <div class="bezel">
+              <button class="bezel-btn" type="button" id="bezelBtn" aria-label="베젤 한 칸 돌리기">
+                <svg viewBox="0 0 150 150" aria-hidden="true">
+                  <g class="bezel-ring" id="bezelRing">
+                    <circle cx="75" cy="75" r="70" fill="#34404b"/>
+                    <circle cx="75" cy="75" r="69" fill="none" stroke="#5c6975" stroke-width="1"/>
+                    <g id="bezelMarks"></g>
+                  </g>
+                  <circle cx="75" cy="75" r="46" fill="url(#gEnamel)" stroke="#9aa1a6" stroke-width="3"/>
+                  <path d="M75 2 l6 9 h-12 z" fill="#a3163a"/>
+                  <text x="75" y="80" text-anchor="middle" font-family="Gowun Batang" font-size="14" fill="#34404b" id="bezelCenter">골짜기</text>
+                </svg>
+              </button>
+              <div class="field">
+                <label for="bezelSel">어느 시간으로 볼까</label>
+                <select class="sel" id="bezelSel">
+                  <option>골짜기 시간</option>
+                  <option>서울 시간</option>
+                  <option>눈 녹는 시간</option>
+                  <option>열세 시간</option>
+                </select>
+                <span class="hint">베젤을 눌러도 한 칸씩 돈다.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIII. finishes -->
+    <section class="piece" id="h8" aria-labelledby="t8">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">VIII</span>
+        <div>
+          <p class="kicker">마감 표식 · 칩과 배지</p>
+          <h2 id="t8">어떤 마감을 할지, 무엇이 끝났는지</h2>
+          <p class="desc">칩은 누를 때마다 켜고 끈다. 작은 원 안에 실제 마감의 결이 들어 있다. 배지는 금속에 찍는 각인 표식처럼 테두리만으로.</p>
+        </div>
+      </div>
+      <div class="plate">
+        <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+        <div class="grid">
+          <div class="cell">
+            <h3>마감 고르기 <i>chips</i></h3>
+            <div class="chips" id="chips">
+              <button class="chip" type="button" aria-pressed="true"><i style="background:var(--perlage),#dfe1e0"></i>페를라주</button>
+              <button class="chip" type="button" aria-pressed="false"><i style="background:var(--geneva),#d6d9da"></i>제네바 줄결</button>
+              <button class="chip" type="button" aria-pressed="true"><i style="background:linear-gradient(135deg,#9aa1a6 0 40%,#fff 46% 54%,#9aa1a6 60%)"></i>앙글라주</button>
+              <button class="chip" type="button" aria-pressed="false"><i style="background:radial-gradient(circle at 35% 30%,#9db4ec,#22409a 60%,#12286a)"></i>푸른 나사</button>
+              <button class="chip" type="button" aria-pressed="false"><i style="background:repeating-radial-gradient(circle at 50% 50%,#e9ebeb 0 1px,#c5cacc 1px 3px)"></i>기요셰</button>
+              <button class="chip" type="button" aria-pressed="false"><i style="background:radial-gradient(ellipse at 30% 25%,rgba(255,255,255,.3),transparent 40%),#4a1e16"></i>옻칠</button>
+            </div>
+            <p class="note-s" id="chipOut" aria-live="polite">고른 마감 2가지: 페를라주, 앙글라주</p>
+          </div>
+          <div class="cell">
+            <h3>각인 표식 <i>badges</i></h3>
+            <div class="badges">
+              <span class="hall">루비 스물한 알</span>
+              <span class="hall oval num">±0.01</span>
+              <span class="hall sq">골짜기 제작</span>
+              <span class="hall" style="color:var(--ruby)">열셋</span>
+            </div>
+            <div class="badges" style="margin-top:18px">
+              <span class="stat ok">완성</span>
+              <span class="stat adj">조정 중</span>
+              <span class="stat low">부품 부족</span>
+              <span class="stat dream">꿈속</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IX. engraving inputs -->
+    <section class="piece" id="h9" aria-labelledby="t9">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">IX</span>
+        <div>
+          <p class="kicker">각인 · 입력</p>
+          <h2 id="t9">적으면 뒷덮개에 원을 따라 새겨진다</h2>
+          <p class="desc">입력란은 밑줄 하나가 새겨진 판. 초점이 오면 선이 용담색으로 바뀐다. 오류는 루비 점과 함께 바로 아래 한 줄.</p>
+        </div>
+      </div>
+      <div class="plate hanji">
+        <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+        <form class="engrave-grid" id="engForm" novalidate>
+          <div style="display:grid;gap:20px">
+            <div class="field">
+              <label for="engName">새길 이름</label>
+              <input class="inp" id="engName" maxlength="16" value="눈이 위로 오던 아침" aria-describedby="engHint" autocomplete="off">
+              <span class="hint" id="engHint">16자까지. 뒷덮개 가장자리에 원을 따라 새겨집니다.</span>
+            </div>
+            <div class="field">
+              <label for="engPost">골짜기 우편함 번호</label>
+              <input class="inp num" id="engPost" inputmode="numeric" placeholder="네 자리 숫자" aria-describedby="engPostErr" autocomplete="off">
+              <p class="err" id="engPostErr" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="engMemo">꿈 메모</label>
+              <textarea class="txa" id="engMemo" rows="3" placeholder="깨기 전에 적어 둘 것"></textarea>
+            </div>
+            <div class="row"><button class="pusher enamel" type="submit">새기기 맡기기</button><button class="pusher quiet" type="reset">지우기</button></div>
+          </div>
+          <svg class="caseback" viewBox="-115 -115 230 230" role="img" aria-label="각인 미리보기">
+            <circle r="110" fill="url(#gSteel)" stroke="#8b9399"/>
+            <circle r="100" fill="#e5e7e7" stroke="#b5bbbf"/>
+            <circle r="98" fill="none" stroke="#fff" stroke-width="1.5" opacity=".8"/>
+            <g id="cbNotches"></g>
+            <path id="ringPath" d="M0 78 A78 78 0 1 1 0.01 78" fill="none"/>
+            <text font-family="Gowun Batang" font-size="15" fill="#34404b" letter-spacing="2"><textPath href="#ringPath" startOffset="50%" text-anchor="middle" id="engRing">눈이 위로 오던 아침</textPath></text>
+            <circle r="56" fill="none" stroke="#b5bbbf"/>
+            <g data-draw="hangulMark" data-r="34"></g>
+            <text y="58" text-anchor="middle" font-family="EB Garamond" font-size="11" fill="#6b747b" font-style="italic">Unruh?</text>
+          </svg>
+        </form>
+      </div>
+    </section>
+
+    <!-- X. power -->
+    <section class="piece" id="h10" aria-labelledby="t10">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">X</span>
+        <div>
+          <p class="kicker">동력 · 진행 표시와 단계</p>
+          <h2 id="t10">태엽이 얼마나 남았나</h2>
+          <p class="desc">진행 막대는 파워 리저브. 가만두면 천천히 풀린다. 단계 표시는 기어열 — 끝난 단계는 푸르게 구워지고, 지금 단계의 기어만 돈다.</p>
+        </div>
+      </div>
+      <div class="plate">
+        <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+        <div class="grid">
+          <div class="cell">
+            <h3>파워 리저브 <i>progressbar</i></h3>
+            <div class="reserve">
+              <svg viewBox="0 0 220 160" role="progressbar" id="reserve" aria-label="남은 동력" aria-valuemin="0" aria-valuemax="100" aria-valuenow="62" aria-valuetext="62% · 약 26시간">
+                <path d="M30.7 155.7 A92 92 0 1 1 189.3 155.7" fill="none" stroke="#c4c8ca" stroke-width="12" stroke-linecap="round" transform="translate(0 -14)"/>
+                <path id="resArc" d="M30.7 155.7 A92 92 0 1 1 189.3 155.7" fill="none" stroke="#1b4ca3" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="62 100" transform="translate(0 -14)"/>
+                <g id="resTicks"></g>
+                <g class="reserve-hand" id="resHand"><path d="M110 118 L110 40" stroke="#22409a" stroke-width="3" stroke-linecap="round"/></g>
+                <circle cx="110" cy="110" r="7" fill="url(#gRuby)" stroke="#eef0f0" stroke-width="2.5"/>
+                <text x="110" y="148" text-anchor="middle" font-family="Gowun Batang" font-size="14" fill="#34404b">남은 힘</text>
+              </svg>
+              <div>
+                <p class="val num" id="resTxt">62<small>% · 약 26시간</small></p>
+                <div class="lin" aria-hidden="true"><span id="resLin" style="--p:62%"></span></div>
+                <div class="row" style="margin-top:16px"><button class="pusher enamel sm" type="button" id="wind">태엽 감기 +20</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="cell" style="grid-column:1/-1">
+            <h3>만드는 단계 <i>steps</i></h3>
+            <ol class="steps" id="steps">
+              <li class="done"><svg viewBox="-30 -30 60 60" aria-hidden="true"><g data-draw="gear" data-r="24" data-teeth="12"></g></svg>도면</li>
+              <li class="done"><svg viewBox="-30 -30 60 60" aria-hidden="true"><g data-draw="gear" data-r="24" data-teeth="10"></g></svg>깎기</li>
+              <li aria-current="step"><svg viewBox="-30 -30 60 60" aria-hidden="true"><g data-draw="gear" data-r="24" data-teeth="14"></g></svg>마감</li>
+              <li><svg viewBox="-30 -30 60 60" aria-hidden="true"><g data-draw="gear" data-r="24" data-teeth="9"></g></svg>조립</li>
+              <li><svg viewBox="-30 -30 60 60" aria-hidden="true"><g data-draw="gear" data-r="24" data-teeth="12"></g></svg>조정</li>
+              <li><svg viewBox="-30 -30 60 60" aria-hidden="true"><g data-draw="gear" data-r="24" data-teeth="13"></g></svg>꿈에서 쓰기</li>
+            </ol>
+            <div class="row" style="margin-top:20px"><button class="pusher sm" type="button" id="stPrev">이전 단계</button><button class="pusher enamel sm" type="button" id="stNext">다음 단계</button><span class="note-s" id="stepTxt" aria-live="polite" style="margin:0">6단계 중 3단계: 마감</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- XI. bridges -->
+    <section class="piece" id="h11" aria-labelledby="t11">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">XI</span>
+        <div>
+          <p class="kicker">브리지 · 탭과 아코디언</p>
+          <h2 id="t11">겹쳐 놓은 판들</h2>
+          <p class="desc">탭은 새김선으로 나눈 한 장의 판. 아코디언은 무브먼트의 브리지처럼 겹쳐진 판들 — 열면 축의 보석에 루비가 들어간다.</p>
+        </div>
+      </div>
+      <div class="grid" style="align-items:start">
+        <div class="tabs cell" id="tabs">
+          <div role="tablist" aria-label="원칙">
+            <button role="tab" type="button" id="tab1" aria-selected="true" aria-controls="pan1">원칙<i>I</i></button>
+            <button role="tab" type="button" id="tab2" aria-selected="false" aria-controls="pan2" tabindex="-1">마감<i>II</i></button>
+            <button role="tab" type="button" id="tab3" aria-selected="false" aria-controls="pan3" tabindex="-1">소리<i>III</i></button>
+          </div>
+          <div role="tabpanel" id="pan1" aria-labelledby="tab1" tabindex="0">
+            <p>한 화면에 강조는 하나. 용담 파랑이 두 군데 이상이면 하나를 로듐으로 돌려놓는다. 여백은 8의 배수, 모서리는 4 · 12 · 22.</p>
+            <p>움직임은 두 종류뿐 — 째깍(steps)과 숨(ease-in-out). 미끄러지는 애니메이션은 쓰지 않는다.</p>
+          </div>
+          <div role="tabpanel" id="pan2" aria-labelledby="tab2" tabindex="0" hidden>
+            <p>페를라주는 넓은 판에, 제네바 줄결은 길고 좁은 판에, 앙글라주는 모든 테두리에 한 줄. 푸른 나사는 판의 네 귀에만. 결은 가까이 가야 보일 만큼 옅게.</p>
+          </div>
+          <div role="tabpanel" id="pan3" aria-labelledby="tab3" tabindex="0" hidden>
+            <p>소리는 기본으로 꺼져 있다. 켜면 푸셔와 레버에서 작은 째깍, 꼬리표가 붙을 때 멀리서 소방울. 창틀에 걸린 소방울을 눌러 봐도 된다.</p>
+          </div>
+        </div>
+        <div class="bridges cell" id="bridges">
+          <div class="bridge">
+            <h3><button type="button" aria-expanded="true" aria-controls="br1" id="brb1"><span class="jw" aria-hidden="true"></span>밸런스 브리지<span class="lt">balance</span></button></h3>
+            <div class="panel" id="br1" role="region" aria-labelledby="brb1"><p>가장 위에, 가장 작게. 숨 쉬는 바퀴를 잡고 있는 판이다. 화면에서는 지금 살아 있는 하나 — 진행 중인 일, 재생 중인 것 — 만 이 자리에 둔다.</p></div>
+          </div>
+          <div class="bridge">
+            <h3><button type="button" aria-expanded="false" aria-controls="br2" id="brb2"><span class="jw" aria-hidden="true"></span>기어열 브리지<span class="lt">train</span></button></h3>
+            <div class="panel" id="br2" role="region" aria-labelledby="brb2" hidden><p>힘을 옮기는 판. 목록, 단계, 탐색처럼 차례로 이어지는 것들. 톱니 수가 맞지 않으면 돌지 않으니, 항목의 높이와 간격을 같게 맞춘다.</p></div>
+          </div>
+          <div class="bridge">
+            <h3><button type="button" aria-expanded="false" aria-controls="br3" id="brb3"><span class="jw" aria-hidden="true"></span>배럴 브리지<span class="lt">barrel</span></button></h3>
+            <div class="panel" id="br3" role="region" aria-labelledby="brb3" hidden><p>태엽통을 덮는 가장 큰 판. 설정, 계정, 저장 — 자주 열지 않지만 모든 것이 여기서 힘을 받는다. 그래서 가장 단정하게 마감한다.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- XII. ledger -->
+    <section class="piece" id="h12" aria-labelledby="t12">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">XII</span>
+        <div>
+          <p class="kicker">작업 장부 · 카드와 표</p>
+          <h2 id="t12">꿈에서 만든 물건들</h2>
+          <p class="desc">카드는 물건 하나의 작은 진열창. 둥근 창 안에 부품이 살아 있다. 표는 한지 장부 — 머리글을 누르면 정렬된다.</p>
+        </div>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <span class="sig" aria-hidden="true">골짜기 · 일</span>
+          <div class="ap"><svg viewBox="-56 -56 112 112" aria-hidden="true"><g data-draw="balance" data-r="46"></g></svg></div>
+          <h3>숨 쉬는 찻잔</h3><p class="lt">balance-wheel cup</p>
+          <dl><dt>부품</dt><dd class="num">64</dd><dt>진동</dt><dd class="num">1.2 Hz</dd><dt>쓰임</dt><dd>차 식는 속도</dd></dl>
+          <button class="pusher sm" type="button" data-open="숨 쉬는 찻잔">뒷덮개 열기</button>
+        </article>
+        <article class="card">
+          <span class="sig" aria-hidden="true">골짜기 · 이</span>
+          <div class="ap"><svg viewBox="-56 -56 112 112" aria-hidden="true"><g data-draw="escape" data-r="44"></g></svg></div>
+          <h3>째깍이는 스탠드</h3><p class="lt">escapement lamp</p>
+          <dl><dt>부품</dt><dd class="num">118</dd><dt>진동</dt><dd class="num">2.5 Hz</dd><dt>쓰임</dt><dd>빛을 한 칸씩</dd></dl>
+          <button class="pusher sm" type="button" data-open="째깍이는 스탠드">뒷덮개 열기</button>
+        </article>
+        <article class="card">
+          <span class="sig" aria-hidden="true">골짜기 · 삼</span>
+          <div class="ap"><svg viewBox="-56 -56 112 112" aria-hidden="true"><g data-draw="clock" data-r="48" data-kind="tal"></g></svg></div>
+          <h3>열세 시 탁상시계</h3><p class="lt">thirteen-hour clock</p>
+          <dl><dt>부품</dt><dd class="num">152</dd><dt>오차</dt><dd>서울과 늘 다름</dd><dt>쓰임</dt><dd>없는 시간 재기</dd></dl>
+          <button class="pusher sm" type="button" data-open="열세 시 탁상시계">뒷덮개 열기</button>
+        </article>
+        <article class="card">
+          <span class="sig" aria-hidden="true">골짜기 · 사</span>
+          <div class="ap"><svg viewBox="-56 -56 112 112" aria-hidden="true"><circle r="44" fill="url(#pPerlNod)" stroke="#7d6639" stroke-width="1.5"/><circle r="30" fill="none" stroke="#7d6639" stroke-width=".8" opacity=".7"/><circle r="44" fill="none" stroke="#e6d3a3" stroke-width="1" opacity=".6"/><circle r="4" fill="url(#gRuby)"/></svg></div>
+          <h3>페를라주 놋그릇</h3><p class="lt">perlage bangjja bowl</p>
+          <dl><dt>부품</dt><dd class="num">1</dd><dt>진주 무늬</dt><dd class="num">1,312개</dd><dt>쓰임</dt><dd>아침 국</dd></dl>
+          <button class="pusher sm" type="button" data-open="페를라주 놋그릇">뒷덮개 열기</button>
+        </article>
+      </div>
+
+      <div class="ledger-wrap" style="margin-top:34px">
+        <table class="ledger" id="ledger">
+          <caption>작업대 장부 · 열세 번째 달</caption>
+          <thead>
+            <tr>
+              <th scope="col" aria-sort="ascending" data-k="no"><button type="button">번호</button></th>
+              <th scope="col" data-k="nm"><button type="button">물건</button></th>
+              <th scope="col" class="n" data-k="parts"><button type="button">부품</button></th>
+              <th scope="col" class="n" data-k="tol"><button type="button">공차 mm</button></th>
+              <th scope="col" class="n" data-k="hz"><button type="button">진동 Hz</button></th>
+              <th scope="col" data-k="st"><button type="button">상태</button></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-no="1" data-nm="째깍이는 스탠드" data-parts="118" data-tol="0.01" data-hz="2.5" data-st="완성"><td>01</td><td class="nm">째깍이는 스탠드</td><td class="n">118</td><td class="n">0.01</td><td class="n">2.5</td><td><span class="stat ok">완성</span></td></tr>
+            <tr data-no="2" data-nm="숨 쉬는 찻잔" data-parts="64" data-tol="0.02" data-hz="1.2" data-st="조정 중"><td>02</td><td class="nm">숨 쉬는 찻잔</td><td class="n">64</td><td class="n">0.02</td><td class="n">1.2</td><td><span class="stat adj">조정 중</span></td></tr>
+            <tr data-no="3" data-nm="페를라주 놋그릇" data-parts="1" data-tol="0.05" data-hz="0" data-st="완성"><td>03</td><td class="nm">페를라주 놋그릇</td><td class="n">1</td><td class="n">0.05</td><td class="n">0</td><td><span class="stat ok">완성</span></td></tr>
+            <tr data-no="4" data-nm="열세 시 탁상시계" data-parts="152" data-tol="0.01" data-hz="4" data-st="꿈속"><td>04</td><td class="nm">열세 시 탁상시계</td><td class="n">152</td><td class="n">0.01</td><td class="n">4.0</td><td><span class="stat dream">꿈속</span></td></tr>
+            <tr data-no="5" data-nm="크라운 문고리" data-parts="27" data-tol="0.03" data-hz="0" data-st="부품 부족"><td>05</td><td class="nm">크라운 문고리</td><td class="n">27</td><td class="n">0.03</td><td class="n">0</td><td><span class="stat low">부품 부족</span></td></tr>
+            <tr data-no="6" data-nm="보자기 매듭 걸쇠" data-parts="9" data-tol="0.01" data-hz="0.8" data-st="조정 중"><td>06</td><td class="nm">보자기 매듭 걸쇠</td><td class="n">9</td><td class="n">0.01</td><td class="n">0.8</td><td><span class="stat adj">조정 중</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="sr" id="sortLive" aria-live="polite"></p>
+    </section>
+
+    <!-- XIII. caseback -->
+    <section class="piece" id="h13" aria-labelledby="t13">
+      <div class="piece-head">
+        <span class="hour" aria-hidden="true">XIII</span>
+        <div>
+          <p class="kicker">뒷덮개 · 대화상자와 꼬리표</p>
+          <h2 id="t13">열면 안이 숨 쉬고 있다</h2>
+          <p class="desc">대화상자는 돌려서 여는 뒷덮개. 열리면 무브먼트가 보이고, Esc나 바깥을 누르면 닫힌다. 알림은 끈에 매단 한지 꼬리표 — 5초 뒤 떨어진다.</p>
+        </div>
+      </div>
+      <div class="plate">
+        <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+        <div class="row">
+          <button class="pusher enamel" type="button" data-open="열세 번째 무브먼트">뒷덮개 열기</button>
+          <button class="pusher" type="button" data-toast="꼬리표를 하나 달았습니다. 5초 뒤 떨어집니다.">꼬리표 달기</button>
+          <button class="pusher ott" type="button" data-toast="서울은 아직 밤입니다. 골짜기는 열세 시.">두 시계 비교</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<dialog class="cb" id="dlg" aria-labelledby="dlgT">
+  <div class="cb-stage" aria-hidden="true">
+    <svg viewBox="-110 -110 220 220">
+      <circle r="104" fill="#9aa1a6"/>
+      <circle r="100" fill="url(#pPerl)"/>
+      <g data-draw="gear" data-r="34" data-teeth="40" data-cls="spin" transform="translate(30 30)"></g>
+      <g data-draw="gear" data-r="18" data-teeth="14" data-cls="spinr" transform="translate(-14 58)"></g>
+      <path d="M-92 20 Q-60 -10 -10 6 Q40 20 80 -6 L92 30 Q40 70 -10 60 Q-60 52 -86 50 Z" fill="url(#pGeneva)" stroke="#8b9399" stroke-width="1"/>
+      <path d="M-20 -96 Q10 -60 -6 -30 L-74 -20 Q-80 -60 -60 -84 Z" fill="url(#pGeneva)" stroke="#8b9399" stroke-width="1"/>
+      <g transform="translate(-40 -48)" data-draw="balance" data-r="36"></g>
+      <g transform="translate(54 -54)" data-draw="escape" data-r="18"></g>
+      <g fill="url(#gRuby)" stroke="#eef0f0" stroke-width="2"><circle cx="30" cy="30" r="4"/><circle cx="-14" cy="58" r="3.4"/><circle cx="-60" cy="34" r="3.4"/><circle cx="54" cy="-54" r="3.4"/></g>
+      <g data-draw="screws"></g>
+      <text x="0" y="88" text-anchor="middle" font-family="Gowun Batang" font-size="9" fill="#34404b" letter-spacing="2">스물한 알 · 골짜기</text>
+    </svg>
+    <svg class="lid" viewBox="-110 -110 220 220">
+      <circle r="106" fill="url(#gSteel)" stroke="#6f777d"/>
+      <circle r="96" fill="#d5d9db"/>
+      <g data-draw="notches"></g>
+      <path id="lidPath" d="M0 70 A70 70 0 1 1 0.01 70" fill="none"/>
+      <text font-family="Gowun Batang" font-size="13" fill="#34404b" letter-spacing="2"><textPath href="#lidPath" startOffset="50%" text-anchor="middle" id="lidRing">눈이 위로 오던 아침</textPath></text>
+      <g data-draw="hangulMark" data-r="30"></g>
+    </svg>
+  </div>
+  <div class="cb-body">
+    <h2 id="dlgT">열세 번째 무브먼트</h2>
+    <p class="lt">뒷덮개를 돌려 열었다</p>
+    <p>바퀴가 숨을 쉬고, 톱니가 빛을 한 칸씩 내려보낸다. 왜 이렇게 만들었는지는 손만 안다. 닫으면 뒷덮개 가장자리에 당신이 적은 말이 새겨져 있다.</p>
+    <div class="row" style="margin-top:18px">
+      <button class="pusher enamel" type="button" id="dlgOk">이대로 닫기</button>
+      <button class="pusher quiet" type="button" id="dlgClose">그냥 닫기</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="tags" id="tags" role="status" aria-live="polite"></div>
+
+<footer class="foot">
+  <div class="wrap">
+    <span><em>Unruh</em> · 쉬지 않는 바퀴 — EB Garamond, Gowun Batang, Schibsted Grotesk, IBM Plex Sans KR</span>
+    <a href="../">다른 디자인 체계 보기</a>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const RM = matchMedia('(prefers-reduced-motion: reduce)');
+  const TAU = Math.PI * 2;
+  const f = n => (+n).toFixed(2);
+  const pol = (r, deg) => { const a = (deg - 90) * Math.PI / 180; return [r * Math.cos(a), r * Math.sin(a)]; };
+
+  /* ---------- drawing ---------- */
+  function spiral(r0, r1, turns) {
+    let d = '';
+    for (let i = 0; i <= 160; i++) { const t = i / 160, a = t * turns * TAU, r = r0 + (r1 - r0) * t; d += (i ? 'L' : 'M') + f(r * Math.cos(a)) + ' ' + f(r * Math.sin(a)); }
+    return d;
+  }
+  const draw = {
+    balance(r) {
+      let s = `<g class="osc"><path d="${spiral(r * .13, r * .6, 5.5)}" fill="none" stroke="#2a4aa8" stroke-width="${f(r * .025)}"/>`;
+      s += `<circle r="${f(r * .9)}" fill="none" stroke="url(#gSteel)" stroke-width="${f(r * .15)}"/><circle r="${f(r * .82)}" fill="none" stroke="#fff" stroke-width="${f(r * .015)}" opacity=".8"/>`;
+      [0, 120, 240].forEach(a => { const [x, y] = pol(r * .84, a); s += `<line x1="0" y1="0" x2="${f(x)}" y2="${f(y)}" stroke="#b8bec3" stroke-width="${f(r * .08)}" stroke-linecap="round"/>`; });
+      for (let i = 0; i < 10; i++) { const [x, y] = pol(r * .98, i * 36 + 18); s += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r * .075)}" fill="${i % 2 ? 'url(#gSteel)' : 'url(#gBlued)'}" stroke="rgba(0,0,0,.3)" stroke-width="${f(r * .01)}"/>`; }
+      return s + `<circle r="${f(r * .12)}" fill="url(#gRuby)" stroke="#eef0f0" stroke-width="${f(r * .03)}"/></g>`;
+    },
+    escape(r) {
+      const n = 15, st = TAU / n; let d = '';
+      for (let i = 0; i < n; i++) {
+        const a = i * st, p = [[r * .76, a], [r, a + st * .5], [r * .93, a + st * .62], [r * .76, a + st * .8]];
+        p.forEach(([rr, aa], j) => d += (i === 0 && j === 0 ? 'M' : 'L') + f(rr * Math.cos(aa)) + ' ' + f(rr * Math.sin(aa)));
+      }
+      const ri = r * .6; d += `Z M${f(ri)} 0 A${f(ri)} ${f(ri)} 0 1 0 ${f(-ri)} 0 A${f(ri)} ${f(ri)} 0 1 0 ${f(ri)} 0Z`;
+      let s = `<g class="esc"><path d="${d}" fill="url(#gSteel)" fill-rule="evenodd" stroke="#7f878d" stroke-width="${f(r * .02)}"/>`;
+      [0, 90].forEach(a => { const [x, y] = pol(ri, a); s += `<line x1="${f(-x)}" y1="${f(-y)}" x2="${f(x)}" y2="${f(y)}" stroke="#b8bec3" stroke-width="${f(r * .1)}"/>`; });
+      return s + `<circle r="${f(r * .16)}" fill="#c4c9cc"/><circle r="${f(r * .08)}" fill="url(#gRuby)"/></g>`;
+    },
+    gear(r, ds) {
+      const n = +ds.teeth || 12, st = TAU / n; let d = '';
+      for (let i = 0; i < n; i++) {
+        const a = i * st, p = [[r * .84, a - st * .28], [r, a - st * .16], [r, a + st * .16], [r * .84, a + st * .28]];
+        p.forEach(([rr, aa], j) => d += (i === 0 && j === 0 ? 'M' : 'L') + f(rr * Math.cos(aa)) + ' ' + f(rr * Math.sin(aa)));
+      }
+      const ri = r * .62; d += `Z M${f(ri)} 0 A${f(ri)} ${f(ri)} 0 1 0 ${f(-ri)} 0 A${f(ri)} ${f(ri)} 0 1 0 ${f(ri)} 0Z`;
+      const inStep = ds.draw === 'gear' && ds.cls === undefined;
+      const fill = inStep ? '' : ' fill="url(#gSteel)" stroke="#7f878d"';
+      let s = `<g class="${ds.cls || ''}"><path class="g" d="${d}" fill-rule="evenodd"${fill} stroke-width="1"/>`;
+      for (let k = 0; k < 5; k++) { const [x, y] = pol(ri, k * 72); s += `<line x1="0" y1="0" x2="${f(x)}" y2="${f(y)}" class="g" stroke-width="${f(r * .09)}"${inStep ? '' : ' stroke="#aab1b5"'}/>`; }
+      return s + `<circle r="${f(r * .18)}" class="g"${inStep ? '' : ' fill="#c4c9cc"'}/></g>`;
+    },
+    clock(r, ds) {
+      const tal = ds.kind === 'tal', n = tal ? 13 : 12;
+      let s = `<circle r="${r}" fill="${tal ? '#4a1e16' : 'url(#gSteel)'}" stroke="#6f777d"/><circle r="${f(r * .86)}" fill="url(#gEnamel)"/>`;
+      // indices: 天地人 — dot, bar, stroke
+      for (let i = 0; i < n; i++) {
+        const a = i * 360 / n, k = i % 3;
+        if (i === 0) { const [x, y] = pol(r * .58, 0); s += `<text x="${f(x)}" y="${f(y + r * .1)}" text-anchor="middle" font-family="Gowun Batang" font-size="${f(r * .22)}" fill="#a3163a">${tal ? '열셋' : '열둘'}</text>`; continue; }
+        if (k === 0) { const [x, y] = pol(r * .72, a); s += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r * .05)}" fill="#34404b"/>`; }
+        else if (k === 1) { const [x1, y1] = pol(r * .64, a), [x2, y2] = pol(r * .8, a); s += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="#34404b" stroke-width="${f(r * .045)}" stroke-linecap="round"/>`; }
+        else { const [x1, y1] = pol(r * .72, a - 5), [x2, y2] = pol(r * .72, a + 5); s += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="#34404b" stroke-width="${f(r * .045)}" stroke-linecap="round"/>`; }
+      }
+      s += `<text y="${f(r * .42)}" text-anchor="middle" font-family="Gowun Batang" font-size="${f(r * .15)}" fill="#6b747b">${tal ? '골짜기' : '서울'}</text>`;
+      s += `<g class="ch-h" data-kind="${ds.kind}"><line y1="${f(r * .1)}" y2="${f(-r * .45)}" stroke="#22409a" stroke-width="${f(r * .07)}" stroke-linecap="round"/></g>`;
+      s += `<g class="ch-m" data-kind="${ds.kind}"><line y1="${f(r * .12)}" y2="${f(-r * .7)}" stroke="#22409a" stroke-width="${f(r * .045)}" stroke-linecap="round"/></g>`;
+      if (tal) s += `<g class="sweep"><line y1="${f(r * .15)}" y2="${f(-r * .76)}" stroke="#a3163a" stroke-width="${f(r * .02)}"/></g>`;
+      return s + `<circle r="${f(r * .08)}" fill="url(#gRuby)"/>`;
+    },
+    hangulMark(r) {
+      // a maker's mark: 골짜기 engraved, with 天(·) 地(ㅡ) 人(ㅣ) set in a row beneath, like a hallmark
+      const k = '#34404b';
+      return `<circle r="${r}" fill="none" stroke="${k}" stroke-width="1.2"/><circle r="${f(r * .86)}" fill="none" stroke="${k}" stroke-width=".5"/>
+        <text y="${f(-r * .02)}" text-anchor="middle" font-family="Gowun Batang" font-weight="700" font-size="${f(r * .36)}" fill="${k}">골짜기</text>
+        <circle cx="${f(-r * .38)}" cy="${f(r * .38)}" r="${f(r * .065)}" fill="${k}"/>
+        <line x1="${f(-r * .2)}" y1="${f(r * .38)}" x2="${f(r * .14)}" y2="${f(r * .38)}" stroke="${k}" stroke-width="${f(r * .06)}" stroke-linecap="round"/>
+        <line x1="${f(r * .36)}" y1="${f(r * .24)}" x2="${f(r * .36)}" y2="${f(r * .54)}" stroke="${k}" stroke-width="${f(r * .06)}" stroke-linecap="round"/>`;
+    },
+    screws() {
+      return [[-80, -10], [70, 40], [-30, -88], [80, -28]].map(([x, y], i) => `<g transform="translate(${x} ${y}) rotate(${i * 47})"><circle r="5" fill="url(#gBlued)" stroke="#eef0f0" stroke-width="1.5"/><line x1="-3.6" x2="3.6" stroke="#0c1a44" stroke-width="1.2"/></g>`).join('');
+    },
+    notches() {
+      let s = ''; for (let i = 0; i < 6; i++) { const [x, y] = pol(101, i * 60); s += `<circle cx="${f(x)}" cy="${f(y)}" r="5" fill="#8b9399"/>`; } return s;
+    }
+  };
+  $$('[data-draw]').forEach(el => { const fn = draw[el.dataset.draw]; if (fn) el.innerHTML = fn(+el.dataset.r || 40, el.dataset); });
+
+  // caseback notches (input preview)
+  (() => { let s = ''; for (let i = 0; i < 6; i++) { const [x, y] = pol(105, i * 60); s += `<rect x="${f(x - 4)}" y="${f(y - 4)}" width="8" height="8" rx="2" fill="#8b9399" transform="rotate(${i * 60} ${f(x)} ${f(y)})"/>`; } $('#cbNotches').innerHTML = s; })();
+
+  // bench ruler, engraved
+  (() => { let s = ''; for (let x = 0; x <= 1200; x += 10) { const L = x % 100 === 0 ? 18 : x % 50 === 0 ? 12 : 7; s += `<line x1="${x}" y1="606" x2="${x}" y2="${606 + L}" stroke="#4a2c14" stroke-width="1" opacity=".55"/>`; if (x % 100 === 0 && x > 0 && x < 1200) s += `<text x="${x + 3}" y="636" font-family="EB Garamond" font-size="11" fill="#e7c193" opacity=".65">${x / 100}</text>`; } $('#benchRuler').innerHTML = s; })();
+  // spoon perlage
+  (() => { let s = ''; for (let i = 0; i < 16; i++) s += `<circle cx="${36 + i * 7}" cy="0" r="3.4" fill="url(#gPearl)" stroke="#8b9399" stroke-width=".3"/>`; $('#spoonPerl').innerHTML = s; })();
+  // snow — some fall, a few rise
+  (() => {
+    let s = '';
+    for (let i = 0; i < 26; i++) {
+      const x = 270 + Math.random() * 660, r = 1 + Math.random() * 2.2, up = i % 5 === 0;
+      s += `<circle class="flake${up ? ' up' : ''}" cx="${f(x)}" cy="90" r="${f(r)}" style="--d:${f(10 + Math.random() * 12)}s;--dl:${f(-Math.random() * 20)}s" opacity=".9"/>`;
+    }
+    $('#flakes').innerHTML = s;
+  })();
+  // chrono ticks
+  (() => { let s = ''; for (let i = 0; i < 60; i++) { const L = i % 5 === 0 ? 7 : 3, [x1, y1] = pol(48, i * 6), [x2, y2] = pol(48 - L, i * 6); s += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="#34404b" stroke-width="${i % 5 ? .6 : 1.4}"/>`; } $('#chronoTicks').innerHTML = s; })();
+
+  /* ---------- sound (off by default) ---------- */
+  let snd = false, ac = null;
+  const sndBtn = $('#snd');
+  function ctx() { if (!ac) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; ac = new C(); } if (ac.state === 'suspended') ac.resume(); return ac; }
+  function tick(p = 1) {
+    if (!snd) return; const c = ctx(); if (!c) return;
+    const len = Math.floor(c.sampleRate * .03), buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
+    const s = c.createBufferSource(); s.buffer = buf;
+    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3200 * p; bp.Q.value = 5;
+    const g = c.createGain(); g.gain.value = .55; s.connect(bp); bp.connect(g); g.connect(c.destination); s.start();
+  }
+  function cowbell() {
+    if (!snd) return; const c = ctx(); if (!c) return; const t = c.currentTime;
+    const g = c.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.09, t + .01); g.gain.exponentialRampToValueAtTime(.0008, t + 1.8);
+    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 1.4;
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400;
+    [562, 845].forEach(fq => { const o = c.createOscillator(); o.type = 'square'; o.frequency.value = fq * .78; o.connect(bp); o.start(t); o.stop(t + 1.9); });
+    bp.connect(lp); lp.connect(g); g.connect(c.destination);
+  }
+  sndBtn.addEventListener('click', () => { snd = !snd; sndBtn.setAttribute('aria-pressed', snd); if (snd) { ctx(); tick(1.2); } });
+
+  /* ---------- toasts ---------- */
+  const tags = $('#tags'); let tagN = 0;
+  function toast(msg) {
+    tagN++;
+    const el = document.createElement('div'); el.className = 'tag';
+    const k = document.createElement('span'); k.className = 'tag-k'; k.textContent = '꼬리표 ' + String(tagN).padStart(3, '0');
+    const m = document.createElement('span'); m.textContent = msg;
+    el.append(k, m); tags.append(el);
+    while (tags.children.length > 3) tags.firstElementChild.remove();
+    cowbell();
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), RM.matches ? 0 : 400); }, 5000);
+  }
+  document.addEventListener('click', e => {
+    const p = e.target.closest('.pusher, .chip'); if (p && !p.disabled) tick(p.classList.contains('enamel') ? 1.15 : 1);
+    const t = e.target.closest('[data-toast]'); if (t) toast(t.dataset.toast);
+  });
+
+  /* ---------- clocks: Seoul and the valley never agree ---------- */
+  function clocks() {
+    const now = new Date();
+    const seoul = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+    const zur = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Zurich' }));
+    const sm = seoul.getHours() * 60 + seoul.getMinutes() + seoul.getSeconds() / 60;
+    const zm = zur.getHours() * 60 + zur.getMinutes() + zur.getSeconds() / 60 + 7; // the valley drifts seven minutes
+    $('#cSeoul').textContent = String(seoul.getHours()).padStart(2, '0') + ':' + String(seoul.getMinutes()).padStart(2, '0');
+    const per = 720 / 13, dh = (zm % 720) / per, h = Math.floor(dh) || 13, mm = Math.floor((dh % 1) * 60);
+    $('#cTal').textContent = h + '시 ' + String(mm).padStart(2, '0') + '분';
+    $$('.ch-h').forEach(g => { const tal = g.dataset.kind === 'tal'; const a = tal ? ((zm % 720) / 720) * 360 : ((sm % 720) / 720) * 360; g.setAttribute('transform', `rotate(${f(a)})`); });
+    $$('.ch-m').forEach(g => { const tal = g.dataset.kind === 'tal'; const a = tal ? (dh % 1) * 360 : (sm % 60) * 6; g.setAttribute('transform', `rotate(${f(a)})`); });
+  }
+  clocks(); setInterval(clocks, 5000);
+
+  /* ---------- cowbell in the window ---------- */
+  const bellEl = $('#bell');
+  function ring() { bellEl.classList.remove('ring'); void bellEl.getBoundingClientRect(); bellEl.classList.add('ring'); cowbell(); }
+  bellEl.addEventListener('click', ring);
+  bellEl.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ring(); } });
+
+  /* ---------- chrono ---------- */
+  let chT = 0, chRun = false, chLast = 0, chRaf = 0;
+  const chOut = $('#chronoOut'), chHand = $('#chronoHand'), chStart = $('#chStart');
+  function chRender() {
+    const s = chT / 1000, m = Math.floor(s / 60) % 13, sec = s % 60;
+    chOut.firstChild.textContent = String(m).padStart(2, '0') + ':' + sec.toFixed(1).padStart(4, '0');
+    chHand.setAttribute('transform', `rotate(${f(sec * 6)})`);
+  }
+  function chLoop(t) { if (!chRun) return; chT += t - chLast; chLast = t; chRender(); chRaf = requestAnimationFrame(chLoop); }
+  chStart.addEventListener('click', () => { chRun = !chRun; chStart.textContent = chRun ? '멈춤' : '시작'; if (chRun) { chLast = performance.now(); chRaf = requestAnimationFrame(chLoop); } else cancelAnimationFrame(chRaf); });
+  $('#chReset').addEventListener('click', () => { chT = 0; chRender(); });
+
+  /* ---------- crown range & stepper ---------- */
+  const reg = $('#reg'), regOut = $('#regOut'), crown = $('#crownBig');
+  function regR() { const v = +reg.value; regOut.textContent = (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v); crown.style.setProperty('--kn', v * 3 + 'px'); reg.setAttribute('aria-valuetext', (v > 0 ? '하루 ' + v + '초 빠르게' : v < 0 ? '하루 ' + (-v) + '초 느리게' : '정확')); }
+  let lastV = reg.value;
+  reg.addEventListener('input', () => { regR(); if (reg.value !== lastV) { tick(.8 + (+reg.value + 10) / 40); lastV = reg.value; } });
+  regR();
+  let stV = 12; const stOut = $('#stOut');
+  function st(d) { const n = Math.max(0, Math.min(40, stV + d)); if (n === stV && d > 0) toast('마흔 번. 손이 먼저 멈췄습니다.'); stV = n; stOut.textContent = stV; $('#stDown').disabled = stV === 0; }
+  $('#stUp').addEventListener('click', () => st(1)); $('#stDown').addEventListener('click', () => st(-1));
+
+  /* ---------- levers ---------- */
+  const scene = $('#scene');
+  $$('.lever').forEach(b => b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', on); tick(on ? 1.2 : .85);
+    if (b.id === 'swLamp') scene.classList.toggle('lamp-off', !on);
+    if (b.id === 'swSnow') scene.classList.toggle('snowup', on);
+  }));
+
+  /* ---------- jewel checkboxes (tri-state) ---------- */
+  const jAll = $('#jAll'), jcs = $$('.jc'), jCount = $('#jCount');
+  function jSync() { const n = jcs.filter(c => c.checked).length; jAll.checked = n === jcs.length; jAll.indeterminate = n > 0 && n < jcs.length; jCount.textContent = n + ' / ' + jcs.length; }
+  jAll.addEventListener('change', () => { jcs.forEach(c => c.checked = jAll.checked); jSync(); tick(1.3); });
+  jcs.forEach(c => c.addEventListener('change', () => { jSync(); tick(1.3); }));
+  jSync();
+
+  /* ---------- subdial radios ---------- */
+  const subAng = [-60, -20, 20, 60], subLbl = ['1', '2', '3', '13'];
+  (() => { let s = ''; subAng.forEach((a, i) => { const [x1, y1] = pol(53, a), [x2, y2] = pol(46, a), [tx, ty] = pol(37, a); s += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="#34404b" stroke-width="2"/><text x="${f(tx)}" y="${f(ty + 4)}" text-anchor="middle" font-family="EB Garamond" font-size="12" fill="${i === 3 ? '#a3163a' : '#34404b'}">${subLbl[i]}</text>`; }); $('#subMarks').innerHTML = s; })();
+  const subHand = $('#subHand');
+  function subR() { const v = +($('input[name=light]:checked') || { value: 0 }).value; subHand.style.transform = `rotate(${subAng[v]}deg)`; }
+  $$('input[name=light]').forEach(r => r.addEventListener('change', () => { subR(); tick(1.1); }));
+  subR();
+
+  /* ---------- segmented: crown positions ---------- */
+  const seg = $('#seg'), segBtns = $$('[role=radio]', seg), thumb = $('.thumb', seg), stemCr = $('#stemCr'), segDesc = $('#segDesc');
+  const segTxt = ['0 — 감기. 태엽을 감는다. 저항이 느껴지면 멈춘다.', '1 — 날짜. 꿈의 날짜를 맞춘다. 서른두 번째 날까지 있다.', '2 — 시간. 바늘을 돌린다. 열셋까지 돌아간다.'];
+  function segSet(i, focus) {
+    segBtns.forEach((b, j) => { b.setAttribute('aria-checked', j === i); b.tabIndex = j === i ? 0 : -1; });
+    thumb.style.transform = `translateX(${i * 100}%)`;
+    stemCr.style.transform = `translateX(${[0, 1, 2][i] * (stemCr.parentElement.clientWidth * .25)}px)`;
+    segDesc.textContent = segTxt[i]; if (focus) segBtns[i].focus(); tick(.9 + i * .15);
+  }
+  segBtns.forEach((b, i) => {
+    b.addEventListener('click', () => segSet(i));
+    b.addEventListener('keydown', e => {
+      const k = e.key; let n = null;
+      if (k === 'ArrowRight' || k === 'ArrowDown') n = (i + 1) % 3; else if (k === 'ArrowLeft' || k === 'ArrowUp') n = (i + 2) % 3; else if (k === 'Home') n = 0; else if (k === 'End') n = 2;
+      if (n !== null) { e.preventDefault(); segSet(n, true); }
+    });
+  });
+  stemCr.style.left = 'calc(20% - 13px)';
+  addEventListener('resize', () => segSet(segBtns.findIndex(b => b.getAttribute('aria-checked') === 'true')));
+
+  /* ---------- chips ---------- */
+  const chipOut = $('#chipOut');
+  function chipR() { const on = $$('.chip').filter(c => c.getAttribute('aria-pressed') === 'true').map(c => c.textContent.trim()); chipOut.textContent = on.length ? `고른 마감 ${on.length}가지: ${on.join(', ')}` : '아직 고른 마감이 없습니다. 맨 쇠 그대로.'; }
+  $$('.chip').forEach(c => c.addEventListener('click', () => { c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'); chipR(); }));
+
+  /* ---------- bezel select ---------- */
+  const bezSel = $('#bezelSel'), bezRing = $('#bezelRing'), bezCenter = $('#bezelCenter');
+  const bezShort = ['골짜기', '서울', '눈 녹음', '열셋'];
+  (() => {
+    let s = '';
+    for (let i = 0; i < 52; i++) { const L = [0, 1, 2, 11, 12].includes(i % 13) ? 0 : i % 13 % 3 === 0 ? 7 : 4, a = i * 360 / 52; if (!L) continue; const [x1, y1] = pol(67, a), [x2, y2] = pol(67 - L, a); s += `<line x1="${f(75 + x1)}" y1="${f(75 + y1)}" x2="${f(75 + x2)}" y2="${f(75 + y2)}" stroke="#dfe3e6" stroke-width="1"/>`; }
+    bezShort.forEach((t, i) => { const a = i * 90, [x, y] = pol(57, a); s += `<text x="${f(75 + x)}" y="${f(75 + y + 4)}" text-anchor="middle" font-family="Gowun Batang" font-size="11" fill="#fff" transform="rotate(${a} ${f(75 + x)} ${f(75 + y)})">${t}</text>`; });
+    $('#bezelMarks').innerHTML = s;
+  })();
+  let bezTurns = 0, bezPrev = 0;
+  function bezR() { const i = bezSel.selectedIndex; let d = i - bezPrev; if (d < -2) d += 4; if (d > 2) d -= 4; bezTurns += d; bezPrev = i; bezRing.style.transform = `rotate(${-bezTurns * 90}deg)`; bezCenter.textContent = bezShort[i]; tick(.95); }
+  bezSel.addEventListener('change', bezR);
+  $('#bezelBtn').addEventListener('click', () => { bezSel.selectedIndex = (bezSel.selectedIndex + 1) % 4; bezR(); });
+
+  /* ---------- engraving ---------- */
+  const engName = $('#engName'), engRing = $('#engRing'), lidRing = $('#lidRing');
+  function engR() { const v = engName.value.trim() || '이름 없는 아침'; engRing.textContent = v; lidRing.textContent = v; }
+  engName.addEventListener('input', engR); engR();
+  const post = $('#engPost'), postErr = $('#engPostErr');
+  function postOk(show) {
+    const ok = /^\d{4}$/.test(post.value.trim());
+    if (show) { post.setAttribute('aria-invalid', !ok); postErr.textContent = ok ? '' : post.value.trim() ? '네 자리 숫자로 적어 주세요. 골짜기 우편함은 네 자리입니다.' : '우편함 번호가 비어 있습니다.'; }
+    return ok;
+  }
+  post.addEventListener('blur', () => { if (post.value) postOk(true); });
+  post.addEventListener('input', () => { if (post.getAttribute('aria-invalid') === 'true') postOk(true); });
+  $('#engForm').addEventListener('submit', e => { e.preventDefault(); if (!postOk(true)) { post.focus(); return; } toast(`“${engName.value.trim() || '이름 없는 아침'}” — 새김을 맡겼습니다. ${post.value}번 우편함으로.`); });
+  $('#engForm').addEventListener('reset', () => setTimeout(() => { engR(); post.removeAttribute('aria-invalid'); postErr.textContent = ''; }));
+
+  /* ---------- power reserve ---------- */
+  (() => { let s = ''; for (let i = 0; i <= 10; i++) { const a = -140 + i * 28, [x1, y1] = pol(80, a), [x2, y2] = pol(i % 5 ? 75 : 70, a); s += `<line x1="${f(110 + x1)}" y1="${f(110 + y1)}" x2="${f(110 + x2)}" y2="${f(110 + y2)}" stroke="#34404b" stroke-width="${i % 5 ? 1 : 2}"/>`; } $('#resTicks').innerHTML = s; })();
+  let pr = 62; const resEl = $('#reserve'), resArc = $('#resArc'), resHand = $('#resHand'), resTxt = $('#resTxt'), resLin = $('#resLin');
+  function prR() {
+    const v = Math.round(pr), hrs = Math.round(pr * .42);
+    resArc.setAttribute('stroke-dasharray', `${f(pr)} 100`);
+    resArc.setAttribute('stroke', pr < 15 ? '#a3163a' : '#1b4ca3');
+    resHand.style.transform = `rotate(${f(-140 + pr * 2.8)}deg)`;
+    resEl.setAttribute('aria-valuenow', v); resEl.setAttribute('aria-valuetext', `${v}% · 약 ${hrs}시간`);
+    resTxt.innerHTML = `${v}<small>% · 약 ${hrs}시간</small>`; resLin.style.setProperty('--p', pr + '%');
+  }
+  $('#wind').addEventListener('click', () => { const was = pr; pr = Math.min(100, pr + 20); prR(); if (was >= 100) toast('더 감기지 않습니다. 태엽이 가득 찼습니다.'); });
+  setInterval(() => { if (pr > 0) { pr = Math.max(0, pr - .5); prR(); if (pr === 0) toast('태엽이 다 풀렸습니다. 바퀴가 쉽니다.'); } }, 2000);
+  prR();
+
+  /* ---------- steps ---------- */
+  const stepLis = $$('#steps li'), stepTxt = $('#stepTxt'); let stepI = 2;
+  function stepR() {
+    stepLis.forEach((li, i) => { li.classList.toggle('done', i < stepI); if (i === stepI) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
+    stepTxt.textContent = `${stepLis.length}단계 중 ${stepI + 1}단계: ${stepLis[stepI].textContent.trim()}`;
+    $('#stPrev').disabled = stepI === 0; $('#stNext').disabled = stepI === stepLis.length - 1;
+  }
+  $('#stPrev').addEventListener('click', () => { if (stepI > 0) { stepI--; stepR(); } });
+  $('#stNext').addEventListener('click', () => { if (stepI < stepLis.length - 1) { stepI++; stepR(); if (stepI === stepLis.length - 1) toast('다 만들었습니다. 이제 꿈에서 쓸 차례.'); } });
+  stepR();
+
+  /* ---------- tabs ---------- */
+  const tabs = $$('#tabs [role=tab]');
+  function tabSet(i, focus) { tabs.forEach((t, j) => { const on = i === j; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; $('#' + t.getAttribute('aria-controls')).hidden = !on; }); if (focus) tabs[i].focus(); tick(1); }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => tabSet(i));
+    t.addEventListener('keydown', e => { let n = null; if (e.key === 'ArrowRight') n = (i + 1) % tabs.length; else if (e.key === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length; else if (e.key === 'Home') n = 0; else if (e.key === 'End') n = tabs.length - 1; if (n !== null) { e.preventDefault(); tabSet(n, true); } });
+  });
+
+  /* ---------- accordion bridges ---------- */
+  $$('#bridges button').forEach(b => b.addEventListener('click', () => { const on = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', on); $('#' + b.getAttribute('aria-controls')).hidden = !on; tick(on ? 1.1 : .9); }));
+
+  /* ---------- ledger sort ---------- */
+  const ledger = $('#ledger'), tbody = $('tbody', ledger), ths = $$('thead th', ledger), sortLive = $('#sortLive');
+  const numK = ['no', 'parts', 'tol', 'hz'];
+  ths.forEach(th => $('button', th).addEventListener('click', () => {
+    const k = th.dataset.k, dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    ths.forEach(o => o.removeAttribute('aria-sort')); th.setAttribute('aria-sort', dir);
+    const rows = $$('tr', tbody), m = dir === 'ascending' ? 1 : -1;
+    rows.sort((a, b) => numK.includes(k) ? (a.dataset[k] - b.dataset[k]) * m : a.dataset[k].localeCompare(b.dataset[k], 'ko') * m);
+    rows.forEach(r => tbody.append(r));
+    sortLive.textContent = `${$('button', th).textContent} 기준 ${dir === 'ascending' ? '오름차순' : '내림차순'}으로 정렬했습니다.`;
+  }));
+
+  /* ---------- caseback dialog ---------- */
+  const dlg = $('#dlg'), dlgT = $('#dlgT');
+  $$('[data-open]').forEach(b => b.addEventListener('click', () => { dlgT.textContent = b.dataset.open; dlg.showModal(); tick(.7); }));
+  $('#dlgClose').addEventListener('click', () => dlg.close());
+  $('#dlgOk').addEventListener('click', () => { dlg.close(); toast(`${dlgT.textContent} — 뒷덮개를 다시 닫았습니다.`); });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  /* ---------- rails ---------- */
+  const ptr = $('#ptr'), links = $$('.hours a');
+  function onScroll() {
+    const h = document.documentElement, max = h.scrollHeight - innerHeight, p = max > 0 ? scrollY / max : 0;
+    const rail = ptr.parentElement.clientHeight - 68; ptr.style.top = (34 + p * rail) + 'px';
+  }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { links.forEach(a => a.toggleAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id)); links.forEach(a => { if (a.hasAttribute('aria-current')) a.setAttribute('aria-current', 'location'); }); } }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('.piece').forEach(s => io.observe(s));
+})();
+</script>
+<script src="../systems-nav.js?v=20261101c" defer></script>
+</body>
+</html>

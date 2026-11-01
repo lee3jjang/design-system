@@ -1,0 +1,1309 @@
+<title>Oat 디자인 시스템</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: a workbench. Each specimen sits on a panel; every control is built as a physical object with a top face and side walls, pressed along Z. */
+:root {
+  color-scheme: light;
+  --background: #f3f1e7; --foreground: #17221a; --card: #fdfcf6; --panel: #e9e7d8; --panel-deep: #dcdac9;
+  --primary: #2f5a3c; --primary-wall: #1c3a26; --primary-foreground: #ffffff;
+  --cap: #fdfcf6; --cap-wall: #b9b8a5; --secondary: #e6e5d6;
+  --subtle-foreground: #36443a; --muted-foreground: #5c6a5f; --accent: #ecebdf;
+  --tint: #e8b45a; --tint-glow: rgba(232,180,90,.55); --stripe: #8fae6b;
+  --destructive: #a8402d; --destructive-wall: #6f2519; --destructive-soft: #f5d9d2;
+  --primary-soft: #e3ece2; --primary-200: #b9d0b8; --primary-400: #4f7d5a; --tint-soft: #fbf0d6; --tint-wall: #b9862f; --faceplate: #2a352d;
+  --success: #3f7a4a; --success-soft: #e2efdc; --warning: #b7791f; --warning-soft: #f8ead0; --info: #2f6177; --info-soft: #dbe8ee; --paper-rule: #c9d6e3;
+  --border: #d3d3c0; --input: #6f7a6c; --ring: #17221a;
+  --depth: 6px;
+  --radius: 8px; --radius-lg: 10px; --radius-xl: 14px; --radius-full: 9999px;
+  --shadow-inset: inset 1.5px 3px 0 rgba(23,34,26,.18);
+  --ease-spring: cubic-bezier(.3,1.6,.5,1); --ease-press: cubic-bezier(.3,1.9,.45,1);
+  --dur-press: .05s; --dur-spring: .34s;
+  --font-sans: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--background); color: var(--foreground); font: 400 17px/1.65 var(--font-sans); word-break: keep-all; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--background); }
+button { font-family: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid var(--ring); outline-offset: 4px; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86em; background: var(--secondary); padding: 1px 6px; border-radius: 5px; }
+.wrap { max-width: 1000px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+.hero { padding-block: 56px 28px; display: grid; gap: 16px; }
+.hero h1 { font: 900 clamp(60px, 12vw, 120px)/.88 var(--font-sans); letter-spacing: -.05em; }
+.hero p { max-width: 60ch; color: var(--subtle-foreground); font-size: 18px; }
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--background); border-bottom: 1.5px solid var(--border); }
+.nav .wrap { overflow-x: auto; }
+.nav ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 10px 0; width: max-content; }
+.nav a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: var(--radius); color: var(--subtle-foreground); font: 500 15px/1 var(--font-sans); text-decoration: none; }
+.nav a:hover { color: var(--foreground); background: var(--accent); }
+
+section.part { padding-block: 56px 8px; display: grid; gap: 22px; scroll-margin-top: 64px; }
+.part > header { display: grid; gap: 8px; }
+.part > header h2 { font: 900 32px/1.2 var(--font-sans); letter-spacing: -.02em; }
+.part > header p { color: var(--subtle-foreground); max-width: 62ch; }
+
+/* Specimen: text on the left, a workbench panel on the right */
+.spec { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); border: 1.5px solid #a9a892; border-radius: var(--radius-xl); background: var(--card); overflow: hidden;
+  /* A thin slab seen from the lower right: a 3px wall on the right and bottom. */
+  box-shadow: .9px 1.5px 0 -1.5px var(--cap-wall), 1.8px 3px 0 -1.5px var(--cap-wall), .9px 1.5px 0 0 #a9a892, 1.8px 3px 0 0 #a9a892, 6px 10px 14px -10px rgba(23,34,26,.2); }
+.spec__text { padding: 22px; display: grid; gap: 10px; align-content: start; border-right: 1.5px solid var(--border); min-width: 0; }
+.spec__text h3 { font: 700 20px/1.3 var(--font-sans); }
+.spec__text p { color: var(--subtle-foreground); font-size: 16px; }
+.spec__text ul { margin: 2px 0 0; padding-left: 18px; color: var(--subtle-foreground); font-size: 15px; display: grid; gap: 3px; }
+.bench { padding: 32px 24px 36px; background: var(--panel); box-shadow: inset 0 2px 0 var(--panel-deep); display: flex; flex-wrap: wrap; gap: 18px; align-items: center; align-content: center; justify-content: center; min-width: 0; position: relative; }
+.bench.col { flex-direction: column; align-items: stretch; }
+@media (max-width: 760px) { .spec { grid-template-columns: 1fr; } .spec__text { border-right: 0; border-bottom: 1.5px solid var(--border); } }
+
+/* Foundations */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.sw { border: 1.5px solid var(--border); border-radius: var(--radius-lg); background: var(--card); overflow: hidden; }
+.sw i { display: block; height: 72px; border-bottom: 1.5px solid var(--border); }
+.sw div { padding: 10px 12px; display: grid; gap: 2px; font-size: 14px; color: var(--subtle-foreground); }
+.sw b { color: var(--foreground); font-size: 15px; }
+.swgroup { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 10px; margin-top: 14px; padding-bottom: 6px; border-bottom: 1.5px solid var(--foreground); font-size: 14px; color: var(--subtle-foreground); }
+.swgroup:first-child { margin-top: 0; }
+.swgroup b { font-size: 16px; color: var(--foreground); }
+.sw code { font-size: 12.5px; }
+.typerow { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1.5px solid var(--border); }
+.typerow:first-child { border-top: 0; }
+.typerow .k { font-size: 14px; color: var(--subtle-foreground); display: grid; } .typerow .k b { color: var(--foreground); }
+.typegroup { margin-top: 22px; padding: 6px 0; font: 700 13px/16px var(--font-sans); letter-spacing: .12em; color: var(--subtle-foreground); }
+.typegroup:first-child { margin-top: 0; }
+.typegroup + .typerow { border-top: 1.5px solid var(--foreground); }
+.typerow .typeuse { display: block; margin-top: 4px; font: 400 14px/20px var(--font-sans); color: var(--subtle-foreground); }
+@media (max-width: 560px) { .typerow { grid-template-columns: 1fr; gap: 4px; } }
+.list { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 70ch; color: var(--subtle-foreground); }
+.list b { color: var(--foreground); }
+
+/* ================= Physical primitives ================= */
+/* A key: top face rides on a wall drawn by box-shadow. Pressing moves the face down the wall. */
+.key {
+  --cap-c: var(--cap); --wall-c: var(--cap-wall); --ink: var(--foreground); --travel: 0px;
+  position: relative; min-height: 50px; min-width: 50px; padding: 0 22px; border: 1.5px solid var(--foreground); border-radius: var(--radius);
+  background: var(--cap-c); color: var(--ink); font: 700 16px/1 var(--font-sans); cursor: pointer; user-select: none;
+  /* Seen from the lower right: walls show on the right and bottom, and pressing moves along that diagonal. */
+  --wx: calc((var(--depth) - var(--travel)) * .6); --wy: calc(var(--depth) - var(--travel));
+  transform: translate(calc(var(--travel) * .6), var(--travel));
+  /* The side is drawn as four stacked slices so it reads as one solid body (a column down to the panel), not a detached shadow. */
+  box-shadow: calc(var(--wx) * .25) calc(var(--wy) * .25) 0 -1.5px var(--wall-c), calc(var(--wx) * .5) calc(var(--wy) * .5) 0 -1.5px var(--wall-c), calc(var(--wx) * .75) calc(var(--wy) * .75) 0 -1.5px var(--wall-c), var(--wx) var(--wy) 0 -1.5px var(--wall-c), calc(var(--wx) * .25) calc(var(--wy) * .25) 0 0 var(--foreground), calc(var(--wx) * .5) calc(var(--wy) * .5) 0 0 var(--foreground), calc(var(--wx) * .75) calc(var(--wy) * .75) 0 0 var(--foreground), var(--wx) var(--wy) 0 0 var(--foreground), calc(var(--wx) + 3px) calc(var(--wy) + 4px) 6px -2px rgba(23,34,26,.25);
+  transition: transform var(--dur-spring) var(--ease-press), box-shadow var(--dur-spring) var(--ease-press);
+}
+.key:active, .key.is-down { --travel: calc(var(--depth) - 1px); transition-duration: var(--dur-press); }
+.key--primary { --cap-c: var(--primary); --wall-c: var(--primary-wall); --ink: var(--primary-foreground); }
+.key--danger { --cap-c: var(--destructive); --wall-c: var(--destructive-wall); --ink: #fff; }
+/* Lighting sample (only on the "저장 공간 늘리기" key): a light from the upper left.
+   The top face brightens toward the light, a glossy streak sits along its upper edge,
+   the side wall darkens toward the bottom, and a soft cast shadow falls to the lower right. */
+.key--lit { background: linear-gradient(155deg, #ffffff 0%, #fbfaf2 35%, #ecebe0 100%); color: var(--foreground);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgba(255,255,255,.95), inset -1px -1.5px 0 rgba(23,34,26,.10),
+    calc(var(--wx) * .25) calc(var(--wy) * .25) 0 -1.5px #c9c8b6, calc(var(--wx) * .5) calc(var(--wy) * .5) 0 -1.5px #bdbca8, calc(var(--wx) * .75) calc(var(--wy) * .75) 0 -1.5px #b0af9a, var(--wx) var(--wy) 0 -1.5px #a3a28c,
+    calc(var(--wx) * .25) calc(var(--wy) * .25) 0 0 var(--foreground), calc(var(--wx) * .5) calc(var(--wy) * .5) 0 0 var(--foreground), calc(var(--wx) * .75) calc(var(--wy) * .75) 0 0 var(--foreground), var(--wx) var(--wy) 0 0 var(--foreground),
+    calc(var(--wx) + 5px) calc(var(--wy) + 8px) 12px -3px rgba(23,34,26,.32), calc(var(--wx) + 12px) calc(var(--wy) + 16px) 24px -8px rgba(23,34,26,.18); }
+.key--lit::before { content: ""; position: absolute; left: 7px; right: 34%; top: 3px; height: 38%; border-radius: 6px 10px 40% 6px; background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,0)); pointer-events: none; transition: opacity .12s; }
+.key--lit:active::before, .key--lit.is-down::before { opacity: .35; }
+
+
+.key .engr { display: block; box-shadow: none; }
+
+/* Latching key: stays partly down when on, lamp lights */
+/* A real latch has no bounce: it resists, bottoms out, then clacks into its catch. */
+.latch { --travel: 0px; transition: transform .11s cubic-bezier(.2,.9,.25,1), box-shadow .11s cubic-bezier(.2,.9,.25,1); }
+.latch[aria-pressed="true"], .latch[aria-checked="true"] { --travel: calc(var(--depth) - 2.5px); }
+.latch:active { --travel: calc(var(--depth) - .5px); transition-duration: .09s; transition-timing-function: cubic-bezier(.6,0,.9,.4); }
+.latch.clack { animation: clack .16s steps(3, end); }
+@keyframes clack { 0% { transform: translate(calc(var(--travel) * .6 + 1px), calc(var(--travel) + 1.5px)); } 50% { transform: translate(calc(var(--travel) * .6), calc(var(--travel) - .5px)); } 100% { transform: translate(calc(var(--travel) * .6), var(--travel)); } }
+[aria-pressed="true"] .lamp { animation: flick .3s steps(1, end); }
+@keyframes flick { 0% { opacity: .2; } 25% { opacity: 1; } 45% { opacity: .45; } 60%, 100% { opacity: 1; } }
+.lamp { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--foreground); background: var(--panel-deep); box-shadow: inset 1px 2px 0 rgba(0,0,0,.15); transition: background .12s, box-shadow .2s; vertical-align: -1px; }
+[aria-pressed="true"] .lamp, [aria-checked="true"] .lamp { background: var(--tint); box-shadow: 0 0 0 3px var(--tint-glow), 0 0 12px 2px var(--tint-glow); }
+
+/* Recessed slot: the opposite of a key */
+.well { border: 1.5px solid var(--foreground); border-radius: var(--radius); background: var(--secondary); box-shadow: var(--shadow-inset); }
+
+/* ================= Components ================= */
+/* Push switch (Z axis) */
+.push { display: flex; align-items: center; gap: 14px; width: 100%; padding: 6px 0; font-size: 16px; }
+.push .lbl { flex: 1; } .push .state { font: 700 14px/1 var(--font-sans); color: var(--subtle-foreground); min-width: 32px; text-align: right; }
+/* A round push button: a cylinder, so its top face is a true circle and its side shows toward the lower right. */
+.push .key { width: 54px; height: 54px; min-width: 0; min-height: 0; padding: 0; display: grid; place-items: center; border-radius: 50%; }
+/* The lamp is a glass window set flush into the key top: a sunken rim around frosted glass that lights from inside. */
+.push .lamp { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--foreground); background: radial-gradient(circle at 50% 55%, #3b4a3f 0 40%, #26332a 75%); box-shadow: inset 1.5px 2.5px 0 rgba(0,0,0,.45), inset -1px -1px 0 rgba(255,255,255,.12); transform: none; }
+.push [aria-pressed="true"] .lamp { background: radial-gradient(circle at 45% 45%, #fff6d6 0 18%, #f5c96f 45%, var(--tint) 70%, #c98f2f 100%); box-shadow: inset 1px 2px 0 rgba(120,70,0,.35), inset 0 0 6px 1px rgba(255,240,190,.9); }
+/* Icon on the key top: when off it is engraved (shadow on the upper left, light catching the lower right); when on it becomes a raised amber lens with its own side wall and glow. */
+.push .glyph { width: 34px; height: 34px; fill: none; stroke: #5f6a5c; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(-.8px -1px 0 rgba(23,34,26,.45)) drop-shadow(1px 1.3px 0 rgba(255,255,255,.95)); transition: stroke .12s, filter .2s; }
+.push [aria-pressed="true"] .glyph { stroke: #f0b048; filter: drop-shadow(.8px 1.2px 0 #9a6417) drop-shadow(.6px .9px 0 #7a4c0f) drop-shadow(0 0 2.5px rgba(255,220,150,.95)) drop-shadow(0 0 7px rgba(232,180,90,.7)); animation: flick .3s steps(1, end); }
+/* Icon on the key top: when off it is engraved (shadow on the upper left, light catching the lower right); when on it becomes a raised amber lens with its own side wall and glow. */.push .glyph { width: 26px; height: 26px; fill: none; stroke: #6f7a6c; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 0 rgba(255,255,255,.8)); transition: stroke .12s, filter .2s; }.push [aria-pressed="true"] .glyph { stroke: #e8a234; filter: drop-shadow(0 0 2px rgba(255,214,140,.95)) drop-shadow(0 0 6px rgba(232,180,90,.75)); animation: flick .3s steps(1, end); }
+
+/* Slide switch */
+.slide { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 50px; padding: 0; border: 0; background: none; font-size: 16px; cursor: pointer; user-select: none; text-align: left; }
+.slide .lbl { flex: 1; } .slide .state { font: 700 14px/1 var(--font-sans); color: var(--subtle-foreground); }
+.slide .track { position: relative; width: 60px; height: 34px; flex: none; transition: background .15s; }
+.slide .track::after { content: ""; box-sizing: border-box; position: absolute; top: 2px; left: 2px; width: 30px; height: 27px; border: 1.5px solid var(--foreground); border-radius: 5px; background: repeating-linear-gradient(90deg, var(--cap) 0 4px, var(--border) 4px 5.5px); box-shadow: 2px 3px 0 -1.5px var(--cap-wall), 2px 3px 0 0 var(--foreground); transition: left .12s cubic-bezier(.75,0,.25,1), transform .08s; }
+.slide .track { transition: background .05s .08s; }
+.slide[aria-checked="true"] .track { background: var(--primary); }
+.slide[aria-checked="true"] .track::after { left: 25px; }
+
+/* Preset bank: interlocking keys; pressing one pops the others up */
+/* Preset bank: a joined row of tall keys standing out of a dark faceplate slot, like the channel buttons on an old radio. */
+.bank { display: inline-flex; gap: 2px; padding: 10px 18px 20px 10px; border: 1.5px solid var(--foreground); border-radius: var(--radius-lg); background: #2a352d; box-shadow: inset 2px 3px 0 rgba(0,0,0,.45); }
+.bank .key { --depth: 10px; min-width: 72px; min-height: 52px; border-radius: 3px; }
+.bank .key:first-child { border-radius: 6px 3px 3px 6px; }
+.bank .key:last-child { border-radius: 3px 6px 6px 3px; }
+.bank .key[aria-checked="true"], .bank .key[aria-selected="true"] { --travel: calc(var(--depth) - 4px); --cap-c: var(--card); font-weight: 900; }
+/* Every preset key carries its indicator bar; it is dark until the key is latched, then lights green. */
+.bank .key::before { content: ""; position: absolute; left: 50%; top: 7px; width: 18px; height: 3px; margin-left: -9px; border-radius: 2px; background: var(--panel-deep); box-shadow: inset 0 1px 0 rgba(0,0,0,.18); transition: background .1s; }
+.bank .key[aria-checked="true"]::before, .bank .key[aria-selected="true"]::before { background: var(--primary); box-shadow: none; }
+.bank .key:not([aria-checked="true"]):not([aria-selected="true"]) { font-weight: 500; color: var(--subtle-foreground); }
+.bankpanel { margin-top: 6px; padding: 14px 16px; color: var(--subtle-foreground); font-size: 16px; border-radius: var(--radius); background: var(--card); border: 1.5px solid var(--border); }
+
+/* Checkbox as small latch key */
+.cbx { display: flex; align-items: center; gap: 14px; padding: 4px 0; font-size: 16px; }
+.cbx .key { width: 34px; height: 32px; min-width: 0; min-height: 0; padding: 0; display: grid; place-items: center; border-radius: 7px; --depth: 4px; }
+.cbx .key svg { width: 18px; height: 18px; opacity: 0; transform: scale(.4); transition: opacity .1s, transform .3s var(--ease-spring); }
+.cbx .key path { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.cbx .key[aria-checked="true"], .cbx .key[aria-checked="mixed"] { --cap-c: var(--primary); --wall-c: var(--primary-wall); --travel: 2px; }
+.cbx .key[aria-checked="true"] svg, .cbx .key[aria-checked="mixed"] svg { opacity: 1; transform: scale(1); }
+.cbx .key[aria-disabled="true"] { --cap-c: var(--secondary); border-color: var(--border); cursor: not-allowed; box-shadow: none; transform: translateY(3px); }
+.cbx .muted { color: var(--muted-foreground); }
+
+/* Dial */
+.dial { position: relative; width: 190px; height: 160px; flex: none; user-select: none; touch-action: none; }
+.dial__label { position: absolute; padding: 6px; border: 0; background: none; font: 700 14px/1 var(--font-sans); color: var(--subtle-foreground); cursor: pointer; }
+.dial__label[aria-current="true"] { color: var(--foreground); text-decoration: underline; text-underline-offset: 3px; }
+.dial__tick { position: absolute; left: 50%; top: 58%; width: 2px; height: 8px; margin-left: -1px; background: var(--foreground); transform-origin: 1px 0; }
+.dial__base { position: absolute; left: 50%; top: 58%; width: 86px; height: 86px; margin: -43px 0 0 -43px; border-radius: 50%; background: var(--panel-deep); box-shadow: inset 0 2px 0 rgba(0,0,0,.12); }
+.dial__knob { position: absolute; left: 50%; top: 58%; width: 74px; height: 74px; margin: -40px 0 0 -37px; border: 1.5px solid var(--foreground); border-radius: 50%; background: var(--cap); cursor: grab; box-shadow: .75px 1.25px 0 -1.5px var(--cap-wall), 1.5px 2.5px 0 -1.5px var(--cap-wall), 2.25px 3.75px 0 -1.5px var(--cap-wall), 3px 5px 0 -1.5px var(--cap-wall), .75px 1.25px 0 0 var(--foreground), 1.5px 2.5px 0 0 var(--foreground), 2.25px 3.75px 0 0 var(--foreground), 3px 5px 0 0 var(--foreground), 6px 9px 8px -3px rgba(23,34,26,.3); transition: transform .12s, box-shadow .12s; touch-action: none; }
+/* Grabbing presses the knob a little into its shaft; the body stays put so its walls keep facing the lower right, only the face turns. */
+.dial__knob.grab { cursor: grabbing; transform: translate(1px, 2px); box-shadow: 2px 3px 0 -1.5px var(--cap-wall), 2px 3px 0 0 var(--foreground), 4px 6px 6px -3px rgba(23,34,26,.3); }
+.dial__knob.tick { animation: dialtick .08s ease-out; }
+@keyframes dialtick { 40% { transform: translate(.8px, 1.4px); } }
+/* The face eases out of rest, glides, then settles into the detent with a soft overshoot. */
+.dial__face { position: absolute; inset: 0; border-radius: 50%; transform: rotate(var(--a, 0deg)); transition: transform var(--dial-dur, .22s) cubic-bezier(.4,.1,.25,1.2); }
+.dial__face.free { transition: transform .06s linear; }
+.dial__label { transition: color .2s; }
+.dial__face::before { content: ""; position: absolute; left: 50%; top: 6px; width: 5px; height: 20px; margin-left: -2.5px; border: 1px solid var(--foreground); border-radius: 3px; background: var(--primary); }
+.dial__face::after { content: ""; position: absolute; inset: 24px; border-radius: 50%; background: var(--secondary); box-shadow: var(--shadow-inset); }
+/* Split-flap board: the upper half folds down over a hinge line to reveal the next card. */
+.flapset { display: flex; align-items: center; gap: 12px; }
+.flapset .key { min-width: 46px; min-height: 46px; padding: 0; font-size: 22px; --depth: 5px; }
+.flap { position: relative; width: 168px; height: 76px; padding: 0; border: 1.5px solid var(--foreground); border-radius: 8px; background: #1e2721; perspective: 300px; cursor: pointer; box-shadow: inset 0 2px 0 rgba(255,255,255,.06), 2px 3px 0 -1.5px #0e1410, 2px 3px 0 0 var(--foreground); }
+.flap__half { position: absolute; left: 6px; right: 6px; height: calc(50% - 6px); overflow: hidden; background: #2c3830; color: #f3f1e7; backface-visibility: hidden; }
+.flap__top { top: 6px; border-radius: 4px 4px 0 0; transform-origin: bottom; background: linear-gradient(#34413a, #2c3830); }
+.flap__bot { bottom: 6px; border-radius: 0 0 4px 4px; transform-origin: top; background: linear-gradient(#27322b, #2c3830); }
+.flap__half b { position: absolute; left: 0; right: 0; height: 200%; display: grid; place-items: center; font: 900 26px/1 var(--font-sans); letter-spacing: -.01em; }
+.flap__top b { top: 0; } .flap__bot b { bottom: 0; }
+.flap::after { content: ""; position: absolute; left: 6px; right: 6px; top: 50%; height: 2px; margin-top: -1px; background: #111813; z-index: 3; }
+.flap__fold, .flap__fall { visibility: hidden; z-index: 2; }
+.flap.go .flap__fold { visibility: visible; animation: fold .13s ease-in forwards; }
+.flap.go .flap__fall { visibility: visible; animation: fall .2s cubic-bezier(.3,1.6,.5,1) .13s both; }
+@keyframes fold { from { transform: rotateX(0); } to { transform: rotateX(-90deg); filter: brightness(.6); } }
+@keyframes fall { from { transform: rotateX(90deg); filter: brightness(1.4); } to { transform: rotateX(0); } }
+.flap__dots { position: absolute; left: 0; right: 0; bottom: -18px; display: flex; justify-content: center; gap: 6px; }
+.flap__dots em { width: 6px; height: 6px; border-radius: 50%; background: var(--panel-deep); box-shadow: inset 0 1px 0 rgba(0,0,0,.2); transition: background .15s; }
+.flap__dots em.on { background: var(--tint); box-shadow: 0 0 6px var(--tint-glow); }
+.notch__out { min-height: 44px; margin-top: 8px; display: grid; place-items: center; color: var(--foreground); transition: font-size .2s cubic-bezier(.16,1,.3,1); }
+
+
+
+/* Dropdown: a key opens a printed card that unrolls downward; the chosen row is latched with a green tab. */
+.dd { position: relative; width: 260px; max-width: 100%; }
+.dd__trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; font-weight: 700; }
+.dd__chev { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s cubic-bezier(.3,1.6,.5,1); }
+.dd__trigger[aria-expanded="true"] { --travel: calc(var(--depth) - 2.5px); }
+.dd__trigger[aria-expanded="true"] .dd__chev { transform: rotate(180deg); }
+.dd__menu { position: absolute; left: 4px; right: -4px; top: calc(100% + 12px); z-index: 6; padding: 6px; border: 1.5px solid var(--foreground); border-radius: var(--radius-lg); background: var(--card); box-shadow: 1px 1.5px 0 -1.5px var(--cap-wall), 2px 3px 0 -1.5px var(--cap-wall), 3px 4.5px 0 -1.5px var(--cap-wall), 4px 6px 0 -1.5px var(--cap-wall), 1px 1.5px 0 0 var(--foreground), 2px 3px 0 0 var(--foreground), 3px 4.5px 0 0 var(--foreground), 4px 6px 0 0 var(--foreground); transform-origin: top; animation: unroll .26s cubic-bezier(.3,1.35,.5,1); }
+.dd__menu[hidden] { display: none; }
+@keyframes unroll { 0% { transform: scaleY(.15); opacity: 0; } 60% { opacity: 1; } 100% { transform: scaleY(1); } }
+.dd__opt { position: relative; display: flex; align-items: center; min-height: 46px; padding: 0 12px 0 22px; border-radius: 6px; font-size: 16px; cursor: pointer; }
+.dd__opt::before { content: ""; position: absolute; left: 8px; top: 50%; width: 5px; height: 18px; margin-top: -9px; border-radius: 3px; background: var(--panel-deep); }
+.dd__opt.is-active { background: var(--secondary); box-shadow: var(--shadow-inset); }
+.dd__opt[aria-selected="true"] { font-weight: 700; }
+.dd__opt[aria-selected="true"]::before { background: var(--primary); }
+.dd__sep { height: 1.5px; margin: 6px 4px; background: var(--border); }
+.dd__opt--danger { color: var(--destructive); }
+/* More button: a square key that latches while its menu is open; the menu reuses the dropdown sheet, anchored to the right. */
+.morerow { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 340px; max-width: 100%; padding: 12px 12px 12px 16px; border: 1.5px solid var(--foreground); border-radius: var(--radius-lg); background: var(--card); }
+.morerow__t { display: grid; gap: 2px; font-size: 14px; color: var(--muted-foreground); } .morerow__t b { font-size: 17px; color: var(--foreground); }
+.more { position: relative; flex: none; }
+.more__btn { width: 48px; min-width: 48px; height: 48px; min-height: 48px; padding: 0; }
+.more__btn svg { width: 22px; height: 22px; fill: currentColor; }
+.more__btn[aria-expanded="true"] { --travel: calc(var(--depth) - 2.5px); }
+.more__menu { left: auto; right: -4px; width: 200px; }
+.more__menu .dd__opt { padding-left: 14px; } .more__menu .dd__opt::before { display: none; }
+.more__menu .dd__opt:focus { outline: none; background: var(--secondary); box-shadow: var(--shadow-inset); }
+
+/* Fader + odometer */
+.faderbox { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; justify-content: center; }
+.fader { position: relative; width: 240px; height: 56px; touch-action: none; user-select: none; cursor: pointer; }
+.fader__slot { position: absolute; left: 14px; right: 14px; top: 50%; height: 10px; margin-top: -5px; border-radius: 5px; background: var(--foreground); box-shadow: inset 0 2px 0 rgba(0,0,0,.5); }
+.fader__ticks { position: absolute; left: 14px; right: 14px; top: 8px; height: 6px; background: repeating-linear-gradient(90deg, var(--foreground) 0 1.5px, transparent 1.5px calc(10% - .15px)); }
+.fader__cap { position: absolute; top: 50%; width: 28px; height: 40px; margin: -24px 0 0 -14px; border: 1.5px solid var(--foreground); border-radius: 6px; background: repeating-linear-gradient(0deg, var(--cap) 0 5px, var(--border) 5px 6.5px); box-shadow: .75px 1.25px 0 -1.5px var(--cap-wall), 1.5px 2.5px 0 -1.5px var(--cap-wall), 2.25px 3.75px 0 -1.5px var(--cap-wall), 3px 5px 0 -1.5px var(--cap-wall), .75px 1.25px 0 0 var(--foreground), 1.5px 2.5px 0 0 var(--foreground), 2.25px 3.75px 0 0 var(--foreground), 3px 5px 0 0 var(--foreground), 6px 9px 8px -3px rgba(23,34,26,.3); transition: left .3s var(--ease-spring); }
+.fader.dragging .fader__cap { transition: none; }
+.fader__cap::after { content: ""; position: absolute; left: 4px; right: 4px; top: 50%; height: 3px; margin-top: -1.5px; background: var(--primary); border-radius: 2px; }
+.counter__digits { display: flex; gap: 3px; padding: 5px; border: 1.5px solid var(--foreground); border-radius: var(--radius); background: var(--foreground); }
+.counter__digit { width: 30px; height: 42px; overflow: hidden; border-radius: 4px; background: var(--card); box-shadow: inset 0 3px 0 rgba(0,0,0,.14), inset 0 -3px 0 rgba(0,0,0,.08); }
+.counter__strip { display: flex; flex-direction: column; transition: transform .5s cubic-bezier(.3,1.35,.5,1); }
+.counter__strip span { height: 42px; display: grid; place-items: center; font: 900 24px/1 var(--font-sans); font-variant-numeric: tabular-nums; }
+
+/* Input slot */
+.field { display: grid; gap: 8px; min-width: 0; width: 100%; }
+.label { font: 700 16px/20px var(--font-sans); }
+.input { width: 100%; min-height: 50px; padding: 0 14px; font: 400 16px/24px var(--font-sans); color: var(--foreground); transition: background .15s; }
+.input::placeholder { color: var(--muted-foreground); }
+.input:focus { outline: none; background: var(--card); box-shadow: var(--shadow-inset), 0 0 0 3px var(--panel), 0 0 0 6px var(--ring); }
+.input[aria-invalid="true"] { border: 2px solid var(--destructive); }
+.help { font: 400 15px/24px var(--font-sans); color: var(--subtle-foreground); }
+.help--error { color: var(--destructive); font-weight: 500; }
+/* Input kinds: same sunken slot, different tools */
+.inputs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px 16px; width: 100%; }
+.inputs-grid .wide { grid-column: 1 / -1; }
+.inputs-grid .field { align-content: start; }
+.label .unit { font-weight: 500; color: var(--muted-foreground); }
+.numfield { display: flex; align-items: center; gap: 10px; }
+.numfield .input { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; -moz-appearance: textfield; }
+.numfield .input::-webkit-outer-spin-button, .numfield .input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.numfield .key { min-width: 46px; min-height: 46px; padding: 0 0 3px; font: 800 30px/1 var(--font-sans); --depth: 5px; flex: none; }
+.search { position: relative; }
+.search svg { position: absolute; left: 13px; top: 50%; width: 20px; height: 20px; margin-top: -10px; fill: none; stroke: var(--subtle-foreground); stroke-width: 2.2; stroke-linecap: round; pointer-events: none; }
+.search .input { padding-left: 42px; }
+/* Number kinds: whole numbers show no point; decimals always show a fixed number of places;
+   signed numbers always show their sign, and a negative value turns the slot's left edge and text red. */
+.num-dec, .num-signed { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.numfield.signed.neg .input { color: var(--destructive); border-left: 4px solid var(--destructive); }
+.numfield.signed.pos .input { border-left: 4px solid var(--success, #2f6b4a); }
+
+.input[type="date"], .input[type="time"], .input[type="datetime-local"] { font-variant-numeric: tabular-nums; }
+.input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .75; padding: 4px; border-radius: 6px; }
+.input::-webkit-calendar-picker-indicator:hover { opacity: 1; background: var(--card); }
+textarea.input { min-height: 96px; padding: 12px 14px; line-height: 1.6; resize: vertical; }
+/* Password: slot plus a small eye key; strength shows as four lamps that light amber to green */
+.pwfield { display: flex; align-items: center; gap: 10px; }
+.pwfield .key { min-width: 50px; min-height: 46px; padding: 0; --depth: 5px; flex: none; display: grid; place-items: center; }
+.pwfield .key svg { width: 22px; height: 22px; fill: none; stroke: var(--foreground); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pwfield .key[aria-pressed="true"] { --travel: calc(var(--depth) - 2px); }
+.pwfield .key[aria-pressed="true"] svg path { stroke-dasharray: 2 2.5; }
+.pwmeter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; border: 1.5px solid var(--foreground); border-radius: 6px; background: #16201a; }
+.pwmeter i { height: 8px; border-radius: 2px; background: #2c3a30; transition: background .1s; }
+.pwmeter[data-s="1"] i:nth-child(-n+1) { background: #f0705f; box-shadow: 0 0 5px rgba(240,112,95,.6); }
+.pwmeter[data-s="2"] i:nth-child(-n+2) { background: var(--tint); box-shadow: 0 0 5px rgba(232,180,90,.6); }
+.pwmeter[data-s="3"] i:nth-child(-n+3), .pwmeter[data-s="4"] i { background: #6cc583; box-shadow: 0 0 5px rgba(108,197,131,.6); }
+
+/* Date picker: the slot opens a calendar card that unrolls below; days are small flat keys, the chosen day latches green. */
+.datefield { position: relative; }
+.date-trigger { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; cursor: pointer; font-variant-numeric: tabular-nums; }
+.date-trigger svg { width: 20px; height: 20px; flex: none; fill: none; stroke: var(--subtle-foreground); stroke-width: 2; stroke-linecap: round; }
+.date-trigger[aria-expanded="true"] { background: var(--card); box-shadow: var(--shadow-inset), 0 0 0 3px var(--panel), 0 0 0 6px var(--ring); }
+.cal { position: absolute; left: 0; top: calc(100% + 12px); z-index: 7; width: 300px; padding: 12px 14px 14px; border: 1.5px solid var(--foreground); border-radius: var(--radius-lg); background: var(--card); box-shadow: 1px 1.5px 0 -1.5px var(--cap-wall), 2px 3px 0 -1.5px var(--cap-wall), 3px 4.5px 0 -1.5px var(--cap-wall), 4px 6px 0 -1.5px var(--cap-wall), 1px 1.5px 0 0 var(--foreground), 2px 3px 0 0 var(--foreground), 3px 4.5px 0 0 var(--foreground), 4px 6px 0 0 var(--foreground), 8px 14px 18px -6px rgba(23,34,26,.3); transform-origin: top left; animation: unroll .24s cubic-bezier(.16,1,.3,1); }
+.cal[hidden] { display: none; }
+/* Date-time picker: the calendar and the time drums side by side on one card, a seam between them. */
+.dtp { width: 300px; top: auto; bottom: calc(100% + 12px); transform-origin: bottom; }
+.dtp__body { display: grid; gap: 12px; }
+.dtp__cal { width: 272px; }
+.dtp__time { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1.5px dashed var(--border); }
+.dtp__cap { font: 900 17px/1 var(--font-sans); }
+.dtp .cal__foot span { font-weight: 700; color: var(--foreground); }
+/* Number slots that refuse a wrong key: the slot nudges sideways and flashes brick for a moment. */
+.numfield .input.reject { animation: refuse .22s cubic-bezier(.16,1,.3,1); box-shadow: var(--shadow-inset), 0 0 0 2px var(--destructive); }
+@keyframes refuse { 0% { transform: translateX(0); } 25% { transform: translateX(-4px); } 60% { transform: translateX(3px); } 100% { transform: none; } }
+
+.cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal__title { font: 900 17px/1 var(--font-sans); font-variant-numeric: tabular-nums; }
+.cal__head .key { min-width: 38px; min-height: 36px; padding: 0; font-size: 18px; --depth: 4px; }
+.cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal__dow { text-align: center; font: 700 13px/28px var(--font-sans); color: var(--subtle-foreground); }
+.cal__dow:first-child { color: var(--destructive); }
+.cal__day { position: relative; height: 36px; border: 1.5px solid transparent; border-radius: 6px; background: transparent; font: 500 15px/1 var(--font-sans); font-variant-numeric: tabular-nums; color: var(--foreground); cursor: pointer; transition: transform .1s; }
+.cal__day:hover { background: var(--secondary); box-shadow: var(--shadow-inset); }
+.cal__day:active { transform: translate(.6px, 1px); }
+.cal__day.sun { color: var(--destructive); }
+.cal__day.out { color: #a8aea4; }
+.cal__day.today { border-color: var(--foreground); }
+.cal__day[aria-selected="true"] { background: var(--primary); border-color: var(--foreground); color: #fff; font-weight: 900; transform: translate(.6px, 1px); box-shadow: inset 1px 2px 0 rgba(0,0,0,.25); }
+.cal__foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 14px; color: var(--subtle-foreground); }
+.cal__foot button { border: 0; background: none; font: 700 14px/1 var(--font-sans); color: var(--primary); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px 2px; }
+/* Time picker: three drum windows (AM/PM, hour, minute) with up/down keys; the number rolls in the window like a counter. */
+.tpk { width: 260px; }
+.tpk__cols { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.tpk__col { display: grid; justify-items: center; gap: 8px; }
+.tpk__col .key { min-width: 54px; min-height: 34px; padding: 0; font-size: 12px; --depth: 4px; }
+.tpk__win { width: 58px; height: 46px; overflow: hidden; display: grid; place-items: center; border: 1.5px solid var(--foreground); border-radius: 6px; background: var(--card); box-shadow: inset 0 3px 0 rgba(0,0,0,.12), inset 0 -3px 0 rgba(0,0,0,.08); }
+.tpk__win span { font: 900 24px/1 var(--font-sans); font-variant-numeric: tabular-nums; }
+.tpk__col[data-k="ap"] .tpk__win span { font-size: 18px; }
+.tpk__win span.up { animation: rollUp .22s cubic-bezier(.16,1,.3,1); }
+.tpk__win span.down { animation: rollDown .22s cubic-bezier(.16,1,.3,1); }
+@keyframes rollUp { from { transform: translateY(70%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rollDown { from { transform: translateY(-70%); opacity: 0; } to { transform: none; opacity: 1; } }
+.tpk__colon { font: 900 24px/1 var(--font-sans); padding-bottom: 2px; }
+
+
+
+
+/* LED progress: a dark meter window of segments that light one by one, green into amber into red as it nears full. */
+.led { display: grid; gap: 10px; width: 100%; max-width: 420px; }
+.led__head { display: flex; justify-content: space-between; align-items: baseline; font: 700 16px/1.3 var(--font-sans); }
+.led__head b { font: 900 18px/1 var(--font-sans); font-variant-numeric: tabular-nums; }
+.led__meter { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; padding: 7px; border: 1.5px solid var(--foreground); border-radius: var(--radius); background: #16201a; box-shadow: inset 1.5px 2.5px 0 rgba(0,0,0,.5); }
+.led__meter i { height: 22px; border-radius: 2px; background: #2c3a30; box-shadow: inset 0 1px 0 rgba(255,255,255,.04); transition: background .06s, box-shadow .06s; }
+.led__meter i.g { background: #6cc583; box-shadow: 0 0 5px rgba(108,197,131,.55); }
+.led__meter i.a { background: var(--tint); box-shadow: 0 0 5px rgba(232,180,90,.6); }
+.led__meter i.r { background: #f0705f; box-shadow: 0 0 5px rgba(240,112,95,.6); }
+.led__note { font-size: 15px; color: var(--subtle-foreground); }
+.led--warn .led__note { color: var(--destructive); font-weight: 500; }
+
+/* Drawers (accordion) */
+.cabinet { width: 100%; display: grid; gap: 10px; padding: 10px; border: 1.5px solid var(--foreground); border-radius: var(--radius-lg); background: var(--panel-deep); box-shadow: inset 0 2px 0 rgba(0,0,0,.08); }
+.drawer-i { border-radius: var(--radius); }
+.drawer-i__front { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 54px; padding: 0 16px; border: 1.5px solid var(--foreground); border-radius: var(--radius); background: var(--cap); font: 700 16px/1.3 var(--font-sans); text-align: left; cursor: pointer; transition: transform .38s var(--ease-spring), box-shadow .38s var(--ease-spring); box-shadow: 1px 1px 0 var(--foreground); }
+.drawer-i__front .handle { width: 34px; height: 10px; flex: none; border: 1.5px solid var(--foreground); border-radius: 6px; background: var(--tint); box-shadow: 2px 3px 0 -1.5px #b9862f, 2px 3px 0 0 var(--foreground); }
+.drawer-i.open .drawer-i__front { transform: translate(-2px, -3px) scale(1.015); box-shadow: 1px 1.5px 0 -1.5px var(--cap-wall), 2px 3px 0 -1.5px var(--cap-wall), 3px 4.5px 0 -1.5px var(--cap-wall), 4px 6px 0 -1.5px var(--cap-wall), 1px 1.5px 0 0 var(--foreground), 2px 3px 0 0 var(--foreground), 3px 4.5px 0 0 var(--foreground), 4px 6px 0 0 var(--foreground), 7px 12px 10px -4px rgba(23,34,26,.3); }
+.drawer-i__in { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s var(--ease-spring); }
+.drawer-i.open .drawer-i__in { grid-template-rows: 1fr; }
+.drawer-i__in > div { overflow: hidden; }
+/* Drawer contents: an index card pulled up out of the drawer — ruled paper, a red margin line, a tab, slightly askew. */
+.drawer-i__in p { position: relative; margin: 18px 12px 8px 8px; padding: 12px 16px; border: 1px solid #cfc6a8; border-radius: 3px; background: #fffdf4; color: #3a4436; font-size: 15px; line-height: 28px; box-shadow: 0 3px 6px -3px rgba(23,34,26,.25); transform: rotate(-.6deg) translateY(10px); opacity: 0; transition: transform .4s cubic-bezier(.16,1,.3,1) .08s, opacity .2s ease .08s; }
+.drawer-i__in p::after { content: ""; position: absolute; right: 18px; top: -9px; width: 46px; height: 10px; border: 1px solid #cfc6a8; border-bottom: 0; border-radius: 4px 4px 0 0; background: #f2dca6; }
+.drawer-i.open .drawer-i__in p { transform: rotate(-.6deg); opacity: 1; }
+.drawer-i:nth-child(2) .drawer-i__in p { transform: rotate(.5deg) translateY(10px); }
+.drawer-i:nth-child(2).open .drawer-i__in p { transform: rotate(.5deg); }
+
+/* Badge & chip */
+.badge { display: inline-flex; align-items: center; padding: 7px 12px; border: 1.5px solid var(--foreground); border-radius: var(--radius-full); background: var(--card); font: 700 14px/1 var(--font-sans); box-shadow: 1.5px 2px 0 var(--foreground); }
+.badge--new { background: var(--tint); } .badge--info { background: var(--secondary); }
+.badge--ok { background: #d6e8da; color: #1d4a30; } .badge--warn { background: #f6e3b0; color: #5a4208; } .badge--bad { background: #f5d9d2; color: #8a2f1f; }
+/* Ledger table: ruled rows on paper, header cells are small latching keys, chosen rows sink in with a green bar. */
+.ledger-wrap { overflow-x: auto; border: 1.5px solid var(--foreground); border-radius: var(--radius-lg); background: var(--card); box-shadow: 2px 3px 0 -1.5px var(--cap-wall), 2px 3px 0 0 var(--foreground); }
+.ledger { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 16px; }
+.ledger th, .ledger td { height: 56px; padding: 0 14px; text-align: left; vertical-align: middle; }
+.ledger thead th { height: 52px; padding: 0 8px; background: var(--panel-deep); border-bottom: 1.5px solid var(--foreground); }
+.ledger td { border-top: 1px solid var(--border); }
+.ledger td b { display: block; font-weight: 700; } .ledger td small { font-size: 14px; color: var(--muted-foreground); }
+.ledger .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.ledger .ck { width: 52px; padding: 0 0 0 16px; }
+.ledger tbody tr { cursor: pointer; transition: background .12s; }
+.ledger tbody tr:hover { background: #f7f5ea; }
+.ledger tbody tr.is-sel { background: var(--primary-soft); box-shadow: inset 4px 0 0 var(--primary), inset 0 2px 0 rgba(23,34,26,.08); }
+.ledger tfoot td { height: 48px; border-top: 1.5px solid var(--foreground); background: var(--panel); font-size: 15px; color: var(--subtle-foreground); }
+.sort { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; border: 1.5px solid transparent; border-radius: 6px; background: none; font: 700 15px/1 var(--font-sans); color: var(--subtle-foreground); cursor: pointer; transition: transform .05s, box-shadow .2s var(--ease-spring), background .12s; }
+.sort:hover { background: rgba(23,34,26,.06); color: var(--foreground); }
+.sort[aria-sort] { color: var(--foreground); }
+.sort i { width: 0; height: 0; border: 5px solid transparent; border-top-color: currentColor; margin-top: 5px; opacity: 0; transition: transform .2s var(--ease-spring); }
+.sort[aria-sort] i { opacity: 1; } .sort[aria-sort="ascending"] i { transform: rotate(180deg) translateY(5px); }
+.ledger th.num .sort { flex-direction: row-reverse; }
+.cbox { position: relative; width: 24px; height: 24px; padding: 0; border: 1.5px solid var(--foreground); border-radius: 5px; background: var(--cap); cursor: pointer; box-shadow: 1.2px 2px 0 -1px var(--cap-wall), 1.2px 2px 0 0 var(--foreground); transition: transform .05s, box-shadow .05s; }
+.cbox[aria-checked="true"], .cbox[aria-checked="mixed"] { background: var(--primary); transform: translate(.6px, 1px); box-shadow: .6px 1px 0 0 var(--foreground); }
+.cbox[aria-checked="true"]::after { content: ""; position: absolute; left: 7px; top: 3px; width: 6px; height: 11px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+.cbox[aria-checked="mixed"]::after { content: ""; position: absolute; left: 5px; right: 5px; top: 9.5px; height: 2.5px; background: #fff; border-radius: 2px; }
+/* Pager: small keys in a row; the current page latches down like a preset key. */
+.pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; }
+.pager__info { font-size: 15px; color: var(--subtle-foreground); font-variant-numeric: tabular-nums; }
+.pager__keys { display: flex; align-items: center; gap: 6px; }
+.pager .key { --depth: 4px; min-width: 40px; min-height: 40px; padding: 0 8px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.pager .key[aria-current="page"] { --travel: calc(var(--depth) - 2.5px); --cap-c: var(--primary); --wall-c: var(--primary-wall); --ink: var(--primary-foreground); }
+.pager .key:disabled { opacity: .4; cursor: default; --travel: calc(var(--depth) - 1px); }
+.pager__arrow { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.pager__gap { width: 22px; text-align: center; color: var(--muted-foreground); }
+
+
+/* Card */
+.card { display: grid; gap: 10px; padding: 20px; border: 1.5px solid var(--foreground); border-radius: var(--radius-lg); background: var(--card); box-shadow: .75px 1.25px 0 -1.5px var(--cap-wall), 1.5px 2.5px 0 -1.5px var(--cap-wall), 2.25px 3.75px 0 -1.5px var(--cap-wall), 3px 5px 0 -1.5px var(--cap-wall), .75px 1.25px 0 0 var(--foreground), 1.5px 2.5px 0 0 var(--foreground), 2.25px 3.75px 0 0 var(--foreground), 3px 5px 0 0 var(--foreground); flex: 1 1 230px; min-width: 0; }
+.card .cap { font: 700 14px/20px var(--font-sans); color: var(--subtle-foreground); }
+.card .stat { font: 900 38px/42px var(--font-sans); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.card p { color: var(--subtle-foreground); font-size: 15px; }
+.progress { height: 18px; overflow: hidden; border-radius: 9px; }
+.progress__fill { display: flex; height: 100%; border-right: 1.5px solid var(--foreground); transition: width .6s var(--ease-spring); }
+.progress__fill i { flex: 1; } .progress__fill i:nth-child(1) { background: var(--primary); } .progress__fill i:nth-child(2) { background: var(--tint); } .progress__fill i:nth-child(3) { background: var(--stripe); }
+
+/* Overlays: a card dropped onto the desk, a panel slid in, a ticket printed out */
+.overlay { position: fixed; inset: 0; z-index: 20; background: rgba(23,34,26,.45); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.overlay[hidden] { display: none; }
+.dialog { width: min(420px, 100%); display: grid; gap: 14px; padding: 24px; border: 1.5px solid var(--foreground); border-radius: var(--radius-xl); background: var(--card); box-shadow: 1px 1.5px 0 -1.5px var(--cap-wall), 2px 3px 0 -1.5px var(--cap-wall), 3px 4.5px 0 -1.5px var(--cap-wall), 4px 6px 0 -1.5px var(--cap-wall), 1px 1.5px 0 0 var(--foreground), 2px 3px 0 0 var(--foreground), 3px 4.5px 0 0 var(--foreground), 4px 6px 0 0 var(--foreground), 10px 18px 24px -8px rgba(0,0,0,.35); animation: drop .2s cubic-bezier(.16, 1, .3, 1); }
+.dialog h4 { font: 700 20px/1.35 var(--font-sans); } .dialog p { color: var(--subtle-foreground); }
+.actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 14px; padding-bottom: 6px; }
+@keyframes drop { from { transform: translateY(-12px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+.overlay:not([hidden]) { animation: dim .18s ease-out; }
+@keyframes dim { from { background: rgba(23,34,26,0); } }
+.overlay--side { place-items: stretch end; }
+.sidepanel { width: min(340px, 100%); display: grid; grid-template-rows: auto 1fr auto; border: 1.5px solid var(--foreground); border-radius: var(--radius-xl); background: var(--card); box-shadow: 1px 1.5px 0 -1.5px var(--cap-wall), 2px 3px 0 -1.5px var(--cap-wall), 3px 4.5px 0 -1.5px var(--cap-wall), 4px 6px 0 -1.5px var(--cap-wall), 1px 1.5px 0 0 var(--foreground), 2px 3px 0 0 var(--foreground), 3px 4.5px 0 0 var(--foreground), 4px 6px 0 0 var(--foreground); animation: slide .5s var(--ease-spring); }
+.sidepanel header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px 4px; }
+.sidepanel h4 { font-size: 17px; }
+.sidepanel .body { display: grid; gap: 6px; align-content: start; margin: 10px 12px; padding: 14px; border: 1.5px solid var(--foreground); border-radius: 6px; background: var(--panel); box-shadow: var(--shadow-inset); }
+.sidepanel footer { display: flex; justify-content: flex-end; gap: 14px; padding: 6px 16px 20px; }
+@keyframes slide { from { transform: translateX(80px); opacity: 0; } to { transform: none; opacity: 1; } }
+.ticket { position: fixed; z-index: 30; left: 50%; bottom: 0; width: min(380px, calc(100% - 32px)); transform: translateX(-50%); padding-bottom: env(safe-area-inset-bottom, 0px); pointer-events: none; }
+.ticket[hidden] { display: none; }
+.ticket__slot { height: 12px; border-radius: 6px 6px 0 0; background: var(--foreground); }
+.ticket__paper { pointer-events: auto; margin: 0 14px; padding: 14px 16px 18px; background: var(--card); border: 1.5px solid var(--foreground); border-bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 16px; transform-origin: bottom; animation: print .2s cubic-bezier(.16, 1, .3, 1) both; -webkit-mask: radial-gradient(circle at 6px 0, transparent 5px, #000 5.5px) -6px 0 / 12px 100% repeat-x; mask: radial-gradient(circle at 6px 0, transparent 5px, #000 5.5px) -6px 0 / 12px 100% repeat-x; }
+.ticket__paper .key { min-height: 40px; padding: 0 14px; --depth: 4px; }
+@keyframes print { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.ticket.out .ticket__paper { animation: tear .22s ease-in forwards; }
+/* Floating window: keeps the game-window framing (double rim, corner brackets, nameplate, slot tray) but in Oat's ivory, ink and lamp-amber. */
+.win { position: fixed; z-index: 25; width: 340px; max-width: calc(100vw - 32px); padding: 7px; border-radius: 12px; color: var(--foreground);
+  background: var(--card); border: 1.5px solid var(--foreground);
+  box-shadow: inset 0 0 0 4px var(--card), inset 0 0 0 5.5px var(--border), 1px 1.5px 0 -1.5px var(--cap-wall), 2px 3px 0 -1.5px var(--cap-wall), 3px 4.5px 0 -1.5px var(--cap-wall), 4px 6px 0 -1.5px var(--cap-wall), 1px 1.5px 0 0 var(--foreground), 2px 3px 0 0 var(--foreground), 3px 4.5px 0 0 var(--foreground), 4px 6px 0 0 var(--foreground), 10px 16px 22px -8px rgba(23,34,26,.35);
+  animation: winIn .22s cubic-bezier(.16,1,.3,1); user-select: none; }
+.win[hidden] { display: none; }
+@keyframes winIn { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
+.win.drag { transform: translate(-2px, -4px) scale(1.01); box-shadow: inset 0 0 0 4px var(--card), inset 0 0 0 5.5px var(--border), 2px 3px 0 -1.5px var(--cap-wall), 4px 6px 0 -1.5px var(--cap-wall), 6px 9px 0 -1.5px var(--cap-wall), 2px 3px 0 0 var(--foreground), 4px 6px 0 0 var(--foreground), 6px 9px 0 0 var(--foreground), 18px 30px 34px -10px rgba(23,34,26,.35); transition: transform .12s cubic-bezier(.16,1,.3,1); }
+.win.land { animation: winLand .2s cubic-bezier(.3,1.6,.5,1); }
+@keyframes winLand { from { transform: translate(-2px, -4px) scale(1.01); } to { transform: none; } }
+.win__corner { position: absolute; width: 18px; height: 18px; z-index: 2; pointer-events: none; border: 2.5px solid var(--tint); }
+.win__corner::after { content: ""; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--foreground); }
+.win__corner.tl { left: -3px; top: -3px; border-right: 0; border-bottom: 0; border-radius: 10px 0 0 0; } .win__corner.tl::after { left: 3px; top: 3px; }
+.win__corner.tr { right: -3px; top: -3px; border-left: 0; border-bottom: 0; border-radius: 0 10px 0 0; } .win__corner.tr::after { right: 3px; top: 3px; }
+.win__corner.bl { left: -3px; bottom: -3px; border-right: 0; border-top: 0; border-radius: 0 0 0 10px; } .win__corner.bl::after { left: 3px; bottom: 3px; }
+.win__corner.br { right: -3px; bottom: -3px; border-left: 0; border-top: 0; border-radius: 0 0 10px 0; } .win__corner.br::after { right: 3px; bottom: 3px; }
+.win__bar { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; margin: 4px 6px 10px 6px; cursor: grab; touch-action: none; }
+.win.drag .win__bar { cursor: grabbing; }
+.win__title, .sidepanel h4 { position: relative; padding: 7px 18px; border: 1.5px solid var(--foreground); border-radius: 6px; background: var(--tint); color: var(--foreground); font: 900 16px/1 var(--font-sans); box-shadow: 2px 3px 0 -1.5px #b9862f, 2px 3px 0 0 var(--foreground); }
+.win__body { padding: 12px; border: 1.5px solid var(--foreground); border-radius: 6px; background: var(--panel); box-shadow: var(--shadow-inset); }
+.slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.slot { position: relative; aspect-ratio: 1; display: grid; place-items: center; padding: 0; border: 1.5px solid var(--input); border-radius: 6px; background: var(--panel-deep); box-shadow: inset 1.5px 2.5px 0 rgba(23,34,26,.14); cursor: pointer; color: var(--foreground); }
+.slot svg { width: 58%; height: 58%; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.slot.has { border-color: var(--foreground); background: var(--cap); box-shadow: inset 0 0 0 2.5px var(--q, var(--cap-wall)), 1px 1.5px 0 -1px var(--cap-wall), 1px 1.5px 0 0 var(--foreground); }
+.slot.q1 { --q: var(--cap-wall); } .slot.q2 { --q: var(--stripe); } .slot.q3 { --q: var(--tint); }
+.slot.q3::after { content: ""; position: absolute; inset: -1.5px; border-radius: 6px; box-shadow: 0 0 9px var(--tint-glow); pointer-events: none; }
+.slot b { position: absolute; right: 3px; bottom: 2px; min-width: 16px; padding: 2px 3px; border-radius: 4px; background: var(--foreground); color: #fff; font: 800 11px/1 var(--font-sans); font-variant-numeric: tabular-nums; }
+.slot:focus-visible, .slot[aria-selected="true"] { outline: 3px solid var(--ring); outline-offset: 1px; }
+.slot.has:active { transform: translate(1px, 1.5px); box-shadow: inset 0 0 0 2.5px var(--q); }
+.win__foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font: 700 14px/1 var(--font-sans); color: var(--subtle-foreground); }
+.win__coin { display: inline-flex; align-items: center; gap: 6px; color: var(--foreground); font-variant-numeric: tabular-nums; }
+.win__coin i { width: 14px; height: 14px; border-radius: 50%; background: var(--tint); box-shadow: 0 0 0 1.5px var(--foreground), inset -1px -2px 0 #b9862f; }
+.win__body--info { display: flex; gap: 16px; align-items: center; }
+.win__avatar { flex: none; width: 72px; height: 72px; display: grid; place-items: center; border: 1.5px solid var(--foreground); border-radius: 8px; background: var(--primary); color: #fff; font: 900 30px/1 var(--font-sans); box-shadow: inset 0 0 0 3px var(--tint), 2px 3px 0 -1.5px var(--primary-wall), 2px 3px 0 0 var(--foreground); }
+.win__stats { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; font-size: 15px; } .win__stats dt { color: var(--muted-foreground); } .win__stats dd { font-weight: 700; }
+
+
+@keyframes tear { to { transform: translateY(-30px) rotate(-4deg); opacity: 0; } }
+
+/* Code */
+.codebox { position: relative; border: 1.5px solid var(--foreground); border-radius: var(--radius-lg); background: var(--foreground); overflow: hidden; }
+.codebox pre { margin: 0; padding: 20px; padding-top: 64px; overflow-x: auto; color: #e9e6d6; font: 400 13.5px/1.65 ui-monospace, Menlo, Consolas, monospace; }
+.codebox .key { position: absolute; top: 12px; right: 14px; min-height: 40px; padding: 0 14px; --depth: 4px; }
+footer.end { padding-block: 64px 48px; color: var(--muted-foreground); font-size: 14px; }
+
+/* Reduced motion is honored by default; the page's motion switch can turn full motion back on to review it. */
+/* Frame language (from the floating window): every surface gets an inner rim line; panels that hold things also get small lamp-amber corner brackets with ink rivets. Drawn inside the border so overflow:hidden boxes keep them. */
+:root { --rim: rgba(23,34,26,.2); --rim-on-dark: rgba(255,255,255,.28); --bracket: var(--tint); }
+.dialog, .sidepanel, .card, .ledger-wrap, .spec, .codebox { position: relative; }
+.dialog::before, .sidepanel::before, .dd__menu::before, .cal::before, .card::before, .ledger-wrap::before, .spec::before, .codebox::before, .win::before {
+  content: ""; position: absolute; inset: 6px; z-index: 3; pointer-events: none; border: 1px solid var(--rim); border-radius: calc(var(--radius-lg) - 6px); }
+.spec::before, .dialog::before, .sidepanel::before { border-radius: calc(var(--radius-xl) - 6px); }
+.win::before { inset: 5px; border-radius: 7px; }
+.dialog::after, .sidepanel::after, .dd__menu::after, .cal::after, .card::after, .ledger-wrap::after, .spec::after, .codebox::after {
+  content: ""; position: absolute; inset: 5px; z-index: 4; pointer-events: none; --k: 12px; --t: 2px;
+  background:
+    radial-gradient(circle at 6px 6px, var(--foreground) 1.6px, transparent 2.2px) left top / 12px 12px,
+    radial-gradient(circle at 6px 6px, var(--foreground) 1.6px, transparent 2.2px) right top / 12px 12px,
+    radial-gradient(circle at 6px 6px, var(--foreground) 1.6px, transparent 2.2px) left bottom / 12px 12px,
+    radial-gradient(circle at 6px 6px, var(--foreground) 1.6px, transparent 2.2px) right bottom / 12px 12px,
+    linear-gradient(var(--bracket) 0 0) left top / var(--k) var(--t), linear-gradient(var(--bracket) 0 0) left top / var(--t) var(--k),
+    linear-gradient(var(--bracket) 0 0) right top / var(--k) var(--t), linear-gradient(var(--bracket) 0 0) right top / var(--t) var(--k),
+    linear-gradient(var(--bracket) 0 0) left bottom / var(--k) var(--t), linear-gradient(var(--bracket) 0 0) left bottom / var(--t) var(--k),
+    linear-gradient(var(--bracket) 0 0) right bottom / var(--k) var(--t), linear-gradient(var(--bracket) 0 0) right bottom / var(--t) var(--k);
+  background-repeat: no-repeat; }
+.dd__menu::after, .cal::after { --k: 10px; --t: 1.5px; inset: 4px; }
+.spec::after { --k: 16px; }
+/* Keys: the same inner rim, like a keycap's raised lip. Lit and coloured keys get a pale rim. */
+.key::after { content: ""; position: absolute; inset: 3px; pointer-events: none; border: 1px solid var(--rim); border-radius: inherit; }
+.key--primary::after, .key--danger::after, .pager .key[aria-current="page"]::after { border-color: var(--rim-on-dark); }
+.bank .key::after { inset: 2.5px; }
+/* Wells and faceplates: an inner line drawn with a negative outline offset. */
+.input.well, .tpk__win { outline: 1px solid var(--rim); outline-offset: -5px; }
+.bank, .flap:not(:focus-visible) { outline: 1px solid var(--rim-on-dark); outline-offset: -4px; }
+.codebox::before { border-color: var(--rim-on-dark); }
+.cabinet { outline: 1px solid var(--rim); outline-offset: -5px; }
+/* Drawer fronts follow the key language: a short wall when shut, the inner rim, a stamped label. */
+.drawer-i__front { position: relative; box-shadow: 1.2px 2px 0 -1.5px var(--cap-wall), 2.4px 4px 0 -1.5px var(--cap-wall), 1.2px 2px 0 0 var(--foreground), 2.4px 4px 0 0 var(--foreground); text-shadow: 0 1px 0 rgba(255,255,255,.7); }
+.drawer-i__front::after { content: ""; position: absolute; inset: 3px; pointer-events: none; border: 1px solid var(--rim); border-radius: calc(var(--radius) - 3px); }
+/* Slide switch joins the frame language: rim inside the slot (pale on the lit green), and a rim on the thumb. */
+.slide .track { outline: 1px solid var(--rim); outline-offset: -4px; }
+.slide[aria-checked="true"] .track { outline-color: var(--rim-on-dark); }
+.slide .track::after { outline: 1px solid var(--rim); outline-offset: -4px; }
+
+/* Type depth, very slight: headings stand up off the page with a hairline wall toward the lower right; key labels look stamped into the cap. Body text stays flat for reading. */
+h1, h2, .typerow > div > div:first-child, .card .stat { text-shadow: 1.2px 2px 0 rgba(23,34,26,.2); }
+h3, h4, .label, .win__title, .typerow .k b, .ledger td b { text-shadow: .8px 1.2px 0 rgba(23,34,26,.17); }
+.key { text-shadow: 0 1px 0 rgba(255,255,255,.7); }
+.key--primary, .key--danger, .pager .key[aria-current="page"] { text-shadow: 0 -1px 0 rgba(0,0,0,.28); }
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.motion-full) *, html:not(.motion-full) *::before, html:not(.motion-full) *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+html.motion-off *, html.motion-off *::before, html.motion-off *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+.nav .wrap { display: flex; align-items: center; gap: 12px; }
+.nav ul { flex: 1 0 auto; }
+.motion { display: flex; align-items: center; gap: 10px; flex: none; padding: 6px 0; font: 700 14px/1 var(--font-sans); color: var(--subtle-foreground); white-space: nowrap; }
+.motion .slide { width: auto; min-height: 40px; gap: 10px; }
+.motion .slide .track { width: 52px; height: 30px; }
+.motion .slide .track::after { width: 26px; height: 23px; }
+.motion .slide[aria-checked="true"] .track::after { left: 21px; }
+.motion-note { margin: 0 0 4px; padding: 12px 16px; border: 1.5px solid var(--foreground); border-radius: var(--radius); background: #f6e3b0; color: #5a4208; font-size: 15px; }
+.motion-note[hidden] { display: none; }
+/* Section nav uses the same preset bank as the tabs: small keys on the dark faceplate; the section in view stays latched with a lit bar. */
+.nav ul.bank { gap: 2px; padding: 5px 10px 10px 5px; margin: 8px 0 10px; width: max-content; }
+.nav ul.bank li { display: flex; }
+.nav .bank .key { --depth: 5px; min-height: 38px; min-width: 0; padding: 0 14px; font: 500 14px/1 var(--font-sans); color: var(--subtle-foreground); text-decoration: none; display: inline-flex; align-items: center; }
+.nav .bank li .key { border-radius: 3px; }
+.nav .bank li:first-child .key { border-radius: 7px 3px 3px 7px; }
+.nav .bank li:last-child .key { border-radius: 3px 7px 7px 3px; }
+.nav .bank .key::before { top: 5px; width: 14px; margin-left: -7px; height: 2.5px; }
+.nav .bank .key[aria-current="true"] { --travel: calc(var(--depth) - 2px); --cap-c: var(--card); color: var(--foreground); font-weight: 900; }
+.nav .bank .key[aria-current="true"]::before { background: var(--primary); box-shadow: none; }
+.nav a:hover { background: var(--cap-c); }
+</style>
+
+<header class="wrap hero">
+  <h1>Oat</h1>
+  <p>화면 속 컨트롤을 잘 만든 옛 물건처럼 만듭니다. 키는 위에서 눌려 내려가고, 스위치는 딸깍 걸리고, 다이얼은 칸마다 멈춥니다. 깊은 숲의 초록과 반딧불 호박색, 크고 또렷한 글자로 어른도 편하게 쓸 수 있게 했습니다.</p>
+</header>
+
+<nav class="nav" aria-label="섹션"><div class="wrap"><ul class="bank">
+  <li><a class="key" href="#base">기본</a></li><li><a class="key" href="#press">누르기</a></li><li><a class="key" href="#toggle">켜고 끄기</a></li><li><a class="key" href="#choose">고르기</a></li>
+  <li><a class="key" href="#type-in">입력</a></li><li><a class="key" href="#show">보여 주기</a></li><li><a class="key" href="#float">띄우기</a></li><li><a class="key" href="#code">코드</a></li>
+</ul><div class="motion"><button class="slide" role="switch" aria-checked="true" id="motionSw"><span>움직임</span><span class="state">켜짐</span><span class="track well"></span></button></div></div></nav>
+<div class="wrap"><p class="motion-note" id="motionNote" hidden>이 컴퓨터는 "애니메이션 줄이기"가 켜져 있어서 움직임을 꺼 두었어요. 위쪽 <b>움직임</b> 스위치를 켜면 누르고 돌리는 움직임을 볼 수 있어요.</p></div>
+
+<main class="wrap">
+
+<section class="part" id="base">
+  <header><h2>기본</h2><p>모든 컨트롤은 윗면과 옆면이 있는 물건입니다. 옆면 두께는 6px(<code>--depth</code>)이고, 누르면 윗면이 그만큼 내려갑니다. 판(패널)은 살짝 파여 있고, 입력 칸은 더 깊이 파인 홈입니다.</p></header>
+  <div class="swatches" id="swatches"></div>
+  <div class="spec" style="grid-template-columns:1fr"><div class="spec__text" style="border:0" id="typescale"></div></div>
+  <ol class="list">
+    <li><b>위에서 누른다.</b> 버튼은 옆으로 기울지 않고 Z축으로 눌립니다. 누르는 데 0.05초, 놓으면 0.34초 동안 살짝 넘쳤다 제자리.</li>
+    <li><b>걸리는 것은 걸린 채로.</b> 켜진 스위치, 선택된 버튼은 반쯤 눌린 채 남아 있어 상태가 높이로 보입니다.</li>
+    <li><b>불이 들어온다.</b> 켜짐은 호박색 램프로, 선택은 윗면의 초록 표시로 알립니다. 글자도 함께 씁니다.</li>
+    <li><b>읽기 쉽게.</b> 본문 17px, 누르는 곳 50px 안팎, 글자 대비 4.5:1 이상. 움직임 줄이기 설정이면 움직임을 끕니다.</li>
+  </ol>
+</section>
+
+<section class="part" id="press">
+  <header><h2>누르기</h2></header>
+  <div class="spec"><div class="spec__text"><h3>키 버튼</h3><p>옆면이 있는 키캡. 위에서 누르면 6px 내려가며 옆면이 사라지고, 놓으면 튕겨 올라옵니다.</p><ul><li>주요 동작은 초록 키 하나.</li><li>레이블은 동사로: "저장하기".</li></ul></div>
+    <div class="bench"><button class="key key--primary">저장하기</button><button class="key">초대하기</button><button class="key key--danger">삭제</button></div></div>
+  <div class="spec"><div class="spec__text"><h3>더보기 버튼</h3><p>자주 쓰지 않는 동작을 접어 두는 네모 키. 누르면 반쯤 눌린 채 걸리고, 아래로 메뉴가 펼쳐집니다.</p><ul><li>아이콘만 있으니 "더보기" 이름을 꼭 붙입니다.</li><li>위험한 동작은 맨 아래, 선으로 나눠 둡니다.</li><li>방향키로 고르고 Esc로 닫습니다.</li></ul></div>
+    <div class="bench" style="min-height:360px;align-content:start;padding-top:48px"><div class="morerow"><div class="morerow__t"><b>3분기 회의록</b><span>이서준 · 2분 전 수정</span></div>
+      <div class="more"><button class="key more__btn" aria-label="더보기" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+        <div class="dd__menu more__menu" role="menu" hidden><div class="dd__opt" role="menuitem" tabindex="-1">이름 바꾸기</div><div class="dd__opt" role="menuitem" tabindex="-1">복제하기</div><div class="dd__opt" role="menuitem" tabindex="-1">링크 복사</div><div class="dd__opt" role="menuitem" tabindex="-1">보관하기</div><div class="dd__sep"></div><div class="dd__opt dd__opt--danger" role="menuitem" tabindex="-1">삭제</div></div></div></div></div></div>
+</section>
+
+<section class="part" id="toggle">
+  <header><h2>켜고 끄기</h2><p>같은 일을 하는 두 가지 물건. 위에서 누르는 것과 옆으로 미는 것.</p></header>
+  <div class="spec"><div class="spec__text"><h3>누름 스위치 <code>Z축</code></h3><p>위에서 꾹 누르면 딸깍 걸려 반쯤 내려간 채 남고, 키 위에 새겨진 아이콘에 불이 들어옵니다. 다시 누르면 튀어 오르며 꺼집니다.</p><ul><li>오른쪽에 "켜짐/꺼짐"을 글자로.</li></ul></div>
+    <div class="bench col">
+      <div class="push"><span class="lbl">이메일 알림</span><span class="state">켜짐</span><button class="key latch" aria-pressed="true" aria-label="이메일 알림"><svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2"/><path d="M4.5 7.5l7.5 6 7.5-6"/></svg></button></div>
+      <div class="push"><span class="lbl">주간 요약 받기</span><span class="state">꺼짐</span><button class="key latch" aria-pressed="false" aria-label="주간 요약 받기"><svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4M8 14h3"/></svg></button></div></div></div>
+  <div class="spec"><div class="spec__text"><h3>미끄럼 스위치 <code>X축</code></h3><p>파인 홈 위로 줄무늬 손잡이가 미끄러집니다. 누르고 있으면 손잡이가 늘어나고, 놓으면 끝을 지나쳤다 돌아옵니다.</p></div>
+    <div class="bench col">
+      <button class="slide" role="switch" aria-checked="true"><span class="lbl">이메일 알림</span><span class="state">켜짐</span><span class="track well"></span></button>
+      <button class="slide" role="switch" aria-checked="false"><span class="lbl">주간 요약 받기</span><span class="state">꺼짐</span><span class="track well"></span></button></div></div>
+  <div class="spec"><div class="spec__text"><h3>체크박스</h3><p>작은 걸쇠 키. 누르면 초록으로 바뀌며 살짝 내려간 채 남고, 체크가 톡 튀어나옵니다.</p></div>
+    <div class="bench col">
+      <div class="cbx"><button class="key" role="checkbox" aria-checked="true" aria-labelledby="c1"><svg viewBox="0 0 24 24"><path d="M5 12.5L10 17.5L19 7"/></svg></button><span id="c1">안내문 함께 보내기</span></div>
+      <div class="cbx"><button class="key" role="checkbox" aria-checked="false" aria-labelledby="c2"><svg viewBox="0 0 24 24"><path d="M5 12.5L10 17.5L19 7"/></svg></button><span id="c2">초대를 수락하면 알림 받기</span></div>
+      <div class="cbx"><button class="key" role="checkbox" aria-checked="mixed" aria-labelledby="c4" data-mixed><svg viewBox="0 0 24 24"><path d="M6 12H18"/></svg></button><span id="c4">팀원 전체 선택 (6명 중 3명)</span></div>
+      <div class="cbx"><button class="key" role="checkbox" aria-checked="false" aria-disabled="true" aria-labelledby="c3"></button><span id="c3" class="muted">관리자 권한 주기 (소유자만 가능)</span></div></div></div>
+</section>
+
+<section class="part" id="choose">
+  <header><h2>고르기</h2></header>
+  <div class="spec"><div class="spec__text"><h3>프리셋 버튼 <small>라디오 · 탭</small></h3><p>옛 라디오의 채널 버튼처럼, 하나를 누르면 걸려 내려가고 먼저 눌려 있던 버튼은 튕겨 올라옵니다. 라디오 버튼이라는 이름이 여기서 왔어요. 탭도 같은 물건으로 만듭니다.</p><ul><li>키보드 ←→로 옮겨 다닙니다.</li><li>다섯 개 이하.</li></ul></div>
+    <div class="bench col" style="align-items:center"><div class="bank" role="tablist" aria-label="설정" id="bank">
+      <button class="key" role="tab" aria-selected="true">일반</button><button class="key" role="tab" aria-selected="false" tabindex="-1">팀원</button><button class="key" role="tab" aria-selected="false" tabindex="-1">결제</button><button class="key" role="tab" aria-selected="false" tabindex="-1">알림</button></div>
+      <p class="bankpanel" id="bankPanel" role="tabpanel">워크스페이스 이름과 주소를 바꿀 수 있어요.</p></div></div>
+  <div class="spec"><div class="spec__text"><h3>다이얼</h3><p>라디오 손잡이처럼 끌어 돌리거나 글자를 누릅니다. 칸마다 딸깍 걸리고, 키보드 ←→로도 돌아갑니다.</p></div>
+    <div class="bench"><div style="display:grid;gap:4px;min-width:140px"><span class="label">알림 빈도</span><span class="help" id="dialOut"></span></div>
+      <div class="dial" id="dial"><div class="dial__base"></div><div class="dial__knob" id="knob" tabindex="0" role="slider" aria-label="알림 빈도" aria-valuemin="0" aria-valuemax="3"></div></div></div></div>
+  <div class="spec"><div class="spec__text"><h3>넘김판 <small>다이얼 대신</small></h3><p>옛 역의 출발 안내판처럼, 판을 누를 때마다 글자판 위쪽이 탁 넘어가며 다음 칸이 나옵니다. 고를 것이 순서대로 돌아가고, 지금 값을 크게 보여 줘야 할 때 씁니다.</p><ul><li>마지막 칸 다음은 처음으로 돌아갑니다.</li><li>키보드 ←→로 앞뒤로 넘깁니다.</li></ul></div>
+    <div class="bench col" style="align-items:center;gap:18px"><span class="label">글자 크기</span><div class="flapset"><button type="button" class="flap" id="flap" aria-live="polite" aria-label="글자 크기"><span class="flap__half flap__top"><b></b></span><span class="flap__half flap__bot"><b></b></span><span class="flap__half flap__top flap__fold"><b></b></span><span class="flap__half flap__bot flap__fall"><b></b></span><i class="flap__dots"><em></em><em></em><em></em><em></em></i></button></div>
+      <p class="notch__out" id="flapOut">글자가 이만큼 보여요.</p></div></div>
+  <div class="spec"><div class="spec__text"><h3>드롭다운</h3><p>키를 누르면 반쯤 눌린 채 걸리고, 아래로 인쇄된 카드가 말려 내려오듯 펼쳐집니다. 고른 줄에는 초록 탭이 걸립니다.</p><ul><li>↑↓로 옮기고 Enter로 고르고, Esc로 닫아요.</li></ul></div>
+    <div class="bench" style="min-height:400px;align-content:flex-start;padding-top:36px"><div class="field" style="width:auto"><span class="label" id="ddLbl">역할</span>
+      <div class="dd" id="dd"><button class="key dd__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="ddLbl ddVal"><span id="ddVal">편집자</span><svg class="dd__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg></button>
+      <div class="dd__menu" role="listbox" tabindex="-1" hidden><div class="dd__opt" role="option" aria-selected="false">소유자</div><div class="dd__opt" role="option" aria-selected="true">편집자</div><div class="dd__opt" role="option" aria-selected="false">보기 전용</div><div class="dd__sep"></div><div class="dd__opt dd__opt--danger" role="option" aria-selected="false">팀에서 내보내기</div></div></div></div></div></div>
+  <div class="spec"><div class="spec__text"><h3>페이더와 계량기</h3><p>믹서의 페이더 손잡이를 밀면, 옛 계량기 숫자가 한 자리씩 굴러갑니다. 키보드 ←→로도 움직입니다.</p></div>
+    <div class="bench"><div class="faderbox"><div class="fader" id="fader" role="slider" tabindex="0" aria-label="초대 인원" aria-valuemin="0" aria-valuemax="50"><div class="fader__ticks"></div><div class="fader__slot"></div><div class="fader__cap" id="faderCap"></div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="counter__digits" id="digits" aria-hidden="true"></span><span class="label">명</span></div></div></div></div>
+</section>
+
+<section class="part" id="type-in">
+  <header><h2>입력</h2></header>
+  <div class="spec"><div class="spec__text"><h3>입력 칸</h3><p>판에 파인 홈. 글을 넣는 곳이라 키와 반대로 안으로 들어가 있습니다. 입력 중에는 홈이 밝아지고 테두리가 둘러집니다.</p><ul><li>오류는 ⚠와 함께 고치는 방법까지.</li></ul></div>
+    <div class="bench col">
+      <div class="field"><label class="label" for="email">이메일 주소</label><input class="input well" id="email" type="email" placeholder="예: name@company.com"><span class="help">초대 메일을 이 주소로 보내 드려요.</span></div>
+      <div class="field"><label class="label" for="slug">워크스페이스 주소</label><input class="input well" id="slug" value="my team" aria-invalid="true" aria-describedby="slugErr"><span class="help help--error" id="slugErr">⚠ 띄어쓰기 없이 영문 소문자와 하이픈(-)만 쓸 수 있어요.</span></div></div></div>
+  <div class="spec"><div class="spec__text"><h3>입력 종류</h3><p>모두 같은 파인 홈 모양이고, 넣는 값에 맞춰 도구만 달라져요.</p><ul><li>숫자는 옆의 키로 하나씩 올리고 내릴 수 있어요.</li><li>날짜·일시·시간은 홈 오른쪽의 달력·시계를 누르면 고르는 창이 열려요.</li><li>단위나 형식은 라벨이나 도움말에 적어요.</li></ul></div>
+    <div class="bench col">
+      <div class="inputs-grid">
+        <div class="field"><label class="label" for="inText">텍스트</label><input class="input well" id="inText" type="text" placeholder="예: 마케팅팀 주간 회의"></div>
+        <div class="field"><label class="label" for="inSearch">검색</label><div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><input class="input well" id="inSearch" type="search" placeholder="문서 이름으로 찾기"></div></div>
+        <div class="field"><label class="label" for="inEmail">이메일</label><input class="input well" id="inEmail" type="email" inputmode="email" autocomplete="email" placeholder="예: name@company.com" aria-describedby="inEmailHelp"><span class="help" id="inEmailHelp">로그인과 알림에 쓰여요.</span></div>
+        <div class="field"><label class="label" for="inTel">전화번호</label><input class="input well" id="inTel" type="tel" inputmode="numeric" autocomplete="tel" placeholder="예: 010-1234-5678" maxlength="13" style="font-variant-numeric:tabular-nums" aria-describedby="inTelHelp"><span class="help" id="inTelHelp">숫자만 넣으면 하이픈(-)은 자동으로 들어가요.</span></div>
+        <div class="field wide"><label class="label" for="inPw">비밀번호</label><div class="pwfield"><input class="input well" id="inPw" type="password" autocomplete="new-password" placeholder="8자 이상" aria-describedby="inPwHelp"><button type="button" class="key" id="pwEye" aria-pressed="false" aria-label="비밀번호 보기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+          <div class="pwmeter" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span class="help" id="inPwHelp">8자 이상, 숫자와 기호를 섞으면 더 안전해요.</span></div>
+        <div class="field"><label class="label" for="inNum">정수 <span class="unit">· 명</span></label><div class="numfield"><button class="key" type="button" data-step="-1" aria-label="하나 줄이기">−</button><input class="input well" id="inNum" type="number" inputmode="numeric" min="0" max="50" value="6"><button class="key" type="button" data-step="1" aria-label="하나 늘리기">+</button></div><span class="help">0명부터 50명까지 넣을 수 있어요.</span></div>
+        <div class="field"><label class="label" for="inMoney">금액 <span class="unit">· 원</span></label><input class="input well" id="inMoney" type="text" inputmode="numeric" value="2,400,000" style="text-align:right;font-variant-numeric:tabular-nums"><span class="help">이백사십만 원</span></div>
+        <div class="field"><label class="label" for="inDec">소수 <span class="unit">· kg · 소수 첫째 자리</span></label><div class="numfield" data-step="0.1" data-dec="1" data-min="0" data-max="200"><button class="key" type="button" data-dir="-1" aria-label="0.1 줄이기">−</button><input class="input well num-dec" id="inDec" type="text" inputmode="decimal" value="62.5"><button class="key" type="button" data-dir="1" aria-label="0.1 늘리기">+</button></div><span class="help">0.1 kg 단위로 올리고 내려요. 62.0처럼 소수점 아래 한 자리를 늘 보여 줘요.</span></div>
+        <div class="field"><label class="label" for="inSigned">음수 가능 <span class="unit">· °C</span></label><div class="numfield signed" data-step="1" data-dec="0" data-min="-40" data-max="40"><button class="key" type="button" data-dir="-1" aria-label="1 줄이기">−</button><input class="input well num-signed" id="inSigned" type="text" inputmode="numeric" value="-3"><button class="key" type="button" data-dir="1" aria-label="1 늘리기">+</button></div><span class="help" id="inSignedHelp">영하 3도예요. −40부터 40까지.</span></div>
+        <div class="field"><span class="label" id="inDateLbl">날짜</span><div class="datefield"><button type="button" class="input well date-trigger" id="inDate" aria-haspopup="dialog" aria-expanded="false" aria-labelledby="inDateLbl inDateVal"><span id="inDateVal"></span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg></button><div class="cal" id="cal" role="dialog" aria-label="날짜 고르기" hidden><div class="cal__head"><button type="button" class="key" id="calPrev" aria-label="이전 달">‹</button><span class="cal__title"></span><button type="button" class="key" id="calNext" aria-label="다음 달">›</button></div><div class="cal__grid"></div><div class="cal__foot"><span>←→↑↓로 옮기기</span><button type="button" id="calToday">오늘</button></div></div></div></div>
+        <div class="field"><span class="label" id="inTimeLbl">시간</span><div class="datefield"><button type="button" class="input well date-trigger" id="inTime" aria-haspopup="dialog" aria-expanded="false" aria-labelledby="inTimeLbl inTimeVal"><span id="inTimeVal"></span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></svg></button>
+          <div class="cal tpk" id="tpk" role="dialog" aria-label="시간 고르기" hidden>
+            <div class="tpk__cols">
+              <div class="tpk__col" data-k="ap"><button type="button" class="key" data-d="-1" aria-label="오전 오후 바꾸기">▲</button><div class="tpk__win"><span></span></div><button type="button" class="key" data-d="1" aria-label="오전 오후 바꾸기">▼</button></div>
+              <div class="tpk__col" data-k="h"><button type="button" class="key" data-d="1" aria-label="한 시간 뒤">▲</button><div class="tpk__win"><span></span></div><button type="button" class="key" data-d="-1" aria-label="한 시간 앞">▼</button></div>
+              <span class="tpk__colon">:</span>
+              <div class="tpk__col" data-k="m"><button type="button" class="key" data-d="1" aria-label="5분 뒤">▲</button><div class="tpk__win"><span></span></div><button type="button" class="key" data-d="-1" aria-label="5분 앞">▼</button></div>
+            </div>
+            <div class="cal__foot"><span>분은 5분 단위</span><button type="button" id="tpkOk">확인</button></div>
+          </div></div></div>
+        <div class="field wide"><span class="label" id="inDTLbl">일시</span><div class="datefield"><button type="button" class="input well date-trigger" id="inDT" aria-haspopup="dialog" aria-expanded="false" aria-labelledby="inDTLbl inDTVal"><span id="inDTVal"></span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="13" height="12" rx="2"/><path d="M3.5 9.5h13M7 3.5v4M13 3.5v4"/><circle cx="17.5" cy="16.5" r="4.5" fill="var(--card)"/><path d="M17.5 14.5v2l1.4 1"/></svg></button>
+          <div class="cal dtp" id="dtp" role="dialog" aria-label="날짜와 시각 고르기" hidden>
+            <div class="dtp__body">
+              <div class="dtp__cal"><div class="cal__head"><button type="button" class="key" data-m="-1" aria-label="이전 달">‹</button><span class="cal__title"></span><button type="button" class="key" data-m="1" aria-label="다음 달">›</button></div><div class="cal__grid"></div></div>
+              <div class="dtp__time"><span class="dtp__cap">시각</span><div class="tpk__cols">
+                <div class="tpk__col" data-k="ap"><button type="button" class="key" data-d="-1" aria-label="오전 오후 바꾸기">▲</button><div class="tpk__win"><span></span></div><button type="button" class="key" data-d="1" aria-label="오전 오후 바꾸기">▼</button></div>
+                <div class="tpk__col" data-k="h"><button type="button" class="key" data-d="1" aria-label="한 시간 뒤">▲</button><div class="tpk__win"><span></span></div><button type="button" class="key" data-d="-1" aria-label="한 시간 앞">▼</button></div>
+                <span class="tpk__colon">:</span>
+                <div class="tpk__col" data-k="m"><button type="button" class="key" data-d="1" aria-label="5분 뒤">▲</button><div class="tpk__win"><span></span></div><button type="button" class="key" data-d="-1" aria-label="5분 앞">▼</button></div>
+              </div></div>
+            </div>
+            <div class="cal__foot"><span id="dtpSum"></span><button type="button" id="dtpOk">확인</button></div>
+          </div></div><span class="help">회의는 이 시각에 시작해요.</span></div>
+        <div class="field wide"><label class="label" for="inArea">여러 줄 텍스트</label><textarea class="input well" id="inArea" rows="3" placeholder="예: 다음 회의 전까지 정리할 내용을 적어 주세요."></textarea></div>
+      </div></div></div>
+</section>
+
+<section class="part" id="show">
+  <header><h2>보여 주기</h2></header>
+  <div class="spec"><div class="spec__text"><h3>배지</h3><p>판에 박힌 법랑 단추. 바탕색으로 상태를 나누고 단어를 함께 씁니다.</p></div>
+    <div class="bench"><span class="badge badge--new">새 기능</span><span class="badge badge--info">진행 중</span><span class="badge badge--ok">완료</span><span class="badge badge--warn">검토 필요</span><span class="badge badge--bad">실패</span></div></div>
+  <div class="spec"><div class="spec__text"><h3>카드</h3><p>두께가 있는 판. 숫자는 "2억 4천만 원"처럼 읽기 쉽게 쓰고, 진행 막대는 홈 안에 세 줄로 채웁니다.</p></div>
+    <div class="bench"><div class="card"><span class="cap">이번 달 매출</span><div class="stat">2억 4천만 원</div><div class="progress well"><div class="progress__fill" style="width:68%"><i></i><i></i><i></i></div></div><p>목표의 68%예요.</p></div></div></div>
+  <div class="spec"><div class="spec__text"><h3>LED 진행 막대</h3><p>오디오 장비의 레벨 미터처럼, 어두운 창 안에서 칸이 하나씩 켜지며 차오릅니다. 대부분은 초록, 80%를 넘으면 호박색, 95%를 넘으면 빨강으로 켜져 넘치기 직전이라는 걸 알려요.</p><ul><li>퍼센트와 설명 문장을 꼭 함께 씁니다.</li><li>업로드 진행, 저장 공간, 사용량에.</li></ul></div>
+    <div class="bench col">
+      <div class="led" id="ledUp" role="progressbar" aria-label="업로드" aria-valuemin="0" aria-valuemax="100"><div class="led__head"><span>사진 업로드</span><b>0%</b></div><div class="led__meter"></div><span class="led__note">업로드를 시작하면 칸이 차올라요.</span></div>
+      <div class="led" id="ledDisk" role="progressbar" aria-label="저장 공간" aria-valuemin="0" aria-valuemax="100"><div class="led__head"><span>저장 공간</span><b>0%</b></div><div class="led__meter"></div><span class="led__note"></span></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;padding-top:6px"><button class="key key--primary" id="ledStart">업로드 시작</button><button class="key key--lit" id="ledFill">저장 공간 늘리기</button></div></div></div>
+  <div class="spec"><div class="spec__text"><h3>서랍 <small>아코디언</small></h3><p>손잡이를 당기면 서랍 앞판이 들리며 앞으로 나오고, 안의 내용이 미끄러져 나옵니다.</p></div>
+    <div class="bench"><div class="cabinet" id="cabinet">
+      <div class="drawer-i open"><button class="drawer-i__front" aria-expanded="true">초대 메일이 오지 않아요<span class="handle"></span></button><div class="drawer-i__in"><div><p>스팸 메일함을 먼저 확인해 주세요. 그래도 없으면 팀원 목록에서 "다시 보내기"를 눌러 주세요.</p></div></div></div>
+      <div class="drawer-i"><button class="drawer-i__front" aria-expanded="false">초대는 몇 명까지 할 수 있나요?<span class="handle"></span></button><div class="drawer-i__in"><div><p>무료 요금제는 5명, 팀 요금제는 50명까지예요.</p></div></div></div>
+      <div class="drawer-i"><button class="drawer-i__front" aria-expanded="false">삭제하면 어떻게 되나요?<span class="handle"></span></button><div class="drawer-i__in"><div><p>문서와 권한이 모두 지워지고, 되돌릴 수 없어요.</p></div></div></div></div></div></div>
+  <div class="spec" style="grid-template-columns:1fr"><div class="spec__text"><h3>표</h3><p>장부처럼 줄이 그어진 표. 머리 칸은 작은 키라서 누르면 걸리며 정렬되고, 줄을 누르면 그 줄이 살짝 눌려 들어가 고른 것이 보입니다.</p><ul><li>숫자는 오른쪽 정렬, 고정폭 숫자.</li><li>줄 높이 56px, 글자 16px 이상.</li><li>고른 줄은 왼쪽 초록 막대와 체크로 두 번 알립니다.</li></ul></div>
+    <div class="bench" style="display:block;padding:24px"><div class="ledger-wrap"><table class="ledger" id="ledger">
+      <thead><tr><th class="ck"><button class="cbox" role="checkbox" aria-checked="false" aria-label="모두 고르기" id="ledAll"></button></th><th><button class="sort" data-k="0">이름<i></i></button></th><th><button class="sort" data-k="1">역할<i></i></button></th><th><button class="sort" data-k="2">상태<i></i></button></th><th class="num"><button class="sort" data-k="3" aria-sort="descending">문서 수<i></i></button></th><th class="num"><button class="sort" data-k="4">마지막 접속<i></i></button></th></tr></thead>
+      <tbody>
+        <tr><td class="ck"><button class="cbox" role="checkbox" aria-checked="false" aria-label="김하늘 고르기"></button></td><td><b>김하늘</b><small>haneul@example.com</small></td><td>소유자</td><td><span class="badge badge--ok">활동 중</span></td><td class="num">128</td><td class="num" data-v="1">오늘</td></tr>
+        <tr><td class="ck"><button class="cbox" role="checkbox" aria-checked="true" aria-label="이서준 고르기"></button></td><td><b>이서준</b><small>seojun@example.com</small></td><td>편집자</td><td><span class="badge badge--ok">활동 중</span></td><td class="num">86</td><td class="num" data-v="2">어제</td></tr>
+        <tr><td class="ck"><button class="cbox" role="checkbox" aria-checked="false" aria-label="최예린 고르기"></button></td><td><b>최예린</b><small>yerin@example.com</small></td><td>편집자</td><td><span class="badge badge--bad">권한 만료</span></td><td class="num">41</td><td class="num" data-v="45">한 달 전</td></tr>
+        <tr><td class="ck"><button class="cbox" role="checkbox" aria-checked="false" aria-label="정우진 고르기"></button></td><td><b>정우진</b><small>woojin@example.com</small></td><td>보기만</td><td><span class="badge badge--info">쉬는 중</span></td><td class="num">12</td><td class="num" data-v="14">2주 전</td></tr>
+        <tr><td class="ck"><button class="cbox" role="checkbox" aria-checked="false" aria-label="박민지 고르기"></button></td><td><b>박민지</b><small>minji@example.com</small></td><td>편집자</td><td><span class="badge badge--warn">초대 대기</span></td><td class="num">0</td><td class="num" data-v="99">—</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="4" id="ledSel">1명 골랐어요</td><td class="num">267</td><td></td></tr></tfoot>
+    </table></div><nav class="pager" id="pager" aria-label="쪽 넘기기"><span class="pager__info"></span><div class="pager__keys"></div></nav></div></div>
+</section>
+
+<section class="part" id="float">
+  <header><h2>띄우기</h2><p>화면 위에 무언가를 올려놓는 방식도 물건처럼.</p></header>
+  <div class="spec"><div class="spec__text"><h3>확인 창 · 옆 판 · 영수증</h3><p>확인 창은 위에서 책상에 떨어지듯 툭 놓이고, 옆 판은 밀려 들어오며 살짝 넘칩니다. 알림은 영수증처럼 아래 틈에서 인쇄되어 나오고, 시간이 지나면 찢겨 나갑니다.</p><ul><li>Esc나 바깥을 눌러 닫습니다.</li></ul></div>
+    <div class="bench"><button class="key key--danger" data-open="dlg">워크스페이스 삭제</button><button class="key" data-open="side">필터 열기</button><button class="key key--primary" id="ticketBtn">초대 메일 보내기</button></div></div>
+  <div class="spec"><div class="spec__text"><h3>떠 있는 창 <small>게임 인벤토리처럼</small></h3><p>열어 둔 채 다른 일을 할 수 있는 창. 제목판을 잡고 끌면 창이 살짝 들려 따라오고, 놓으면 그 자리에 내려앉습니다. 모서리 쇠붙이와 이중 테두리로 '틀'을 분명하게 만듭니다.</p><ul><li>뒤 화면을 가리지 않아요(어둡게 하지 않음).</li><li>누른 창이 맨 앞으로 옵니다.</li><li>Esc나 ✕로 닫고, 칸은 방향키로 옮깁니다.</li></ul></div>
+    <div class="bench"><button class="key key--primary" data-win="winBag">보관함 열기</button><button class="key" data-win="winInfo">내 정보 열기</button></div></div>
+</section>
+
+<section class="part" id="code">
+  <header><h2>코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 키의 옆면은 <code>box-shadow</code> 두 겹으로 그리고, 누르면 <code>--travel</code>만큼 내려갑니다.</p></header>
+  <div class="codebox"><button class="key" id="copyBtn">복사</button><pre id="codeText">:root {
+  --radius: 8px;
+  --background: #f3f1e7;  --foreground: #17221a;
+  --card: #fdfcf6;        --panel: #e9e7d8;
+  --primary: #2f5a3c;     --primary-foreground: #ffffff;
+  --secondary: #e6e5d6;   --subtle-foreground: #36443a;
+  --muted-foreground: #5c6a5f;
+  --tint: #e8b45a;        --stripe: #8fae6b;
+  --destructive: #a8402d; --destructive-soft: #f5d9d2;
+  --primary-soft: #e3ece2;  --primary-400: #4f7d5a;
+  --success: #3f7a4a;  --success-soft: #e2efdc;
+  --warning: #b7791f;  --warning-soft: #f8ead0;
+  --info: #2f6177;     --info-soft: #dbe8ee;
+  --border: #d3d3c0;      --input: #6f7a6c;  --ring: #17221a;
+  --cap: #fdfcf6;  --cap-wall: #b9b8a5;
+  --primary-wall: #1c3a26;  --destructive-wall: #6f2519;
+  --depth: 6px;
+  --ease-spring: cubic-bezier(.3, 1.6, .5, 1);
+  --ease-press: cubic-bezier(.3, 1.9, .45, 1);
+  --dur-press: .05s;  --dur-spring: .34s;
+}
+
+/* 키: 오른쪽 아래에서 본 시점. 옆면이 오른쪽·아래로 보이고, 누르면 그 대각선으로 내려간다 */
+.key {
+  --travel: 0px;
+  border: 1.5px solid var(--foreground);
+  border-radius: var(--radius);
+  background: var(--cap);
+  transform: translate(calc(var(--travel) * .6), var(--travel));
+  box-shadow:
+    calc((var(--depth) - var(--travel)) * .6) calc(var(--depth) - var(--travel)) 0 -1.5px var(--cap-wall),
+    calc((var(--depth) - var(--travel)) * .6) calc(var(--depth) - var(--travel)) 0 0 var(--foreground);
+  transition: transform var(--dur-spring) var(--ease-press),
+              box-shadow var(--dur-spring) var(--ease-press);
+}
+.key:active { --travel: calc(var(--depth) - 1px); transition-duration: var(--dur-press); }
+.key[aria-pressed="true"] { --travel: calc(var(--depth) - 2.5px); } /* 걸린 상태 */</pre></div>
+</section>
+</main>
+
+<footer class="wrap end">Oat · 엘더우드 · Noto Sans KR</footer>
+
+<section class="win" id="winBag" role="dialog" aria-labelledby="winBagT" hidden style="left:calc(50% - 170px);top:120px">
+  <i class="win__corner tl"></i><i class="win__corner tr"></i><i class="win__corner bl"></i><i class="win__corner br"></i>
+  <header class="win__bar"><h4 class="win__title" id="winBagT">내 보관함</h4><button class="key win__x" aria-label="닫기" style="min-height:40px;min-width:40px;padding:0;--depth:4px">✕</button></header>
+  <div class="win__body">
+    <div class="slots" role="grid" aria-label="보관함 칸"></div>
+    <footer class="win__foot"><span id="bagInfo"></span><span class="win__coin"><i></i>2,400</span></footer>
+  </div>
+</section>
+<section class="win" id="winInfo" role="dialog" aria-labelledby="winInfoT" hidden style="left:calc(50% + 40px);top:200px">
+  <i class="win__corner tl"></i><i class="win__corner tr"></i><i class="win__corner bl"></i><i class="win__corner br"></i>
+  <header class="win__bar"><h4 class="win__title" id="winInfoT">내 정보</h4><button class="key win__x" aria-label="닫기" style="min-height:40px;min-width:40px;padding:0;--depth:4px">✕</button></header>
+  <div class="win__body win__body--info">
+    <div class="win__avatar" aria-hidden="true">이</div>
+    <dl class="win__stats"><dt>이름</dt><dd>이서준</dd><dt>역할</dt><dd>편집자</dd><dt>문서</dt><dd>86개</dd><dt>가입</dt><dd>2024년 3월</dd></dl>
+  </div>
+</section>
+<div class="overlay" id="dlg" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgT">
+  <h4 id="dlgT">워크스페이스를 삭제할까요?</h4><p>문서 128개와 팀원 6명의 권한이 함께 삭제되고, 되돌릴 수 없어요.</p>
+  <div class="actions"><button class="key" data-close>취소</button><button class="key key--danger" data-close data-ticket="워크스페이스를 삭제했어요">삭제하기</button></div></div></div>
+
+<div class="overlay overlay--side" id="side" hidden><div class="sidepanel" role="dialog" aria-modal="true" aria-labelledby="sideT">
+  <header><h4 id="sideT">필터</h4><button class="key" data-close aria-label="닫기" style="min-height:40px;min-width:40px;padding:0;--depth:4px">✕</button></header>
+  <div class="body">
+    <div class="cbx"><button class="key" role="checkbox" aria-checked="true" aria-labelledby="f1"><svg viewBox="0 0 24 24"><path d="M5 12.5L10 17.5L19 7"/></svg></button><span id="f1">진행 중</span></div>
+    <div class="cbx"><button class="key" role="checkbox" aria-checked="true" aria-labelledby="f2"><svg viewBox="0 0 24 24"><path d="M5 12.5L10 17.5L19 7"/></svg></button><span id="f2">완료</span></div>
+    <div class="cbx"><button class="key" role="checkbox" aria-checked="false" aria-labelledby="f3"><svg viewBox="0 0 24 24"><path d="M5 12.5L10 17.5L19 7"/></svg></button><span id="f3">보관됨</span></div></div>
+  <footer><button class="key" data-close>닫기</button><button class="key key--primary" data-close data-ticket="필터를 적용했어요">적용</button></footer></div></div>
+
+<div class="ticket" id="ticket" role="status" hidden><div class="ticket__paper"><span id="ticketText">초대 메일을 보냈어요</span><button class="key" id="ticketUndo">되돌리기</button></div><div class="ticket__slot"></div></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* Foundations */
+  $('#swatches').innerHTML = [
+    ['면', '바닥부터 위로 쌓이는 순서'],
+    ['#f3f1e7', '바탕', '--background', '이끼 아이보리, 페이지 바닥'], ['#e9e7d8', '판', '--panel', '컨트롤이 놓이는 면'], ['#dcdac9', '깊은 판', '--panel-deep', '서랍장, 움푹한 칸'], ['#fdfcf6', '카드', '--card', '키 윗면, 카드, 입력 칸'], ['#2a352d', '검은 패널', '--faceplate', '프리셋 뱅크, 기계 앞판'],
+    ['글자', '바탕 위 대비 순'],
+    ['#17221a', '먹초록', '--foreground', '본문, 테두리 · 대비 15:1'], ['#36443a', '진한 보조', '--subtle-foreground', '설명, 도움말 · 9.6:1'], ['#5c6a5f', '흐린 보조', '--muted-foreground', '자리 표시, 꺼진 글자 · 5.2:1'], ['#ffffff', '흰 글자', '--primary-foreground', '초록·벽돌 키 위'],
+    ['숲 초록 (주요)', '연한 것부터 진한 것'],
+    ['#e3ece2', '초록 50', '--primary-soft', '선택된 줄 배경'], ['#b9d0b8', '초록 200', '--primary-200', '선택 표시 테두리'], ['#4f7d5a', '초록 400', '--primary-400', '호버, 밝은 표시등'], ['#2f5a3c', '숲 초록', '--primary', '주요 키, 선택 표시'], ['#1c3a26', '초록 옆면', '--primary-wall', '주요 키의 두께'],
+    ['반딧불 (램프)', '켜짐과 새 기능'],
+    ['#fbf0d6', '반딧불 50', '--tint-soft', '새 기능 배경'], ['#e8b45a', '반딧불', '--tint', '램프, 켜짐'], ['#b9862f', '반딧불 옆면', '--tint-wall', '손잡이, 램프 테두리'], ['#f0b048', '불빛', '--tint-glow', '켜진 아이콘의 빛'],
+    ['상태', '글자로도 함께 알립니다'],
+    ['#8fae6b', '새순', '--stripe', '진행 막대, LED'], ['#3f7a4a', '성공', '--success', '저장됨, 완료'], ['#e2efdc', '성공 배경', '--success-soft', '완료 안내 칸'], ['#b7791f', '주의', '--warning', '곧 만료, 확인 필요'], ['#f8ead0', '주의 배경', '--warning-soft', '주의 안내 칸'], ['#2f6177', '안내', '--info', '도움말, 새 소식'], ['#dbe8ee', '안내 배경', '--info-soft', '안내 칸'], ['#a8402d', '벽돌', '--destructive', '위험한 동작, 오류'], ['#f5d9d2', '벽돌 배경', '--destructive-soft', '오류 안내 칸'], ['#6f2519', '벽돌 옆면', '--destructive-wall', '위험 키의 두께'],
+    ['선 · 두께 · 초점', ''],
+    ['#d3d3c0', '구분선', '--border', '카드 테두리, 줄 사이'], ['#6f7a6c', '입력 테두리', '--input', '입력 칸 윤곽 · 3:1'], ['#b9b8a5', '키 옆면', '--cap-wall', '흰 키의 두께'], ['#17221a', '초점 고리', '--ring', '키보드 초점 3px 테두리'], ['#c9d6e3', '종이 줄', '--paper-rule', '색인 카드의 줄']
+  ].map(function (c) {
+    if (c.length === 2) return '<div class="swgroup"><b>' + c[0] + '</b>' + c[1] + '</div>';
+    return '<div class="sw"><i style="background:' + c[0] + '"></i><div><b>' + c[1] + '</b>' + c[3] + '<code>' + c[2] + ' ' + c[0] + '</code></div></div>';
+  }).join('');
+  $('#typescale').innerHTML = [
+    ['제목'],
+    ['display', '40/44 · Black', '2억 4천만 원', 'font:900 40px/44px var(--font-sans);letter-spacing:-.03em', '숫자 강조, 첫 화면 큰 값'],
+    ['title', '32/40 · Black', '팀 워크스페이스', 'font:900 32px/40px var(--font-sans);letter-spacing:-.02em', '페이지 제목, 한 화면에 하나'],
+    ['h1', '28/36 · Black', '멤버와 권한', 'font:900 28px/36px var(--font-sans);letter-spacing:-.01em', '큰 구역 제목'],
+    ['h2', '22/30 · Bold', '초대 대기 중인 사람', 'font:700 22px/30px var(--font-sans)', '구역 안의 묶음'],
+    ['h3', '18/26 · Bold', '함께 편집하기', 'font:700 18px/26px var(--font-sans)', '카드·패널 제목'],
+    ['h4', '17/24 · Bold', '알림 받는 방법', 'font:700 17px/24px var(--font-sans)', '목록 항목 제목, 작은 묶음'],
+    ['본문'],
+    ['body-lg', '19/32 · Regular', '처음 오신 분께 보여 주는 안내 문장이에요.', 'font:400 19px/32px var(--font-sans)', '안내·소개 문단'],
+    ['body', '17/28 · Regular', '변경 사항은 저장하는 즉시 모든 팀원에게 반영됩니다.', 'font:400 17px/28px var(--font-sans)', '기본 본문'],
+    ['body-strong', '17/28 · Bold', '되돌릴 수 없어요.', 'font:700 17px/28px var(--font-sans)', '본문 속 강조'],
+    ['body-sm', '15/24 · Regular', '표 안의 설명이나 카드 보조 문장에 써요.', 'font:400 15px/24px var(--font-sans)', '표, 카드 보조 문장'],
+    ['quote', '17/28 · Regular', '“다음 회의 전까지 정리해 둘게요.”', 'font:400 17px/28px var(--font-sans);padding-left:14px;border-left:3px solid var(--primary)', '인용, 메모'],
+    ['link', '17/28 · Bold · 밑줄', '요금제 자세히 보기', 'font:700 17px/28px var(--font-sans);color:var(--primary);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px', '본문 속 링크'],
+    ['UI'],
+    ['button', '17/20 · Bold', '저장하기', 'font:700 17px/20px var(--font-sans)', '키 버튼 글자'],
+    ['button-sm', '15/18 · Bold', '다시 보내기', 'font:700 15px/18px var(--font-sans)', '작은 키, 표 안의 버튼'],
+    ['label', '16/20 · Bold', '이메일 주소', 'font:700 16px/20px var(--font-sans)', '입력 칸 이름'],
+    ['input', '17/24 · Medium', 'hong@example.com', 'font:500 17px/24px var(--font-sans)', '입력 칸 안의 글자'],
+    ['help', '15/22 · Regular', '회사 메일로 적어 주세요.', 'font:400 15px/22px var(--font-sans);color:var(--subtle-foreground)', '입력 칸 아래 도움말'],
+    ['badge', '14/18 · Bold', '새 기능', 'font:700 14px/18px var(--font-sans)', '뱃지, 칩'],
+    ['caption', '14/20 · Bold', '설정 › 워크스페이스', 'font:700 14px/20px var(--font-sans);color:var(--subtle-foreground)', '경로, 시각, 출처'],
+    ['overline', '13/16 · Bold · 자간 넓게', '고르기', 'font:700 13px/16px var(--font-sans);letter-spacing:.12em;color:var(--subtle-foreground)', '구역 위 작은 머리말 (가장 작은 글자)'],
+    ['숫자·코드'],
+    ['number', '17/24 · Bold · 고정폭 숫자', '1,234,567', 'font:700 17px/24px var(--font-sans);font-variant-numeric:tabular-nums', '표의 금액, 카운터'],
+    ['code', '15/24 · Mono', 'npx shadcn add button', 'font:500 15px/24px ui-monospace,Consolas,monospace;background:var(--card);padding:2px 8px;border-radius:4px;justify-self:start', '코드, 단축키']
+  ].map(function (t) {
+    if (t.length === 1) return '<div class="typegroup">' + t[0] + '</div>';
+    return '<div class="typerow"><div class="k"><b>' + t[0] + '</b>' + t[1] + '</div><div><div style="' + t[3] + '">' + t[2] + '</div><small class="typeuse">' + t[4] + '</small></div></div>';
+  }).join('');
+
+  /* Keyboard press feedback for every key */
+  $$('.key').forEach(function (k) {
+    k.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') k.classList.add('is-down'); });
+    k.addEventListener('keyup', function () { k.classList.remove('is-down'); });
+    k.addEventListener('blur', function () { k.classList.remove('is-down'); });
+  });
+
+  /* Latching push switches */
+  function clack(el, ms) { el.classList.remove('clack'); void el.offsetWidth; el.classList.add('clack'); setTimeout(function () { el.classList.remove('clack'); }, ms); }
+  $$('.latch').forEach(function (b) { b.addEventListener('click', function () { var on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); clack(b, 170); var st = b.parentNode.querySelector('.state'); if (st) st.textContent = on ? '켜짐' : '꺼짐'; }); });
+  /* Slide switches */
+  $$('.bench .slide').forEach(function (s) { s.addEventListener('click', function () { var on = s.getAttribute('aria-checked') !== 'true'; s.setAttribute('aria-checked', on); setTimeout(function () { clack(s, 150); }, 110); $('.state', s).textContent = on ? '켜짐' : '꺼짐'; }); });
+  /* Checkbox keys */
+  var CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5L10 17.5L19 7"/></svg>';
+  $$('.cbx .key').forEach(function (c) { c.addEventListener('click', function () { if (c.getAttribute('aria-disabled') === 'true') return; var s = c.getAttribute('aria-checked'); if (s === 'mixed') c.innerHTML = CHECK; c.setAttribute('aria-checked', s !== 'true'); }); });
+
+  /* Preset bank */
+  var bank = $$('#bank .key'), panels = ['워크스페이스 이름과 주소를 바꿀 수 있어요.', '팀원을 초대하고 역할을 정해요.', '요금제와 결제 수단을 관리해요.', '어떤 알림을 받을지 골라요.'];
+  function pick(i) { bank.forEach(function (b, j) { b.setAttribute('aria-selected', j === i); b.tabIndex = j === i ? 0 : -1; }); $('#bankPanel').textContent = panels[i]; }
+  bank.forEach(function (b, i) {
+    b.addEventListener('click', function () { pick(i); });
+    b.addEventListener('keydown', function (e) { var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (n) { var k = (i + n + bank.length) % bank.length; pick(k); bank[k].focus(); e.preventDefault(); } });
+  });
+
+  /* Dial */
+  var dOpts = ['끔', '매일', '매주', '매달'], dAng = [-75, -25, 25, 75], dMsg = ['알림을 보내지 않아요.', '매일 알려 드려요.', '매주 월요일에 알려 드려요.', '매달 1일에 알려 드려요.'];
+  var dial = $('#dial'), knob = $('#knob'), dIdx = 1, dragging = false;
+  dOpts.forEach(function (o, i) {
+    var a = dAng[i] * Math.PI / 180, l = document.createElement('button');
+    l.className = 'dial__label'; l.type = 'button'; l.tabIndex = -1; l.textContent = o;
+    l.style.left = (95 + Math.sin(a) * 70 - 18) + 'px'; l.style.top = (93 - Math.cos(a) * 70 - 12) + 'px';
+    l.addEventListener('click', function () { setDial(i); }); dial.appendChild(l);
+    var t = document.createElement('i'); t.className = 'dial__tick'; t.style.transform = 'rotate(' + (dAng[i] + 180) + 'deg) translateY(48px)'; dial.appendChild(t);
+  });
+  var face = document.createElement('span'); face.className = 'dial__face'; knob.appendChild(face);
+  var stepTimer = null;
+  function nearest(a) { var best = 0; dAng.forEach(function (x, i) { if (Math.abs(x - a) < Math.abs(dAng[best] - a)) best = i; }); return best; }
+  function tick() { knob.classList.remove('tick'); void knob.offsetWidth; knob.classList.add('tick'); }
+  function mark(i) { dIdx = i; knob.setAttribute('aria-valuenow', i); knob.setAttribute('aria-valuetext', dOpts[i]); $('#dialOut').textContent = dMsg[i]; $$('.dial__label', dial).forEach(function (l, j) { l.setAttribute('aria-current', j === i); }); }
+  function rest(i) { face.classList.remove('free'); face.style.setProperty('--a', dAng[i] + 'deg'); }
+  /* One smooth turn to the target; the knob gives a soft tick as the face passes each notch on the way. */
+  function setDial(i) {
+    var target = Math.max(0, Math.min(3, i)); clearInterval(stepTimer);
+    if (target === dIdx) { rest(target); return; }
+    var steps = Math.abs(target - dIdx), dir = target > dIdx ? 1 : -1, dur = .16 + steps * .06, n = 0;
+    face.style.setProperty('--dial-dur', dur + 's'); rest(target);
+    stepTimer = setInterval(function () { n++; mark(dIdx + dir); tick(); if (n >= steps) clearInterval(stepTimer); }, (dur * 1000 * .8) / steps);
+  }
+  mark(1); rest(1);
+  knob.addEventListener('pointerdown', function (e) { dragging = true; clearInterval(stepTimer); knob.classList.add('grab'); knob.setPointerCapture(e.pointerId); e.preventDefault(); });
+  knob.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var b = knob.getBoundingClientRect(), d = Math.atan2(e.clientX - (b.left + b.width / 2), (b.top + b.height / 2) - e.clientY) * 180 / Math.PI;
+    d = Math.max(-88, Math.min(88, d)); face.classList.add('free'); face.style.setProperty('--a', d + 'deg');
+    var n = nearest(d); if (n !== dIdx) { mark(n); tick(); }
+  });
+  ['pointerup', 'pointercancel'].forEach(function (ev) { knob.addEventListener(ev, function () { if (!dragging) return; dragging = false; knob.classList.remove('grab'); rest(dIdx); }); });
+  knob.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { setDial(dIdx + 1); e.preventDefault(); } if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { setDial(dIdx - 1); e.preventDefault(); } });
+
+  /* Dropdown */
+  var dd = $('#dd'), ddT = $('.dd__trigger', dd), ddM = $('.dd__menu', dd), ddO = $$('.dd__opt', dd), ddA = 1;
+  function ddPaint() { ddO.forEach(function (o, i) { o.classList.toggle('is-active', i === ddA); }); }
+  function ddOpen(o) { ddM.hidden = !o; ddT.setAttribute('aria-expanded', o); if (o) { ddA = Math.max(0, ddO.findIndex(function (x) { return x.getAttribute('aria-selected') === 'true'; })); ddPaint(); ddM.focus(); } }
+  function ddPick(i) { ddO.forEach(function (x, j) { x.setAttribute('aria-selected', j === i); }); $('#ddVal').textContent = ddO[i].textContent; ddPaint(); setTimeout(function () { ddOpen(false); ddT.focus(); }, 140); }
+  ddT.addEventListener('click', function () { ddOpen(ddM.hidden); });
+  ddO.forEach(function (o, i) { o.addEventListener('click', function () { ddA = i; ddPick(i); }); o.addEventListener('mouseenter', function () { ddA = i; ddPaint(); }); });
+  ddM.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown') { ddA = (ddA + 1) % ddO.length; ddPaint(); e.preventDefault(); }
+    else if (e.key === 'ArrowUp') { ddA = (ddA - 1 + ddO.length) % ddO.length; ddPaint(); e.preventDefault(); }
+    else if (e.key === 'Enter' || e.key === ' ') { ddPick(ddA); e.preventDefault(); }
+    else if (e.key === 'Escape' || e.key === 'Tab') { ddOpen(false); ddT.focus(); }
+  });
+  document.addEventListener('click', function (e) { if (!dd.contains(e.target) && !ddM.hidden) ddOpen(false); });
+
+  /* Fader + odometer */
+  var fader = $('#fader'), cap = $('#faderCap'), digits = $('#digits'), MAX = 50, val = 12, fDrag = false;
+  for (var i = 0; i < 2; i++) { var d = document.createElement('span'), s = '<span class="counter__strip">'; for (var n = 0; n < 10; n++) s += '<span>' + n + '</span>'; d.className = 'counter__digit'; d.innerHTML = s + '</span>'; digits.appendChild(d); }
+  function setVal(v) {
+    val = Math.max(0, Math.min(MAX, Math.round(v)));
+    var w = fader.clientWidth - 28; cap.style.left = (14 + w * val / MAX) + 'px';
+    String(val).padStart(2, '0').split('').forEach(function (c, j) { digits.children[j].firstChild.style.transform = 'translateY(' + (-42 * c) + 'px)'; });
+    fader.setAttribute('aria-valuenow', val); fader.setAttribute('aria-valuetext', val + '명');
+  }
+  function fromX(x) { var b = fader.getBoundingClientRect(); setVal((x - b.left - 14) / (b.width - 28) * MAX); }
+  fader.addEventListener('pointerdown', function (e) { fDrag = true; fader.classList.add('dragging'); fader.setPointerCapture(e.pointerId); fromX(e.clientX); });
+  fader.addEventListener('pointermove', function (e) { if (fDrag) fromX(e.clientX); });
+  ['pointerup', 'pointercancel'].forEach(function (ev) { fader.addEventListener(ev, function () { fDrag = false; fader.classList.remove('dragging'); }); });
+  fader.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { setVal(val + 1); e.preventDefault(); } if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { setVal(val - 1); e.preventDefault(); } });
+  setVal(12); window.addEventListener('resize', function () { setVal(val); });
+
+  /* LED progress: segments light one at a time toward the target, so the change reads as filling, not jumping */
+  function ledInit(el) { var m = $('.led__meter', el); for (var i = 0; i < 20; i++) m.appendChild(document.createElement('i')); el._lit = 0; }
+  function ledSet(el, pct, note) {
+    var cells = $$('.led__meter i', el), target = Math.round(pct / 5);
+    clearInterval(el._t);
+    el.setAttribute('aria-valuenow', pct); $('.led__head b', el).textContent = pct + '%';
+    if (note) $('.led__note', el).textContent = note;
+    el.classList.toggle('led--warn', pct >= 95);
+    el._t = setInterval(function () {
+      if (el._lit === target) { clearInterval(el._t); return; }
+      el._lit += el._lit < target ? 1 : -1;
+      cells.forEach(function (c, j) { c.className = j < el._lit ? (j < 16 ? 'g' : j < 19 ? 'a' : 'r') : ''; });
+    }, 28);
+  }
+  var ledUp = $('#ledUp'), ledDisk = $('#ledDisk'), upTimer;
+  ledInit(ledUp); ledInit(ledDisk);
+  var diskVals = [62, 84, 97, 45], di = 0;
+  ledSet(ledDisk, diskVals[0], '50GB 중 31GB를 쓰고 있어요.');
+  $('#ledStart').addEventListener('click', function () {
+    clearInterval(upTimer); var p = 0; ledSet(ledUp, 0, '사진 24장을 올리는 중이에요.');
+    upTimer = setInterval(function () { p = Math.min(100, p + 4 + Math.round(Math.random() * 6)); ledSet(ledUp, p, p < 100 ? '사진 24장을 올리는 중이에요.' : '사진 24장을 모두 올렸어요.'); if (p >= 100) clearInterval(upTimer); }, 260);
+  });
+  $('#ledFill').addEventListener('click', function () {
+    di = (di + 1) % diskVals.length; var v = diskVals[di];
+    ledSet(ledDisk, v, v >= 95 ? '⚠ 공간이 거의 찼어요. 파일을 정리해 주세요.' : '50GB 중 ' + Math.round(v / 2) + 'GB를 쓰고 있어요.');
+  });
+
+  /* Drawers */
+  $$('#cabinet .drawer-i').forEach(function (d) { var f = $('.drawer-i__front', d); f.addEventListener('click', function () { var o = !d.classList.contains('open'); d.classList.toggle('open', o); f.setAttribute('aria-expanded', o); }); });
+
+  /* Overlays */
+  var lastFocus = null;
+  function openOv(id) { var o = document.getElementById(id); lastFocus = document.activeElement; o.hidden = false; var f = $('button', o); if (f) setTimeout(function () { f.focus(); }, 50); }
+  function closeOv(o) { o.hidden = true; if (lastFocus) lastFocus.focus(); }
+  $$('[data-open]').forEach(function (b) { b.addEventListener('click', function () { openOv(b.getAttribute('data-open')); }); });
+  $$('.overlay').forEach(function (o) {
+    o.addEventListener('click', function (e) { if (e.target === o) closeOv(o); });
+    $$('[data-close]', o).forEach(function (b) { b.addEventListener('click', function () { closeOv(o); if (b.hasAttribute('data-ticket')) printTicket(b.getAttribute('data-ticket')); }); });
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $$('.overlay').forEach(function (o) { if (!o.hidden) closeOv(o); }); });
+
+  /* Ticket toast */
+  var ticket = $('#ticket'), tt;
+  function tear() { ticket.classList.add('out'); setTimeout(function () { ticket.hidden = true; ticket.classList.remove("out"); }, 230); }
+  function printTicket(msg) { $('#ticketText').textContent = msg; ticket.hidden = true; ticket.classList.remove('out'); void ticket.offsetWidth; ticket.hidden = false; clearTimeout(tt); tt = setTimeout(tear, 6000); }
+  ticket.addEventListener('mouseenter', function () { clearTimeout(tt); });
+  ticket.addEventListener('mouseleave', function () { tt = setTimeout(tear, 3000); });
+  $('#ticketBtn').addEventListener('click', function () { printTicket('초대 메일을 보냈어요'); });
+  $('#ticketUndo').addEventListener('click', function () { $('#ticketText').textContent = '되돌렸어요'; clearTimeout(tt); tt = setTimeout(tear, 2000); });
+
+  /* Motion switch: starts from the OS preference, remembered per viewer */
+  var msw = $('#motionSw'), reduced = matchMedia('(prefers-reduced-motion: reduce)').matches, saved = null;
+  try { saved = localStorage.getItem('oat-motion'); } catch (e) {}
+  function setMotion(on, remember) {
+    var h = document.documentElement;
+    h.classList.toggle('motion-full', on); h.classList.toggle('motion-off', !on);
+    msw.setAttribute('aria-checked', on); $('.state', msw).textContent = on ? '켜짐' : '꺼짐';
+    $('#motionNote').hidden = !(reduced && !on);
+    if (remember) { try { localStorage.setItem('oat-motion', on ? 'on' : 'off'); } catch (e) {} }
+  }
+  setMotion(saved ? saved === 'on' : !reduced, false);
+  msw.addEventListener('click', function () { setMotion(msw.getAttribute('aria-checked') !== 'true', true); });
+
+  /* Section nav: latch the key of the section currently in view */
+  var navKeys = $$('.nav .bank .key');
+  function latchNav(id) { navKeys.forEach(function (k) { k.setAttribute('aria-current', k.getAttribute('href') === '#' + id); }); }
+  if ('IntersectionObserver' in window) {
+    var seen = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { seen[en.target.id] = en.isIntersecting ? en.boundingClientRect.top : null; });
+      var best = null, bestTop = Infinity;
+      Object.keys(seen).forEach(function (k) { var t = seen[k]; if (t !== null && Math.abs(t) < bestTop) { bestTop = Math.abs(t); best = k; } });
+      if (best) latchNav(best);
+    }, { rootMargin: '-80px 0px -55% 0px' });
+    $$('section.part').forEach(function (s) { io.observe(s); });
+  }
+  latchNav('base');
+
+  /* Number stepper keys */
+  var inNum = $('#inNum');
+  $$('.numfield .key').forEach(function (b) { b.addEventListener('click', function () { var v = (parseInt(inNum.value, 10) || 0) + parseInt(b.getAttribute('data-step'), 10); inNum.value = Math.max(+inNum.min, Math.min(+inNum.max, v)); }); });
+  /* Money: keep thousands separators and read the amount back in words */
+  var inMoney = $('#inMoney');
+  function won(n) { if (!n) return '0원'; var u = ['', '만', '억', '조'], out = '', i = 0; while (n > 0) { var part = n % 10000; if (part) out = part.toLocaleString('ko-KR') + u[i] + (out ? ' ' + out : ''); n = Math.floor(n / 10000); i++; } return out + ' 원'; }
+  inMoney.addEventListener('input', function () { var n = parseInt(inMoney.value.replace(/[^0-9]/g, ''), 10) || 0; inMoney.value = n ? n.toLocaleString('ko-KR') : ''; inMoney.parentNode.querySelector('.help').textContent = won(n); });
+  inMoney.parentNode.querySelector('.help').textContent = won(2400000);
+
+  /* Date picker */
+  var calBtn = $('#inDate'), cal = $('#cal'), calSel = new Date(2026, 10, 1), calView = new Date(2026, 10, 1), today = new Date(2026, 10, 1);
+  var DOW = ['일', '월', '화', '수', '목', '금', '토'];
+  function fmt(d) { return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + DOW[d.getDay()] + ')'; }
+  function same(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+  function drawCal() {
+    $('.cal__title', cal).textContent = calView.getFullYear() + '년 ' + (calView.getMonth() + 1) + '월';
+    var g = $('.cal__grid', cal), first = new Date(calView.getFullYear(), calView.getMonth(), 1), start = new Date(first);
+    start.setDate(1 - first.getDay());
+    var html = DOW.map(function (d) { return '<span class="cal__dow">' + d + '</span>'; }).join('');
+    for (var i = 0; i < 42; i++) {
+      var d = new Date(start); d.setDate(start.getDate() + i);
+      var cls = 'cal__day' + (d.getMonth() !== calView.getMonth() ? ' out' : '') + (d.getDay() === 0 ? ' sun' : '') + (same(d, today) ? ' today' : '');
+      html += '<button type="button" class="' + cls + '" data-t="' + d.getTime() + '" aria-selected="' + same(d, calSel) + '" aria-label="' + fmt(d) + '">' + d.getDate() + '</button>';
+    }
+    g.innerHTML = html;
+  }
+  function openCal(o) { cal.hidden = !o; calBtn.setAttribute('aria-expanded', o); if (o) { calView = new Date(calSel.getFullYear(), calSel.getMonth(), 1); drawCal(); var s = $('.cal__day[aria-selected="true"]', cal); if (s) s.focus(); } }
+  function pickDate(d) { calSel = d; $('#inDateVal').textContent = fmt(d); drawCal(); setTimeout(function () { openCal(false); calBtn.focus(); }, 160); }
+  calBtn.addEventListener('click', function () { openCal(cal.hidden); });
+  $('#calPrev').addEventListener('click', function () { calView.setMonth(calView.getMonth() - 1); drawCal(); });
+  $('#calNext').addEventListener('click', function () { calView.setMonth(calView.getMonth() + 1); drawCal(); });
+  $('#calToday').addEventListener('click', function () { pickDate(new Date(today)); });
+  cal.addEventListener('click', function (e) { var b = e.target.closest('.cal__day'); if (b) pickDate(new Date(+b.getAttribute('data-t'))); });
+  cal.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { openCal(false); calBtn.focus(); return; }
+    var b = e.target.closest('.cal__day'); if (!b) return;
+    var step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key]; if (!step) return;
+    e.preventDefault(); var d = new Date(+b.getAttribute('data-t')); d.setDate(d.getDate() + step);
+    if (d.getMonth() !== calView.getMonth()) { calView = new Date(d.getFullYear(), d.getMonth(), 1); drawCal(); }
+    var t = $('.cal__day[data-t="' + d.getTime() + '"]', cal); if (t) t.focus();
+  });
+  document.addEventListener('click', function (e) { if (!cal.hidden && !e.target.closest('.datefield')) openCal(false); });
+  $('#inDateVal').textContent = fmt(calSel);
+
+  /* Email: check the format when leaving the field */
+  var inEmail = $('#inEmail'), emailHelp = $('#inEmailHelp');
+  inEmail.addEventListener('blur', function () {
+    var v = inEmail.value.trim(), bad = v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    inEmail.setAttribute('aria-invalid', bad ? 'true' : 'false');
+    emailHelp.className = 'help' + (bad ? ' help--error' : '');
+    emailHelp.textContent = bad ? '⚠ 이메일 주소에 @와 도메인이 있어야 해요. 예: name@company.com' : '로그인과 알림에 쓰여요.';
+  });
+  /* Phone: digits only, hyphens added as you type */
+  var inTel = $('#inTel');
+  inTel.addEventListener('input', function () {
+    var d = inTel.value.replace(/\D/g, '').slice(0, 11);
+    inTel.value = d.length < 4 ? d : d.length < 8 ? d.slice(0, 3) + '-' + d.slice(3) : d.slice(0, 3) + '-' + d.slice(3, d.length - 4) + '-' + d.slice(-4);
+  });
+  /* Password: eye key toggles visibility, four lamps show strength */
+  var inPw = $('#inPw'), eye = $('#pwEye'), meter = $('.pwmeter'), pwHelp = $('#inPwHelp');
+  eye.addEventListener('click', function () { var on = eye.getAttribute('aria-pressed') !== 'true'; eye.setAttribute('aria-pressed', on); inPw.type = on ? 'text' : 'password'; eye.setAttribute('aria-label', on ? '비밀번호 숨기기' : '비밀번호 보기'); });
+  inPw.addEventListener('input', function () {
+    var v = inPw.value, s = 0;
+    if (v.length >= 8) s++; if (/\d/.test(v)) s++; if (/[^A-Za-z0-9]/.test(v)) s++; if (v.length >= 12 && /[A-Z]/.test(v)) s++;
+    if (v && !s) s = 1;
+    meter.setAttribute('data-s', v ? s : 0);
+    pwHelp.textContent = !v ? '8자 이상, 숫자와 기호를 섞으면 더 안전해요.' : ['', '너무 짧아요. 8자 이상으로 해 주세요.', '조금 더 섞어 주세요. 숫자나 기호를 넣어 보세요.', '안전한 비밀번호예요.', '아주 안전한 비밀번호예요.'][s];
+  });
+
+  /* Decimal and signed number fields share one stepper */
+  function numFmt(box, v) {
+    var dec = +box.getAttribute('data-dec');
+    v = Math.max(+box.getAttribute('data-min'), Math.min(+box.getAttribute('data-max'), v));
+    var inp = $('.input', box);
+    if (box.classList.contains('signed')) {
+      inp.value = (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(dec);
+      box.classList.toggle('neg', v < 0); box.classList.toggle('pos', v > 0);
+      $('#inSignedHelp').textContent = (v < 0 ? '영하 ' + Math.abs(v) + '도예요.' : v > 0 ? '영상 ' + v + '도예요.' : '0도예요.') + ' −40부터 40까지.';
+    } else inp.value = v.toFixed(dec);
+    box._v = v;
+  }
+  function numRead(box) { var t = $('.input', box).value.replace('−', '-').replace(/[^0-9.\-]/g, ''); var v = parseFloat(t); return isNaN(v) ? 0 : v; }
+  $$('.numfield[data-dec]').forEach(function (box) {
+    var step = +box.getAttribute('data-step');
+    numFmt(box, numRead(box));
+    $$('.key', box).forEach(function (k) { k.addEventListener('click', function () { numFmt(box, Math.round((box._v + step * +k.getAttribute('data-dir')) * 1000) / 1000); }); });
+    $('.input', box).addEventListener('change', function () { numFmt(box, numRead(box)); });
+  });
+
+  /* Time picker */
+  var tBtn = $('#inTime'), tpk = $('#tpk'), tState = { ap: 0, h: 9, m: 30 };
+  function tLabel() { return (tState.ap ? '오후 ' : '오전 ') + tState.h + '시' + (tState.m ? ' ' + tState.m + '분' : ''); }
+  function tDraw(k, dir) {
+    var txt = { ap: tState.ap ? '오후' : '오전', h: String(tState.h), m: (tState.m < 10 ? '0' : '') + tState.m };
+    $$('.tpk__col', tpk).forEach(function (c) {
+      var key = c.getAttribute('data-k'), s = $('.tpk__win span', c);
+      s.textContent = txt[key];
+      if (key === k && dir) { s.className = ''; void s.offsetWidth; s.className = dir > 0 ? 'up' : 'down'; }
+    });
+  }
+  function tOpen(o) { tpk.hidden = !o; tBtn.setAttribute('aria-expanded', o); if (o) { tDraw(); $('.tpk__col .key', tpk).focus(); } }
+  tBtn.addEventListener('click', function () { tOpen(tpk.hidden); });
+  $$('.tpk__col', tpk).forEach(function (c) {
+    var k = c.getAttribute('data-k');
+    $$('.key', c).forEach(function (b) { b.addEventListener('click', function () {
+      var d = +b.getAttribute('data-d');
+      if (k === 'ap') tState.ap = 1 - tState.ap;
+      if (k === 'h') tState.h = ((tState.h - 1 + d + 12) % 12) + 1;
+      if (k === 'm') tState.m = (tState.m + d * 5 + 60) % 60;
+      tDraw(k, k === 'ap' ? -d : d); $('#inTimeVal').textContent = tLabel();
+    }); });
+  });
+  $('#tpkOk').addEventListener('click', function () { tOpen(false); tBtn.focus(); });
+  tpk.addEventListener('keydown', function (e) { if (e.key === 'Escape') { tOpen(false); tBtn.focus(); } });
+  document.addEventListener('click', function (e) { if (!tpk.hidden && !tBtn.parentNode.contains(e.target)) tOpen(false); });
+  $('#inTimeVal').textContent = tLabel();
+
+  /* More button */
+  $$('.more').forEach(function (m) {
+    var b = $('.more__btn', m), menu = $('.more__menu', m), items = $$('.dd__opt', m), at = 0;
+    function show(o) { menu.hidden = !o; b.setAttribute('aria-expanded', o); if (o) { at = 0; items[0].focus(); } }
+    b.addEventListener('click', function () { show(menu.hidden); });
+    items.forEach(function (it) { it.addEventListener('click', function () { show(false); b.focus(); }); });
+    menu.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); at = (at + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; items[at].focus(); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); items[at].click(); }
+      if (e.key === 'Escape') { show(false); b.focus(); }
+    });
+    document.addEventListener('click', function (e) { if (!menu.hidden && !m.contains(e.target)) show(false); });
+  });
+
+  /* Ledger table: sort by header key, choose rows */
+  var led = $('#ledger'), ledBody = $('tbody', led), ledAll = $('#ledAll');
+  function ledVal(tr, k) { var td = tr.children[k + 1]; return td.hasAttribute('data-v') ? +td.getAttribute('data-v') : k === 3 ? +td.textContent : td.textContent.trim(); }
+  $$('.sort', led).forEach(function (s) { s.addEventListener('click', function () {
+    var k = +s.getAttribute('data-k'), dir = s.getAttribute('aria-sort') === 'descending' ? 'ascending' : 'descending';
+    $$('.sort', led).forEach(function (o) { o.removeAttribute('aria-sort'); }); s.setAttribute('aria-sort', dir);
+    $$('tr', ledBody).sort(function (a, b) { var x = ledVal(a, k), y = ledVal(b, k), r = typeof x === 'number' ? x - y : x.localeCompare(y, 'ko'); return dir === 'ascending' ? r : -r; }).forEach(function (tr) { ledBody.appendChild(tr); });
+  }); });
+  function ledSync() {
+    var boxes = $$('tbody .cbox', led), n = boxes.filter(function (b) { return b.getAttribute('aria-checked') === 'true'; }).length;
+    boxes.forEach(function (b) { b.closest('tr').classList.toggle('is-sel', b.getAttribute('aria-checked') === 'true'); });
+    ledAll.setAttribute('aria-checked', n === 0 ? 'false' : n === boxes.length ? 'true' : 'mixed');
+    $('#ledSel').textContent = n ? n + '명 골랐어요' : '고른 사람이 없어요';
+  }
+  $$('tbody tr', led).forEach(function (tr) { tr.addEventListener('click', function () { var b = $('.cbox', tr); b.setAttribute('aria-checked', b.getAttribute('aria-checked') !== 'true'); ledSync(); }); });
+  ledAll.addEventListener('click', function () { var on = ledAll.getAttribute('aria-checked') !== 'true'; $$('tbody .cbox', led).forEach(function (b) { b.setAttribute('aria-checked', on); }); ledSync(); });
+  ledSync();
+
+  /* Number slots accept only what fits: digits, one dot up to data-dec places, a leading sign when data-min is negative */
+  $$('.numfield .input').forEach(function (inp) {
+    var box = inp.closest('.numfield'), dec = +(box.getAttribute('data-dec') || 0), signed = +(box.getAttribute('data-min') || 0) < 0;
+    var ok = new RegExp('^' + (signed ? '[+\\-−]?' : '') + '\\d*' + (dec ? '(\\.\\d{0,' + dec + '})?' : '') + '$'), good = inp.value.replace(/,/g, ''), t;
+    if (!ok.test(good)) good = '';
+    inp.addEventListener('focus', function () { good = inp.value; });
+    inp.addEventListener('input', function () {
+      var v = inp.value.replace(/,/g, '');
+      if (ok.test(v)) { good = inp.value; return; }
+      var at = inp.selectionStart - (inp.value.length - good.length);
+      inp.value = good; inp.setSelectionRange(Math.max(0, at), Math.max(0, at));
+      inp.classList.remove('reject'); void inp.offsetWidth; inp.classList.add('reject');
+      clearTimeout(t); t = setTimeout(function () { inp.classList.remove('reject'); }, 600);
+    });
+  });
+
+  /* Date-time picker */
+  var dtBtn = $('#inDT'), dtp = $('#dtp'), dt = { d: new Date(2026, 10, 3), ap: 1, h: 2, m: 0 }, dtView = new Date(2026, 10, 1);
+  function dtTime() { return (dt.ap ? '오후 ' : '오전 ') + dt.h + '시' + (dt.m ? ' ' + dt.m + '분' : ''); }
+  function dtLabel() { $('#inDTVal').textContent = fmt(dt.d) + ' ' + dtTime(); $('#dtpSum').textContent = (dt.d.getMonth() + 1) + '월 ' + dt.d.getDate() + '일 ' + dtTime(); }
+  function dtCal() {
+    $('.cal__title', dtp).textContent = dtView.getFullYear() + '년 ' + (dtView.getMonth() + 1) + '월';
+    var start = new Date(dtView); start.setDate(1 - dtView.getDay());
+    var html = DOW.map(function (d) { return '<span class="cal__dow">' + d + '</span>'; }).join('');
+    for (var i = 0; i < 42; i++) {
+      var d = new Date(start); d.setDate(start.getDate() + i);
+      html += '<button type="button" class="cal__day' + (d.getMonth() !== dtView.getMonth() ? ' out' : '') + (d.getDay() === 0 ? ' sun' : '') + (same(d, today) ? ' today' : '') + '" data-t="' + d.getTime() + '" aria-selected="' + same(d, dt.d) + '" aria-label="' + fmt(d) + '">' + d.getDate() + '</button>';
+    }
+    $('.cal__grid', dtp).innerHTML = html;
+  }
+  function dtDrums(k, dir) {
+    var txt = { ap: dt.ap ? '오후' : '오전', h: String(dt.h), m: (dt.m < 10 ? '0' : '') + dt.m };
+    $$('.tpk__col', dtp).forEach(function (c) {
+      var key = c.getAttribute('data-k'), s = $('.tpk__win span', c); s.textContent = txt[key];
+      if (key === k && dir) { s.className = ''; void s.offsetWidth; s.className = dir > 0 ? 'up' : 'down'; }
+    });
+  }
+  function dtOpen(o) { dtp.hidden = !o; dtBtn.setAttribute('aria-expanded', o); if (o) { dtView = new Date(dt.d.getFullYear(), dt.d.getMonth(), 1); dtCal(); dtDrums(); var s = $('.cal__day[aria-selected="true"]', dtp); if (s) s.focus(); } }
+  dtBtn.addEventListener('click', function () { dtOpen(dtp.hidden); });
+  $$('.cal__head .key', dtp).forEach(function (b) { b.addEventListener('click', function () { dtView.setMonth(dtView.getMonth() + +b.getAttribute('data-m')); dtCal(); }); });
+  dtp.addEventListener('click', function (e) { var b = e.target.closest('.cal__day'); if (b) { dt.d = new Date(+b.getAttribute('data-t')); if (dt.d.getMonth() !== dtView.getMonth()) dtView = new Date(dt.d.getFullYear(), dt.d.getMonth(), 1); dtCal(); dtLabel(); var s = $('.cal__day[aria-selected="true"]', dtp); if (s) s.focus(); } });
+  $$('.tpk__col', dtp).forEach(function (c) {
+    var k = c.getAttribute('data-k');
+    $$('.key', c).forEach(function (b) { b.addEventListener('click', function () {
+      var d = +b.getAttribute('data-d');
+      if (k === 'ap') dt.ap = 1 - dt.ap;
+      if (k === 'h') dt.h = ((dt.h - 1 + d + 12) % 12) + 1;
+      if (k === 'm') dt.m = (dt.m + d * 5 + 60) % 60;
+      dtDrums(k, k === 'ap' ? -d : d); dtLabel();
+    }); });
+  });
+  $('#dtpOk').addEventListener('click', function () { dtOpen(false); dtBtn.focus(); });
+  dtp.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { dtOpen(false); dtBtn.focus(); return; }
+    var b = e.target.closest('.cal__day'); if (!b) return;
+    var step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key]; if (!step) return;
+    e.preventDefault(); var d = new Date(+b.getAttribute('data-t')); d.setDate(d.getDate() + step);
+    if (d.getMonth() !== dtView.getMonth()) { dtView = new Date(d.getFullYear(), d.getMonth(), 1); dtCal(); }
+    var n = $('.cal__day[data-t="' + d.getTime() + '"]', dtp); if (n) n.focus();
+  });
+  document.addEventListener('click', function (e) { if (!dtp.hidden && !dtBtn.parentNode.contains(e.target)) dtOpen(false); });
+  dtLabel();
+
+  /* Split-flap board */
+  var fOpts = ['작게', '보통', '크게', '아주 크게'], fSize = [15, 17, 20, 24], flap = $('#flap'), fIdx = 1, fT;
+  function setFlap(i, anim) {
+    var old = fOpts[fIdx]; fIdx = (i + fOpts.length) % fOpts.length; var now = fOpts[fIdx];
+    var h = $$('.flap__half b', flap); // top, bottom, fold (old top), fall (new bottom)
+    h[0].textContent = now; h[1].textContent = anim ? old : now; h[2].textContent = old; h[3].textContent = now;
+    $$('.flap__dots em', flap).forEach(function (d, j) { d.classList.toggle('on', j === fIdx); });
+    flap.setAttribute('aria-label', '글자 크기 ' + now); $('#flapOut').style.fontSize = fSize[fIdx] + 'px';
+    if (!anim) return;
+    flap.classList.remove('go'); void flap.offsetWidth; flap.classList.add('go');
+    clearTimeout(fT); fT = setTimeout(function () { h[1].textContent = now; flap.classList.remove('go'); }, 340);
+  }
+  flap.addEventListener('click', function () { setFlap(fIdx + 1, true); });
+  flap.parentNode.addEventListener('keydown', function (e) { var d = { ArrowLeft: -1, ArrowRight: 1 }[e.key]; if (d) { e.preventDefault(); setFlap(fIdx + d, true); } });
+  setFlap(1, false);
+
+
+  /* Pager: 58 people, 5 per page; shows first, last and neighbours of the current page */
+  var pg = $('#pager'), pgN = 12, pgAt = 1;
+  function drawPager() {
+    var pages = [1, pgAt - 1, pgAt, pgAt + 1, pgN].filter(function (p, i, a) { return p >= 1 && p <= pgN && a.indexOf(p) === i; }).sort(function (a, b) { return a - b; });
+    var html = '<button class="key" data-p="' + (pgAt - 1) + '" aria-label="이전 쪽"' + (pgAt === 1 ? ' disabled' : '') + '><svg class="pager__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>';
+    pages.forEach(function (p, i) {
+      if (i && p - pages[i - 1] > 1) html += '<span class="pager__gap" aria-hidden="true">…</span>';
+      html += '<button class="key" data-p="' + p + '"' + (p === pgAt ? ' aria-current="page"' : '') + ' aria-label="' + p + '쪽">' + p + '</button>';
+    });
+    html += '<button class="key" data-p="' + (pgAt + 1) + '" aria-label="다음 쪽"' + (pgAt === pgN ? ' disabled' : '') + '><svg class="pager__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>';
+    $('.pager__keys', pg).innerHTML = html;
+    $('.pager__info', pg).textContent = '58명 중 ' + ((pgAt - 1) * 5 + 1) + '–' + Math.min(58, pgAt * 5) + '번째';
+  }
+  pg.addEventListener('click', function (e) { var b = e.target.closest('.key'); if (!b || b.disabled) return; pgAt = +b.getAttribute('data-p'); drawPager(); var c = $('[aria-current="page"]', pg); if (c) c.focus(); });
+  drawPager();
+
+  /* Floating windows: open from a key, drag by the title bar, click to bring forward */
+  var ICON = {
+    mail: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/>', doc: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9.5 12h6M9.5 15.5h6"/>',
+    cal: '<rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>', key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/>',
+    img: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M4 17l5-5 4 4 2.5-2.5L20 18"/>', clip: '<path d="M8 12.5l5.5-5.5a3 3 0 0 1 4.2 4.2l-7 7a5 5 0 0 1-7-7l6-6"/>',
+    star: '<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8z"/>', box: '<path d="M3.5 8L12 4l8.5 4v8L12 20l-8.5-4z"/><path d="M3.5 8L12 12l8.5-4M12 12v8"/>'
+  };
+  var bagItems = [['mail', 2, 12, '초대 메일'], ['doc', 1, 3, '회의록'], ['star', 3, 0, '즐겨찾기'], ['cal', 1, 0, '일정'], ['img', 2, 24, '사진'], ['clip', 1, 5, '첨부 파일'], ['key', 3, 0, '관리자 열쇠'], ['box', 2, 2, '보관 상자'], ['doc', 1, 0, '계약서']];
+  var slots = $('#winBag .slots'), sh = '';
+  for (var si = 0; si < 20; si++) {
+    var it = bagItems[si];
+    sh += it ? '<button class="slot has q' + it[1] + '" role="gridcell" aria-label="' + it[3] + (it[2] ? ' ' + it[2] + '개' : '') + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[it[0]] + '</svg>' + (it[2] ? '<b>' + it[2] + '</b>' : '') + '</button>' : '<button class="slot" role="gridcell" aria-label="빈 칸"></button>';
+  }
+  slots.innerHTML = sh; $('#bagInfo').textContent = bagItems.length + ' / 20칸';
+  var winZ = 25;
+  function winFront(w) { w.style.zIndex = ++winZ; }
+  $$('[data-win]').forEach(function (b) { b.addEventListener('click', function () { var w = $('#' + b.getAttribute('data-win')); if (w.hidden) { w.hidden = false; w._from = b; } winFront(w); $('.win__x', w).focus(); }); });
+  $$('.win').forEach(function (w) {
+    function close() { w.hidden = true; if (w._from) w._from.focus(); }
+    $('.win__x', w).addEventListener('click', close);
+    w.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    w.addEventListener('pointerdown', function () { winFront(w); });
+    var bar = $('.win__bar', w);
+    bar.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('.win__x')) return;
+      e.preventDefault(); bar.setPointerCapture(e.pointerId);
+      var r = w.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+      w.classList.remove('land'); w.classList.add('drag');
+      function move(ev) {
+        w.style.left = Math.max(8, Math.min(innerWidth - r.width - 8, ev.clientX - dx)) + 'px';
+        w.style.top = Math.max(8, Math.min(innerHeight - 60, ev.clientY - dy)) + 'px';
+      }
+      function up() { bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up); w.classList.remove('drag'); void w.offsetWidth; w.classList.add('land'); }
+      bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up);
+    });
+  });
+  slots.addEventListener('click', function (e) { var s = e.target.closest('.slot'); if (!s) return; $$('.slot', slots).forEach(function (o) { o.removeAttribute('aria-selected'); }); s.setAttribute('aria-selected', 'true'); });
+  slots.addEventListener('keydown', function (e) {
+    var all = $$('.slot', slots), i = all.indexOf(document.activeElement), d = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -5, ArrowDown: 5 }[e.key];
+    if (i < 0 || !d) return; e.preventDefault(); var n = all[i + d]; if (n) n.focus();
+  });
+
+  /* Copy */
+  $('#copyBtn').addEventListener('click', function () {
+    var b = this, txt = $('#codeText').textContent;
+    function done() { b.textContent = '복사했어요'; setTimeout(function () { b.textContent = '복사'; }, 2000); }
+    function sel() { var r = document.createRange(); r.selectNodeContents($('#codeText')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = '선택했어요 · Ctrl+C'; }
+    try { navigator.clipboard.writeText(txt).then(done, sel); } catch (e) { sel(); }
+  });
+})();
+</script>

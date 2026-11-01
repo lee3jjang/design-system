@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lento · 마지막 곡, 출격 직전</title>
+<meta name="description" content="1940년대 마지막 발라드의 공기에 거대 로봇 조종석 HUD와 어린이 스티커북을 억지로 붙인 아트 페이지.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..800&family=Gowun+Batang:wght@400;700&display=swap">
+<style>
+/* LENTO — seed 19451101.
+   A mecha cockpit that has been left on in a late-night club until its signal colours went warm,
+   a sticker book whose kiss-cut white edge was peeled off the paper and stuck onto the light,
+   and one slow ballad at 60 bpm holding all of it together.
+   Rules come from the liner-notes table at the bottom of the page. */
+:root {
+  color-scheme: dark;
+  /* colour ← cockpit, slowed down: green/amber/red/blue signal code kept, every hue drifted to tungsten */
+  --night: #120a0b; --night-2: #1a0e10; --sheet: #2b1418; --sheet-2: #3a1b20; --slot: #22100f;
+  --ok: #e0bd68;        /* was HUD green → old gold */
+  --ok-d: #8a6a2a;
+  --caution: #f2a54a;   /* was amber → honey tungsten */
+  --threat: #e98a92;    /* was signal red → burgundy rose (text-safe) */
+  --threat-f: #7c1f2c;  /* burgundy fill */
+  --ally: #f3e6cc;      /* was cool blue → cream smoke */
+  --ink: #1c0a0d;       /* sticker outline */
+  --kiss: #fbf1dd;      /* sticker kiss-cut edge, kept */
+  --tx: #f3e6cc; --tx-2: #d9c3a0; --tx-3: #b89f7c;
+  --haze: rgba(242,165,74,.16);
+  --slow: 4s cubic-bezier(.45,0,.25,1);          /* colour changes take a whole bar and a bit */
+  --lock: cubic-bezier(.5,-0.4,.2,1.9);          /* cockpit lock, exaggerated into a dip */
+  --serif: "Bodoni Moda", "Gowun Batang", Georgia, serif;
+  --kr: "Gowun Batang", "Nanum Myeongjo", "AppleMyungjo", serif;
+  --beat: 1s;                                    /* 60 bpm */
+  --bar: 3s;                                     /* one-two-three */
+  --dim: .55;                                    /* club lights, set by the dimmer */
+}
+* { box-sizing: border-box; }
+html { background: var(--night); scroll-behavior: smooth; }
+body { margin: 0; color: var(--tx); font: 400 17px/1.85 var(--kr); word-break: keep-all; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  background:
+    radial-gradient(ellipse 900px 620px at 50% -6%, rgba(242,165,74,calc(var(--dim) * .34)), transparent 70%) no-repeat,
+    radial-gradient(ellipse 700px 500px at 85% 40%, rgba(124,31,44,.28), transparent 70%) no-repeat,
+    var(--night);
+  transition: background var(--slow); }
+/* LP-dust grain */
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: .09; mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+button, input { font: inherit; color: inherit; }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--ok); text-underline-offset: 4px; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--kiss); outline-offset: 5px; border-radius: 6px; box-shadow: 0 0 0 7px rgba(242,165,74,.45); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* typography ← mood, exaggerated: supper-club didone, pushed to marquee scale; even HUD numerals are Bodoni */
+.cap { font: 600 13px/1.2 var(--serif); letter-spacing: .32em; text-transform: uppercase; color: var(--tx-2); font-variant: small-caps; }
+.num { font-family: var(--serif); font-variant-numeric: lining-nums tabular-nums; font-style: italic; }
+
+/* ---------- the sticker rule, bent ----------
+   2px ink outline, flat fill, the white kiss-cut edge (kept, slightly cream), a faint dashed die-line.
+   Stickers are never straight: --r is set per sticker. */
+.stk { --f: var(--sheet-2); --t: var(--tx); --r: 0deg;
+  position: relative; display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border: 2px solid var(--ink); border-radius: 14px;
+  background: var(--f); color: var(--t); transform: rotate(var(--r));
+  box-shadow: 0 0 0 5px var(--kiss), 0 0 0 6.5px rgba(251,241,221,.0), 0 0 0 8px rgba(251,241,221,.22), 0 10px 26px -4px rgba(0,0,0,.6), 0 0 34px 4px rgba(242,165,74,calc(var(--dim) * .35));
+  transition: background-color var(--slow), box-shadow var(--slow); }
+.stk.gold { --f: var(--ok); --t: var(--ink); }
+.stk.honey { --f: var(--caution); --t: var(--ink); }
+.stk.rose { --f: var(--threat-f); --t: var(--kiss); }
+.stk.cream { --f: var(--ally); --t: var(--ink); }
+/* peel corner */
+.peelable::after { content: ""; position: absolute; top: -2px; right: -2px; width: 0; height: 0; border-radius: 0 12px 0 6px;
+  background: linear-gradient(225deg, var(--night) 50%, #efe1c4 50%, #d9c19b); box-shadow: -2px 2px 4px rgba(0,0,0,.35); transition: width .9s var(--lock), height .9s var(--lock); }
+.peelable:hover::after, .peelable:focus-within::after { width: 22px; height: 22px; }
+
+/* ---------- buttons: stickers you press ---------- */
+.btn { --f: var(--sheet-2); --t: var(--tx); --r: 0deg; cursor: pointer; min-height: 52px; padding: 10px 22px; border: 2px solid var(--ink); border-radius: 999px;
+  background: var(--f); color: var(--t); transform: rotate(var(--r)); font: 600 17px/1.2 var(--kr); letter-spacing: .02em;
+  box-shadow: 0 0 0 5px var(--kiss), 0 0 0 8px rgba(251,241,221,.2), 0 12px 24px -6px rgba(0,0,0,.65);
+  transition: transform 1.2s var(--lock), background-color var(--slow), color var(--slow); display: inline-flex; align-items: center; gap: 10px; }
+.btn:hover { transform: rotate(calc(var(--r) * -1)) translateY(-3px); }
+.btn:active { transform: rotate(var(--r)) scale(.96, .92); transition-duration: .15s; }
+.btn.gold { --f: var(--ok); --t: var(--ink); }
+.btn.honey { --f: var(--caution); --t: var(--ink); }
+.btn.rose { --f: var(--threat-f); --t: var(--kiss); }
+.btn[aria-pressed="true"] { --f: var(--caution); --t: var(--ink); }
+.btn .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid currentColor; }
+.btn[aria-pressed="true"] .dot { background: currentColor; }
+
+/* ---------- layout ← sticker, as-is: the page is a stack of sticker-book backing sheets ---------- */
+.sheetbook { display: grid; gap: 44px; padding: 34px 0 30px; }
+.sheet { position: relative; background:
+    linear-gradient(180deg, rgba(255,255,255,.035), transparent 30%), var(--sheet);
+  border-radius: 22px; padding: 30px 30px 34px 66px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.7), inset 0 0 0 1px rgba(251,241,221,.07); }
+/* binder holes */
+.sheet::before { content: ""; position: absolute; left: 22px; top: 34px; bottom: 34px; width: 18px;
+  background: radial-gradient(circle at 9px 9px, var(--night) 7px, rgba(251,241,221,.14) 7.5px 8.5px, transparent 9px) 0 0 / 18px 64px no-repeat space; }
+/* perforation */
+.sheet + .sheet::after { content: ""; position: absolute; left: 20px; right: 20px; top: -23px; border-top: 2px dashed rgba(217,195,160,.28); }
+.sheet-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; margin-bottom: 44px; }
+.sheet-head h2 { font: italic 500 clamp(34px, 5vw, 58px)/1 var(--serif); letter-spacing: -.01em; }
+.sheet-head h2 small { display: block; font: 400 17px/1.5 var(--kr); letter-spacing: 0; color: var(--tx-2); font-style: normal; margin-top: 8px; }
+.slot { position: relative; border: 2px dashed rgba(217,195,160,.3); border-radius: 18px; padding: 20px; background: var(--slot); }
+.slot > .lab { position: absolute; top: -12px; left: 16px; padding: 0 8px; background: var(--sheet); }
+
+/* ---------- hero ---------- */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 18px; flex-wrap: wrap; }
+.top .cap b { color: var(--ok); font-weight: 600; }
+.hero { padding-top: 24px; }
+.title { position: relative; margin: 6px 0 0; }
+.title h1 { font: italic 400 clamp(118px, 25vw, 330px)/.8 var(--serif); font-variation-settings: "opsz" 96; letter-spacing: -.045em; color: var(--tx);
+  text-shadow: 0 0 60px rgba(242,165,74,calc(var(--dim) * .55)); transition: text-shadow var(--slow); margin-left: -.04em; }
+.title h1 span { color: var(--ok); }
+.title .sub { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 20px; }
+.title .sub p { font: 700 clamp(22px, 3vw, 32px)/1.35 var(--kr); letter-spacing: .02em; }
+.title .tag { position: absolute; right: 2%; top: 14%; --r: 8deg; font: italic 600 18px/1.1 var(--serif); }
+.lede { max-width: 40em; margin-top: 22px; color: var(--tx-2); font-size: 18px; }
+
+/* the cockpit view */
+.scene { position: relative; margin-top: 34px; aspect-ratio: 16 / 9; border-radius: 26px; overflow: hidden; background: #0d0607;
+  box-shadow: 0 0 0 2px var(--ink), 0 0 0 7px var(--kiss), 0 0 0 9px rgba(251,241,221,.2), 0 40px 80px -20px rgba(0,0,0,.8); }
+.scene svg.view { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.scene .hud { position: absolute; inset: 0; pointer-events: none; }
+.hud .stk { position: absolute; font-size: 16px; line-height: 1.25; padding: 6px 12px; animation: sway calc(var(--bar) * 2) ease-in-out infinite; }
+.hud .s-tgt { left: 4%; top: 6%; --r: -4deg; }
+.hud .s-bpm { right: 4%; top: 6%; --r: 3deg; animation-delay: -1.5s; }
+.hud .s-t { right: 4%; bottom: 7%; --r: -2deg; flex-direction: column; align-items: flex-start; gap: 0; animation-delay: -.7s; }
+.hud .s-t .num { font-size: clamp(26px, 3.6vw, 44px); line-height: 1; font-weight: 600; }
+.hud .s-lock { left: 50%; bottom: 7%; --r: 2deg; translate: -50% 0; animation-delay: -2.2s; }
+@keyframes sway { 0%,100% { transform: rotate(var(--r)) translateY(0); } 50% { transform: rotate(calc(var(--r) * -.4)) translateY(-3px); } }
+/* line ← cockpit, transplanted onto time: the altitude ladder is the night, the heading tape is the beat */
+.ladder { position: absolute; left: 3.5%; top: 22%; bottom: 22%; width: 74px; border-left: 2px solid var(--ok); }
+.ladder i { position: absolute; left: 0; width: 12px; border-top: 2px solid var(--ok); font: italic 600 14px/1 var(--serif); color: var(--ok); }
+.ladder i span { position: absolute; left: 18px; top: -8px; white-space: nowrap; }
+.ladder i.mj { width: 20px; }
+.ladder .ptr { position: absolute; left: -9px; width: 0; height: 0; border: 8px solid transparent; border-left: 12px solid var(--caution); transform: translateY(-8px); transition: top var(--slow); }
+.tape { position: absolute; right: 4%; top: 19%; display: flex; gap: 18px; padding: 6px 4px; border-bottom: 2px solid var(--ok); }
+.tape b { font: italic 600 18px/1 var(--serif); color: var(--ok-d); transition: color .3s, transform .9s var(--lock); min-width: 34px; text-align: center; }
+.tape b.on { color: var(--kiss); transform: translateY(-3px) scale(1.18); }
+.tape::before, .tape::after { content: ""; position: absolute; bottom: -8px; width: 2px; height: 8px; background: var(--ok); }
+.tape::before { left: 0; } .tape::after { right: 0; }
+
+/* console */
+.console { display: grid; grid-template-columns: 1.15fr 1fr; gap: 26px; margin-top: 30px; align-items: stretch; }
+.console .slot { display: flex; flex-wrap: wrap; gap: 22px 22px; align-items: center; padding: 28px 22px 24px; }
+.console .note { flex-basis: 100%; color: var(--tx-2); font-size: 16px; }
+.dimmer { display: grid; gap: 10px; width: 100%; }
+.dimmer label { display: flex; justify-content: space-between; gap: 10px; }
+.dimmer output { font: italic 600 22px/1 var(--serif); color: var(--caution); }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { height: 10px; border-radius: 99px; border: 2px solid var(--ink); background: linear-gradient(90deg, #3a1b20, var(--caution)); box-shadow: 0 0 0 4px var(--kiss); }
+input[type="range"]::-moz-range-track { height: 10px; border-radius: 99px; border: 2px solid var(--ink); background: linear-gradient(90deg, #3a1b20, var(--caution)); box-shadow: 0 0 0 4px var(--kiss); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 34px; height: 34px; margin-top: -14px; border-radius: 50%; border: 2px solid var(--ink); background: var(--ok); box-shadow: 0 0 0 4px var(--kiss), 0 6px 12px rgba(0,0,0,.5); }
+input[type="range"]::-moz-range-thumb { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--ink); background: var(--ok); box-shadow: 0 0 0 4px var(--kiss); }
+input[type="range"]:focus-visible { outline-offset: 2px; }
+
+/* ---------- gauges ---------- */
+.gauges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px 26px; }
+.gauge { min-height: 300px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding-top: 28px; }
+.gauge svg { width: 100%; height: auto; display: block; overflow: visible; }
+.gauge .read { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.gauge .big { font: italic 500 54px/.9 var(--serif); color: var(--tx); }
+.gauge .big small { font-size: 20px; color: var(--tx-2); margin-left: 4px; }
+.gauge p { color: var(--tx-2); font-size: 16px; }
+/* state ← sticker, exaggerated: every state is a fat puffy sticker slapped on crooked */
+.puff { font: 700 20px/1.1 var(--kr); padding: 10px 18px; border-radius: 18px; border-width: 3px;
+  box-shadow: 0 0 0 7px var(--kiss), 0 0 0 10px rgba(251,241,221,.22), inset 0 -6px 0 rgba(0,0,0,.18), inset 0 5px 0 rgba(255,255,255,.28), 0 16px 28px -6px rgba(0,0,0,.7); }
+.gauge .puff { position: absolute; right: -10px; top: -22px; }
+
+/* ---------- sortie sequence ---------- */
+.seq { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 22px; counter-reset: s; }
+.seq li { counter-increment: s; position: relative; padding: 18px 18px 18px 74px; border-radius: 16px; border: 2px dashed rgba(217,195,160,.3); min-height: 92px; color: var(--tx-2);
+  transition: background-color var(--slow), color 1.4s, transform 1.6s var(--lock), box-shadow 1.4s, border-color 1.4s; }
+.seq li::before { content: counter(s, decimal-leading-zero); position: absolute; left: 16px; top: 14px; font: italic 600 36px/1 var(--serif); color: var(--ok-d); transition: color 1.4s; }
+.seq li b { display: block; color: var(--tx); font-weight: 700; }
+.seq li.on { background: var(--ok); color: var(--ink); border: 2px solid var(--ink); transform: rotate(-1.6deg) scale(1.03);
+  box-shadow: 0 0 0 5px var(--kiss), 0 0 0 8px rgba(251,241,221,.2), 0 16px 26px -8px rgba(0,0,0,.7); }
+.seq li.on b, .seq li.on::before { color: var(--ink); }
+.seq li.done::before { color: var(--ok); }
+
+/* ---------- warnings ---------- */
+.warns { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 34px 30px; padding: 14px 6px 6px; }
+.warn { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: start; padding: 18px 18px 18px 18px; border-radius: 20px; min-height: 120px;
+  transition: transform 1s var(--lock), opacity .9s ease, background-color var(--slow); transform-origin: 90% 0; }
+.warn .k { grid-row: span 2; font: italic 700 15px/1 var(--serif); letter-spacing: .14em; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); padding: 2px 0; }
+.warn p { font-size: 17px; line-height: 1.6; }
+.warn .peel { justify-self: end; min-height: 44px; min-width: 44px; padding: 6px 16px; border-radius: 999px; border: 2px solid currentColor; background: transparent; cursor: pointer; font: 600 16px/1 var(--kr); }
+.warn .peel:hover { background: rgba(0,0,0,.14); }
+.warn[hidden] { display: none; }
+.warn.gone { transform: rotate(14deg) translate(30px, -40px) scale(.92); opacity: 0; }
+.warn-tools { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 30px; }
+.warn-tools p { color: var(--tx-2); font-size: 16px; }
+
+/* ---------- liner notes ---------- */
+.liner { display: grid; grid-template-columns: 1fr 1.6fr; gap: 30px; align-items: start; }
+.card { --r: -1.2deg; display: block; padding: 26px 26px 24px; border-radius: 10px; background: #efe1c4; color: #2a1416; transform: rotate(var(--r));
+  box-shadow: 0 0 0 2px var(--ink), 0 0 0 7px var(--kiss), 0 0 0 9px rgba(251,241,221,.2), 0 30px 50px -16px rgba(0,0,0,.8); }
+.card h3 { font: italic 600 28px/1.1 var(--serif); }
+.card .seed { display: inline-block; margin: 8px 0 16px; font: italic 600 18px/1 var(--serif); letter-spacing: .08em; border-bottom: 2px solid #2a1416; }
+.card table { width: 100%; border-collapse: collapse; font-size: 16px; line-height: 1.45; }
+.card th, .card td { text-align: left; padding: 9px 8px 9px 0; border-top: 1px solid rgba(42,20,22,.25); vertical-align: top; }
+.card thead th { font: 600 13px/1.2 var(--serif); letter-spacing: .2em; text-transform: uppercase; border-top: 0; color: #5a3236; }
+.card tbody th { white-space: nowrap; padding-right: 12px; }
+.card td:nth-child(2), .card td:nth-child(3) { font: italic 600 16px/1.4 var(--serif); white-space: nowrap; }
+.card td em { font-style: normal; color: #6d1d2a; }
+.concept p + p { margin-top: 14px; }
+.concept p { color: var(--tx-2); }
+.concept p:first-child { color: var(--tx); font-size: 20px; line-height: 1.7; }
+.swatches { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 26px; }
+.sw { width: 92px; }
+.sw i { display: block; height: 58px; border-radius: 12px; border: 2px solid var(--ink); box-shadow: 0 0 0 4px var(--kiss); margin-bottom: 10px; }
+.sw span { display: block; font-size: 16px; line-height: 1.3; }
+.sw small { font: italic 14px/1.3 var(--serif); color: var(--tx-3); }
+
+footer { padding: 30px 0 110px; color: var(--tx-2); font-size: 16px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 30px; justify-content: space-between; align-items: center; padding-left: max(96px, env(safe-area-inset-left, 0px)); }
+footer a { display: inline-flex; align-items: center; min-height: 44px; }
+
+@media (max-width: 900px) {
+  .console, .liner { grid-template-columns: 1fr; }
+  .gauges { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  body { font-size: 17px; }
+  .sheet { padding: 26px 18px 28px 44px; border-radius: 18px; }
+  .sheet::before { left: 12px; width: 18px; }
+  .gauges { grid-template-columns: 1fr; }
+  .scene { aspect-ratio: 4 / 5; border-radius: 20px; }
+  .hud .stk { font-size: 16px; padding: 4px 9px; }
+  .hud .s-lock { bottom: 23%; }
+  .ladder { left: 4%; top: 24%; bottom: 30%; }
+  .tape { top: 17%; right: 5%; gap: 10px; }
+  .title .tag { top: -4%; right: 8px; font-size: 16px; padding: 6px 12px; }
+  .warns { grid-template-columns: 1fr; padding: 14px 0 0; }
+  .card { padding: 22px 16px 20px; --r: -.6deg; }
+  .card thead { display: none; }
+  .card tr { display: grid; grid-template-columns: auto auto 1fr; gap: 2px 12px; padding: 10px 0; border-top: 1px solid rgba(42,20,22,.25); }
+  .card th, .card td { border: 0; padding: 0; }
+  .card tr > :first-child { grid-column: 1 / -1; font-weight: 700; }
+  .card td:nth-child(4) { grid-column: 1 / -1; }
+  .seq { grid-template-columns: 1fr; }
+  footer .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+  footer { padding-bottom: 100px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition-duration: .01s !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="wrap hero">
+  <div class="top">
+    <p class="cap">기체 <b>LT-60</b> · 좌석 한 개 반 · 문 닫기 전</p>
+    <p class="cap">seed <b class="num">19451101</b> · 60 bpm · 3/4</p>
+  </div>
+  <div class="title">
+    <h1>Len<span>t</span>o</h1>
+    <span class="stk honey tag peelable" style="--r:8deg">한 곡만 더</span>
+    <div class="sub">
+      <p>마지막 곡, 출격 직전</p>
+      <span class="stk cream" style="--r:-3deg">발진 시퀀스: 하나 · 둘 · 셋</span>
+    </div>
+  </div>
+  <p class="lede">작은 클럽의 문 닫기 직전, 텅스텐 전구 하나 아래에서 조종석의 모든 계기가 아주 천천히 켜져 있습니다. 조준선은 적을 찾지 않고 춤추는 두 사람을 따라가고, 경고등은 다정한 말만 합니다. 계기선은 스티커처럼 떼어져 호박색 안개 위에 조금 비뚤게 붙어 있습니다.</p>
+
+  <div class="scene" id="scene" role="img" aria-label="호박색 안개 속 전구 아래에서 천천히 흔들리는 한 쌍. 조준선이 그들을 부드럽게 따라가고, 왼쪽 눈금은 밤의 시간을, 위쪽 띠는 박자를 보여 줍니다.">
+    <svg class="view" viewBox="0 0 1000 625" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <defs>
+        <radialGradient id="pool" cx="50%" cy="20%" r="80%">
+          <stop offset="0" stop-color="#f6c27a" stop-opacity=".95"/>
+          <stop offset=".35" stop-color="#e39545" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#7c1f2c" stop-opacity=".1"/>
+        </radialGradient>
+        <radialGradient id="bulbglow"><stop offset="0" stop-color="#fff3d6"/><stop offset=".2" stop-color="#f6c27a" stop-opacity=".8"/><stop offset="1" stop-color="#f2a54a" stop-opacity="0"/></radialGradient>
+        <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b1418"/><stop offset="1" stop-color="#0d0607"/></linearGradient>
+        <filter id="blur30" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="30"/></filter>
+        <filter id="blur6"><feGaussianBlur stdDeviation="5"/></filter>
+      </defs>
+      <rect width="1000" height="625" fill="#0f0708"/>
+      <rect y="430" width="1000" height="195" fill="url(#floor)"/>
+      <!-- far couples, out of focus -->
+      <g filter="url(#blur6)" opacity=".55" fill="#2b1418">
+        <g class="far" data-ph="1.1"><ellipse cx="190" cy="420" rx="40" ry="90"/><circle cx="182" cy="318" r="22"/><circle cx="214" cy="326" r="20"/></g>
+        <g class="far" data-ph="2.3"><ellipse cx="820" cy="410" rx="44" ry="96"/><circle cx="806" cy="302" r="22"/><circle cx="838" cy="310" r="20"/></g>
+      </g>
+      <!-- texture ← sticker, transplanted onto light: the bulb's light pool is a die-cut sticker with a kiss-cut edge -->
+      <g id="poolg" transform="rotate(-3 500 360)">
+        <path id="poolpath" d="M500 92 C 600 92 760 300 820 470 C 850 560 690 600 500 600 C 300 600 150 570 180 470 C 240 300 400 92 500 92 Z" fill="url(#pool)" opacity=".55" stroke="#fbf1dd" stroke-width="9" stroke-opacity=".75" stroke-linejoin="round"/>
+        <path d="M500 78 C 610 78 776 296 838 470 C 872 572 700 616 500 616 C 292 616 130 584 162 470 C 224 296 392 78 500 78 Z" fill="none" stroke="#fbf1dd" stroke-opacity=".3" stroke-width="1.5" stroke-dasharray="7 8"/>
+        <!-- peeled corner of the light -->
+        <path d="M772 520 C 800 500 834 500 844 512 C 820 540 792 556 772 560 Z" fill="#efe1c4" opacity=".85"/>
+      </g>
+      <!-- haze -->
+      <g filter="url(#blur30)">
+        <ellipse class="hz" cx="420" cy="260" rx="260" ry="90" fill="#f2a54a" opacity=".18"/>
+        <ellipse class="hz" cx="640" cy="330" rx="220" ry="70" fill="#e0bd68" opacity=".14"/>
+        <ellipse class="hz" cx="300" cy="400" rx="200" ry="60" fill="#7c1f2c" opacity=".35"/>
+      </g>
+      <!-- bulb -->
+      <line x1="500" y1="0" x2="500" y2="70" stroke="#3a1b20" stroke-width="3"/>
+      <circle id="glow" cx="500" cy="86" r="120" fill="url(#bulbglow)" opacity=".8"/>
+      <circle cx="500" cy="86" r="15" fill="#fff3d6"/>
+      <!-- the couple -->
+      <g id="couple">
+        <g id="coupleInner">
+          <path d="M452 600 C 440 520 444 440 462 380 C 474 340 494 330 500 330 C 506 330 526 340 538 380 C 556 440 560 520 548 600 Z" fill="#1c0a0d"/>
+          <path d="M462 380 C 474 340 494 330 500 330" fill="none" stroke="#e0bd68" stroke-width="3" opacity=".8"/>
+          <path d="M538 380 C 526 340 506 330 500 330" fill="none" stroke="#f2a54a" stroke-width="2" opacity=".5"/>
+          <circle cx="478" cy="296" r="30" fill="#1c0a0d"/>
+          <circle cx="522" cy="306" r="27" fill="#1c0a0d"/>
+          <path d="M452 286 A 30 30 0 0 1 492 270" fill="none" stroke="#e0bd68" stroke-width="3" opacity=".85"/>
+          <path d="M540 286 A 27 27 0 0 1 548 310" fill="none" stroke="#f2a54a" stroke-width="2" opacity=".6"/>
+        </g>
+      </g>
+      <!-- reticle: exaggerated cockpit lock -->
+      <g id="ret" transform="translate(500 300)" fill="none" stroke="#e0bd68" stroke-width="2.5" stroke-linecap="round">
+        <circle r="70" stroke-dasharray="4 10" opacity=".7"/>
+        <path d="M-92 -60 v-32 h32 M92 -60 v-32 h-32 M-92 60 v32 h32 M92 60 v32 h-32"/>
+        <path d="M-120 0 h28 M92 0 h28 M0 -120 v28 M0 92 v28"/>
+        <circle r="5" fill="#f2a54a" stroke="none"/>
+        <rect x="-112" y="-112" width="224" height="224" rx="26" stroke="#fbf1dd" stroke-opacity=".5" stroke-width="5"/>
+      </g>
+    </svg>
+    <div class="hud" aria-hidden="true">
+      <div class="ladder" id="ladder"><b class="ptr" id="ptr"></b></div>
+      <div class="tape"><b data-b="0">하나</b><b data-b="1">둘</b><b data-b="2">셋</b></div>
+      <span class="stk rose s-tgt">목표 <span class="num">2</span> · 서로만 봄</span>
+      <span class="stk cream s-bpm"><span class="num">60</span>&nbsp;bpm</span>
+      <span class="stk gold s-lock" id="lockTag">조준 · 둘만</span>
+      <span class="stk honey s-t"><span style="font-size:14px">폐점까지</span><span class="num" id="tLeft">03:12</span></span>
+    </div>
+  </div>
+
+  <div class="console">
+    <div class="slot">
+      <span class="cap lab">조종간 · 출격 반전</span>
+      <button class="btn gold" id="encore" type="button" style="--r:-2deg" aria-describedby="encoreNote">한 곡 더 · 출격 연기</button>
+      <button class="btn" id="needle" type="button" aria-pressed="false" style="--r:1.5deg" aria-label="바늘 내리기: 지직거림과 피아노 화음을 켜거나 끕니다"><i class="dot" aria-hidden="true"></i><span id="needleTxt">바늘 내리기</span></button>
+      <button class="btn rose" id="lockBtn" type="button" aria-pressed="true" style="--r:-1deg"><i class="dot" aria-hidden="true"></i>조준 유지</button>
+      <p class="note" id="encoreNote">이 기체의 발진 버튼은 거꾸로 달려 있습니다. 누를수록 출격이 미뤄집니다. 앙코르 <span class="num" id="encN">0</span>회.</p>
+    </div>
+    <div class="slot">
+      <span class="cap lab">조도계 · 원래는 고도계</span>
+      <div class="dimmer">
+        <label for="dim"><span>클럽 조명</span><output id="dimOut" for="dim">55%</output></label>
+        <input id="dim" type="range" min="10" max="100" value="55" aria-describedby="dimNote">
+      </div>
+      <p class="note" id="dimNote">조명이 낮아질수록 기체는 하강합니다. 색은 4초에 걸쳐 바뀝니다, 한 마디하고 조금 더.</p>
+    </div>
+  </div>
+  <p class="sr" aria-live="polite" id="live"></p>
+</header>
+
+<main class="wrap sheetbook">
+
+  <section class="sheet" aria-labelledby="h-g">
+    <div class="sheet-head">
+      <h2 id="h-g">Instruments<small>계기판 · 측정하는 것은 거리와 숨과 온기</small></h2>
+      <p class="cap">sheet <span class="num">02</span> / 05</p>
+    </div>
+    <div class="gauges">
+      <div class="slot gauge">
+        <span class="cap lab">거리</span>
+        <span class="stk gold puff" style="--r:6deg" id="gDistTag">가까움</span>
+        <svg viewBox="0 0 220 130" aria-hidden="true">
+          <path d="M20 115 A 90 90 0 0 1 200 115" fill="none" stroke="#3a1b20" stroke-width="16" stroke-linecap="round"/>
+          <path id="gDistArc" d="M20 115 A 90 90 0 0 1 200 115" fill="none" stroke="#e0bd68" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="40 100"/>
+          <g stroke="#b89f7c" stroke-width="2">
+            <path d="M110 18 v12 M24 115 h12 M184 115 h12 M42 47 l9 9 M178 47 l-9 9"/>
+          </g>
+          <line id="gNeedle" x1="110" y1="115" x2="110" y2="36" stroke="#fbf1dd" stroke-width="4" stroke-linecap="round" transform="rotate(-20 110 115)"/>
+          <circle cx="110" cy="115" r="9" fill="#f2a54a" stroke="#1c0a0d" stroke-width="2"/>
+        </svg>
+        <div class="read"><p class="big num" id="gDist">18<small>cm</small></p><p>두 어깨 사이</p></div>
+      </div>
+      <div class="slot gauge">
+        <span class="cap lab">호흡</span>
+        <span class="stk cream puff" style="--r:-7deg">느림</span>
+        <svg viewBox="0 0 220 130" aria-hidden="true">
+          <g stroke="#3a1b20" stroke-width="1"><path d="M0 25 h220 M0 65 h220 M0 105 h220"/></g>
+          <polyline id="breath" fill="none" stroke="#f2a54a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points="0,65 220,65"/>
+          <polyline id="breath2" fill="none" stroke="#e0bd68" stroke-width="2" stroke-dasharray="3 5" opacity=".8" points="0,65 220,65"/>
+        </svg>
+        <div class="read"><p class="big num" id="gBreath">11<small>/분</small></p><p>두 숨이 겹치는 중</p></div>
+      </div>
+      <div class="slot gauge">
+        <span class="cap lab">온기</span>
+        <span class="stk honey puff" style="--r:4deg" id="gWarmTag">따뜻함</span>
+        <svg viewBox="0 0 220 130" aria-hidden="true" id="warmBars"></svg>
+        <div class="read"><p class="big num" id="gWarm">36.9<small>°</small></p><p>잡은 손 기준</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet" aria-labelledby="h-s">
+    <div class="sheet-head">
+      <h2 id="h-s">Sortie, slowly<small>발진 시퀀스 · 한 단계에 한 마디(3초)</small></h2>
+      <p class="cap">sheet <span class="num">03</span> / 05</p>
+    </div>
+    <ol class="seq" id="seq">
+      <li><b>마지막 곡 확인</b>밴드가 피아노 쪽을 봅니다.</li>
+      <li><b>목표 포착</b>테이블 건너편, 한 사람.</li>
+      <li><b>손 내밀기</b>말은 필요 없음.</li>
+      <li><b>하나, 둘, 셋</b>발은 거의 움직이지 않음.</li>
+      <li><b>체중 반쯤 맡기기</b>기체 균형 정상.</li>
+      <li><b>귀 가까이</b>통신은 숨소리로 대체.</li>
+      <li><b>출격 보류</b>아무도 먼저 일어나지 않음.</li>
+    </ol>
+  </section>
+
+  <section class="sheet" aria-labelledby="h-w">
+    <div class="sheet-head">
+      <h2 id="h-w">Warnings<small>경고등 · 다정한 말만 하도록 개조됨, 다 읽었으면 떼어 내세요</small></h2>
+      <p class="cap">sheet <span class="num">04</span> / 05</p>
+    </div>
+    <div class="warns" id="warns">
+      <div class="stk honey warn peelable" style="--r:-2deg"><span class="k">Caution</span><p>음악이 처음보다 느려졌습니다. 고칠 필요 없음.</p><button class="peel" type="button" aria-label="경고 떼기: 음악이 느려짐">떼기</button></div>
+      <div class="stk rose warn peelable" style="--r:1.5deg"><span class="k">Warning</span><p>오른손이 계속 따뜻합니다. 놓지 마십시오.</p><button class="peel" type="button" aria-label="경고 떼기: 오른손이 따뜻함">떼기</button></div>
+      <div class="stk gold warn peelable" style="--r:-1deg"><span class="k">Notice</span><p>바깥은 조용해졌습니다. 이제 천천히 하셔도 됩니다.</p><button class="peel" type="button" aria-label="경고 떼기: 바깥은 조용해짐">떼기</button></div>
+      <div class="stk cream warn peelable" style="--r:2.5deg"><span class="k">Fault</span><p>이유를 찾는 계기가 응답하지 않습니다. 정상입니다.</p><button class="peel" type="button" aria-label="경고 떼기: 이유 계기 무응답">떼기</button></div>
+      <div class="stk honey warn peelable" style="--r:.8deg"><span class="k">Caution</span><p>출구 쪽을 보는 사람이 없습니다.</p><button class="peel" type="button" aria-label="경고 떼기: 출구를 보지 않음">떼기</button></div>
+      <div class="stk rose warn peelable" style="--r:-2.4deg"><span class="k">Warning</span><p>다음 곡이 없습니다. 이번 곡을 길게.</p><button class="peel" type="button" aria-label="경고 떼기: 다음 곡 없음">떼기</button></div>
+    </div>
+    <div class="warn-tools">
+      <button class="btn" id="restick" type="button" style="--r:-1.5deg">전부 다시 붙이기</button>
+      <p id="warnCount">붙어 있는 경고 6장</p>
+    </div>
+  </section>
+
+  <section class="sheet" aria-labelledby="h-l">
+    <div class="sheet-head">
+      <h2 id="h-l">Liner notes<small>억지 결합의 규칙 · 시드로 뽑고 그대로 지었습니다</small></h2>
+      <p class="cap">sheet <span class="num">05</span> / 05</p>
+    </div>
+    <div class="liner">
+      <div class="concept">
+        <p>이유가 필요 없는 사랑을, 이유만으로 움직이는 기계에 태웠습니다.</p>
+        <p>조종석은 원래 차갑고 빠릅니다. 여기서는 신호색이 밤새 켜져 있다가 텅스텐 빛으로 바랜 상태이고, 잠금 동작은 너무 크게 출렁여서 춤의 기울임이 되었습니다. 스티커북의 흰 칼선은 종이에서 떼어져 전구의 빛 웅덩이에 붙었습니다.</p>
+        <p>발진은 거꾸로 동작합니다. 누를수록 늦어지고, 0이 되어도 같은 곡이 다시 돕니다. 레코드의 마지막 홈처럼.</p>
+        <div class="swatches" aria-label="색 견본">
+          <div class="sw"><i style="background:#e0bd68"></i><span>올드 골드</span><small>← HUD green</small></div>
+          <div class="sw"><i style="background:#f2a54a"></i><span>꿀빛 전구</span><small>← amber</small></div>
+          <div class="sw"><i style="background:#7c1f2c"></i><span>버건디</span><small>← signal red</small></div>
+          <div class="sw"><i style="background:#f3e6cc"></i><span>크림 연기</span><small>← ally blue</small></div>
+          <div class="sw"><i style="background:#120a0b"></i><span>깊은 그늘</span><small>← panel</small></div>
+        </div>
+      </div>
+      <figure class="card" style="margin:0">
+        <h3>Extraction, side B</h3>
+        <p class="seed">SEED 19451101 · python random.Random</p>
+        <table>
+          <thead><tr><th scope="col">축</th><th scope="col">출처</th><th scope="col">연산</th><th scope="col">이 페이지의 규칙</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">색</th><td>cockpit</td><td>slow down</td><td>신호색 체계는 그대로, 색상만 텅스텐으로 바래게. 색 전환 4초.</td></tr>
+            <tr><th scope="row">질감</th><td>sticker</td><td>transplant</td><td>흰 키스컷 테두리를 <em>빛</em>으로 옮김. 전구의 빛 웅덩이가 칼선 스티커.</td></tr>
+            <tr><th scope="row">선·테두리</th><td>cockpit</td><td>transplant</td><td>HUD 눈금을 <em>시간</em>으로 옮김. 고도 눈금 = 밤의 시각, 방위 띠 = 박자.</td></tr>
+            <tr><th scope="row">움직임</th><td>cockpit</td><td>exaggerate</td><td>잠금 오버슈트를 과장해 기울임(딥)이 되게. 조준선은 저감쇠 스프링.</td></tr>
+            <tr><th scope="row">글꼴</th><td>mood</td><td>exaggerate</td><td>40년대 디도니 이탤릭을 간판 크기로. HUD 숫자도 Bodoni.</td></tr>
+            <tr><th scope="row">조작 은유</th><td>mood</td><td>invert</td><td>떠나고 싶지 않음 → 발진 버튼이 출격을 미룸.</td></tr>
+            <tr><th scope="row">상태 표시</th><td>sticker</td><td>exaggerate</td><td>모든 상태는 크고 볼록한 스티커, 비뚤게.</td></tr>
+            <tr><th scope="row">레이아웃</th><td>sticker</td><td>as-is</td><td>스티커북 대지 그대로: 바인더 구멍, 점선 칼집 자리, 절취선.</td></tr>
+            <tr><th scope="row">소리·시간</th><td>mood</td><td>repeat</td><td>60bpm 3박을 반복, 끝나면 같은 곡이 다시. 소리는 기본 꺼짐.</td></tr>
+          </tbody>
+        </table>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="../">← 디자인 시스템 목록으로</a>
+    <p>Lento · 조종석 HUD × 스티커북 × 마지막 발라드 · 가사와 곡명은 싣지 않았습니다.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const live = $('#live');
+  const say = m => { live.textContent = ''; setTimeout(() => live.textContent = m, 40); };
+
+  /* ---------- the night ladder (line ← cockpit, transplanted onto time) ---------- */
+  const ladder = $('#ladder');
+  const hours = ['01:00', '00:30', '00:00', '23:30', '23:00', '22:30'];
+  hours.forEach((h, i) => {
+    const t = document.createElement('i');
+    t.style.top = (i / (hours.length - 1) * 100) + '%';
+    if (i % 2 === 0) { t.className = 'mj'; t.innerHTML = '<span>' + h + '</span>'; }
+    ladder.appendChild(t);
+  });
+  const ptr = $('#ptr');
+
+  /* ---------- dimmer ---------- */
+  const dim = $('#dim'), dimOut = $('#dimOut');
+  const setDim = () => {
+    const v = +dim.value;
+    document.documentElement.style.setProperty('--dim', (v / 100).toFixed(2));
+    dimOut.textContent = v + '%';
+    ptr.style.top = (100 - (v - 10) / 90 * 100) + '%';
+    $('#glow').setAttribute('opacity', (0.25 + v / 100 * 0.75).toFixed(2));
+    $('#poolpath').setAttribute('opacity', (0.15 + v / 100 * 0.6).toFixed(2));
+  };
+  dim.addEventListener('input', setDim); setDim();
+
+  /* ---------- warmth bars ---------- */
+  const wb = $('#warmBars'); const bars = [];
+  for (let i = 0; i < 10; i++) {
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    const h = 30 + i * 8;
+    r.setAttribute('x', 6 + i * 21); r.setAttribute('y', 122 - h); r.setAttribute('width', 15); r.setAttribute('height', h); r.setAttribute('rx', 4);
+    r.setAttribute('fill', '#3a1b20'); r.style.transition = 'fill 4s';
+    wb.appendChild(r); bars.push(r);
+  }
+
+  /* ---------- song clock (sound/time ← mood, repeat) ---------- */
+  const SONG = 192; // 3:12
+  let left = SONG, encores = 0, loops = 0, ended = false;
+  const tLeft = $('#tLeft');
+  const fmt = s => { s = Math.max(0, Math.ceil(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  $('#encore').addEventListener('click', () => {
+    encores++; left = Math.min(left + 60, 599); ended = false;
+    $('#encN').textContent = encores;
+    say('출격을 1분 미뤘습니다. 폐점까지 ' + fmt(left) + '.');
+  });
+
+  /* ---------- lock ---------- */
+  let locked = true;
+  const lockBtn = $('#lockBtn'), lockTag = $('#lockTag');
+  lockBtn.addEventListener('click', () => {
+    locked = !locked; lockBtn.setAttribute('aria-pressed', locked);
+    lockTag.textContent = locked ? '조준 · 둘만' : '탐색 중 · 천천히';
+    say(locked ? '조준선이 두 사람을 다시 따라갑니다.' : '조준선이 안개 속을 천천히 헤맵니다.');
+  });
+
+  /* ---------- warnings: peel off, stick back crooked ---------- */
+  const warns = [...document.querySelectorAll('.warn')];
+  const count = () => { const n = warns.filter(w => !w.hidden).length; $('#warnCount').textContent = n ? '붙어 있는 경고 ' + n + '장' : '경고가 모두 떨어졌습니다. 조용합니다.'; return n; };
+  warns.forEach((w, i) => w.querySelector('.peel').addEventListener('click', () => {
+    w.classList.add('gone');
+    const done = () => {
+      w.hidden = true; const n = count();
+      const next = warns.slice(i + 1).concat(warns.slice(0, i)).find(x => !x.hidden);
+      (next ? next.querySelector('.peel') : $('#restick')).focus();
+      say('경고 한 장을 떼었습니다. 남은 경고 ' + n + '장.');
+    };
+    reduce.matches ? done() : setTimeout(done, 900);
+  }));
+  $('#restick').addEventListener('click', () => {
+    warns.forEach(w => {
+      w.hidden = false; w.style.setProperty('--r', ((Math.random() * 6) - 3).toFixed(1) + 'deg');
+      requestAnimationFrame(() => w.classList.remove('gone'));
+    });
+    count(); say('경고를 전부 다시 붙였습니다. 조금씩 비뚤게.');
+  });
+
+  /* ---------- sound (off by default): LP crackle + one soft chord loop ---------- */
+  let ac = null, master = null, chordT = null, ci = 0, soundOn = false;
+  const CH = [[174.6, 220, 261.6, 329.6], [146.8, 174.6, 220, 329.6], [98, 174.6, 233.1, 293.7], [130.8, 164.8, 233.1, 293.7]];
+  function chord() {
+    if (!ac) return;
+    const now = ac.currentTime, f = CH[ci++ % CH.length];
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1100; lp.connect(master);
+    f.forEach((hz, k) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = k === 0 ? 'sine' : 'triangle'; o.frequency.value = hz; o.detune.value = (Math.random() - .5) * 8;
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(.05, now + 0.08 + k * 0.12); // slow rolled chord
+      g.gain.exponentialRampToValueAtTime(.0005, now + 6.2);
+      o.connect(g); g.connect(lp); o.start(now + k * 0.12); o.stop(now + 6.5);
+    });
+  }
+  function crackle() {
+    const len = ac.sampleRate * 3, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) { d[i] = (Math.random() * 2 - 1) * 0.012; if (Math.random() < 0.0006) d[i] += (Math.random() * 2 - 1) * 0.5; }
+    const s = ac.createBufferSource(); s.buffer = buf; s.loop = true;
+    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900;
+    s.connect(hp); hp.connect(master); s.start();
+  }
+  const needle = $('#needle');
+  needle.addEventListener('click', async () => {
+    soundOn = !soundOn; needle.setAttribute('aria-pressed', soundOn);
+    $('#needleTxt').textContent = soundOn ? '바늘 올리기' : '바늘 내리기';
+    try {
+      if (soundOn) {
+        if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination); crackle(); }
+        await ac.resume();
+        master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(.9, ac.currentTime, .8);
+        chord(); chordT = setInterval(chord, 6000);
+        say('바늘을 내렸습니다. 아주 작게 재생됩니다.');
+      } else if (ac) {
+        clearInterval(chordT); master.gain.setTargetAtTime(0, ac.currentTime, .3);
+        say('바늘을 올렸습니다. 조용합니다.');
+      }
+    } catch (e) { say('이 브라우저에서는 소리를 낼 수 없습니다.'); }
+  });
+
+  /* ---------- the slow loop ---------- */
+  const couple = $('#couple'), inner = $('#coupleInner'), ret = $('#ret');
+  const fars = [...document.querySelectorAll('.far')], hzs = [...document.querySelectorAll('.hz')];
+  const tape = [...document.querySelectorAll('.tape b')], seq = [...document.querySelectorAll('#seq li')];
+  const needleEl = $('#gNeedle'), arc = $('#gDistArc'), gDist = $('#gDist'), gBreath = $('#gBreath'), gWarm = $('#gWarm');
+  const br1 = $('#breath'), br2 = $('#breath2');
+  let rx = 380, ry = 200, vx = 0, vy = 0, last = performance.now(), t0 = last, lastBeat = -1, lastSec = -1;
+
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    const still = reduce.matches;
+    const t = (now - t0) / 1000;
+
+    // clock
+    if (!ended) { left -= dt; if (left <= 0) { left = 0; ended = true; loops++; say('곡이 끝났습니다. 아무도 일어나지 않아 같은 곡이 다시 시작됩니다.'); setTimeout(() => { left = SONG; ended = false; }, 4000); } }
+    const sec = Math.ceil(left);
+    if (sec !== lastSec) { lastSec = sec; tLeft.textContent = ended ? '다시' : fmt(left); }
+    const p = 1 - Math.min(1, left / SONG);
+
+    // the couple sways at 60 bpm, one bar = 3 beats
+    const sx = still ? 0 : 34 * Math.sin(t * Math.PI * 2 / 6);
+    const rot = still ? 0 : 2.6 * Math.sin(t * Math.PI * 2 / 3);
+    couple.setAttribute('transform', 'translate(' + sx.toFixed(1) + ' 0)');
+    inner.setAttribute('transform', 'rotate(' + rot.toFixed(2) + ' 500 600)');
+    if (!still) {
+      fars.forEach((f, i) => f.setAttribute('transform', 'rotate(' + (1.8 * Math.sin(t * Math.PI * 2 / 3 + +f.dataset.ph)).toFixed(2) + ' ' + (i ? 820 : 190) + ' 520)'));
+      hzs.forEach((h, i) => h.setAttribute('transform', 'translate(' + (40 * Math.sin(t / (9 + i * 3) + i)).toFixed(1) + ' ' + (10 * Math.cos(t / 11 + i)).toFixed(1) + ')'));
+    }
+
+    // reticle: under-damped spring = the lock overshoots into a slow dip
+    let tx, ty;
+    const a = rot * Math.PI / 180, hx = 500 - 500, hy = 300 - 600;
+    const headX = 500 + sx + (hx * Math.cos(a) - hy * Math.sin(a)), headY = 600 + (hx * Math.sin(a) + hy * Math.cos(a));
+    if (locked) { tx = headX; ty = headY; }
+    else { tx = 500 + 260 * Math.sin(t / 4.1); ty = 280 + 110 * Math.sin(t / 2.7 + 1); }
+    if (still) { rx = tx; ry = ty; }
+    else { const k = 3.2, c = 1.25; vx += (k * (tx - rx) - c * vx) * dt; vy += (k * (ty - ry) - c * vy) * dt; rx += vx * dt; ry += vy * dt; }
+    ret.setAttribute('transform', 'translate(' + rx.toFixed(1) + ' ' + ry.toFixed(1) + ') rotate(' + (still ? 0 : (vx * .02).toFixed(2)) + ')');
+
+    // beat tape + sequence
+    const beat = Math.floor(t) % 3;
+    if (beat !== lastBeat) {
+      lastBeat = beat;
+      tape.forEach((b, i) => b.classList.toggle('on', i === beat));
+      const step = Math.floor(t / 3) % seq.length;
+      seq.forEach((li, i) => { li.classList.toggle('on', i === step); li.classList.toggle('done', i < step); });
+      // gauges update once per beat (slow, readable)
+      const dist = Math.max(3, 28 - 24 * p + 2 * Math.sin(t / 3));
+      gDist.innerHTML = dist.toFixed(0) + '<small>cm</small>';
+      const close = 1 - (dist - 3) / 25;
+      needleEl.setAttribute('transform', 'rotate(' + (-80 + 160 * close).toFixed(1) + ' 110 115)');
+      arc.setAttribute('stroke-dasharray', (close * 100).toFixed(1) + ' 100');
+      $('#gDistTag').textContent = dist < 8 ? '아주 가까움' : dist < 18 ? '가까움' : '조금 멂';
+      gBreath.innerHTML = (12 - 3 * p).toFixed(0) + '<small>/분</small>';
+      const lit = Math.round(3 + 7 * p);
+      bars.forEach((r, i) => r.setAttribute('fill', i < lit ? (i > 6 ? '#e98a92' : i > 3 ? '#f2a54a' : '#e0bd68') : '#3a1b20'));
+      gWarm.innerHTML = (36.5 + 0.6 * p).toFixed(1) + '<small>°</small>';
+      $('#gWarmTag').textContent = lit > 7 ? '아주 따뜻함' : '따뜻함';
+    }
+    // breath trace: two breaths drifting into phase as the song goes on
+    const pts = [], pts2 = [];
+    for (let x = 0; x <= 220; x += 5) {
+      const ph = still ? 0 : t;
+      pts.push(x + ',' + (65 - 34 * Math.sin(x / 220 * Math.PI * 3 - ph * 1.1)).toFixed(1));
+      pts2.push(x + ',' + (65 - 28 * Math.sin(x / 220 * Math.PI * 3 - ph * 1.1 + (1 - p) * 1.6)).toFixed(1));
+    }
+    br1.setAttribute('points', pts.join(' ')); br2.setAttribute('points', pts2.join(' '));
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+<script src="../systems-nav.js?v=20261101" defer></script>
+</body>
+</html>

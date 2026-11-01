@@ -30,8 +30,8 @@
   --font-title: "Nanum Myeongjo", "Noto Serif KR", serif;
   --font: "Gowun Batang", "Nanum Myeongjo", "Apple SD Gothic Neo", serif;
 }
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; background: var(--paper); }
+* { box-sizing: border-box; font-variant-numeric: lining-nums !important; }
+html { scroll-behavior: smooth; background: var(--paper); font-variant-numeric: lining-nums; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
 body { margin: 0; color: var(--ink); font: 400 17px/1.8 var(--font); word-break: keep-all; -webkit-font-smoothing: antialiased; overflow-x: hidden;
   background: radial-gradient(ellipse 1100px 600px at 15% 0%, #f6efdf, transparent 70%) no-repeat, var(--paper); }
@@ -42,6 +42,7 @@ p { margin: 0; }
 a { color: var(--lapis); text-underline-offset: 4px; }
 code { font: .84em ui-monospace, Menlo, Consolas, monospace; background: var(--paper-2); padding: 1px 6px; border-radius: 2px; }
 .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+[hidden] { display: none !important; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 :focus { outline: none; }
 :focus-visible { outline: 2px solid var(--lapis); outline-offset: 4px; border-radius: 2px; }
@@ -70,7 +71,7 @@ code { font: .84em ui-monospace, Menlo, Consolas, monospace; background: var(--p
 .hero__k { font: 500 13px/1.4 var(--font-cap); letter-spacing: .3em; color: var(--sang-d); }
 .hero h1 { margin-top: 12px; font: 600 clamp(76px, 12.5vw, 152px)/.86 var(--font-latin); letter-spacing: -.01em; color: var(--ink); }
 .hero h1 em { font-style: italic; font-weight: 500; color: var(--lapis); }
-.hero h1 small { display: block; margin-top: 18px; font: 800 clamp(21px, 2.6vw, 27px)/1.35 var(--font-title); letter-spacing: .02em; color: var(--ink-2); }
+.hero h1 small { display: block; margin-top: 30px; font: 800 clamp(21px, 2.6vw, 27px)/1.35 var(--font-title); letter-spacing: .02em; color: var(--ink-2); }
 .hero__p { margin-top: 22px; max-width: 40ch; font-size: 17.5px; color: var(--ink-2); }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 30px; }
 .hero__sig { margin-top: 34px; display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; background: var(--gesso); box-shadow: inset 0 0 0 1px var(--paper-3), 0 8px 14px -10px rgba(43,33,25,.5); transform: rotate(-1.2deg); font: 500 12.5px/1.3 var(--font-cap); letter-spacing: .24em; color: var(--ink-2); }
@@ -277,9 +278,8 @@ section.cap { padding-block: 100px 8px; scroll-margin-top: 76px; display: grid; 
 .check input:disabled ~ .check__t { color: var(--ink-3); }
 .check__t { display: grid; line-height: 1.5; } .check__t b { font: 800 16.5px/1.45 var(--font-title); } .check__t small { font-size: 14.5px; color: var(--ink-2); }
 /* Radio: pigment wells in a palette; the chosen well fills with its colour */
-.palette { position: relative; padding: 28px 30px 30px 34px; background: #dcc093; border-radius: 46% 54% 50% 44% / 40% 44% 56% 60%; box-shadow: inset 0 -6px 0 rgba(90,64,48,.18), inset 0 2px 0 rgba(255,255,255,.35), 0 16px 22px -16px rgba(43,33,25,.7); max-width: 420px; }
-.palette::after { content: ""; position: absolute; right: 28px; bottom: 34px; width: 34px; height: 26px; border-radius: 50%; background: var(--paper-2); box-shadow: inset 0 3px 4px rgba(43,33,25,.35); }
-.palette legend { float: left; width: 100%; }
+.palette { position: relative; padding: 30px 96px 32px 34px; background: #dcc093; border-radius: 120px 160px 150px 110px / 110px 130px 150px 120px; box-shadow: inset 0 -6px 0 rgba(90,64,48,.18), inset 0 2px 0 rgba(255,255,255,.35), 0 16px 22px -16px rgba(43,33,25,.7); max-width: 420px; }
+.palette::after { content: ""; position: absolute; right: 30px; top: 50%; margin-top: -13px; width: 34px; height: 26px; border-radius: 50%; background: var(--paper-2); box-shadow: inset 0 3px 4px rgba(43,33,25,.35); }
 .well { position: relative; width: 32px; height: 32px; flex: none; border-radius: 50%; background: #c8aa79; box-shadow: inset 0 3px 5px rgba(43,33,25,.4), 0 1px 0 rgba(255,255,255,.4); }
 .well::after { content: ""; position: absolute; inset: 4px; border-radius: 46% 54% 50% 50% / 55% 45% 55% 45%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.3), transparent 50%), var(--pc); transform: scale(0); transition: transform .5s var(--ease); }
 .check input:checked + .well::after { transform: scale(1); }
@@ -348,13 +348,13 @@ legend { padding: 0; margin-bottom: 14px; font: 500 italic 17px/1.3 var(--font-l
 .mix input::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 44px; margin-top: -37px; border: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='44' viewBox='0 0 28 44'%3E%3Cpath d='M14 8L5 42M14 8l9 34' stroke='%233b2a1f' stroke-width='3.4' stroke-linecap='round'/%3E%3Cpath d='M14 8L5 42M14 8l9 34' stroke='%23d9bc72' stroke-width='1.3' stroke-linecap='round'/%3E%3Cpath d='M9 26h10' stroke='%233b2a1f' stroke-width='1.5'/%3E%3Ccircle cx='14' cy='8' r='6.5' fill='%23d9bc72' stroke='%233b2a1f' stroke-width='2'/%3E%3Ccircle cx='14' cy='8' r='2' fill='%233b2a1f'/%3E%3C/svg%3E") center/contain no-repeat; }
 .mix input::-moz-range-thumb { width: 22px; height: 34px; border: 0; border-radius: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='44' viewBox='0 0 28 44'%3E%3Cpath d='M14 8L5 42M14 8l9 34' stroke='%233b2a1f' stroke-width='3.4' stroke-linecap='round'/%3E%3Ccircle cx='14' cy='8' r='6.5' fill='%23d9bc72' stroke='%233b2a1f' stroke-width='2'/%3E%3C/svg%3E") center/contain no-repeat; }
 .mix input:focus-visible { outline: 2px solid var(--lapis); outline-offset: 2px; }
-.mix__scale { display: flex; justify-content: space-between; font: 500 italic 15px/1 var(--font-latin); color: var(--ink-3); }
+.mix__scale { display: flex; justify-content: space-between; font: 500 16px/1 var(--font-latin); font-variant-numeric: lining-nums; color: var(--ink-3); }
 
 /* Side menu: the churches of Florence, each on its square of perspective pavement */
 .chiese { position: relative; width: 100%; max-width: 340px; margin: 0; padding: 14px 0; list-style: none; display: grid; gap: 4px; }
 .chiese a { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 52px; padding: 0 14px 0 10px; color: var(--ink-2); text-decoration: none; font: 700 16px/1.25 var(--font-title); transition: background .3s, color .3s; }
 .chiese a::before { content: ""; width: 30px; height: 20px; background: conic-gradient(var(--sang-l) 25%, var(--gesso) 0 50%, var(--sang-l) 0 75%, var(--gesso) 0) 0 0/50% 50%; clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%); box-shadow: inset 0 0 0 1px var(--umber-l); }
-.chiese a em { font-style: normal; font: 600 16px/1 var(--font-latin); color: var(--ink-3); }
+.chiese a em { font-style: normal; font: 600 18px/1 var(--font-latin); font-variant-numeric: lining-nums; color: var(--ink-3); }
 .chiese a small { display: block; font: 500 italic 14.5px/1.2 var(--font-latin); color: var(--ink-3); }
 .chiese a:hover { background: rgba(248,242,228,.85); color: var(--ink); }
 .chiese a[aria-current="page"] { color: #f8f2e4; background: var(--lapis); box-shadow: inset 3px 0 0 var(--gold-l); }
@@ -393,7 +393,7 @@ legend { padding: 0; margin-bottom: 14px; font: 500 italic 17px/1.3 var(--font-l
 .carts { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* Cards: works in thin gilt frames with museum captions */
-.opere { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 30px 24px; width: 100%; }
+.opere { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(172px, 100%), 1fr)); gap: 30px 24px; width: 100%; }
 .opera { display: grid; align-content: start; gap: 14px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; color: var(--ink); }
 .opera__art { display: block; padding: 7px; background: var(--umber-d); box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 0 7px var(--umber-d), inset 0 0 0 8px var(--gold-l), 0 18px 22px -16px rgba(43,33,25,.75); transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
 .opera__art svg { width: 100%; height: auto; display: block; aspect-ratio: 4 / 3; }
@@ -521,7 +521,7 @@ dialog[open] { animation: rise .6s var(--ease); }
 .lettera__seal { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 47% 53% 50% 50% / 52% 48% 52% 48%; background: radial-gradient(circle at 38% 32%, rgba(255,255,255,.22), transparent 50%), var(--c, var(--verd)); color: #f8f2e4; font: 600 20px/1 var(--font-cap); box-shadow: inset 0 0 0 4px rgba(0,0,0,.12), 0 3px 6px -2px rgba(43,33,25,.5); }
 .lettera small { display: block; font: 500 italic 15px/1.2 var(--font-latin); color: var(--ink-3); }
 .lettera b { display: block; font: 800 16px/1.4 var(--font-title); }
-.lettera span { font-size: 14.5px; color: var(--ink-2); line-height: 1.5; }
+.lettera div > span { font-size: 14.5px; color: var(--ink-2); line-height: 1.5; }
 .lettera .x { width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--ink-2); font-size: 20px; }
 .lettera .x:hover { background: var(--paper-2); color: var(--ink); }
 .lettera--lapis { --c: var(--lapis); } .lettera--verm { --c: var(--verm); } .lettera--ochre { --c: var(--ochre-d); }
@@ -672,7 +672,7 @@ pre.code .c { color: #a8957c; } pre.code .p { color: var(--ochre-l); } pre.code 
       </div></fieldset></div></div></div>
 
   <div class="tav"><div class="spec"><div class="note"><h3>안료 라디오 <small>tavolozza</small></h3><p>하나만 고를 때. 팔레트의 오목한 칸에 고른 안료가 담깁니다. 이름과 쓰임을 글자로 함께.</p></div>
-    <div class="stage"><fieldset class="palette"><legend>성모의 망토 색</legend><div class="stack">
+    <div class="stage"><fieldset><legend>성모의 망토 색</legend><div class="palette stack">
       <label class="check"><input type="radio" name="manto" checked><span class="well" style="--pc:var(--lapis)"></span><span class="check__t"><b>울트라마린</b><small>청금석 · 금보다 비쌉니다</small></span></label>
       <label class="check"><input type="radio" name="manto"><span class="well" style="--pc:var(--verm)"></span><span class="check__t"><b>버밀리언</b><small>진사 · 순교자의 옷</small></span></label>
       <label class="check"><input type="radio" name="manto"><span class="well" style="--pc:var(--verd)"></span><span class="check__t"><b>베르디그리</b><small>녹청 · 빨리 변합니다</small></span></label>
@@ -893,7 +893,7 @@ pre.code .c { color: #a8957c; } pre.code .p { color: var(--ochre-l); } pre.code 
     con += `<path d="M424 548L-120 ${hy}" opacity=".7"/><path d="M36 548L580 ${hy}" opacity=".7"/>`;
     con += `<circle cx="${vx}" cy="${hy}" r="158" stroke-dasharray="3 5" opacity=".55"/><circle cx="${vx}" cy="${hy}" r="5"/><path d="M${vx - 12} ${hy}h24M${vx} ${hy - 12}v24"/>`;
     con += `<path d="M20 548V600M440 548V600M-10 548H470" opacity=".6"/><path d="M8 18a40 40 0 0 1 40-40" opacity=".5"/></g>`;
-    const label = `<g font-family="Cormorant Garamond, serif" font-style="italic" font-size="15" fill="#7e3519"><text x="${vx + 10}" y="${hy - 10}">punto di fuga · 소실점</text><text x="-56" y="${hy - 8}">orizzonte</text><text x="440" y="590" text-anchor="end">linea di terra</text></g>
+    const label = `<g font-family="Cormorant Garamond, serif" font-style="italic" font-size="15" fill="#7e3519"><text x="${vx + 10}" y="${hy - 10}">punto di fuga · 소실점</text><text x="-56" y="${hy - 8}">orizzonte</text><text x="-50" y="544">linea di terra</text></g>
       <text x="80" y="-6" font-family="Cormorant Garamond, serif" font-style="italic" font-size="16" fill="#a3492a" opacity=".7" transform="translate(160 0) scale(-1 1)">la prospettiva è briglia e timone</text>`;
     // painted arch border: band with pearls, thin gold rules
     const border = `<path d="M28 552V214A202 202 0 0 1 432 214V552" fill="none" stroke="#6a3326" stroke-width="16"/><path d="M28 552V214A202 202 0 0 1 432 214V552" fill="none" stroke="#e3c27c" stroke-width="2.6" stroke-dasharray="0 13" stroke-linecap="round"/>

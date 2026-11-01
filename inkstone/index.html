@@ -590,6 +590,16 @@ section.part { grid-template-columns: minmax(0, 1fr); scroll-margin-top: 96px; }
 .mis-num { font: 900 56px/1 var(--font-serif); }
 .yard > .kiln + .kiln { margin-top: 8px; }
 .toasts { z-index: 80; }
+.pill { white-space: nowrap; }
+.bay__body.stacked { grid-template-columns: minmax(0, 1fr); }
+.bay__body.stacked .note { border-right: 0; border-bottom: 1px solid var(--hanji-3); }
+@media (max-width: 640px) {
+  .tablewrap.assign table { min-width: 0; }
+  .assign thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .assign tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; border-bottom: 1px solid var(--hanji-3); }
+  .assign td { border-bottom: 0; padding: 10px 14px; }
+  .assign td:nth-child(3) { grid-column: 1 / -1; padding-top: 0; color: var(--ink-2); font-size: 14.5px; }
+}
 .btnrow { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: center; }
 @media (max-width: 560px) { .part__head { grid-template-columns: 1fr; } }
 </style>
@@ -631,7 +641,7 @@ section.part { grid-template-columns: minmax(0, 1fr); scroll-margin-top: 96px; }
 <section class="part" id="base">
   <div class="part__head"><div class="part__no"><span class="mis" data-t="01">01</span></div><div><h2>기초</h2><p>묵판은 Sansa · Dal · Riso 세 시스템의 크로스오버입니다. 다만 섞지 않았습니다. 요소마다 출처를 <b>무작위로 뽑았고</b>, 뽑힌 시스템의 파일에서 그 요소의 모양·재료·색·글꼴·움직임을 최대한 그대로 떼어 와 <b>억지로</b> 한 페이지에 붙였습니다. 부딪히는 것이 의도입니다.</p></div></div>
 
-  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>크로스오버 배정표 <small class="src src--sansa">표 · SANSA</small></h3><p>왼쪽은 요소, 오른쪽은 제비로 뽑힌 출처. 별표(*)는 배정 목록에 없어 붙이는 데 필요해 같은 방식으로 임의로 뽑은 것입니다.</p><ul><li>접착은 최소한만: 변수 접두사, 이름 겹침 피하기, 44px, 대비.</li></ul></div>
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body stacked"><div class="note"><h3>크로스오버 배정표 <small class="src src--sansa">표 · SANSA</small></h3><p>왼쪽은 요소, 오른쪽은 제비로 뽑힌 출처. 별표(*)는 배정 목록에 없어 붙이는 데 필요해 같은 방식으로 임의로 뽑은 것입니다.</p><ul><li>접착은 최소한만: 변수 접두사, 이름 겹침 피하기, 44px, 대비.</li></ul></div>
     <div class="yard col"><div class="tablewrap assign"><table><caption>요소 38개 · 출처 3곳</caption><thead><tr><th scope="col">요소</th><th scope="col">출처</th><th scope="col">떼어 온 것</th></tr></thead><tbody id="assignBody"></tbody></table></div></div></div></div>
 
   <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="yard col" style="grid-column:1/-1;align-items:stretch;padding:40px 30px"><div class="swatches" id="swatches"></div></div></div></div>
@@ -651,7 +661,7 @@ section.part { grid-template-columns: minmax(0, 1fr); scroll-margin-top: 96px; }
 <section class="part" id="press">
   <div class="part__head"><div class="part__no"><span class="mis" data-t="02">02</span></div><div><h2>누르기</h2><p>주요 동작은 리소의 평평한 잉크, 보조와 위험은 산사의 단청 들보, 가장 큰 행동은 산사의 범종. 한 줄에 그림자 없는 버튼과 그림자 있는 버튼이 나란히 섭니다.</p></div></div>
 
-  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>세 종류 버튼</h3><p><b>주요</b>는 리소: 블루 잉크 위에 핑크 판이 어긋나 있다가 누르면 맞춰집니다. <b>보조</b>는 산사의 나무 테 두른 한지, <b>위험</b>은 산사의 석간주.</p><ul><li>한 화면에 주요 버튼은 하나.</li></ul></div>
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>세 종류 버튼 <small class="src src--riso">RISO · SANSA</small></h3><p><b>주요</b>는 리소: 블루 잉크 위에 핑크 판이 어긋나 있다가 누르면 맞춰집니다. <b>보조</b>는 산사의 나무 테 두른 한지, <b>위험</b>은 산사의 석간주.</p><ul><li>한 화면에 주요 버튼은 하나.</li></ul></div>
     <div class="yard"><button class="btn">인쇄 보내기</button><button class="s-btn s-btn--paper">일정 보기</button><button class="s-btn s-btn--ganju">예약 취소</button></div></div></div>
 
   <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="note"><h3>크기와 상태 <small class="src src--riso">RISO · SANSA</small></h3><p>리소 비활성은 망점, 산사 비활성은 색이 빠진 나무. 기다리는 동안 리소 버튼은 글자를 바꿔 알립니다.</p></div>
@@ -829,7 +839,7 @@ section.part { grid-template-columns: minmax(0, 1fr); scroll-margin-top: 96px; }
 <!-- 08 코드 -->
 <section class="part" id="code">
   <div class="part__head"><div class="part__no"><span class="mis" data-t="08">08</span></div><div><h2>코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. shadcn 기본 토큰은 산사 팔레트, 떼어 온 부품의 색은 출처 접두사를 달고 따라옵니다.</p></div></div>
-  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="yard col" style="grid-column:1/-1;padding:30px 26px"><div class="codebar"><span class="flabel">app/globals.css <small class="src src--dal" style="font:600 11px/1 var(--font-mono);letter-spacing:.1em">코드 블록 · DAL *</small></span><button class="s-btn s-btn--sm s-btn--paper" id="copyBtn">복사하기</button></div><pre class="code" id="codeBlock"></pre></div></div></div>
+  <div class="bay" data-bay><div class="bay__beam" aria-hidden="true"></div><div class="bay__body"><div class="yard col" style="grid-column:1/-1;padding:30px 26px"><div class="codebar"><span class="flabel">app/globals.css</span><button class="s-btn s-btn--sm s-btn--paper" id="copyBtn">복사하기</button></div><pre class="code" id="codeBlock"></pre></div></div></div>
 </section>
 </main>
 

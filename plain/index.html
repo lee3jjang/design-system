@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plain 디자인 시스템</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* Plain: the default you'd expect from a modern SaaS app. Neutral grays, one blue, 8px radius,
+   1px borders, soft shadows only on things that float. No story, no metaphor — just clear and calm. */
+:root {
+  color-scheme: light;
+  --bg: #ffffff; --bg-2: #f6f8fa; --bg-3: #e6eaf0;
+  --fg: #1e1e23; --fg-2: #4e5968; --fg-3: #6b7684;
+  --border: #e5e8eb; --border-2: #d1d6db;
+  --brand: #09aa5c;  /* ZUZU green: logo, fills that carry no text */
+  --primary: #067f44; --primary-hover: #056b39; --primary-fg: #ffffff; --primary-soft: #e7f6ee; --primary-text: #067f44;  /* brand green darkened to 5:1 for white text */
+  --info: #3182f6; --info-soft: #eef5ff; --info-text: #1b64da;  /* blue: links and notices only */
+  --success: #067f44; --success-soft: #e7f6ee; --success-text: #067f44;
+  --warning: #d97706; --warning-soft: #fffbeb; --warning-text: #b45309;
+  --danger: #f04452; --danger-hover: #d22030; --danger-soft: #ffeeee; --danger-text: #d22030;
+  --ring: rgba(9, 170, 92, .35);
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, .05);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, .08), 0 1px 3px rgba(16, 24, 40, .06);
+  --shadow-lg: 0 16px 40px rgba(16, 24, 40, .14), 0 4px 10px rgba(16, 24, 40, .06);
+  --r-sm: 8px; --r: 12px; --r-lg: 20px;
+  --dur: .15s; --ease: cubic-bezier(.2, 0, 0, 1);
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #202027; --bg-2: #17171c; --bg-3: #2c2c35;
+    --fg: #f9fafb; --fg-2: #c3c3c6; --fg-3: #9e9ea4;
+    --border: #2c2c35; --border-2: #3c3c47;
+    --primary: #067f44; --primary-hover: #0a9653; --primary-fg: #ffffff; --primary-soft: #10291c; --primary-text: #4fd08d;
+  --info-soft: #1a2a45; --info-text: #90c2ff;
+    --success: #1fb36a; --success-soft: #10291c; --success-text: #4fd08d;
+    --warning-soft: #2a1d0a; --warning-text: #fbbf24;
+    --danger: #f04452; --danger-hover: #ff6b77; --danger-soft: #2a1214; --danger-text: #fca5a5;
+    --ring: rgba(9, 170, 92, .45);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, .4); --shadow-lg: 0 16px 40px rgba(0, 0, 0, .55);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #202027; --bg-2: #17171c; --bg-3: #2c2c35;
+  --fg: #f9fafb; --fg-2: #c3c3c6; --fg-3: #9e9ea4;
+  --border: #2c2c35; --border-2: #3c3c47;
+  --primary: #067f44; --primary-hover: #0a9653; --primary-fg: #ffffff; --primary-soft: #10291c; --primary-text: #4fd08d;
+  --info-soft: #1a2a45; --info-text: #90c2ff;
+  --success: #1fb36a; --success-soft: #10291c; --success-text: #4fd08d;
+  --warning-soft: #2a1d0a; --warning-text: #fbbf24;
+  --danger: #f04452; --danger-hover: #ff6b77; --danger-soft: #2a1214; --danger-text: #fca5a5;
+  --ring: rgba(9, 170, 92, .45);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, .4); --shadow-lg: 0 16px 40px rgba(0, 0, 0, .55);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg-2); color: var(--fg); font: 400 16px/1.65 var(--font); letter-spacing: -.005em; -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { margin: 0; letter-spacing: -.02em; }
+p { margin: 0; }
+code { font: 500 .88em var(--mono); background: var(--bg-3); padding: .1em .35em; border-radius: 4px; }
+a { color: var(--info-text); }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* layout */
+.top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg-2) 85%, transparent); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--border); }
+.top__in { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; gap: 24px; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+.logo i { width: 24px; height: 24px; border-radius: 7px; background: var(--brand); }
+.top nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+.top nav a { padding: 6px 10px; border-radius: var(--r-sm); color: var(--fg-3); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.top nav a:hover { color: var(--fg); background: var(--bg-3); }
+.top nav a[aria-current="true"] { color: var(--fg); background: var(--bg-3); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+.hero { padding: 72px 0 40px; }
+.hero .eyebrow { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 600; color: var(--primary-text); background: var(--primary-soft); padding: 4px 10px; border-radius: 999px; }
+.hero h1 { font-size: clamp(34px, 5vw, 52px); line-height: 1.15; margin: 16px 0 14px; font-weight: 700; }
+.hero p { font-size: 17px; color: var(--fg-2); max-width: 640px; }
+.part { padding: 56px 0; scroll-margin-top: 60px; }
+.part__head { margin-bottom: 28px; max-width: 680px; }
+.part__head h2 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+.part__head p { color: var(--fg-2); }
+.spec { display: grid; grid-template-columns: 260px 1fr; gap: 32px; padding: 24px 0; }
+.spec + .spec { border-top: 1px dashed var(--border); }
+.spec h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.spec__text p, .spec__text li { color: var(--fg-2); font-size: 14px; }
+.spec__text ul { margin: 8px 0 0; padding-left: 18px; }
+.demo { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 24px; border-radius: var(--r-lg); background: var(--bg); min-width: 0; }
+.demo--col { flex-direction: column; align-items: stretch; }
+.demo--plain { background: var(--bg); }
+@media (max-width: 760px) { .spec { grid-template-columns: 1fr; gap: 14px; } .top nav { display: none; } .demo { padding: 16px; } }
+
+/* 01 base */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.sw { border-radius: var(--r); overflow: hidden; background: var(--bg); }
+.sw i { display: block; height: 56px; border-bottom: 1px solid var(--border); }
+.sw div { padding: 10px 12px; font-size: 13px; }
+.sw b { display: block; font-weight: 600; }
+.sw code { background: none; padding: 0; color: var(--fg-3); font-size: 12px; }
+.typerow { display: grid; grid-template-columns: 180px 1fr; gap: 20px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.typerow span.k { font-size: 13px; color: var(--fg-3); }
+.typerow span.k b { display: block; color: var(--fg); font-weight: 600; }
+.tokens { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 24px; }
+.token { display: flex; gap: 14px; align-items: center; padding: 14px; background: var(--bg); border-radius: var(--r); font-size: 13px; }
+.token i { width: 40px; height: 40px; background: var(--bg-2); border: 1px solid var(--border-2); flex: none; }
+.token b { display: block; font-weight: 600; font-size: 14px; }
+.token span { color: var(--fg-3); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--r); font: 600 14px/1 var(--font); cursor: pointer; white-space: nowrap; background: var(--primary); color: var(--primary-fg); box-shadow: none; transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease); }
+.btn:hover { background: var(--primary-hover); }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; transform: none; }
+.btn--secondary { background: var(--primary-soft); color: var(--primary-text); }
+.btn--secondary:hover { background: color-mix(in srgb, var(--primary-soft) 80%, var(--primary) 20%); }
+.btn--outline { background: var(--bg); color: var(--fg); border-color: var(--border-2); }
+.btn--outline:hover { background: var(--bg-2); }
+.btn--ghost { background: transparent; color: var(--fg); box-shadow: none; }
+.btn--ghost:hover { background: var(--bg-3); }
+.btn--danger { background: var(--danger); color: #fff; }
+.btn--danger:hover { background: var(--danger-hover); }
+.btn--link { background: none; box-shadow: none; color: var(--info-text); padding: 0 4px; height: auto; }
+.btn--link:hover { background: none; text-decoration: underline; }
+.btn--sm { height: 34px; padding: 0 12px; font-size: 13px; }
+.btn--lg { height: 56px; padding: 0 24px; font-size: 17px; }
+.btn--block { width: 100%; }
+.btn--icon { width: 40px; padding: 0; }
+.btn--sm.btn--icon { width: 32px; }
+.spin { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.group { display: inline-flex; }
+.group .btn { border-radius: 0; box-shadow: none; }
+.group .btn:first-child { border-radius: var(--r) 0 0 var(--r); }
+.group .btn:last-child { border-radius: 0 var(--r) var(--r) 0; }
+.group .btn + .btn { margin-left: -1px; }
+
+/* menu (native popover) */
+.menu { margin: 0; padding: 6px; min-width: 200px; border: 1px solid var(--border); border-radius: var(--r); background: var(--bg); color: var(--fg); box-shadow: var(--shadow-lg); position-area: bottom span-right; position-try-fallbacks: flip-block; inset: auto; margin-top: 6px; }
+.menu button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: var(--r-sm); background: none; color: inherit; font: 500 14px var(--font); text-align: left; cursor: pointer; }
+.menu button:hover, .menu button:focus-visible { background: var(--bg-3); outline: none; }
+.menu button kbd { margin-left: auto; font: 12px var(--mono); color: var(--fg-3); }
+.menu hr { border: 0; border-top: 1px solid var(--border); margin: 6px 0; }
+.menu .danger { color: var(--danger-text); }
+
+/* toggles */
+.switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; }
+.switch input { appearance: none; margin: 0; width: 40px; height: 22px; border-radius: 999px; background: var(--border-2); position: relative; cursor: pointer; transition: background var(--dur) var(--ease); flex: none; }
+.switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform var(--dur) var(--ease); }
+.switch input:checked { background: var(--primary); }
+.switch input:checked::after { transform: translateX(18px); }
+.switch input:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.switch input:disabled, .check input:disabled { opacity: .5; cursor: not-allowed; }
+.check { display: inline-flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 14px; }
+.check input { appearance: none; margin: 2px 0 0; width: 18px; height: 18px; border: 1.5px solid var(--border-2); border-radius: 5px; background: var(--bg); display: grid; place-items: center; cursor: pointer; flex: none; transition: background var(--dur), border-color var(--dur); }
+.check input[type="radio"] { border-radius: 50%; }
+.check input:checked { background: var(--primary); border-color: var(--primary); }
+.check input[type="checkbox"]:checked::after { content: ""; width: 10px; height: 6px; border: 2px solid #fff; border-top: 0; border-right: 0; transform: translateY(-1px) rotate(-45deg); }
+.check input[type="checkbox"]:indeterminate { background: var(--primary); border-color: var(--primary); }
+.check input[type="checkbox"]:indeterminate::after { content: ""; width: 8px; height: 2px; background: #fff; }
+.check input[type="radio"]:checked { background: var(--bg); border: 5px solid var(--primary); }
+.check input:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.check small, .switch small { display: block; color: var(--fg-3); font-size: 13px; }
+.stack { display: grid; gap: 14px; }
+
+/* choose */
+.seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--bg-3); border-radius: var(--r); }
+.seg button { height: 32px; padding: 0 14px; border: 0; border-radius: var(--r-sm); background: none; color: var(--fg-3); font: 500 14px var(--font); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--bg); color: var(--fg); box-shadow: var(--shadow-sm), 0 0 0 1px var(--border); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs button { position: relative; padding: 10px 12px; border: 0; background: none; color: var(--fg-3); font: 500 14px var(--font); cursor: pointer; white-space: nowrap; }
+.tabs button:hover { color: var(--fg); }
+.tabs button[aria-selected="true"] { color: var(--fg); }
+.tabs button[aria-selected="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; background: var(--primary); border-radius: 2px; }
+.tabpanel { padding: 16px 2px 0; color: var(--fg-2); font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--border-2); border-radius: 999px; background: var(--bg); color: var(--fg-2); font: 500 13px var(--font); cursor: pointer; }
+.chip:hover { background: var(--bg-3); }
+.chip[aria-pressed="true"] { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-text); }
+.range { width: 100%; accent-color: var(--primary); }
+.sidenav { display: grid; gap: 2px; width: 220px; }
+.sidenav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r-sm); color: var(--fg-2); text-decoration: none; font-size: 14px; font-weight: 500; }
+.sidenav a:hover { background: var(--bg-3); color: var(--fg); }
+.sidenav a[aria-current="page"] { background: var(--primary-soft); color: var(--primary-text); }
+.sidenav a .count { margin-left: auto; font-size: 12px; color: var(--fg-3); }
+
+/* inputs */
+.origins { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 32px; }
+.origins .badge { margin-bottom: 12px; }
+/* screens */
+.screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start; }
+.screens > .card { grid-column: 1 / -1; }
+.phone { max-width: 380px; width: 100%; margin: 0 auto; border-radius: 28px; background: var(--bg-2); border: 8px solid var(--fg); overflow: hidden; display: grid; grid-template-rows: auto 1fr auto; min-height: 640px; }
+.phone__bar { display: flex; align-items: center; gap: 8px; padding: 14px 16px; font-size: 15px; font-weight: 600; }
+.phone__body { padding: 8px 20px 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-content: start; }
+.phone__foot { padding: 12px 20px 20px; background: linear-gradient(transparent, var(--bg-2) 30%); }
+.steps { display: flex; gap: 4px; }
+.steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--bg-3); }
+.steps i.on { background: var(--brand); }
+.q { font-size: 24px; font-weight: 700; line-height: 1.35; letter-spacing: -.02em; margin: 8px 0 4px; }
+.big { font-size: 36px; font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; font-size: 15px; }
+.row + .row { border-top: 1px solid var(--border); }
+.row span:first-child { color: var(--fg-3); }
+.row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; gap: 2px; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+.list a { display: flex; align-items: center; gap: 12px; padding: 14px 0; color: inherit; text-decoration: none; }
+.list a + a { border-top: 1px solid var(--border); }
+.list .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary-text); flex: none; }
+.list small { display: block; color: var(--fg-3); font-size: 13px; }
+.list .chev { margin-left: auto; color: var(--fg-3); }
+.form { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; width: 100%; }
+.field { display: grid; gap: 6px; }
+.field label, .field .flabel { font-size: 14px; font-weight: 500; }
+.field .hint { font-size: 13px; color: var(--fg-3); }
+.field .err { font-size: 13px; color: var(--danger-text); }
+.input { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border: 1px solid var(--border-2); border-radius: var(--r); background: var(--bg); color: var(--fg-3); transition: border-color var(--dur), box-shadow var(--dur); }
+.input:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.input[aria-invalid="true"] { border-color: var(--danger); }
+.input[aria-invalid="true"]:focus-within { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 30%, transparent); }
+.input input, .input select { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: none; color: var(--fg); font: 400 16px var(--font); }
+.input input::placeholder { color: var(--fg-3); }
+.input .affix { font-size: 14px; color: var(--fg-3); }
+.input:has(input:disabled) { background: var(--bg-3); cursor: not-allowed; }
+textarea.ta { width: 100%; min-height: 96px; padding: 10px 12px; border: 1px solid var(--border-2); border-radius: var(--r); background: var(--bg); color: var(--fg); font: 400 14px/1.6 var(--font); resize: vertical; }
+textarea.ta:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.form .wide { grid-column: 1 / -1; }
+
+/* show */
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--bg-3); color: var(--fg-2); }
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge--blue { background: var(--info-soft); color: var(--info-text); }
+.badge--brand { background: var(--primary-soft); color: var(--primary-text); }
+.badge--green { background: var(--success-soft); color: var(--success-text); }
+.badge--amber { background: var(--warning-soft); color: var(--warning-text); }
+.badge--red { background: var(--danger-soft); color: var(--danger-text); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; width: 100%; }
+.card { border-radius: var(--r-lg); background: var(--bg); padding: 24px; }
+.card h4 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+.card p { color: var(--fg-3); font-size: 14px; }
+.stat { font-size: 28px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; margin: 6px 0 2px; }
+.delta { font-size: 13px; font-weight: 600; color: var(--success-text); }
+.delta--down { color: var(--danger-text); }
+.progress { height: 8px; border-radius: 999px; background: var(--bg-3); overflow: hidden; }
+.progress i { display: block; height: 100%; border-radius: inherit; background: var(--primary); transition: width .4s var(--ease); }
+.acc { width: 100%; border-radius: var(--r-lg); background: var(--bg); overflow: hidden; }
+.acc details + details { border-top: 1px solid var(--border); }
+.acc summary { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; cursor: pointer; font-weight: 500; list-style: none; }
+.acc summary::-webkit-details-marker { display: none; }
+.acc summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--fg-3); border-bottom: 2px solid var(--fg-3); transform: rotate(45deg); transition: transform var(--dur); }
+.acc details[open] summary::after { transform: rotate(-135deg); }
+.acc details p { padding: 0 18px 16px; color: var(--fg-2); font-size: 14px; }
+.tablewrap { width: 100%; overflow-x: auto; border-radius: var(--r-lg); background: var(--bg); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 500; color: var(--fg-3); font-size: 13px; padding: 10px 16px; background: var(--bg-2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--bg-2); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; font-size: 13px; color: var(--fg-3); }
+.pager div { display: flex; gap: 4px; }
+.pager .btn[aria-current="page"] { background: var(--primary-soft); color: var(--primary-text); border-color: transparent; }
+.empty { width: 100%; text-align: center; padding: 40px 20px; background: var(--bg); border-radius: var(--r-lg); }
+.empty svg { width: 36px; height: 36px; color: var(--fg-3); margin-bottom: 8px; }
+.empty h4 { margin: 0 0 4px; font-size: 15px; }
+.empty p { color: var(--fg-3); font-size: 14px; margin-bottom: 16px; }
+.alert { display: flex; gap: 12px; width: 100%; padding: 14px 16px; border-radius: var(--r); border: 1px solid; font-size: 14px; }
+.alert b { display: block; font-weight: 600; }
+.alert--info { background: var(--info-soft); border-color: color-mix(in srgb, var(--info) 30%, transparent); color: var(--info-text); }
+.alert--danger { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 30%, transparent); color: var(--danger-text); }
+.skel { border-radius: var(--r-sm); background: linear-gradient(90deg, var(--bg-3) 25%, var(--bg-2) 50%, var(--bg-3) 75%) 0 0/200% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 13px; font-weight: 600; background: var(--primary-soft); color: var(--primary-text); }
+
+/* float */
+dialog.dlg { width: min(440px, calc(100vw - 32px)); padding: 0; border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--bg); color: var(--fg); box-shadow: var(--shadow-lg); }
+dialog.dlg::backdrop { background: rgba(10, 12, 16, .45); }
+dialog.dlg[open] { animation: pop .18s var(--ease); }
+@keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.98); } }
+.dlg__body { padding: 24px 24px 8px; }
+.dlg__body h3 { font-size: 18px; margin-bottom: 8px; }
+.dlg__body p { color: var(--fg-2); font-size: 14px; }
+.dlg__foot { display: flex; justify-content: flex-end; gap: 8px; padding: 20px 24px; }
+dialog.sheet { margin: 0 0 0 auto; height: 100dvh; max-height: none; width: min(420px, 100vw); padding: 0; border: 0; border-left: 1px solid var(--border); background: var(--bg); color: var(--fg); box-shadow: var(--shadow-lg); }
+dialog.sheet::backdrop { background: rgba(10, 12, 16, .35); }
+dialog.sheet[open] { display: grid; grid-template-rows: auto 1fr auto; animation: slide .22s var(--ease); }
+@keyframes slide { from { transform: translateX(24px); opacity: 0; } }
+.sheet__head { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+.sheet__head h3 { font-size: 17px; }
+.sheet__body { padding: 20px; display: grid; gap: 18px; align-content: start; overflow-y: auto; }
+.sheet__foot { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 20px; border-top: 1px solid var(--border); }
+.tip { position: relative; }
+.tip::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translate(-50%, 4px); padding: 6px 10px; border-radius: var(--r-sm); background: var(--fg); color: var(--bg); font: 500 12px var(--font); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity var(--dur), transform var(--dur); }
+.tip:hover::after, .tip:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: grid; gap: 8px; width: min(360px, calc(100vw - 40px)); }
+.toast { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--r); background: var(--bg); box-shadow: var(--shadow-lg); font-size: 14px; animation: pop .2s var(--ease); }
+.toast b { display: block; font-weight: 600; }
+.toast span { color: var(--fg-3); }
+.toast svg { color: var(--success); margin-top: 1px; }
+
+/* code */
+.codebar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border); border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--bg); font: 500 13px var(--mono); color: var(--fg-3); }
+pre.code { margin: 0; padding: 18px; border-radius: 0 0 var(--r-lg) var(--r-lg); background: var(--bg); overflow-x: auto; font: 13px/1.65 var(--mono); }
+footer { padding: 40px 0 96px; border-top: 1px solid var(--border); color: var(--fg-3); font-size: 13px; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <div class="logo"><i aria-hidden="true"></i>Plain</div>
+    <nav id="nav" aria-label="섹션">
+      <a href="#base">기초</a><a href="#press">버튼</a><a href="#toggle">켜고 끄기</a><a href="#choose">고르기</a><a href="#input">입력</a><a href="#show">보여 주기</a><a href="#float">띄우기</a><a href="#screens">화면 예시</a><a href="#code">코드</a>
+    </nav>
+    <button class="btn btn--ghost btn--icon" id="themeBtn" aria-label="밝게/어둡게 바꾸기"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <span class="eyebrow">Plain · 토스 디자이너가 ZUZU에 왔다면</span>
+    <h1>주주명부와 스톡옵션을<br>송금처럼 쉽게</h1>
+    <p>바탕은 ZUZU 그대로예요. 먹색 글자, ZUZU 초록, 숫자가 많은 표. 거기에 토스 디자이너의 손버릇을 얹고, 누구나 읽을 수 있게 하는 기준은 DB손해보험에서 빌려 왔어요. 파랑은 링크와 안내에만 씁니다. shadcn/ui(Tailwind v4) 토큰 이름을 그대로 쓰고, 다크 모드도 함께 씁니다.</p>
+    <div class="origins">
+      <div class="card"><span class="badge badge--blue">토스 디자이너의 손</span><h4>한 화면에 한 가지</h4><p>회색 바탕 위 흰 카드, 테두리 없이 여백으로 나누기. 숫자를 가장 크게, 문장은 "~해요"로. 버튼은 아래에 꽉 차게 하나.</p></div>
+      <div class="card"><span class="badge">DB손해보험의 기준</span><h4>믿을 수 있게, 누구나 읽게</h4><p>본문 16px, 누르는 곳 44px 이상, 대비 4.5:1 이상. 긴 절차는 단계로 쪼개고 지금 몇 번째인지 늘 보여 주기.</p></div>
+      <div class="card"><span class="badge badge--brand">ZUZU의 몸</span><h4>많은 숫자를 정확하게</h4><p>주주명부·캡테이블처럼 숫자가 많은 표. 고정폭 숫자, 오른쪽 정렬, 합계 줄, 누가 언제 바꿨는지 남는 기록.</p></div>
+    </div>
+  </div>
+
+<section class="part" id="base">
+  <div class="part__head"><h2>기초</h2><p>ZUZU 바탕(#F6F8FA)에 흰 카드. 동작과 완료는 ZUZU 초록, 링크와 안내만 파랑, 경고는 빨강. 상태 색은 글자나 아이콘과 같이만 씁니다.</p></div>
+  <div class="swatches" id="swatches"></div>
+  <div id="typescale" style="margin-top:32px"></div>
+  <div class="tokens">
+    <div class="token"><i style="border-radius:6px"></i><div><b>모서리 6 / 8 / 12</b><span>작은 것 · 컨트롤 · 카드</span></div></div>
+    <div class="token"><i style="border-radius:8px;box-shadow:var(--shadow-sm)"></i><div><b>그림자 sm</b><span>버튼, 카드</span></div></div>
+    <div class="token"><i style="border-radius:8px;box-shadow:var(--shadow-lg)"></i><div><b>그림자 lg</b><span>떠 있는 것만</span></div></div>
+    <div class="token"><i style="border-radius:8px;box-shadow:0 0 0 3px var(--ring);border-color:var(--primary)"></i><div><b>초점 링 3px</b><span>키보드 초점</span></div></div>
+  </div>
+</section>
+
+<section class="part" id="press">
+  <div class="part__head"><h2>버튼</h2><p>한 화면에 초록 버튼은 하나. 그다음은 옅은 초록, 테두리, 고스트 순으로 힘을 뺍니다. 모바일에서 마지막 동작은 아래에 꽉 찬 56px 버튼.</p></div>
+  <div class="spec"><div class="spec__text"><h3>종류</h3><p>레이블은 동사로 짧게: "저장", "초대하기".</p></div>
+    <div class="demo"><button class="btn">저장</button><button class="btn btn--secondary">미리 보기</button><button class="btn btn--outline">내보내기</button><button class="btn btn--ghost">취소</button><button class="btn btn--danger">삭제</button><button class="btn btn--link">더 알아보기</button></div></div>
+  <div class="spec"><div class="spec__text"><h3>크기 · 아이콘 · 상태</h3><p>34 / 44 / 56px. 아이콘만 있는 버튼에는 꼭 <code>aria-label</code>.</p></div>
+    <div class="demo"><button class="btn btn--sm">작게</button><button class="btn">기본</button><button class="btn btn--lg">크게</button>
+      <button class="btn btn--secondary"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>새로 만들기</button>
+      <button class="btn btn--outline btn--icon tip" data-tip="설정" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 1.2 14H1a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 4.6V4.5a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V10a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      <button class="btn" id="loadBtn">저장</button><button class="btn" disabled>비활성</button></div></div>
+  <div class="spec"><div class="spec__text"><h3>묶음 · 더보기</h3><p>더보기 메뉴는 브라우저 기본 <code>popover</code>로 띄웁니다. 바깥을 누르거나 Esc로 닫힙니다.</p></div>
+    <div class="demo"><div class="group"><button class="btn btn--outline">왼쪽</button><button class="btn btn--outline">가운데</button><button class="btn btn--outline">오른쪽</button></div>
+      <button class="btn btn--outline" popovertarget="moreMenu" style="anchor-name:--more">더보기 <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="menu" id="moreMenu" popover style="position-anchor:--more">
+        <button>이름 바꾸기 <kbd>F2</kbd></button><button>복제 <kbd>⌘D</kbd></button><button>링크 복사</button><hr><button class="danger">삭제</button>
+      </div></div></div>
+</section>
+
+<section class="part" id="toggle">
+  <div class="part__head"><h2>켜고 끄기</h2><p>바로 적용되는 설정은 스위치, 저장 버튼을 눌러야 적용되는 것은 체크박스.</p></div>
+  <div class="spec"><div class="spec__text"><h3>스위치</h3><p>누르는 순간 반영됩니다.</p></div>
+    <div class="demo demo--col stack"><label class="switch"><input type="checkbox" role="switch" checked><span>이메일 알림<small>새 댓글과 멘션</small></span></label><label class="switch"><input type="checkbox" role="switch"><span>주간 요약 받기</span></label><label class="switch"><input type="checkbox" role="switch" disabled><span>관리자만 바꿀 수 있음</span></label></div></div>
+  <div class="spec"><div class="spec__text"><h3>체크박스 · 라디오</h3><p>전체 선택은 일부만 고르면 가운데 줄(indeterminate)이 됩니다.</p></div>
+    <div class="demo demo--col stack" id="checks">
+      <label class="check"><input type="checkbox" id="checkAll"><span><b>전체 선택</b></span></label>
+      <div class="stack" style="padding-left:28px"><label class="check"><input type="checkbox" class="ck" checked><span>보고서</span></label><label class="check"><input type="checkbox" class="ck"><span>청구서</span></label><label class="check"><input type="checkbox" class="ck"><span>회의록</span></label></div>
+      <hr style="border:0;border-top:1px solid var(--border);margin:4px 0;width:100%">
+      <label class="check"><input type="radio" name="plan" checked><span>월간<small>매달 ₩12,000</small></span></label><label class="check"><input type="radio" name="plan"><span>연간<small>₩120,000 · 두 달 무료</small></span></label>
+    </div></div>
+</section>
+
+<section class="part" id="choose">
+  <div class="part__head"><h2>고르기</h2><p>선택된 것은 바탕을 한 단계 밝히거나 파란 밑줄로 알립니다.</p></div>
+  <div class="spec"><div class="spec__text"><h3>세그먼트 · 탭</h3><p>세그먼트는 같은 데이터의 보기 방식, 탭은 다른 내용.</p></div>
+    <div class="demo demo--col" style="gap:20px">
+      <div class="seg" role="group" aria-label="기간" data-single><button aria-pressed="false">일</button><button aria-pressed="true">주</button><button aria-pressed="false">월</button><button aria-pressed="false">연</button></div>
+      <div><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-p="개요: 이번 주 활성 사용자와 매출 요약입니다.">개요</button><button role="tab" aria-selected="false" data-p="활동: 팀원이 최근에 바꾼 항목입니다.">활동</button><button role="tab" aria-selected="false" data-p="설정: 알림, 권한, 연동을 관리합니다.">설정</button></div><div class="tabpanel" role="tabpanel" id="tabpanel">개요: 이번 주 활성 사용자와 매출 요약입니다.</div></div>
+    </div></div>
+  <div class="spec"><div class="spec__text"><h3>칩 · 드롭다운 · 슬라이더</h3><p>필터는 여러 개 고를 수 있는 칩으로. 드롭다운과 슬라이더는 브라우저 기본 컨트롤에 색만 입힙니다.</p></div>
+    <div class="demo demo--col" style="gap:20px">
+      <div class="chips"><button class="chip" aria-pressed="true">디자인</button><button class="chip" aria-pressed="false">개발</button><button class="chip" aria-pressed="true">마케팅</button><button class="chip" aria-pressed="false">영업</button></div>
+      <div class="field" style="max-width:260px"><label for="sel">정렬</label><div class="input"><select id="sel"><option>최근 수정 순</option><option>이름 순</option><option>만든 날짜 순</option></select></div></div>
+      <div class="field" style="max-width:320px"><label for="rng">볼륨 <span id="rngV" style="color:var(--fg-3)">60</span></label><input class="range" id="rng" type="range" value="60"></div>
+    </div></div>
+  <div class="spec"><div class="spec__text"><h3>사이드 메뉴</h3><p>지금 있는 곳은 파란 바탕 한 칸.</p></div>
+    <div class="demo demo--plain"><nav class="sidenav" aria-label="예시 메뉴">
+      <a href="#choose" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg>홈</a>
+      <a href="#choose"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 9h16"/></svg>프로젝트<span class="count">12</span></a>
+      <a href="#choose"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/></svg>팀<span class="count">5</span></a>
+      <a href="#choose"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg>보고서</a>
+    </nav></div></div>
+</section>
+
+<section class="part" id="input">
+  <div class="part__head"><h2>입력</h2><p>레이블은 칸 위에, 도움말은 아래에. 오류는 빨간 테두리와 함께 무엇을 고치면 되는지 문장으로.</p></div>
+  <div class="demo demo--plain"><form class="form" onsubmit="return false">
+    <div class="field"><label for="i1">이름</label><div class="input"><input id="i1" placeholder="홍길동" autocomplete="name"></div></div>
+    <div class="field"><label for="i2">이메일</label><div class="input" aria-invalid="true"><input id="i2" type="email" value="hong@" aria-describedby="i2e"></div><span class="err" id="i2e">이메일 주소를 끝까지 써 주세요. 예: hong@example.com</span></div>
+    <div class="field"><label for="i3">검색</label><div class="input"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="i3" type="search" placeholder="프로젝트, 사람, 파일"></div></div>
+    <div class="field"><label for="i4">비밀번호</label><div class="input"><input id="i4" type="password" value="example1" autocomplete="new-password"><button class="btn btn--ghost btn--sm" type="button" id="pwBtn" style="margin-right:-8px">보기</button></div><span class="hint">8자 이상, 숫자 포함</span></div>
+    <div class="field"><label for="i5">금액</label><div class="input"><span class="affix">₩</span><input id="i5" inputmode="numeric" value="1,250,000" style="text-align:right;font-variant-numeric:tabular-nums"></div></div>
+    <div class="field"><label for="i6">전화번호</label><div class="input"><input id="i6" type="tel" placeholder="010-0000-0000" autocomplete="tel"></div></div>
+    <div class="field"><label for="i7">날짜</label><div class="input"><input id="i7" type="date" value="2026-11-04"></div></div>
+    <div class="field"><label for="i8">시간</label><div class="input"><input id="i8" type="time" value="14:30"></div></div>
+    <div class="field"><label for="i9">조직</label><div class="input"><input id="i9" value="코드박스" disabled></div><span class="hint">관리자만 바꿀 수 있어요</span></div>
+    <div class="field wide"><label for="i10">메모</label><textarea class="ta" id="i10" placeholder="남길 말을 적어 주세요"></textarea></div>
+  </form></div>
+</section>
+
+<section class="part" id="show">
+  <div class="part__head"><h2>보여 주기</h2><p>카드는 테두리 없이 회색 바탕 위에 흰 면으로. 숫자는 고정폭으로 줄을 맞춥니다.</p></div>
+  <div class="spec"><div class="spec__text"><h3>뱃지 · 알림 줄</h3><p>색 점과 글자를 함께 써서 색을 못 봐도 읽힙니다.</p></div>
+    <div class="demo demo--col" style="gap:16px"><div class="chips"><span class="badge">초안</span><span class="badge badge--blue">진행 중</span><span class="badge badge--green">완료</span><span class="badge badge--amber">검토 필요</span><span class="badge badge--red">실패</span></div>
+      <div class="alert alert--info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><div><b>새 기능이 추가됐어요</b>이제 보고서를 PDF로 내보낼 수 있습니다.</div></div>
+      <div class="alert alert--danger"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div><b>결제에 실패했어요</b>카드 정보를 확인한 뒤 다시 시도해 주세요.</div></div></div></div>
+  <div class="spec"><div class="spec__text"><h3>카드 · 진행</h3><p>통계 카드는 숫자 하나와 변화량 하나만.</p></div>
+    <div class="cards">
+      <div class="card"><p>월 매출</p><div class="stat">₩48,210,000</div><span class="delta">▲ 12.4% 지난달보다</span></div>
+      <div class="card"><p>활성 사용자</p><div class="stat">3,842</div><span class="delta delta--down">▼ 2.1% 지난주보다</span></div>
+      <div class="card"><h4>온보딩 진행</h4><p style="margin-bottom:14px">5단계 중 3단계 완료</p><div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="온보딩 진행"><i style="width:60%"></i></div></div>
+      <div class="card" aria-label="불러오는 중"><div class="skel" style="height:14px;width:40%"></div><div class="skel" style="height:28px;width:70%;margin:12px 0"></div><div class="skel" style="height:12px;width:55%"></div></div>
+    </div></div>
+  <div class="spec"><div class="spec__text"><h3>접기</h3><p>브라우저 기본 <code>&lt;details&gt;</code>.</p></div>
+    <div class="acc"><details open><summary>무료 체험이 끝나면 어떻게 되나요?</summary><p>자동으로 결제되지 않습니다. 요금제를 고르기 전까지 읽기 전용으로 바뀝니다.</p></details><details><summary>팀원은 몇 명까지 초대할 수 있나요?</summary><p>모든 요금제에서 제한 없이 초대할 수 있습니다.</p></details><details><summary>데이터는 어디에 저장되나요?</summary><p>서울 리전에 저장하고, 매일 백업합니다.</p></details></div></div>
+  <div class="spec"><div class="spec__text"><h3>표 · 쪽 넘기기</h3><p>머리줄은 옅은 바탕, 금액은 오른쪽 정렬.</p></div>
+    <div class="demo demo--col demo--plain" style="padding:0;border:0;gap:12px"><div class="tablewrap"><table>
+      <thead><tr><th>고객</th><th>상태</th><th>날짜</th><th class="num">금액</th></tr></thead>
+      <tbody>
+        <tr><td><span style="display:inline-flex;gap:10px;align-items:center"><span class="avatar">김</span>김지원</span></td><td><span class="badge badge--green">결제 완료</span></td><td>2026. 11. 3.</td><td class="num">₩320,000</td></tr>
+        <tr><td><span style="display:inline-flex;gap:10px;align-items:center"><span class="avatar">박</span>박서준</span></td><td><span class="badge badge--amber">대기</span></td><td>2026. 11. 2.</td><td class="num">₩1,150,000</td></tr>
+        <tr><td><span style="display:inline-flex;gap:10px;align-items:center"><span class="avatar">이</span>이하늘</span></td><td><span class="badge badge--red">환불</span></td><td>2026. 10. 30.</td><td class="num">₩89,000</td></tr>
+      </tbody></table></div>
+      <div class="pager"><span>전체 128건 중 1–3</span><div><button class="btn btn--secondary btn--sm" disabled>이전</button><button class="btn btn--secondary btn--sm" aria-current="page">1</button><button class="btn btn--secondary btn--sm">2</button><button class="btn btn--secondary btn--sm">3</button><button class="btn btn--secondary btn--sm">다음</button></div></div></div></div>
+  <div class="spec"><div class="spec__text"><h3>빈 상태</h3><p>무엇이 비었는지, 다음에 뭘 하면 되는지.</p></div>
+    <div class="empty"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 7v10l9 4 9-4V7"/></svg><h4>아직 프로젝트가 없어요</h4><p>첫 프로젝트를 만들고 팀원을 초대해 보세요.</p><button class="btn">프로젝트 만들기</button></div></div>
+</section>
+
+<section class="part" id="float">
+  <div class="part__head"><h2>띄우기</h2><p>떠 있는 것만 큰 그림자를 씁니다. 확인 창과 옆 판은 브라우저 기본 <code>&lt;dialog&gt;</code>라 초점 가두기와 Esc가 따로 필요 없습니다.</p></div>
+  <div class="demo"><button class="btn btn--danger" data-open="dlg">확인 창 열기</button><button class="btn btn--secondary" data-open="sheet">옆 판 열기</button><button class="btn btn--secondary" id="toastBtn">알림 띄우기</button><button class="btn btn--ghost tip" data-tip="툴팁은 마우스나 초점에">툴팁</button></div>
+</section>
+
+<section class="part" id="screens">
+  <div class="part__head"><h2>화면 예시</h2><p>ZUZU에서 가장 어려운 일 세 가지를 토스 디자이너라면 이렇게 그렸을 거예요. 기능과 데이터는 ZUZU 그대로, 한 화면에 질문 하나, 숫자는 크게, 버튼은 아래에.</p></div>
+  <div class="screens">
+
+    <div class="phone" aria-label="임직원 홈">
+      <div class="phone__bar"><span class="logo"><i aria-hidden="true"></i></span>코드박스<span style="margin-left:auto;color:var(--fg-3);font-weight:500">김지원님</span></div>
+      <div class="phone__body">
+        <div class="card"><p>내 스톡옵션 지금 가치</p><div class="big">₩38,400,000</div><span class="delta">▲ ₩6,200,000 지난 투자 라운드보다</span>
+          <div class="row" style="margin-top:12px"><span>행사할 수 있어요</span><b>4,000주</b></div><div class="row"><span>2027년 3월에 더 생겨요</span><b>2,000주</b></div></div>
+        <div class="card list" style="padding:4px 20px">
+          <a href="#screens"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 10l7-7 7 7"/></svg></span><span>스톡옵션 행사하기<small>3분이면 끝나요</small></span><span class="chev">›</span></a>
+          <a href="#screens"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg></span><span>계약서 다시 보기<small>2024. 3. 2. 부여</small></span><span class="chev">›</span></a>
+          <a href="#screens"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span>세금 미리 계산하기<small>비과세 한도 남음 ₩1.6억</small></span><span class="chev">›</span></a>
+        </div>
+      </div>
+      <div class="phone__foot"><button class="btn btn--lg btn--block">스톡옵션 행사하기</button></div>
+    </div>
+
+    <div class="phone" aria-label="스톡옵션 행사 2단계">
+      <div class="phone__bar"><button class="btn btn--ghost btn--icon btn--sm" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><span style="margin-left:auto;color:var(--fg-3);font-weight:500;font-size:14px">2 / 4</span></div>
+      <div class="phone__body">
+        <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+        <p class="q">몇 주를 행사할까요?</p>
+        <p style="color:var(--fg-3);font-size:15px">지금 4,000주까지 행사할 수 있어요</p>
+        <div class="input" style="height:64px;margin-top:8px"><input id="exQty" inputmode="numeric" value="4,000" aria-label="행사할 주식 수" style="font-size:28px;font-weight:700;font-variant-numeric:tabular-nums"><span class="affix" style="font-size:20px">주</span></div>
+        <div class="chips"><button class="chip" data-q="1000">1,000주</button><button class="chip" data-q="2000">2,000주</button><button class="chip" aria-pressed="true" data-q="4000">전부</button></div>
+        <div class="card" style="margin-top:8px">
+          <div class="row"><span>행사가 × 주식 수</span><b id="exPay">₩20,000,000</b></div>
+          <div class="row"><span>예상 세금</span><b>₩0 <span class="badge badge--green" style="margin-left:4px">비과세</span></b></div>
+          <div class="row"><span>납입 기한</span><b>2026. 11. 18.</b></div>
+        </div>
+        <div class="alert alert--info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><div>행사가는 1주에 ₩5,000이에요. 지금 회사 가치로는 1주에 ₩9,600이에요.</div></div>
+      </div>
+      <div class="phone__foot"><button class="btn btn--lg btn--block">다음</button></div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden" aria-label="캡테이블">
+      <div style="padding:24px 24px 8px"><p style="color:var(--fg-3);font-size:14px">캡테이블 · 2026. 11. 4. 기준</p><div class="big" style="font-size:30px">발행주식 120,000주</div>
+        <div class="bar" style="margin:16px 0 8px" aria-hidden="true"><i style="width:48%;background:var(--fg)"></i><i style="width:30%;background:var(--brand)"></i><i style="width:12%;background:var(--info)"></i><i style="width:10%;background:var(--border-2)"></i></div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--fg-2)"><span><i class="dot" style="background:var(--fg)"></i>창업자</span><span><i class="dot" style="background:var(--brand)"></i>투자자</span><span><i class="dot" style="background:var(--info)"></i>임직원 풀</span><span><i class="dot" style="background:var(--border-2)"></i>기타</span></div></div>
+      <div class="tablewrap" style="border-radius:0;border-top:1px solid var(--border);margin-top:16px"><table>
+        <thead><tr><th>주주</th><th class="num">주식 수</th><th class="num">지분율</th><th class="num">완전희석</th></tr></thead>
+        <tbody>
+          <tr><td>정우현 <span class="badge" style="margin-left:4px">대표</span></td><td class="num">57,600</td><td class="num">48.0%</td><td class="num">42.4%</td></tr>
+          <tr><td>스파크랩</td><td class="num">21,600</td><td class="num">18.0%</td><td class="num">15.9%</td></tr>
+          <tr><td>본엔젤스</td><td class="num">14,400</td><td class="num">12.0%</td><td class="num">10.6%</td></tr>
+          <tr><td>임직원 스톡옵션 풀</td><td class="num">14,400</td><td class="num">12.0%</td><td class="num">22.4%</td></tr>
+          <tr><td>기타 4명</td><td class="num">12,000</td><td class="num">10.0%</td><td class="num">8.7%</td></tr>
+          <tr style="font-weight:600;background:var(--bg-2)"><td>합계</td><td class="num">120,000</td><td class="num">100%</td><td class="num">100%</td></tr>
+        </tbody></table></div>
+      <p style="padding:14px 24px;font-size:13px;color:var(--fg-3)">마지막 변경 · 박서준님이 11월 2일 오후 3:12에 유상증자를 반영했어요</p>
+    </div>
+
+  </div>
+</section>
+
+<section class="part" id="code">
+  <div class="part__head"><h2>코드</h2><p>Tailwind v4 + shadcn 프로젝트의 <code>app/globals.css</code>에 붙여 넣으세요. 나머지는 shadcn 기본 컴포넌트 그대로 쓰면 됩니다.</p></div>
+  <div class="codebar"><span>app/globals.css</span><button class="btn btn--secondary btn--sm" id="copyBtn">복사</button></div>
+  <pre class="code" id="codeBlock"></pre>
+</section>
+</main>
+
+<footer><div class="wrap">Plain — 글꼴 Pretendard · ZUZU 초록 #09AA5C(버튼 #067F44) · 먹 #1E1E23 · 바탕 #F6F8FA · 안내 파랑 #3182F6 · 모서리 12/20px</div></footer>
+
+<dialog class="dlg" id="dlg" aria-labelledby="dlgT">
+  <form method="dialog">
+    <div class="dlg__body"><h3 id="dlgT">프로젝트를 삭제할까요?</h3><p>'2026 하반기 캠페인'과 안의 파일 24개가 함께 삭제됩니다. 되돌릴 수 없어요.</p></div>
+    <div class="dlg__foot"><button class="btn btn--secondary" value="cancel">취소</button><button class="btn btn--danger" value="del">삭제</button></div>
+  </form>
+</dialog>
+
+<dialog class="sheet" id="sheet" aria-labelledby="sheetT">
+  <div class="sheet__head"><h3 id="sheetT">프로젝트 설정</h3><form method="dialog"><button class="btn btn--ghost btn--icon btn--sm" aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></form></div>
+  <div class="sheet__body">
+    <div class="field"><label for="s1">이름</label><div class="input"><input id="s1" value="2026 하반기 캠페인"></div></div>
+    <div class="field"><label for="s2">설명</label><textarea class="ta" id="s2">연말 프로모션 준비</textarea></div>
+    <label class="switch"><input type="checkbox" role="switch" checked><span>팀 전체에 공개<small>링크가 있는 팀원은 모두 볼 수 있어요</small></span></label>
+  </div>
+  <form method="dialog" class="sheet__foot"><button class="btn btn--secondary" value="cancel">닫기</button><button class="btn" value="save">저장</button></form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  // theme: follows the OS until the reader picks one
+  const root = document.documentElement;
+  try { const t = localStorage.getItem('plain-theme'); if (t) root.dataset.theme = t; } catch {}
+  $('#themeBtn').addEventListener('click', () => {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    try { localStorage.setItem('plain-theme', root.dataset.theme); } catch {}
+  });
+
+  // swatches + type scale
+  const sw = [['카드', '--bg', '#FFFFFF'], ['바탕', '--bg-2', '#F6F8FA'], ['눌림', '--bg-3', '#E6EAF0'], ['테두리', '--border', '#E5E8EB'], ['글자', '--fg', '#1E1E23'], ['보조 글자', '--fg-2', '#4E5968'], ['흐린 글자', '--fg-3', '#6B7684'],
+    ['ZUZU 초록', '--brand', '#09AA5C'], ['버튼 초록', '--primary', '#067F44'], ['초록 옅게', '--primary-soft', '#E7F6EE'], ['안내 파랑', '--info', '#3182F6'], ['주황', '--warning', '#D97706'], ['빨강', '--danger', '#F04452']];
+  $('#swatches').innerHTML = sw.map(([n, v, hex]) => `<div class="sw"><i style="background:var(${v})"></i><div><b>${n}</b><code>${v} · ${hex}</code></div></div>`).join('');
+  const ts = [['큰 숫자', '700 · 40/1.1', 'font:700 40px/1.1 var(--font);letter-spacing:-.03em;font-variant-numeric:tabular-nums', '₩48,210,000'], ['제목 1', '700 · 28/1.3', 'font:700 28px/1.3 var(--font);letter-spacing:-.025em', '스톡옵션을 행사할 수 있어요'], ['제목 2', '700 · 24/1.3', 'font:700 24px/1.3 var(--font);letter-spacing:-.02em', '팀과 함께 일하기'],
+    ['제목 3', '600 · 18/1.4', 'font:600 18px/1.4 var(--font)', '알림 설정'], ['본문', '400 · 16/1.65', 'font:400 16px/1.65 var(--font)', '변경 사항은 자동으로 저장됩니다. 언제든 되돌릴 수 있어요.'],
+    ['작은 글', '400 · 13/1.5', 'font:400 13px/1.5 var(--font);color:var(--fg-3)', '마지막 수정 3분 전'], ['숫자', '600 · tabular-nums', 'font:600 22px/1 var(--font);font-variant-numeric:tabular-nums', '₩1,250,000']];
+  $('#typescale').innerHTML = ts.map(([k, s, st, ex]) => `<div class="typerow"><span class="k"><b>${k}</b>${s}</span><span style="${st}">${ex}</span></div>`).join('');
+
+  // nav: highlight current section
+  const links = $$('#nav a');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute('aria-current', a.hash === '#' + e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.part').forEach(s => io.observe(s));
+
+  // loading button
+  $('#loadBtn').addEventListener('click', e => {
+    const b = e.currentTarget; if (b.ariaBusy === 'true') return;
+    b.ariaBusy = 'true'; b.ariaDisabled = 'true'; b.innerHTML = '<span class="spin" aria-hidden="true"></span>저장 중';
+    setTimeout(() => { b.ariaBusy = null; b.ariaDisabled = null; b.textContent = '저장'; toast('저장했어요', '변경 사항이 반영됐습니다.'); }, 1200);
+  });
+  $$('.menu button').forEach(b => b.addEventListener('click', () => $('#moreMenu').hidePopover()));
+
+  // check all
+  const all = $('#checkAll'), cks = $$('.ck');
+  const sync = () => { const n = cks.filter(c => c.checked).length; all.checked = n === cks.length; all.indeterminate = n > 0 && n < cks.length; };
+  all.addEventListener('change', () => { cks.forEach(c => c.checked = all.checked); sync(); });
+  cks.forEach(c => c.addEventListener('change', sync)); sync();
+
+  // segmented, tabs, chips, range
+  $$('[data-single]').forEach(g => g.addEventListener('click', e => { const b = e.target.closest('button'); if (b) $$('button', g).forEach(x => x.setAttribute('aria-pressed', x === b)); }));
+  $$('.tabs').forEach(t => t.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $$('button', t).forEach(x => x.setAttribute('aria-selected', x === b)); $('#tabpanel').textContent = b.dataset.p; }));
+  $$('.chip:not([data-q])').forEach(c => c.addEventListener('click', () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true')));
+  const qty = $('#exQty'), fmt = n => n.toLocaleString('ko-KR');
+  const pay = () => { const n = Math.min(4000, +qty.value.replace(/\D/g, '') || 0); $('#exPay').textContent = '₩' + fmt(n * 5000); };
+  qty.addEventListener('input', () => { const n = +qty.value.replace(/\D/g, ''); qty.value = n ? fmt(n) : ''; pay(); });
+  $$('[data-q]').forEach(c => c.addEventListener('click', () => { $$('[data-q]').forEach(x => x.setAttribute('aria-pressed', x === c)); qty.value = fmt(+c.dataset.q); pay(); }, true));
+  $('#rng').addEventListener('input', e => $('#rngV').textContent = e.target.value);
+  $('#pwBtn').addEventListener('click', e => { const i = $('#i4'), show = i.type === 'password'; i.type = show ? 'text' : 'password'; e.target.textContent = show ? '숨기기' : '보기'; });
+
+  // overlays
+  $$('[data-open]').forEach(b => b.addEventListener('click', () => $('#' + b.dataset.open).showModal()));
+  $$('dialog').forEach(d => {
+    d.addEventListener('click', e => { if (e.target === d) d.close(); }); // backdrop click
+    d.addEventListener('close', () => { if (d.returnValue === 'del') toast('삭제했어요', '프로젝트 1개가 삭제됐습니다.'); if (d.returnValue === 'save') toast('저장했어요', '프로젝트 설정이 바뀌었습니다.'); d.returnValue = ''; });
+  });
+  const toast = (t, s) => {
+    const el = document.createElement('div'); el.className = 'toast';
+    el.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg><div><b>${t}</b><span>${s}</span></div>`;
+    $('#toasts').append(el); setTimeout(() => el.remove(), 3200);
+  };
+  $('#toastBtn').addEventListener('click', () => toast('초대를 보냈어요', 'kim@example.com에 초대 메일이 갔습니다.'));
+
+  // code
+  $('#codeBlock').textContent = `/* Plain — 무난한 현대 스타일 · Tailwind v4 + shadcn */
+@import "tailwindcss";
+
+:root {
+  --radius: 0.75rem;
+  --background: #ffffff;   --foreground: #1e1e23;
+  --card: #ffffff;         --card-foreground: #111827;
+  --popover: #ffffff;      --popover-foreground: #111827;
+  --primary: #067f44;      --primary-foreground: #ffffff;   /* ZUZU 초록, 흰 글자 5:1 */
+  --brand: #09aa5c;        --info: #3182f6;
+  --secondary: #e7f6ee;    --secondary-foreground: #067f44;
+  --muted: #f6f8fa;        --muted-foreground: #6b7684;
+  --accent: #f6f8fa;       --accent-foreground: #1e1e23;
+  --success: #067f44;
+  --destructive: #f04452;
+  --border: #e5e8eb;       --input: #d1d6db;   --ring: #09aa5c;
+}
+
+.dark {
+  --background: #17171c;   --foreground: #f9fafb;
+  --card: #202027;         --card-foreground: #f9fafb;
+  --popover: #202027;      --popover-foreground: #f9fafb;
+  --success: #1fb36a;
+  --primary: #067f44;      --primary-foreground: #ffffff;
+  --secondary: #10291c;    --secondary-foreground: #f3f4f6;
+  --muted: #12151c;        --muted-foreground: #9098a6;
+  --accent: #1a1e27;       --accent-foreground: #f3f4f6;
+  --destructive: #ef4444;
+  --border: #262b36;       --input: #343a47;   --ring: #09aa5c;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-brand: var(--brand);
+  --color-info: var(--info);
+  --color-success: var(--success);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+}
+
+body { @apply bg-background text-foreground; letter-spacing: -0.005em; }`;
+  $('#copyBtn').addEventListener('click', async e => { try { await navigator.clipboard.writeText($('#codeBlock').textContent); e.target.textContent = '복사했어요'; } catch { e.target.textContent = '직접 선택해 주세요'; } setTimeout(() => e.target.textContent = '복사', 1600); });
+})();
+</script>
+<script src="../systems-nav.js?v=20261104a" defer></script>
+</body>
+</html>

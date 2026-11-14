@@ -657,6 +657,6 @@ body { @apply bg-background text-foreground; letter-spacing: -0.005em; }`;
   $('#copyBtn').addEventListener('click', async e => { try { await navigator.clipboard.writeText($('#codeBlock').textContent); e.target.textContent = '복사했어요'; } catch { e.target.textContent = '직접 선택해 주세요'; } setTimeout(() => e.target.textContent = '복사', 1600); });
 })();
 </script>
-<script src="../systems-nav.js?v=20261114b" defer></script>
+<script src="../systems-nav.js?v=20261114c" defer></script>
 </body>
 </html>

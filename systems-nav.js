@@ -36,6 +36,7 @@
     { id: 'plain', path: 'plain/index.html', name: 'Plain', ko: '토스 디자이너가 ZUZU에 왔다면', c: ['#f6f8fa', '#1e1e23', '#09aa5c'] },
     { id: 'changga', path: 'changga/index.html', name: '창가', ko: '비 오는 날 2층 창가, 스크롤 없이 걷는 로드뷰', c: ['#cfd1d1', '#2f3236', '#e5b425'] },
     { id: 'fryjack', path: 'fryjack/index.html', name: 'Fry Jack', ko: '감자 한 가닥씩 뽑듯, 차를 뺏어 고르는 드라이브스루', c: ['#1d1f23', '#f5b72f', '#d8362c'] },
+    { id: 'elia', path: 'elia/index.html', name: 'Elia', ko: '철 격자 너머, 파란 의자와 지나간 여름', c: ['#f3f1ed', '#3f4cc0', '#d8a83c'] },
     { id: 'chueok', path: 'chueok/index.html', name: '회수권', ko: '한 장 내면, 그때로 가는 버스', c: ['#d8e8dc', '#2a1f1a', '#d0315e'] },
     { id: 'inkstone', path: 'inkstone/index.html', name: 'Inkstone', ko: '크로스오버 · Sansa×Dal×Riso', c: ['#f3eee2', '#24418f', '#8e3b2a'], x: true },
     { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },

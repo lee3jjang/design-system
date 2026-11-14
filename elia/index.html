@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
+<style>
+/* Elia — 격자 너머의 여름.
+   철 격자 하나가 화면 전체를 막고 서 있다. 누르고 있으면 기대듯 가까워지고, 틈 사이로 흰 전시실 대신
+   볕 든 여름이 번진다. 파란 의자만은 두 시간 속에서 같은 자리에 있다. 넘어오는 건 사진뿐이고, 그마저 바랜다.
+   격자는 끝내 열리지 않는다. */
+:root { color-scheme: light; --serif: "Gowun Batang", "Noto Serif KR", serif; }
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; background: #f3f1ed; }
+body { height: 100dvh; cursor: zoom-in; user-select: none; -webkit-user-select: none; touch-action: none; font-family: var(--serif); color: #2b2a28; }
+body.leaning { cursor: zoom-out; }
+canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#front { will-change: filter; }
+.hint { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); padding: 8px 16px; background: rgba(251,250,247,.86); font-size: 15px; color: #55524d; white-space: nowrap; transition: opacity 2s; pointer-events: none; z-index: 5; }
+.hint.gone { opacity: 0; }
+.charm { position: fixed; z-index: 4; width: 52px; height: 74px; margin: -4px 0 0 -26px; border: 0; padding: 0; background: transparent; cursor: pointer; border-radius: 8px; }
+.charm:focus-visible { outline: 2px solid #3f4cc0; outline-offset: 2px; }
+.note { position: fixed; z-index: 6; max-width: 240px; padding: 8px 12px; background: #fbfaf7; box-shadow: 0 1px 0 #dcd8d0, 0 8px 18px rgba(40,40,40,.12); font-size: 14.5px; line-height: 1.7; color: #55524d; pointer-events: none; animation: note 6s ease forwards; }
+@keyframes note { 0% { opacity: 0; transform: translateY(4px); } 10%, 75% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.print { position: fixed; z-index: 7; width: 118px; padding: 7px 7px 22px; background: #fff; box-shadow: 0 6px 16px rgba(30,30,30,.25); cursor: grab; touch-action: none; transform-origin: 50% 0; transition: filter 6s linear, opacity 6s linear; }
+.print canvas { position: static; width: 104px; height: 80px; }
+.print span { position: absolute; left: 0; right: 0; bottom: 3px; text-align: center; font-size: 11.5px; color: #55524d; }
+.print.held { cursor: grabbing; box-shadow: 0 16px 28px rgba(30,30,30,.3); }
+.print.fading { filter: saturate(0) brightness(1.35) contrast(.6); opacity: 0; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .note { animation-duration: .01s; animation-fill-mode: none; } .print { transition: none; } }
+</style>
+</head>
+<body>
+<canvas id="back" aria-hidden="true"></canvas>
+<canvas id="front" aria-hidden="true"></canvas>
+<p class="hint" id="hint">누르고 있으면, 가까이 기대요</p>
+<button class="charm" id="cTower" type="button" aria-label="격자에 걸린 빨간 탑 장식 건드리기"></button>
+<button class="charm" id="cCoin" type="button" aria-label="격자에 걸린 동전 장식 건드리기"></button>
+<p class="sr" id="live" aria-live="polite"></p>
+<p class="sr">철 격자 너머의 흰 전시실. 누르고 있거나 스페이스 키를 누르고 있으면 격자에 기대어 그 너머의 여름이 보입니다. 화살표 키로 보는 곳을 옮깁니다.</p>
+
+<script>
+(() => {
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const back = document.getElementById('back'), front = document.getElementById('front');
+  const bx = back.getContext('2d'), fx = front.getContext('2d');
+  let W, H; const D = Math.min(2, devicePixelRatio || 1);
+  let present, memory, scratch;
+  let seed = 20260814; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  /* ── 장면: 지금(흰 방)과 그때(볕 든 테라스). 의자와 나무는 같은 자리 ── */
+  const FLOOR = .8;
+  function chair(c, x, y, s, flip) {
+    c.save(); c.translate(x, y); c.scale(flip ? -s : s, s);
+    c.strokeStyle = '#3f4cc0'; c.lineWidth = 7; c.lineCap = 'butt';
+    const L = (a, b, d, e) => { c.beginPath(); c.moveTo(a, b); c.lineTo(d, e); c.stroke(); };
+    L(0, -150, 0, 0); L(40, -150, 40, -60); L(0, -150, 40, -150); L(0, -118, 40, -118); L(20, -150, 20, -118);
+    L(0, -62, 62, -56); L(62, -56, 62, 4); L(26, -60, 26, 2); L(40, -60, 40, -2);
+    c.fillStyle = '#d8a83c'; c.beginPath(); c.moveTo(-2, -70); c.lineTo(64, -64); c.lineTo(66, -54); c.lineTo(-2, -60); c.fill();
+    c.fillStyle = 'rgba(120,80,10,.25)'; for (let i = 0; i < 16; i++) c.fillRect(i * 4, -68 + i * .35, 1.2, 9);
+    c.restore();
+  }
+  function tree(c, x, y, s, sun) {
+    c.save(); c.translate(x, y); c.scale(s, s);
+    c.fillStyle = sun ? 'rgba(40,50,80,.22)' : 'rgba(60,55,45,.12)';
+    c.beginPath(); c.ellipse(sun ? 60 : 0, 2, sun ? 90 : 50, 7, 0, 0, 7); c.fill();
+    c.fillStyle = '#c8ad78'; c.beginPath(); c.moveTo(-34, -60); c.lineTo(34, -60); c.lineTo(27, 0); c.lineTo(-27, 0); c.fill();
+    c.strokeStyle = 'rgba(120,95,50,.5)'; c.lineWidth = 1; for (let i = -56; i < 0; i += 6) { c.beginPath(); c.moveTo(-32, i); c.lineTo(32, i); c.stroke(); }
+    c.strokeStyle = '#8b7656'; c.lineWidth = 5;
+    for (const [dx, h] of [[-6, 300], [4, 330], [10, 280]]) { c.beginPath(); c.moveTo(0, -60); c.bezierCurveTo(dx * 2, -150, dx * 4, -220, dx * 3, -h); c.stroke(); }
+    for (let k = 0; k < 220; k++) {
+      const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * 95, lx = Math.cos(a) * r * 1.05, ly = -270 + Math.sin(a) * r * 1.35;
+      c.save(); c.translate(lx, ly); c.rotate(rnd() * Math.PI);
+      c.fillStyle = sun ? (k % 3 ? '#6f8650' : '#a3b47c') : (k % 3 ? '#5f7346' : '#7b8d5c');
+      c.beginPath(); c.ellipse(0, 0, 11, 3.2, 0, 0, 7); c.fill(); c.restore();
+      if (k % 23 === 0) { c.fillStyle = '#3a3d2a'; c.beginPath(); c.ellipse(lx, ly + 4, 3.5, 5, 0, 0, 7); c.fill(); }
+    }
+    c.restore();
+  }
+  function places() { const s = Math.min(1.25, Math.max(.55, H / 900, Math.min(1, W / 900))); return { s, fy: H * FLOOR, cx1: W * .4, cx2: W * .56, tx: W * .72 }; }
+
+  function drawPresent(c) {
+    seed = 7; const { s, fy, cx1, cx2, tx } = places();
+    let g = c.createLinearGradient(0, 0, 0, fy); g.addColorStop(0, '#e7e4de'); g.addColorStop(.25, '#f3f1ed'); g.addColorStop(1, '#ebe8e2');
+    c.fillStyle = g; c.fillRect(0, 0, W, fy);
+    g = c.createLinearGradient(0, fy, 0, H); g.addColorStop(0, '#d9d2c5'); g.addColorStop(1, '#e3ddd2');
+    c.fillStyle = g; c.fillRect(0, fy, W, H - fy);
+    for (let i = 0; i < W * (H - fy) / 90; i++) { c.fillStyle = ['#9a9184', '#b4ab9d', '#fff', '#8e8578'][i % 4]; c.fillRect(rnd() * W, fy + rnd() * (H - fy), 1.6, 1.6); }
+    c.fillStyle = '#d4d0c8'; c.fillRect(0, fy - 3, W, 3);
+    c.fillStyle = '#fbfaf8'; c.fillRect(0, 26, W, 12); c.fillStyle = 'rgba(0,0,0,.06)'; c.fillRect(0, 38, W, 3);
+    for (const lx of [W * .3, W * .7]) {
+      c.fillStyle = '#e5e2dc'; c.fillRect(lx - 11, 40, 22, 30);
+      g = c.createRadialGradient(lx, 70, 0, lx, 70, H * .55); g.addColorStop(0, 'rgba(255,248,230,.55)'); g.addColorStop(1, 'rgba(255,248,230,0)');
+      c.fillStyle = g; c.fillRect(0, 0, W, fy);
+    }
+    g = c.createLinearGradient(W * .78, 0, W, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.06)'); c.fillStyle = g; c.fillRect(W * .78, 0, W * .22, fy);
+    tree(c, tx, fy, s, false);
+    c.fillStyle = 'rgba(60,55,45,.1)'; c.beginPath(); c.ellipse(cx1 + 30 * s, fy + 4, 50 * s, 6 * s, 0, 0, 7); c.ellipse(cx2 - 30 * s, fy + 22 * s, 52 * s, 6 * s, 0, 0, 7); c.fill();
+    chair(c, cx1, fy, s, false); chair(c, cx2, fy + 18 * s, s * 1.06, true);
+  }
+  function drawMemory(c) {
+    seed = 11; const { s, fy, cx1, cx2, tx } = places();
+    const hz = H * .44;
+    let g = c.createLinearGradient(0, 0, 0, hz); g.addColorStop(0, '#8fbde6'); g.addColorStop(1, '#e4f0f8');
+    c.fillStyle = g; c.fillRect(0, 0, W, hz);
+    g = c.createLinearGradient(0, hz, 0, fy); g.addColorStop(0, '#3b72b4'); g.addColorStop(1, '#5d95cb');
+    c.fillStyle = g; c.fillRect(0, hz, W, fy - hz);
+    c.fillStyle = 'rgba(255,255,255,.55)'; for (let i = 0; i < 140; i++) c.fillRect(rnd() * W, hz + rnd() * (fy - hz) * .7, 6 + rnd() * 18, 1.4);
+    g = c.createRadialGradient(W * .82, H * .1, 0, W * .82, H * .1, W * .5); g.addColorStop(0, 'rgba(255,253,240,.95)'); g.addColorStop(.15, 'rgba(255,248,220,.5)'); g.addColorStop(1, 'rgba(255,248,220,0)');
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.fillStyle = '#f6f2ea'; c.fillRect(0, fy - 70 * s, W * .3, 70 * s); c.fillRect(W * .84, fy - 230 * s, W * .16, 230 * s);
+    c.fillStyle = '#3f4cc0'; c.fillRect(W * .87, fy - 190 * s, 60 * s, 190 * s); c.fillStyle = '#2f3a9a'; c.fillRect(W * .87 + 46 * s, fy - 100 * s, 6 * s, 6 * s);
+    g = c.createLinearGradient(0, fy, 0, H); g.addColorStop(0, '#efe4cf'); g.addColorStop(1, '#e6d6b6');
+    c.fillStyle = g; c.fillRect(0, fy, W, H - fy);
+    // 체크 식탁보 식탁
+    const tw = 200 * s, th = 30 * s, tX = (cx1 + cx2) / 2 - tw / 2 + 12 * s, tY = fy - 96 * s;
+    c.save(); c.beginPath(); c.rect(tX - 14 * s, tY, tw + 28 * s, th + 60 * s); c.clip();
+    c.fillStyle = '#fff'; c.fillRect(tX - 20, tY, tw + 40, th + 70 * s);
+    c.fillStyle = 'rgba(61,99,176,.5)'; const q = 9 * s;
+    for (let x = tX - 20; x < tX + tw + 30; x += q * 2) c.fillRect(x, tY, q, th + 70 * s);
+    for (let y = tY; y < tY + th + 70 * s; y += q * 2) c.fillRect(tX - 20, y, tw + 40, q);
+    c.restore();
+    [['#cfe2f2', '#7fa6cf'], ['#f4f1ea', '#3f4cc0'], ['#6c8a4a', '#f2d34b']].forEach(([a, b], i) => { c.save(); c.translate(tX + 34 * s + i * 50 * s, tY + 12 * s); c.rotate((i - 1) * .14); c.fillStyle = '#fff'; c.fillRect(-16 * s, -10 * s, 32 * s, 22 * s); c.fillStyle = a; c.fillRect(-13 * s, -8 * s, 26 * s, 14 * s); c.fillStyle = b; c.fillRect(-13 * s, -1 * s, 26 * s, 7 * s); c.restore(); });
+    tree(c, tx, fy, s, true);
+    c.fillStyle = 'rgba(40,50,90,.22)'; c.beginPath(); c.ellipse(cx1 + 70 * s, fy + 6, 80 * s, 7 * s, 0, 0, 7); c.ellipse(cx2 + 30 * s, fy + 24 * s, 80 * s, 7 * s, 0, 0, 7); c.fill();
+    chair(c, cx1, fy, s, false); chair(c, cx2, fy + 18 * s, s * 1.06, true);
+    c.fillStyle = 'rgba(255,214,140,.12)'; c.fillRect(0, 0, W, H);
+  }
+
+  /* ── 벽에 떠오르는 이야기. 기댈 때마다 한 줄씩 ── */
+  const LINES = [
+    '열한 시쯤, 바다가 너무 밝아서 사진이 다 하얗게 나왔다.',
+    '그녀는 의자 두 개를 볕 쪽으로 끌어다 놓았다.',
+    '식탁보는 파랑 체크였고, 접시는 늘 하나가 모자랐다.',
+    '누군가 다음 여름 얘기를 꺼냈고, 아무도 대답하지 않았다.',
+    '"내년에도 이 의자는 여기 있을 거야."',
+  ];
+  const LAST = ['의자는 아직 파랗다.', '나는 아직 가지 못했다.'];
+  let shown = 0, lineAlpha = LINES.map(() => 0), lastAlpha = 0, leanTotal = 0, leanThis = 0;
+
+  /* ── 격자 ── */
+  const BAR = 14, GAP = 22, ROD = 118, P = BAR + GAP;
+  let holes = [];
+  function makeHoles() {
+    const sx = f => Math.round(W * f / P) * P, sy = f => Math.round(H * f / ROD) * ROD;
+    holes = [{ x0: sx(.12), x1: sx(.12) + P * 3, y0: sy(.42), y1: sy(.42) + ROD * 2 }, { x0: sx(.76), x1: sx(.76) + P * 2, y0: sy(.2), y1: sy(.2) + ROD }];
+  }
+  const inHole = (x, y0, y1) => holes.find(h => x >= h.x0 && x < h.x1 && y1 > h.y0 && y0 < h.y1);
+  function drawGrate(c, tilt) {
+    for (let x = -P * 3; x < W + P * 3; x += P) {
+      const h = inHole(x, 0, H), segs = h ? [[-H, h.y0 + Math.abs(x * 7 % 23) - 6], [h.y1 - Math.abs(x * 5 % 17) + 4, H * 2]] : [[-H, H * 2]];
+      for (const [y0, y1] of segs) {
+        c.fillStyle = '#6f7476'; c.fillRect(x, y0, tilt, y1 - y0);
+        const g = c.createLinearGradient(x + tilt, 0, x + tilt + BAR, 0);
+        g.addColorStop(0, '#8c9192'); g.addColorStop(.18, '#e4e6e5'); g.addColorStop(.45, '#c3c6c6'); g.addColorStop(.85, '#b2b6b7'); g.addColorStop(1, '#868b8d');
+        c.fillStyle = g; c.fillRect(x + tilt, y0, BAR - tilt * .3, y1 - y0);
+        c.fillStyle = 'rgba(255,255,255,.18)'; for (let k = 0; k < 14; k++) c.fillRect(x + tilt + 2, ((x * 31 + k * 97) % (H + 200) + H + 200) % (H + 200) - 100, BAR - 6, 10);
+      }
+    }
+    for (let y = ROD * .5 - ROD * 2; y < H + ROD * 2; y += ROD) {
+      for (let x = -P * 3; x < W + P * 3; x += P) {
+        if (inHole(x, y - 3, y + 3) && inHole(x + P, y - 3, y + 3)) continue;
+        c.fillStyle = '#7c8183'; c.fillRect(x + BAR, y - 2, GAP, 5);
+        c.fillStyle = '#d7d9d8'; c.fillRect(x + BAR + 3, y - 2, 4, 2); c.fillRect(x + BAR + 12, y + 1, 4, 2);
+      }
+    }
+  }
+
+  /* 격자를 타고 자라는 올리브 덩굴. 오래 머물수록 길어지고 열매가 익는다 */
+  let grow = 16; const VINE = [];
+  function makeVine() {
+    VINE.length = 0; seed = 3;
+    for (let k = 0; k < 90; k++) { const t = k / 90; VINE.push({ x: W * .6 + Math.sin(t * 7) * 40 - t * W * .12, y: -10 + t * H * .95, side: k % 2 ? 1 : -1, r: (rnd() - .5) * 1.2, olive: k % 7 === 3, c: rnd() }); }
+  }
+  let perf = 0;
+  function drawVine(c) {
+    const n = Math.min(VINE.length, Math.floor(grow)); if (n < 2) return;
+    c.strokeStyle = '#6b5a3a'; c.lineWidth = 2.2; c.beginPath(); c.moveTo(VINE[0].x, VINE[0].y);
+    for (let i = 1; i < n; i++) c.lineTo(VINE[i].x, VINE[i].y);
+    c.stroke();
+    const ripe = Math.min(1, grow / 90);
+    for (let i = 0; i < n; i++) {
+      const v = VINE[i], sway = RM ? 0 : Math.sin(perf / 2400 + i * .3) * .06;
+      c.save(); c.translate(v.x + v.side * 12, v.y); c.rotate(v.side * .7 + v.r + sway);
+      c.fillStyle = v.c > .7 ? '#87996a' : '#5f7346'; c.beginPath(); c.ellipse(0, 0, 15, 4.4, 0, 0, 7); c.fill(); c.restore();
+      if (v.olive) { c.fillStyle = `rgb(${Math.round(110 - 52 * ripe)},${Math.round(125 - 64 * ripe)},${Math.round(70 - 28 * ripe)})`; c.beginPath(); c.ellipse(v.x - v.side * 5, v.y + 9, 4, 6, 0, 0, 7); c.fill(); }
+    }
+  }
+
+  /* 격자에 걸린 장식: 건드리면 흔들리고, 기억 한 조각 */
+  const CHARMS = [
+    { el: document.getElementById('cTower'), f: .47, rod: 2, th: 0, w: 0, kind: 'tower', notes: ['그 섬에서 왜 파리 기념품을 샀는지, 아직도 모르겠다.', '빨간 건 이것 하나뿐이었다.'] },
+    { el: document.getElementById('cCoin'), f: .82, rod: 1, th: 0, w: 0, kind: 'coin', notes: ['거스름돈으로 받은 동전. 아직 지갑 안쪽에 있다.', '앞면엔 기둥 하나. 뒷면은 기억나지 않는다.'] },
+  ];
+  const charmPos = ch => ({ x: Math.round(W * ch.f / P) * P + BAR + GAP / 2, y: ROD * .5 + ROD * ch.rod });
+  function drawCharm(c, ch) {
+    const { x, y } = charmPos(ch);
+    c.save(); c.translate(x, y); c.rotate(ch.th);
+    c.strokeStyle = '#b9a26a'; c.lineWidth = 2; c.beginPath(); c.arc(0, 6, 5, 0, 7); c.stroke();
+    c.strokeStyle = '#8b8f90'; c.beginPath(); c.moveTo(0, 11); c.lineTo(0, 20); c.stroke();
+    c.translate(0, 20);
+    if (ch.kind === 'tower') {
+      c.fillStyle = '#c8312b'; c.beginPath(); c.moveTo(0, 0); c.lineTo(3, 16); c.lineTo(6, 32); c.lineTo(14, 50); c.lineTo(6, 50); c.lineTo(0, 40); c.lineTo(-6, 50); c.lineTo(-14, 50); c.lineTo(-6, 32); c.lineTo(-3, 16); c.closePath(); c.fill();
+      c.strokeStyle = '#8e1f1b'; c.lineWidth = 2; c.beginPath(); c.moveTo(-7, 32); c.lineTo(7, 32); c.moveTo(-4, 16); c.lineTo(4, 16); c.stroke();
+    } else {
+      c.fillStyle = '#a8864a'; c.beginPath(); c.arc(0, 18, 17, 0, 7); c.fill();
+      c.strokeStyle = '#d6bb7e'; c.lineWidth = 1.5; c.beginPath(); c.arc(0, 18, 13, 0, 7); c.stroke();
+      c.strokeStyle = '#5e4a22'; c.lineWidth = 2; c.beginPath(); c.moveTo(-6, 26); c.lineTo(-6, 11); c.moveTo(6, 26); c.lineTo(6, 11); c.moveTo(-8, 11); c.lineTo(8, 11); c.moveTo(-8, 26); c.lineTo(8, 26); c.stroke();
+    }
+    c.restore();
+  }
+  const live = document.getElementById('live');
+  const say = t => { live.textContent = ''; setTimeout(() => live.textContent = t, 30); };
+  function touchCharm(ch) {
+    ch.w += (Math.random() < .5 ? -1 : 1) * (RM ? 0 : 3.2);
+    const t = ch.notes[(ch.n = ((ch.n ?? -1) + 1) % ch.notes.length)];
+    const r = ch.el.getBoundingClientRect();
+    const n = document.createElement('p'); n.className = 'note'; n.textContent = t;
+    n.style.left = Math.min(W - 260, Math.max(12, r.right + 6)) + 'px'; n.style.top = (r.top + 30) + 'px';
+    document.body.appendChild(n); setTimeout(() => n.remove(), 6200);
+    say(t);
+  }
+  CHARMS.forEach(ch => { ch.el.addEventListener('click', e => { e.stopPropagation(); touchCharm(ch); }); ch.el.addEventListener('pointerdown', e => e.stopPropagation()); });
+
+  /* ── 크기 ── */
+  let gaze = null, aim = null;
+  function resize() {
+    W = innerWidth; H = innerHeight;
+    for (const cv of [back, front]) { cv.width = W * D; cv.height = H * D; }
+    const mk = () => { const c = document.createElement('canvas'); c.width = W * D; c.height = H * D; c.getContext('2d').scale(D, D); return c; };
+    present = mk(); memory = mk(); scratch = mk();
+    drawPresent(present.getContext('2d')); drawMemory(memory.getContext('2d'));
+    makeHoles(); makeVine();
+    if (!gaze) { gaze = { x: W * .48, y: H * .58 }; aim = { ...gaze }; }
+  }
+
+  /* ── 기대기 ── */
+  let lean = 0, leaning = false;
+  const hint = document.getElementById('hint');
+  function start(x, y) { leaning = true; leanThis = 0; if (x != null) aim = { x, y }; document.body.classList.add('leaning'); hint.classList.add('gone'); }
+  function stop() { leaning = false; document.body.classList.remove('leaning'); }
+  addEventListener('pointerdown', e => { if (e.target.closest('.print, .charm')) return; start(e.clientX, e.clientY); });
+  addEventListener('pointermove', e => { aim = { x: e.clientX, y: e.clientY }; if (drag) moveDrag(e); });
+  addEventListener('pointerup', () => { stop(); endDrag(); });
+  addEventListener('pointercancel', () => { stop(); endDrag(); });
+  addEventListener('keydown', e => {
+    const onBtn = e.target.closest && e.target.closest('button');
+    if (e.key === ' ' && !onBtn) { e.preventDefault(); if (!e.repeat) start(); }
+    const st = 50, k = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, -st], ArrowDown: [0, st] }[e.key];
+    if (k) { e.preventDefault(); aim = { x: Math.max(0, Math.min(W, aim.x + k[0])), y: Math.max(0, Math.min(H, aim.y + k[1])) }; }
+  });
+  addEventListener('keyup', e => { if (e.key === ' ') stop(); });
+  addEventListener('blur', stop);
+
+  /* ── 넘어오는 것은 사진뿐. 그마저 바랜다 ── */
+  const PHOTOS = [
+    ['오후의 바다', c => { c.fillStyle = '#e4f0f8'; c.fillRect(0, 0, 104, 44); c.fillStyle = '#4f86c0'; c.fillRect(0, 44, 104, 36); c.fillStyle = 'rgba(255,255,255,.6)'; c.fillRect(10, 52, 30, 2); c.fillRect(56, 60, 24, 2); }],
+    ['파란 문', c => { c.fillStyle = '#f6f2ea'; c.fillRect(0, 0, 104, 80); c.fillStyle = '#3f4cc0'; c.fillRect(38, 16, 30, 64); c.fillStyle = 'rgba(0,0,0,.08)'; c.fillRect(0, 0, 18, 80); }],
+    ['레몬', c => { c.fillStyle = '#6c8a4a'; c.fillRect(0, 0, 104, 80); c.fillStyle = '#f2d34b'; [[30, 34], [62, 46], [78, 22]].forEach(([x, y]) => { c.beginPath(); c.ellipse(x, y, 14, 11, .4, 0, 7); c.fill(); }); }],
+    ['식탁', c => { c.fillStyle = '#fff'; c.fillRect(0, 0, 104, 80); c.fillStyle = 'rgba(61,99,176,.5)'; for (let i = 0; i < 104; i += 12) c.fillRect(i, 0, 6, 80); for (let j = 0; j < 80; j += 12) c.fillRect(0, j, 104, 6); c.fillStyle = '#fff'; c.strokeStyle = '#3f63b0'; c.lineWidth = 2; c.beginPath(); c.arc(52, 40, 16, 0, 7); c.fill(); c.stroke(); }],
+    ['수박', c => { c.fillStyle = '#efe4cf'; c.fillRect(0, 0, 104, 80); c.fillStyle = '#3c6d3a'; c.beginPath(); c.arc(52, 76, 44, Math.PI, 0); c.fill(); c.fillStyle = '#f3f1ed'; c.beginPath(); c.arc(52, 76, 39, Math.PI, 0); c.fill(); c.fillStyle = '#d9443a'; c.beginPath(); c.arc(52, 76, 36, Math.PI, 0); c.fill(); }],
+    ['파란 의자 둘', c => { c.fillStyle = '#efe4cf'; c.fillRect(0, 0, 104, 80); c.fillStyle = '#8fbde6'; c.fillRect(0, 0, 104, 34); c.strokeStyle = '#3f4cc0'; c.lineWidth = 3; [[28, 1], [70, -1]].forEach(([x, d]) => { c.beginPath(); c.moveTo(x, 30); c.lineTo(x, 72); c.moveTo(x, 52); c.lineTo(x + 16 * d, 52); c.lineTo(x + 16 * d, 72); c.moveTo(x, 30); c.lineTo(x + 10 * d, 30); c.stroke(); }); }],
+  ];
+  let pi = 0, drag = null;
+  function slipPhoto() {
+    if (document.querySelectorAll('.print').length >= 3 || document.hidden) return;
+    const gx = Math.round((W * (.2 + Math.random() * .6)) / P) * P + BAR + GAP / 2;
+    const [cap, paint] = PHOTOS[pi++ % PHOTOS.length];
+    const el = document.createElement('div'); el.className = 'print'; el.setAttribute('role', 'img'); el.setAttribute('aria-label', `격자 틈으로 넘어온 사진: ${cap}`);
+    const cv = document.createElement('canvas'); cv.width = 208; cv.height = 160; const c = cv.getContext('2d'); c.scale(2, 2); paint(c);
+    const sp = document.createElement('span'); sp.textContent = cap; el.append(cv, sp);
+    const rot = (Math.random() * 14 - 7).toFixed(1);
+    Object.assign(el.style, { left: (gx - 59) + 'px', top: (H * (.22 + Math.random() * .35)) + 'px', transform: `rotate(${rot}deg)` });
+    document.body.appendChild(el);
+    el.animate([{ transform: 'translateY(-60px) rotateY(88deg) scale(.8)', opacity: 0 }, { transform: 'translateY(0) rotateY(40deg) scale(.9)', opacity: 1, offset: .5 }, { transform: `rotate(${rot}deg)` }], { duration: RM ? 10 : 2400, easing: 'cubic-bezier(.3,.6,.3,1)' });
+    say(`사진 한 장이 격자 틈으로 넘어왔다. ${cap}.`);
+    setTimeout(() => el.classList.add('fading'), 22000);
+    setTimeout(() => el.remove(), 28500);
+    el.addEventListener('pointerdown', e => {
+      e.stopPropagation(); el.getAnimations().forEach(a => a.cancel());
+      drag = { el, dx: e.clientX - el.offsetLeft, dy: e.clientY - el.offsetTop }; el.classList.add('held'); el.setPointerCapture(e.pointerId);
+      el.style.transform = 'rotate(0deg)';
+    });
+  }
+  function moveDrag(e) { drag.el.style.left = (e.clientX - drag.dx) + 'px'; drag.el.style.top = (e.clientY - drag.dy) + 'px'; }
+  function endDrag() { if (!drag) return; drag.el.classList.remove('held'); drag.el.style.transform = `rotate(${(Math.random() * 10 - 5).toFixed(1)}deg)`; drag = null; }
+  setTimeout(slipPhoto, 9000); setInterval(slipPhoto, 17000);
+
+  /* ── 매 프레임 ── */
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now; perf = now;
+    lean += ((leaning ? 1 : 0) - lean) * Math.min(1, dt * (leaning ? 1.1 : .55) * (RM ? 4 : 1));
+    gaze.x += (aim.x - gaze.x) * Math.min(1, dt * 3); gaze.y += (aim.y - gaze.y) * Math.min(1, dt * 3);
+    if (leaning) {
+      leanThis += dt; leanTotal += dt;
+      if (leanThis > 1.6 && shown < LINES.length) { shown++; say(LINES[shown - 1]); leanThis = -2.4; }
+    }
+    grow = Math.min(90, grow + dt * (leaning ? .9 : .22));
+    for (let i = 0; i < shown; i++) lineAlpha[i] = Math.min(1, lineAlpha[i] + dt * .35);
+    if (shown === LINES.length && leanTotal > 22 && lastAlpha === 0) { lastAlpha = .001; say(LAST.join(' ')); }
+    if (lastAlpha > 0) lastAlpha = Math.min(1, lastAlpha + dt * .12);
+    CHARMS.forEach(ch => { ch.w += (-9 * Math.sin(ch.th) - 1.1 * ch.w) * dt; ch.th += ch.w * dt; });
+
+    // 뒤: 지금의 방. 바라보는 곳에서 그때가 번진다
+    const zb = 1 + .1 * lean;
+    bx.setTransform(D, 0, 0, D, 0, 0);
+    bx.save(); bx.translate(gaze.x, gaze.y); bx.scale(zb, zb); bx.translate(-gaze.x, -gaze.y);
+    bx.drawImage(present, 0, 0, W, H);
+    if (lean > .005) {
+      const s = scratch.getContext('2d');
+      s.setTransform(D, 0, 0, D, 0, 0); s.globalCompositeOperation = 'source-over'; s.clearRect(0, 0, W, H);
+      s.drawImage(memory, 0, 0, W, H);
+      s.globalCompositeOperation = 'destination-in';
+      const R = (.08 + .6 * lean) * Math.max(W, H), g = s.createRadialGradient(gaze.x, gaze.y, R * .15, gaze.x, gaze.y, R);
+      g.addColorStop(0, `rgba(0,0,0,${Math.min(1, lean * 1.3)})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+      s.fillStyle = g; s.fillRect(0, 0, W, H);
+      bx.drawImage(scratch, 0, 0, W, H);
+    }
+    // 흰 벽에 적힌 문장들. 그때가 번지면 흐려진다
+    const fs = Math.max(15, Math.min(20, W / 60)), tx = Math.max(24, W * .08), ty = H * .2;
+    bx.textBaseline = 'top';
+    bx.font = `400 ${fs}px "Gowun Batang", serif`;
+    LINES.forEach((t, i) => { if (!lineAlpha[i]) return; bx.fillStyle = `rgba(43,42,40,${lineAlpha[i] * (1 - lean * .55)})`; bx.fillText(t, tx, ty + i * fs * 2.1, W - tx * 2); });
+    if (lastAlpha > 0) {
+      bx.font = `700 ${fs * 1.5}px "Gowun Batang", serif`; bx.fillStyle = `rgba(43,42,40,${lastAlpha})`;
+      LAST.forEach((t, i) => bx.fillText(t, tx, ty + (LINES.length + .8 + i * 1.3) * fs * 2.1, W - tx * 2));
+    }
+    bx.restore();
+
+    // 앞: 격자. 기대면 가까워지고 초점이 흐려진다
+    const zf = 1 + .75 * lean, tilt = 2 + 6 * (gaze.x / W);
+    fx.setTransform(D, 0, 0, D, 0, 0); fx.clearRect(0, 0, W, H);
+    fx.save(); fx.translate(gaze.x, gaze.y); fx.scale(zf, zf); fx.translate(-gaze.x, -gaze.y);
+    fx.shadowColor = 'rgba(40,40,40,.18)'; fx.shadowOffsetX = -5; fx.shadowOffsetY = 7; fx.shadowBlur = 6;
+    drawGrate(fx, tilt);
+    fx.shadowColor = 'transparent';
+    drawVine(fx);
+    CHARMS.forEach(ch => drawCharm(fx, ch));
+    fx.restore();
+    front.style.filter = lean > .02 && !RM ? `blur(${(lean * 3.2).toFixed(2)}px)` : 'none';
+    CHARMS.forEach(ch => { const p = charmPos(ch); ch.el.style.left = (gaze.x + (p.x - gaze.x) * zf) + 'px'; ch.el.style.top = (gaze.y + (p.y - gaze.y) * zf) + 'px'; });
+    requestAnimationFrame(frame);
+  }
+
+  resize();
+  addEventListener('resize', resize);
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => requestAnimationFrame(t => { last = t; frame(t); }));
+  setTimeout(() => hint.classList.add('gone'), 14000);
+})();
+</script>
+<script src="../systems-nav.js?v=20261114c" defer></script>
+</body>
+</html>

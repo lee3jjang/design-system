@@ -1,0 +1,1421 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>창가 디자인 시스템</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 창가 — 비 오는 날 2층 창가에 앉아 길을 내려다보는 기분.
+   화면은 창틀이라 움직이지 않는다(스크롤 없음). 메뉴는 길 위의 장소이고, 로드뷰처럼 돌아보고 걸어서 옮겨 다닌다.
+   바깥은 젖은 회색, 안쪽은 따뜻하다. 채도 있는 색은 은행잎 노랑(주요 동작)·버스 차로 파랑(길·링크)·미등 빨강(위험)뿐. */
+:root {
+  color-scheme: light;
+  --sky-1: #cfd1d1; --sky-2: #e2e3e1;
+  --ground-1: #55595e; --ground-2: #2f3236;
+  --paper: #f3f1ec; --paper-2: #e9e6df; --paper-3: #dcd8cf;
+  --ink: #24272b; --ink-2: #4b5056; --ink-3: #62686f;
+  --line: #d3cec4; --line-2: #b9b3a7;
+  --ginkgo: #e5b425; --ginkgo-hover: #f0c443; --ginkgo-ink: #24272b; --ginkgo-soft: #f6ecc9; --ginkgo-text: #7a5a00;
+  --lane: #1b6fb3; --lane-hover: #155c95; --lane-soft: #e1ecf5; --lane-text: #175f9b;
+  --tail: #c42f2b; --tail-hover: #a82420; --tail-soft: #f7e3e1; --tail-text: #a82420;
+  --leaf: #5d7d3a; --leaf-soft: #e6eedb; --leaf-text: #46612a;
+  --lamp: #f3c57a;
+  --frame: #2a2c2f; --frame-2: #3c3f43;
+  --glass-fog: rgba(236, 238, 238, .55);
+  --shadow: 0 1px 2px rgba(20, 22, 26, .08), 0 6px 18px rgba(20, 22, 26, .10);
+  --shadow-lg: 0 18px 44px rgba(16, 18, 22, .28);
+  --r-sm: 8px; --r: 12px; --r-lg: 18px;
+  --slow: .42s; --ease: cubic-bezier(.3, .1, .2, 1);
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --wall-dim: 0%;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --sky-1: #161b21; --sky-2: #283039;
+    --ground-1: #2b2f35; --ground-2: #121417;
+    --paper: #23272c; --paper-2: #1b1e22; --paper-3: #30353b;
+    --ink: #ecebe6; --ink-2: #c4c3be; --ink-3: #a3a29d;
+    --line: #363b42; --line-2: #4a5058;
+    --ginkgo-soft: #3a3118; --ginkgo-text: #f0c95a;
+    --lane: #2a7cc0; --lane-hover: #3a8bd0; --lane-soft: #172a3a; --lane-text: #8cc2ee;
+    --tail: #d23a35; --tail-hover: #e2504b; --tail-soft: #3a1b1a; --tail-text: #ff9a94;
+    --leaf-soft: #1f2a17; --leaf-text: #a9cb84;
+    --frame: #0c0d0f; --frame-2: #1e2023;
+    --glass-fog: rgba(40, 46, 54, .55);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 18px rgba(0, 0, 0, .45);
+    --wall-dim: 62%;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --sky-1: #161b21; --sky-2: #283039;
+  --ground-1: #2b2f35; --ground-2: #121417;
+  --paper: #23272c; --paper-2: #1b1e22; --paper-3: #30353b;
+  --ink: #ecebe6; --ink-2: #c4c3be; --ink-3: #a3a29d;
+  --line: #363b42; --line-2: #4a5058;
+  --ginkgo-soft: #3a3118; --ginkgo-text: #f0c95a;
+  --lane: #2a7cc0; --lane-hover: #3a8bd0; --lane-soft: #172a3a; --lane-text: #8cc2ee;
+  --tail: #d23a35; --tail-hover: #e2504b; --tail-soft: #3a1b1a; --tail-text: #ff9a94;
+  --leaf-soft: #1f2a17; --leaf-text: #a9cb84;
+  --frame: #0c0d0f; --frame-2: #1e2023;
+  --glass-fog: rgba(40, 46, 54, .55);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 18px rgba(0, 0, 0, .45);
+  --wall-dim: 62%;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; }
+body { background: var(--frame); color: var(--ink); font: 400 16px/1.55 var(--font); letter-spacing: -.005em; -webkit-font-smoothing: antialiased;
+  display: grid; grid-template-rows: 56px 1fr; height: 100dvh; }
+h1, h2, h3, p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--lamp); outline-offset: 2px; }
+svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ── 창틀 위쪽: 지금 어디서 어느 쪽을 보고 있는지 ── */
+.bar { display: flex; align-items: center; gap: 12px; padding: 0 12px 0 16px; background: var(--frame); color: #ecebe6; border-bottom: 1px solid var(--frame-2); z-index: 5; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 16px; flex: none; }
+.brand i { width: 22px; height: 22px; border-radius: 5px; background: linear-gradient(180deg, #8d949b 0 48%, #2c2f33 52% 100%); box-shadow: inset 0 0 0 2px #ecebe6; position: relative; }
+.brand i::after { content: ""; position: absolute; left: 50%; top: 2px; bottom: 2px; width: 2px; margin-left: -1px; background: #ecebe6; }
+.addr { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; white-space: nowrap; overflow: hidden; font-size: 15px; }
+.addr b { font-weight: 600; }
+.addr span { color: #a9aaa6; overflow: hidden; text-overflow: ellipsis; }
+.bar .tb { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border: 1px solid #45484d; border-radius: 999px; background: transparent; color: #ecebe6; cursor: pointer; font-size: 14px; font-weight: 600; flex: none; }
+.bar .tb:hover { background: #33363a; }
+.bar .tb[aria-pressed="true"] { background: var(--ginkgo); color: #24272b; border-color: var(--ginkgo); }
+@media (max-width: 560px) { .addr span { display: none; } .bar .tb .t { display: none; } .bar .tb { width: 40px; padding: 0; justify-content: center; } }
+
+/* ── 바깥: 원통 로드뷰 ── */
+.stage { position: relative; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab;
+  background: linear-gradient(to bottom, var(--sky-1), var(--sky-2) var(--hz, 50%), var(--ground-1) var(--hz, 50%), var(--ground-2)); }
+.stage.grabbing { cursor: grabbing; }
+.clouds { position: absolute; inset: 0 0 auto; height: var(--hz, 50%); opacity: .55; pointer-events: none;
+  background: radial-gradient(60px 18px at 20% 30%, rgba(255,255,255,.35), transparent), radial-gradient(120px 26px at 60% 55%, rgba(255,255,255,.3), transparent), radial-gradient(90px 20px at 85% 25%, rgba(255,255,255,.25), transparent);
+  background-size: 900px 100%; }
+.scene { position: absolute; inset: 0; perspective: var(--P, 900px); perspective-origin: 50% var(--hz, 50%); }
+.world { position: absolute; inset: 0; transform-style: preserve-3d; }
+.cyl { position: absolute; left: 50%; top: var(--hz, 50%); width: 0; height: 0; transform-style: preserve-3d; }
+.face { position: absolute; left: calc(var(--W) / -2); top: calc(var(--H) / -2); width: calc(var(--W) + 1px); height: var(--H); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.face.off { opacity: 0; pointer-events: none; }
+#facades { display: none; }
+
+/* 건물 벽: 사진 속 돌 빌딩·유리 타워·갈색 타워 */
+.bld { --wall: #cbc6be; background: color-mix(in srgb, var(--wall), #0d0f12 var(--wall-dim)); display: flex; flex-direction: column; padding: 10px 14px 0; }
+.bld::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background: repeating-linear-gradient(90deg, transparent 0 46px, rgba(0,0,0,.08) 46px 48px), repeating-linear-gradient(0deg, transparent 0 38px, rgba(0,0,0,.07) 38px 40px); }
+.sign { position: relative; display: flex; align-items: baseline; gap: 10px; padding: 8px 12px; margin-bottom: 10px; border-radius: 6px; background: #26292d; color: #f1efe9; box-shadow: 0 2px 0 rgba(0,0,0,.25); flex: none; }
+.sign b { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+.sign small { font-size: 13px; color: #b4b4ae; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sign::after { content: ""; position: absolute; right: 10px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--lamp); box-shadow: 0 0 10px 3px rgba(243,197,122,.6); }
+.win { position: relative; flex: 1; min-height: 0; overflow: hidden; border-radius: 10px 10px 0 0; background: var(--paper); box-shadow: inset 0 0 0 1px rgba(0,0,0,.06), 0 0 0 6px rgba(0,0,0,.08); }
+.win__in { position: absolute; left: 0; top: 0; width: 100%; padding: 18px; transform-origin: 0 0; }
+.win h3 { font-size: 19px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 4px; }
+.win .lede { color: var(--ink-2); font-size: 14.5px; margin-bottom: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.col { display: grid; gap: 12px; }
+.lbl { font-size: 13px; color: var(--ink-3); font-weight: 600; margin: 10px 0 6px; }
+
+/* 길 쪽 면: 젖은 아스팔트가 멀어진다 */
+.road { cursor: pointer; }
+.road svg.art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.road__sign { position: absolute; left: 50%; top: 14%; transform: translateX(-50%); display: grid; gap: 2px; justify-items: center; padding: 10px 16px 11px; min-width: 180px; border: 0; border-radius: 10px; background: var(--lane); color: #fff; cursor: pointer; box-shadow: 0 8px 18px -6px rgba(0,0,0,.45); text-align: center; }
+.road__sign small { font-size: 12.5px; opacity: .85; }
+.road__sign b { font-size: 18px; font-weight: 700; }
+.road__sign span { font-size: 13px; }
+.road__sign:hover { background: var(--lane-hover); }
+.road__sign::after { content: ""; position: absolute; left: 50%; top: 100%; width: 6px; height: 46px; margin-left: -3px; background: #6c7177; }
+
+/* 비 */
+.rain { position: absolute; inset: 0; pointer-events: none; opacity: .22;
+  background-image: repeating-linear-gradient(103deg, transparent 0 22px, rgba(235,240,245,.55) 22px 23px, transparent 23px 61px), repeating-linear-gradient(101deg, transparent 0 37px, rgba(235,240,245,.4) 37px 38px, transparent 38px 90px);
+  background-size: 200px 220px, 260px 300px; animation: rain .6s linear infinite; }
+@keyframes rain { to { background-position: -48px 220px, -60px 300px; } }
+/* 유리에 맺힌 물방울 */
+.glass { position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(3px 4px at 8% 12%, rgba(255,255,255,.55), transparent 70%), radial-gradient(2px 3px at 14% 40%, rgba(255,255,255,.5), transparent 70%),
+    radial-gradient(4px 5px at 92% 18%, rgba(255,255,255,.5), transparent 70%), radial-gradient(3px 4px at 86% 62%, rgba(255,255,255,.45), transparent 70%),
+    radial-gradient(2px 3px at 4% 78%, rgba(255,255,255,.5), transparent 70%), radial-gradient(3px 4px at 97% 84%, rgba(255,255,255,.45), transparent 70%),
+    radial-gradient(2px 3px at 22% 6%, rgba(255,255,255,.5), transparent 70%), radial-gradient(3px 4px at 74% 8%, rgba(255,255,255,.45), transparent 70%),
+    linear-gradient(90deg, var(--glass-fog), transparent 9%, transparent 91%, var(--glass-fog));
+  box-shadow: inset 0 0 0 10px var(--frame), inset 0 0 0 11px var(--frame-2); }
+.drip { position: absolute; top: -10px; width: 3px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.6); box-shadow: 0 0 0 1px rgba(0,0,0,.05); animation: drip 9s linear infinite; }
+.drip::after { content: ""; position: absolute; left: 1px; bottom: 100%; width: 1px; height: 60px; background: linear-gradient(transparent, rgba(255,255,255,.25)); }
+@keyframes drip { 0%, 30% { transform: translateY(0); } 100% { transform: translateY(110vh); } }
+
+/* 창턱: 바닥 화살표 · 방위 띠 · 미니맵 */
+.tape { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); width: min(560px, calc(100% - 48px)); height: 38px; overflow: hidden; border-radius: 999px; background: rgba(36,39,43,.78); color: #ecebe6; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 3; }
+.tape::after { content: ""; position: absolute; z-index: 0; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--ginkgo); }
+.tape .tk { position: absolute; bottom: 0; width: 1px; height: 7px; background: #8a8c8c; }
+.tape button { position: absolute; z-index: 1; top: 5px; height: 28px; padding: 0 10px; transform: translateX(-50%); border: 0; border-radius: 999px; background: transparent; color: inherit; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+.tape button.rd { color: #8cc2ee; }
+.tape button:hover { background: rgba(255,255,255,.12); }
+.tape button[aria-current="true"] { background: #ecebe6; color: #24272b; }
+
+.sill { position: absolute; left: 0; right: 0; bottom: 0; height: var(--band, 120px); pointer-events: none; z-index: 2;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.25)); }
+.arrows { position: absolute; left: 50%; bottom: calc(var(--band, 120px) * .5); width: 0; height: 0; z-index: 3; }
+.arrow { position: absolute; left: -32px; top: -32px; width: 64px; height: 64px; border: 0; padding: 0; background: transparent; cursor: pointer; color: #f4f4f1; }
+.arrow svg { width: 64px; height: 64px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+.arrow:hover { color: var(--ginkgo); }
+.arrow:focus-visible { outline: none; color: var(--ginkgo); }
+.arrow-lbl { position: absolute; transform: translate(-50%, -50%); padding: 3px 9px; border-radius: 999px; background: rgba(27,111,179,.92); color: #fff; font-size: 12.5px; font-weight: 600; white-space: nowrap; pointer-events: none; }
+.hud { position: absolute; right: 18px; bottom: 18px; display: grid; justify-items: end; gap: 8px; z-index: 4; }
+.hud__turn { display: flex; gap: 6px; }
+.fab { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--paper); color: var(--ink); cursor: pointer; box-shadow: var(--shadow); }
+.fab:hover { background: var(--paper-2); }
+.mini { position: relative; width: 132px; height: 132px; border-radius: 16px; overflow: hidden; border: 3px solid var(--paper); box-shadow: var(--shadow); cursor: pointer; padding: 0; background: #e7e5df; }
+.mini svg { width: 100%; height: 100%; display: block; }
+.compass { position: absolute; right: 6px; top: 6px; width: 30px; height: 30px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.compass i { width: 4px; height: 20px; background: linear-gradient(var(--tail) 50%, var(--ink-3) 50%); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+@media (max-width: 560px) {
+  .mini { width: 92px; height: 92px; border-radius: 12px; }
+  .fab { width: 40px; height: 40px; }
+  .hud { right: 12px; bottom: 12px; }
+  .tape { top: 12px; width: calc(100% - 32px); }
+}
+
+@media (max-height: 520px) { .mini { width: 84px; height: 84px; border-radius: 12px; } .fab { width: 38px; height: 38px; } .hud { right: 12px; bottom: 10px; } }
+/* 지도 */
+.map { position: absolute; inset: 0; z-index: 6; background: #e7e5df; display: grid; grid-template-rows: 1fr; }
+.map[hidden] { display: none; }
+.map svg { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.map__tools { position: absolute; right: 18px; top: 18px; display: grid; gap: 8px; }
+.map__note { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); padding: 8px 14px; border-radius: 999px; background: rgba(36,39,43,.86); color: #ecebe6; font-size: 14px; white-space: nowrap; }
+.pin { cursor: pointer; outline: none; }
+.pin circle.hd { fill: var(--lane); stroke: #fff; stroke-width: 3; }
+.pin:hover circle.hd, .pin:focus-visible circle.hd { fill: var(--ginkgo); }
+.pin:focus-visible circle.ring { stroke: var(--ginkgo); }
+.pin text { font: 700 15px var(--font); fill: #24272b; paint-order: stroke; stroke: #f3f1ec; stroke-width: 4px; stroke-linejoin: round; }
+.pin text.g { fill: #fff; stroke: none; font-size: 14px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .map, :root:not([data-theme="light"]) .mini { background: #1c1f23; } }
+:root[data-theme="dark"] .map, :root[data-theme="dark"] .mini { background: #1c1f23; }
+
+/* ── 부품 ── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding: 0 18px; border: 1px solid transparent; border-radius: var(--r); font-weight: 650; font-size: 15px; cursor: pointer; white-space: nowrap; transition: background var(--slow) var(--ease), box-shadow var(--slow) var(--ease), transform .12s; }
+.btn:active { transform: translateY(1px); }
+.btn--yellow { background: var(--ginkgo); color: var(--ginkgo-ink); box-shadow: 0 12px 16px -10px rgba(229,180,37,.75); } /* 젖은 바닥에 번지는 노란 불빛 */
+.btn--yellow:hover { background: var(--ginkgo-hover); box-shadow: 0 14px 22px -10px rgba(229,180,37,.9); }
+.btn--lane { background: var(--lane); color: #fff; box-shadow: 0 12px 16px -10px rgba(27,111,179,.6); }
+.btn--lane:hover { background: var(--lane-hover); }
+.btn--outline { background: var(--paper); border-color: var(--line-2); color: var(--ink); }
+.btn--outline:hover { background: var(--paper-2); }
+.btn--ghost { background: transparent; color: var(--ink); }
+.btn--ghost:hover { background: var(--paper-2); }
+.btn--tail { background: var(--tail); color: #fff; box-shadow: 0 12px 16px -10px rgba(196,47,43,.65); }
+.btn--tail:hover { background: var(--tail-hover); }
+.btn--sm { height: 36px; padding: 0 13px; font-size: 14px; }
+.btn--lg { height: 56px; padding: 0 24px; font-size: 17px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; transform: none; }
+.btn--icon { width: 46px; padding: 0; }
+.spin { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.bgroup { display: inline-flex; flex-direction: column; border-radius: var(--r); background: var(--paper); box-shadow: var(--shadow); overflow: hidden; }
+.bgroup button { width: 46px; height: 44px; border: 0; background: transparent; cursor: pointer; font-size: 20px; color: var(--ink); }
+.bgroup button + button { border-top: 1px solid var(--line); }
+.bgroup button:hover { background: var(--paper-2); }
+
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 14px; width: 100%; min-height: 50px; padding: 6px 4px; border: 0; background: none; cursor: pointer; text-align: left; font-size: 15.5px; }
+.switch + .switch { border-top: 1px solid var(--line); }
+.switch small { display: block; color: var(--ink-3); font-size: 13px; }
+.switch .tr { position: relative; flex: none; width: 52px; height: 30px; border-radius: 999px; background: var(--paper-3); transition: background var(--slow) var(--ease); box-shadow: inset 0 0 0 1px var(--line-2); }
+.switch .tr::after { content: ""; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform var(--slow) var(--ease), box-shadow var(--slow); }
+.switch[aria-checked="true"] .tr { background: var(--ginkgo); box-shadow: none; }
+.switch[aria-checked="true"] .tr::after { transform: translateX(22px); box-shadow: 0 0 10px 2px rgba(243,197,122,.8); }
+
+.ck { display: flex; align-items: center; gap: 12px; min-height: 42px; cursor: pointer; font-size: 15.5px; }
+.ck input { appearance: none; -webkit-appearance: none; width: 24px; height: 24px; margin: 0; flex: none; border-radius: 7px; border: 2px solid var(--line-2); background: var(--paper); display: grid; place-items: center; cursor: pointer; transition: background .2s; }
+.ck input::after { content: ""; width: 11px; height: 6px; border: solid #24272b; border-width: 0 0 2.5px 2.5px; transform: rotate(-45deg) translate(1px, -1px); opacity: 0; }
+.ck input:checked, .ck input:indeterminate { background: var(--ginkgo); border-color: var(--ginkgo); }
+.ck input:checked::after { opacity: 1; }
+.ck input:indeterminate::after { opacity: 1; width: 11px; height: 0; border-width: 0 0 2.5px 0; transform: none; }
+.ck.sub { padding-left: 34px; }
+
+.rcards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rcard { position: relative; display: grid; gap: 2px; padding: 12px 14px; border-radius: var(--r); border: 1.5px solid var(--line); background: var(--paper); cursor: pointer; }
+.rcard input { position: absolute; opacity: 0; }
+.rcard b { font-size: 15.5px; }
+.rcard small { color: var(--ink-3); font-size: 13px; }
+.rcard:has(input:checked) { border-color: var(--lane); background: var(--lane-soft); }
+.rcard:has(input:checked) b { color: var(--lane-text); }
+.rcard:has(input:focus-visible) { outline: 3px solid var(--lamp); outline-offset: 2px; }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+.tabs button { position: relative; height: 42px; padding: 0 14px; border: 0; background: none; cursor: pointer; color: var(--ink-3); font-weight: 600; font-size: 15px; }
+.tabs button[aria-selected="true"] { color: var(--ink); }
+.tabs button[aria-selected="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 4px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--lane) 0 100%); box-shadow: 0 -5px 0 -2px transparent; }
+.tabpanel { font-size: 15px; color: var(--ink-2); min-height: 48px; }
+.seg { display: inline-flex; padding: 4px; border-radius: 999px; background: var(--paper-3); }
+.seg button { height: 38px; padding: 0 16px; border: 0; border-radius: 999px; background: none; cursor: pointer; font-weight: 600; font-size: 14.5px; color: var(--ink-2); }
+.seg button[aria-checked="true"] { background: var(--paper); color: var(--ink); box-shadow: var(--shadow); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--line-2); background: var(--paper); cursor: pointer; font-size: 14.5px; font-weight: 600; color: var(--ink-2); }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.chip[aria-pressed="true"]::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ginkgo); }
+
+.field { display: grid; gap: 6px; }
+.field > span { font-size: 14px; font-weight: 600; }
+.input, .select, textarea.input { width: 100%; height: 48px; padding: 0 14px; border-radius: var(--r); border: 1.5px solid var(--line-2); background: var(--paper); font-size: 16px; color: var(--ink); transition: border-color .2s, box-shadow .2s; }
+textarea.input { height: 84px; padding: 10px 14px; resize: none; line-height: 1.5; }
+.input:focus, .select:focus { outline: none; border-color: var(--lane); box-shadow: 0 0 0 4px color-mix(in srgb, var(--lane) 22%, transparent); }
+.input[aria-invalid="true"] { border-color: var(--tail); }
+.help { font-size: 13px; color: var(--ink-3); }
+.err { font-size: 13px; color: var(--tail-text); font-weight: 600; }
+.select { appearance: none; -webkit-appearance: none; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%), linear-gradient(135deg, var(--ink-3) 50%, transparent 50%); background-position: calc(100% - 20px) 21px, calc(100% - 14px) 21px; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 36px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.search { position: relative; }
+.search .input { padding-left: 42px; padding-right: 42px; }
+.search > svg { position: absolute; left: 13px; top: 14px; color: var(--ink-3); }
+.search .clear { position: absolute; right: 6px; top: 6px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--ink-3); font-size: 18px; }
+.sugg { list-style: none; margin: 6px 0 0; padding: 4px; border-radius: var(--r); background: var(--paper); box-shadow: var(--shadow); max-height: 178px; overflow: hidden; }
+.sugg button { display: flex; justify-content: space-between; gap: 10px; width: 100%; min-height: 42px; padding: 0 10px; border: 0; border-radius: 8px; background: none; cursor: pointer; text-align: left; font-size: 15px; }
+.sugg button:hover, .sugg button:focus-visible { background: var(--lane-soft); }
+.sugg small { color: var(--ink-3); }
+.stepper { display: inline-flex; align-items: center; border-radius: var(--r); border: 1.5px solid var(--line-2); overflow: hidden; background: var(--paper); }
+.stepper button { width: 46px; height: 46px; border: 0; background: none; cursor: pointer; font-size: 20px; }
+.stepper button:hover { background: var(--paper-2); }
+.stepper output { min-width: 56px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.range { width: 100%; accent-color: var(--ginkgo); height: 30px; }
+.rangeval { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+.badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.b-open { background: var(--leaf-soft); color: var(--leaf-text); }
+.b-soon { background: var(--ginkgo-soft); color: var(--ginkgo-text); }
+.b-closed { background: var(--tail-soft); color: var(--tail-text); }
+.b-info { background: var(--lane-soft); color: var(--lane-text); }
+.tag { display: inline-flex; height: 28px; align-items: center; padding: 0 10px; border-radius: 6px; background: var(--paper-3); font-size: 13px; color: var(--ink-2); }
+.stars { color: var(--ginkgo); letter-spacing: 2px; font-size: 17px; }
+.stars em { font-style: normal; color: var(--ink-3); letter-spacing: 0; font-size: 14px; margin-left: 6px; }
+
+.pcard { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 12px; border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--shadow); }
+.pcard .ph { border-radius: 10px; min-height: 92px; background: linear-gradient(180deg, #8e959c 0 40%, #3d4146 40% 100%); position: relative; overflow: hidden; }
+.pcard .ph::before { content: ""; position: absolute; left: 14px; right: 14px; top: 46%; height: 20px; border-radius: 4px; background: var(--lamp); box-shadow: 0 0 16px 4px rgba(243,197,122,.55); }
+.pcard .ph::after { content: ""; position: absolute; left: 20%; right: 20%; bottom: 0; height: 26%; background: rgba(243,197,122,.25); filter: blur(6px); }
+.pcard b { font-size: 16.5px; }
+.pcard .meta { color: var(--ink-3); font-size: 13.5px; }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; list-style: none; padding: 0; margin: 4px 0 12px; }
+.steps li { position: relative; padding-top: 22px; font-size: 13.5px; color: var(--ink-3); text-align: center; }
+.steps li::before { content: ""; position: absolute; left: 50%; top: 0; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--paper-3); box-shadow: 0 0 0 3px var(--paper); z-index: 1; }
+.steps li::after { content: ""; position: absolute; left: -50%; right: 50%; top: 6px; height: 3px; background: var(--paper-3); }
+.steps li:first-child::after { display: none; }
+.steps li.done::before, .steps li.now::before { background: var(--lane); }
+.steps li.done::after, .steps li.now::after { background: repeating-linear-gradient(90deg, var(--lane) 0 10px, transparent 10px 14px); }
+.steps li.now { color: var(--ink); font-weight: 700; }
+.steps li.now::before { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px color-mix(in srgb, var(--lane) 30%, transparent); }
+.meter { height: 10px; border-radius: 999px; background: var(--paper-3); overflow: hidden; }
+.meter i { display: block; height: 100%; width: 40%; border-radius: inherit; background: linear-gradient(90deg, var(--lane), #4f9ad6); transition: width var(--slow) var(--ease); }
+.skel { height: 14px; border-radius: 6px; background: linear-gradient(90deg, var(--paper-3), var(--paper-2), var(--paper-3)); background-size: 200% 100%; animation: shimmer 2.4s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.tbl { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.tbl th { text-align: left; font-size: 12.5px; color: var(--ink-3); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--line-2); }
+.tbl td { padding: 9px 8px; border-bottom: 1px solid var(--line); }
+.tbl td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl th.n { text-align: right; }
+
+.code { margin: 0; padding: 14px; border-radius: var(--r); background: #1f2226; color: #dcdad3; font: 13px/1.6 var(--mono); white-space: pre; overflow: hidden; }
+.code .c { color: #8a8f95; } .code .k { color: #f0c95a; } .code .v { color: #8cc2ee; }
+.do { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 14.5px; }
+.do li { display: grid; grid-template-columns: 24px 1fr; gap: 8px; }
+.do li::before { content: "✓"; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--leaf-soft); color: var(--leaf-text); font-weight: 800; font-size: 13px; }
+.do li.no::before { content: "✕"; background: var(--tail-soft); color: var(--tail-text); }
+kbd { display: inline-block; min-width: 26px; padding: 1px 7px; border-radius: 6px; background: var(--paper-3); border-bottom: 2px solid var(--line-2); font: 600 13px var(--mono); text-align: center; }
+.how { display: grid; gap: 9px; font-size: 15px; }
+.how div { display: grid; grid-template-columns: 112px 1fr; gap: 10px; align-items: center; }
+.swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.swatch { border-radius: 10px; overflow: hidden; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-size: 12px; }
+.swatch i { display: block; height: 44px; }
+.swatch div { padding: 6px 8px; line-height: 1.3; }
+.swatch b { display: block; font-size: 12.5px; }
+.swatch code { color: var(--ink-3); font: 11.5px var(--mono); }
+.type div { display: flex; align-items: baseline; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.type small { width: 58px; flex: none; font: 12px var(--mono); color: var(--ink-3); }
+.shapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.shapes div { height: 64px; display: grid; place-items: center; background: var(--paper-2); font-size: 13px; color: var(--ink-2); text-align: center; line-height: 1.3; }
+.feel { font-size: 15.5px; line-height: 1.75; color: var(--ink-2); }
+.feel b { color: var(--ink); }
+canvas.fog { display: block; width: 100%; height: 170px; border-radius: 10px; touch-action: none; cursor: crosshair; background: linear-gradient(180deg, #8d949b, #4d5258 55%, #2d3034); }
+.tipwrap { position: relative; display: inline-block; }
+.tip { position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translate(-50%, 4px); padding: 7px 11px; border-radius: 8px; background: var(--ink); color: var(--paper); font-size: 13px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; }
+.tipwrap:hover .tip, .tipwrap:focus-within .tip { opacity: 1; transform: translate(-50%, 0); }
+
+/* 떠 있는 것들: 우산처럼 위에 펼쳐진다 */
+dialog { border: 0; padding: 0; color: var(--ink); background: var(--paper); box-shadow: var(--shadow-lg); }
+dialog::backdrop { background: rgba(20, 22, 26, .5); backdrop-filter: blur(3px); }
+.dlg { width: min(400px, calc(100vw - 32px)); border-radius: var(--r-lg); padding: 22px; }
+.dlg h2 { font-size: 19px; margin-bottom: 6px; }
+.dlg p { color: var(--ink-2); font-size: 15px; }
+.dlg .row { justify-content: flex-end; margin-top: 18px; }
+.sheet { margin: auto auto 0; width: min(560px, 100vw); max-width: 100vw; border-radius: 22px 22px 0 0; padding: 10px 20px 24px; }
+.sheet[open] { animation: up .45s var(--ease); }
+@keyframes up { from { transform: translateY(100%); } }
+.sheet .handle { width: 44px; height: 5px; border-radius: 3px; background: var(--line-2); margin: 0 auto 14px; }
+.toasts { position: fixed; left: 50%; top: 66px; transform: translateX(-50%); display: grid; gap: 8px; z-index: 50; width: min(380px, calc(100vw - 32px)); pointer-events: none; }
+.toast { display: flex; gap: 10px; align-items: center; padding: 12px 16px; border-radius: 14px; background: rgba(36,39,43,.9); color: #ecebe6; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: var(--shadow-lg); font-size: 15px; animation: toast .5s var(--ease); }
+.toast i { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--lane); }
+.toast.ok i { background: var(--ginkgo); box-shadow: 0 0 10px var(--ginkgo); }
+.toast.bad i { background: var(--tail); box-shadow: 0 0 10px var(--tail); }
+@keyframes toast { from { opacity: 0; transform: translateY(-8px); filter: blur(4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rain, .drip, .skel { animation: none; }
+  .drip { display: none; }
+  * { transition-duration: .01s !important; }
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="brand"><i aria-hidden="true"></i>창가</div>
+  <div class="addr" aria-live="polite"><b id="addrPlace">2층 창가</b><span id="addrFace"></span></div>
+  <button class="tb" id="nightBtn" type="button" aria-pressed="false" title="저녁 비로 바꾸기"><svg class="i" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg><span class="t">저녁</span></button>
+  <button class="tb" id="mapBtn" type="button" aria-pressed="false" aria-keyshortcuts="M"><svg class="i" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14"/></svg><span class="t">지도</span></button>
+</header>
+
+<main class="stage" id="stage" aria-roledescription="로드뷰" aria-label="거리. 끌거나 ← → 키로 돌아보고, ↑ 키나 바닥 화살표로 걷습니다.">
+  <div class="clouds" id="clouds"></div>
+  <div class="scene" id="scene"><div class="world" id="world"><div class="cyl" id="cyl"></div></div></div>
+  <div class="rain" aria-hidden="true"></div>
+  <div class="sill" aria-hidden="true"></div>
+  <nav class="tape" id="tape" aria-label="이 자리에서 보이는 벽"></nav>
+  <div class="arrows" id="arrows"></div>
+  <div class="glass" aria-hidden="true" id="glass"></div>
+  <div class="hud">
+    <div class="hud__turn">
+      <button class="fab" type="button" id="turnL" aria-label="왼쪽으로 돌기"><svg class="i" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+      <button class="fab" type="button" id="turnR" aria-label="오른쪽으로 돌기"><svg class="i" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
+    </div>
+    <button class="mini" type="button" id="mini" aria-label="지도 크게 보기"><svg id="miniSvg" viewBox="0 0 300 300" aria-hidden="true"></svg><span class="compass" aria-hidden="true"><i id="needle"></i></span></button>
+  </div>
+  <section class="map" id="map" hidden aria-label="지도">
+    <svg id="mapSvg" role="group" aria-label="장소 핀. 핀을 누르면 그 자리로 내려갑니다."></svg>
+    <div class="map__note">핀을 누르면 그 자리로 내려가요</div>
+    <div class="map__tools">
+      <div class="bgroup"><button type="button" id="zIn" aria-label="확대">+</button><button type="button" id="zOut" aria-label="축소">−</button></div>
+      <button class="fab" type="button" id="mapClose" aria-label="지도 닫기">✕</button>
+    </div>
+  </section>
+</main>
+<p class="sr" id="live" aria-live="polite"></p>
+
+<!-- 벽에 걸릴 가게들. 스크립트가 장소마다 원통 벽으로 옮겨 단다. -->
+<div id="facades">
+
+  <!-- 2층 창가 (출발) -->
+  <article class="face bld" data-face="feel" data-title="창가에서" data-sub="이 화면이 생긴 기분" style="--wall:#3b3330">
+    <header class="sign"><b>창가에서</b><small>이 화면이 생긴 기분</small></header>
+    <div class="win"><div class="win__in">
+      <h3>비 오는 날, 2층에서 내려다보는 길</h3>
+      <p class="feel">바깥은 다 <b>젖은 회색</b>이고 차들은 조용히 미끄러져 갑니다. 나는 유리 이쪽, <b>따뜻한 안쪽</b>에 앉아 서두를 일이 없습니다. 그 회색 속에서 <b>은행잎 노랑</b>과 <b>버스 차로 파랑</b>, 몇 개의 <b>미등 빨강</b>만 또렷해서 눈이 저절로 그쪽으로 갑니다.</p>
+      <p class="feel" style="margin-top:8px">그래서 이 화면은 스크롤하지 않습니다. 창틀은 그대로 있고, 고개를 돌리고 길을 따라 걸어갈 뿐입니다.</p>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="guide" data-title="걷는 법" data-sub="창틀은 움직이지 않아요" style="--wall:#cfcac2">
+    <header class="sign"><b>걷는 법</b><small>창틀은 움직이지 않아요</small></header>
+    <div class="win"><div class="win__in">
+      <h3>스크롤 대신 돌아보고, 걷기</h3>
+      <p class="lede">메뉴 하나가 길 위의 장소 하나, 기능 묶음 하나가 벽 하나입니다.</p>
+      <div class="how">
+        <div><span><kbd>←</kbd> <kbd>→</kbd> 끌기</span><span>그 자리에서 돌아보기</span></div>
+        <div><span><kbd>↑</kbd> 바닥 화살표</span><span>앞에 난 길로 걷기</span></div>
+        <div><span><kbd>↓</kbd></span><span>뒤돌아서 걷기</span></div>
+        <div><span>위쪽 방위 띠</span><span>그 벽으로 바로 돌기</span></div>
+        <div><span><kbd>M</kbd> 미니맵</span><span>지도에서 핀 눌러 순간 이동</span></div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="fog" data-title="김 서린 유리" data-sub="손가락으로 닦아 보세요" style="--wall:#6e5f5b">
+    <header class="sign"><b>김 서린 유리</b><small>손가락으로 닦아 보세요</small></header>
+    <div class="win"><div class="win__in">
+      <h3>닦은 만큼만 보인다</h3>
+      <p class="lede">끌면 김이 닦이고, 가만두면 천천히 다시 서립니다. 서두르지 않는 화면의 속도.</p>
+      <canvas class="fog nodrag" id="fog" width="560" height="220" aria-label="김 서린 유리. 끌어서 닦기"></canvas>
+    </div></div>
+  </article>
+
+  <!-- 회색 빌딩 : 기초 -->
+  <article class="face bld" data-face="color" data-title="색" data-sub="회색 속 세 가지" style="--wall:#cfcac2">
+    <header class="sign"><b>색</b><small>회색 속 세 가지</small></header>
+    <div class="win"><div class="win__in">
+      <h3>바깥은 회색, 눈길은 세 색에만</h3>
+      <p class="lede">노랑은 누를 것, 파랑은 갈 길, 빨강은 멈출 것.</p>
+      <div class="swatches">
+        <div class="swatch"><i style="background:#cfd1d1"></i><div><b>흐린 하늘</b><code>#cfd1d1</code></div></div>
+        <div class="swatch"><i style="background:#2f3236"></i><div><b>젖은 아스팔트</b><code>#2f3236</code></div></div>
+        <div class="swatch"><i style="background:#f3f1ec"></i><div><b>창 안쪽</b><code>#f3f1ec</code></div></div>
+        <div class="swatch"><i style="background:#24272b"></i><div><b>먹</b><code>#24272b</code></div></div>
+        <div class="swatch"><i style="background:#e5b425"></i><div><b>은행잎</b><code>#e5b425</code></div></div>
+        <div class="swatch"><i style="background:#1b6fb3"></i><div><b>버스 차로</b><code>#1b6fb3</code></div></div>
+        <div class="swatch"><i style="background:#c42f2b"></i><div><b>미등</b><code>#c42f2b</code></div></div>
+        <div class="swatch"><i style="background:#f3c57a"></i><div><b>창 불빛</b><code>#f3c57a</code></div></div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="type" data-title="글자" data-sub="간판처럼 짧게" style="--wall:#e3e0d9">
+    <header class="sign"><b>글자</b><small>간판처럼 짧게</small></header>
+    <div class="win"><div class="win__in">
+      <h3>글자 단계</h3>
+      <p class="lede">Pretendard 하나. 본문 16px, 지나가며 읽히게 짧은 문장.</p>
+      <div class="type">
+        <div><small>28 / 700</small><span style="font-size:28px;font-weight:700;letter-spacing:-.02em">비 오는 길</span></div>
+        <div><small>19 / 700</small><span style="font-size:19px;font-weight:700">벽 제목</span></div>
+        <div><small>16 / 400</small><span style="font-size:16px">본문은 여기까지 크게</span></div>
+        <div><small>14 / 600</small><span style="font-size:14px;font-weight:600">레이블과 버튼</span></div>
+        <div><small>13 / 400</small><span style="font-size:13px;color:var(--ink-3)">도움말 · 대비 4.5:1 이상</span></div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="shape" data-title="모양과 그림자" data-sub="젖은 바닥의 번짐" style="--wall:#8a8580">
+    <header class="sign"><b>모양과 그림자</b><small>젖은 바닥의 번짐</small></header>
+    <div class="win"><div class="win__in">
+      <h3>모서리, 간격, 번짐</h3>
+      <p class="lede">그림자는 떠 있는 것에만. 색 있는 버튼 아래에는 젖은 아스팔트에 비친 불빛처럼 같은 색이 번집니다.</p>
+      <div class="shapes">
+        <div style="border-radius:8px">8px<br>칩 안쪽</div>
+        <div style="border-radius:12px">12px<br>버튼·입력</div>
+        <div style="border-radius:18px">18px<br>카드·창</div>
+      </div>
+      <div class="row" style="margin-top:18px;gap:16px">
+        <button class="btn btn--yellow" type="button">노란 번짐</button>
+        <button class="btn btn--lane" type="button">파란 번짐</button>
+        <span class="help">간격 4 · 8 · 12 · 18 · 24</span>
+      </div>
+    </div></div>
+  </article>
+
+  <!-- 유리 타워 : 버튼 -->
+  <article class="face bld" data-face="btn" data-title="버튼" data-sub="한 벽에 노랑은 하나" style="--wall:#59636b">
+    <header class="sign"><b>버튼</b><small>한 벽에 노랑은 하나</small></header>
+    <div class="win"><div class="win__in">
+      <h3>버튼 다섯 가지</h3>
+      <p class="lede">가장 중요한 동작만 은행잎 노랑. 길을 여는 동작은 차로 파랑, 되돌릴 수 없는 일은 미등 빨강.</p>
+      <div class="row">
+        <button class="btn btn--yellow" type="button">여기로 갈래요</button>
+        <button class="btn btn--lane" type="button">길 찾기</button>
+        <button class="btn btn--outline" type="button">저장</button>
+        <button class="btn btn--ghost" type="button">나중에</button>
+        <button class="btn btn--tail" type="button">기록 지우기</button>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="btnsize" data-title="크기와 상태" data-sub="기다리는 동안" style="--wall:#4d565d">
+    <header class="sign"><b>크기와 상태</b><small>기다리는 동안</small></header>
+    <div class="win"><div class="win__in">
+      <h3>크기와 상태</h3>
+      <p class="lede">누르는 곳은 44px 이상. 기다릴 때는 버튼 안에서 조용히 돕니다.</p>
+      <div class="row">
+        <button class="btn btn--yellow btn--sm" type="button">작게 36</button>
+        <button class="btn btn--yellow" type="button">보통 46</button>
+        <button class="btn btn--yellow btn--lg" type="button">크게 56</button>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn--lane" type="button" id="loadBtn">택시 부르기</button>
+        <button class="btn btn--outline" type="button" disabled>지금은 안 돼요</button>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="btnicon" data-title="떠 있는 버튼" data-sub="지도 위 동그란 것들" style="--wall:#6c757c">
+    <header class="sign"><b>떠 있는 버튼</b><small>지도 위 동그란 것들</small></header>
+    <div class="win"><div class="win__in">
+      <h3>아이콘 버튼과 묶음</h3>
+      <p class="lede">글자 없는 버튼은 반드시 이름(aria-label)과 툴팁을 가집니다.</p>
+      <div class="row" style="gap:16px;align-items:flex-start">
+        <span class="tipwrap"><button class="fab" type="button" aria-label="내 위치" aria-describedby="tip1"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg></button><span class="tip" role="tooltip" id="tip1">내 위치</span></span>
+        <span class="tipwrap"><button class="fab" type="button" aria-label="우산 챙기기" aria-describedby="tip2"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 18 0Z"/><path d="M12 12v7a2 2 0 0 0 4 0"/></svg></button><span class="tip" role="tooltip" id="tip2">우산 챙기기</span></span>
+        <span class="tipwrap"><button class="btn btn--yellow btn--icon" type="button" aria-label="즐겨찾기" aria-describedby="tip3"><svg class="i" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9Z"/></svg></button><span class="tip" role="tooltip" id="tip3">즐겨찾기</span></span>
+        <div class="bgroup"><button type="button" aria-label="확대">+</button><button type="button" aria-label="축소">−</button></div>
+      </div>
+    </div></div>
+  </article>
+
+  <!-- 신호등 사거리 : 켜고 끄기 -->
+  <article class="face bld" data-face="switch" data-title="스위치" data-sub="바로 바뀌는 것" style="--wall:#cfcac2">
+    <header class="sign"><b>스위치</b><small>바로 바뀌는 것</small></header>
+    <div class="win"><div class="win__in">
+      <h3>켜면 창에 불이 들어온다</h3>
+      <p class="lede">누르는 즉시 적용되는 설정만 스위치.</p>
+      <button class="switch" role="switch" aria-checked="false" type="button" id="swNight"><span>저녁 비<small>창 안쪽 불을 켜고 바깥을 어둡게</small></span><span class="tr"></span></button>
+      <button class="switch" role="switch" aria-checked="true" type="button" id="swRain"><span>빗줄기<small>꺼도 내용은 그대로</small></span><span class="tr"></span></button>
+      <button class="switch" role="switch" aria-checked="false" type="button"><span>도착 알림<small>버스가 두 정거장 남으면</small></span><span class="tr"></span></button>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="check" data-title="체크박스" data-sub="저장해야 적용" style="--wall:#e3e0d9">
+    <header class="sign"><b>체크박스</b><small>저장해야 적용</small></header>
+    <div class="win"><div class="win__in">
+      <h3>지도에 보일 것</h3>
+      <p class="lede">여러 개를 고르고 한 번에 저장. 일부만 고르면 위 칸은 가로줄.</p>
+      <label class="ck"><input type="checkbox" id="ckAll"> 비 피할 곳 전체</label>
+      <label class="ck sub"><input type="checkbox" class="ckOne" checked> 버스 정류장</label>
+      <label class="ck sub"><input type="checkbox" class="ckOne"> 지하상가 입구</label>
+      <label class="ck sub"><input type="checkbox" class="ckOne"> 처마 있는 카페</label>
+      <div class="row" style="margin-top:10px"><button class="btn btn--yellow btn--sm" type="button" data-toast="ok:지도에 반영했어요">저장</button></div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="radio" data-title="라디오" data-sub="하나만 고르기" style="--wall:#8a8580">
+    <header class="sign"><b>라디오</b><small>하나만 고르기</small></header>
+    <div class="win"><div class="win__in">
+      <h3>어떻게 갈까요</h3>
+      <p class="lede">고른 칸은 버스 차로 파랑. 화살표 키로도 옮겨 다닙니다.</p>
+      <div class="rcards" role="radiogroup" aria-label="이동 수단">
+        <label class="rcard"><input type="radio" name="mode" checked><b>걸어서</b><small>우산 쓰고 12분</small></label>
+        <label class="rcard"><input type="radio" name="mode"><b>버스</b><small>472번 · 6분</small></label>
+        <label class="rcard"><input type="radio" name="mode"><b>지하철</b><small>2호선 · 9분</small></label>
+        <label class="rcard"><input type="radio" name="mode"><b>택시</b><small>비 와서 18분</small></label>
+      </div>
+    </div></div>
+  </article>
+
+  <!-- 은행나무 길 : 고르기 -->
+  <article class="face bld" data-face="tabs" data-title="탭과 분할 버튼" data-sub="같은 자리, 다른 내용" style="--wall:#cfcac2">
+    <header class="sign"><b>탭과 분할 버튼</b><small>같은 자리, 다른 내용</small></header>
+    <div class="win"><div class="win__in">
+      <h3>탭</h3>
+      <div class="tabs" role="tablist" aria-label="장소 정보">
+        <button role="tab" aria-selected="true" aria-controls="tp1" id="t1" type="button">주변</button>
+        <button role="tab" aria-selected="false" aria-controls="tp2" id="t2" type="button" tabindex="-1">저장</button>
+        <button role="tab" aria-selected="false" aria-controls="tp3" id="t3" type="button" tabindex="-1">최근</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="tp1" aria-labelledby="t1">걸어서 5분 안에 비 피할 곳 7곳.</div>
+      <div class="tabpanel" role="tabpanel" id="tp2" aria-labelledby="t2" hidden>저장한 장소 3곳. 창가 자리 있는 카페 2곳.</div>
+      <div class="tabpanel" role="tabpanel" id="tp3" aria-labelledby="t3" hidden>오늘 본 곳: 유리 타워, 버스 정류장.</div>
+      <p class="lbl">분할 버튼</p>
+      <div class="seg" role="radiogroup" aria-label="지도 모양">
+        <button role="radio" aria-checked="true" type="button">지도</button><button role="radio" aria-checked="false" type="button" tabindex="-1">위성</button><button role="radio" aria-checked="false" type="button" tabindex="-1">로드뷰</button>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="chips" data-title="칩" data-sub="여러 개 거르기" style="--wall:#6e5f5b">
+    <header class="sign"><b>칩</b><small>여러 개 거르기</small></header>
+    <div class="win"><div class="win__in">
+      <h3>무엇을 찾을까요</h3>
+      <p class="lede">켜진 칩은 먹색으로 뒤집히고 은행잎 점이 하나 붙습니다.</p>
+      <div class="chips" id="chips">
+        <button class="chip" type="button" aria-pressed="true">카페</button>
+        <button class="chip" type="button" aria-pressed="false">우산 파는 곳</button>
+        <button class="chip" type="button" aria-pressed="true">정류장</button>
+        <button class="chip" type="button" aria-pressed="false">약국</button>
+        <button class="chip" type="button" aria-pressed="false">편의점</button>
+        <button class="chip" type="button" aria-pressed="false">은행</button>
+      </div>
+      <p class="help" style="margin-top:12px" id="chipCount" aria-live="polite">2개 고름 · 결과 14곳</p>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="select" data-title="드롭다운과 슬라이더" data-sub="범위 정하기" style="--wall:#e3e0d9">
+    <header class="sign"><b>드롭다운과 슬라이더</b><small>범위 정하기</small></header>
+    <div class="win"><div class="win__in">
+      <h3>정렬과 반경</h3>
+      <label class="field"><span>정렬</span>
+        <select class="select"><option>가까운 순</option><option>비 안 맞는 길 순</option><option>지금 문 연 곳 먼저</option></select>
+      </label>
+      <label class="field" style="margin-top:14px"><span>찾을 반경 · <span class="rangeval" id="rv">500m</span></span>
+        <input class="range" type="range" min="100" max="2000" step="100" value="500" id="range">
+      </label>
+      <p class="help">우산 없이 걸을 만한 거리는 300m 안쪽.</p>
+    </div></div>
+  </article>
+
+  <!-- 버스 정류장 : 입력 -->
+  <article class="face bld" data-face="field" data-title="입력칸" data-sub="레이블은 위, 고칠 말은 아래" style="--wall:#cfcac2">
+    <header class="sign"><b>입력칸</b><small>레이블은 위, 고칠 말은 아래</small></header>
+    <div class="win"><div class="win__in">
+      <h3>도착 알림 받기</h3>
+      <div class="col">
+        <label class="field"><span>이름</span><input class="input" autocomplete="off" placeholder="부를 이름"></label>
+        <label class="field"><span>이메일</span><input class="input" id="email" value="rainy-day" aria-invalid="true" aria-describedby="emailErr"><span class="err" id="emailErr">@ 뒤에 주소가 있어야 해요</span></label>
+        <label class="field"><span>휴대폰</span><input class="input" inputmode="tel" placeholder="010-0000-0000"><span class="help">버스가 두 정거장 남으면 알려 드려요</span></label>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="search" data-title="검색" data-sub="찾으면 그리로 걸어가요" style="--wall:#59636b">
+    <header class="sign"><b>검색</b><small>찾으면 그리로 걸어가요</small></header>
+    <div class="win"><div class="win__in">
+      <h3>어디로 갈까요</h3>
+      <div class="search nodrag">
+        <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="input" id="q" type="search" placeholder="버튼, 지도, 색…" aria-label="장소 검색" aria-controls="sugg" autocomplete="off">
+        <button class="clear" type="button" id="qClear" aria-label="지우기">×</button>
+      </div>
+      <ul class="sugg" id="sugg" aria-label="검색 결과"></ul>
+      <p class="lbl">인원</p>
+      <div class="stepper"><button type="button" id="stMinus" aria-label="한 명 빼기">−</button><output id="stOut" aria-live="polite">2명</output><button type="button" id="stPlus" aria-label="한 명 더">+</button></div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="datetime" data-title="날짜와 메모" data-sub="언제, 무엇을" style="--wall:#8a8580">
+    <header class="sign"><b>날짜와 메모</b><small>언제, 무엇을</small></header>
+    <div class="win"><div class="win__in">
+      <h3>만날 때</h3>
+      <div class="grid2">
+        <label class="field"><span>날짜</span><input class="input" type="date" value="2026-11-14"></label>
+        <label class="field"><span>시간</span><input class="input" type="time" value="12:39"></label>
+      </div>
+      <label class="field" style="margin-top:12px"><span>메모 <span class="help" id="memoN">0/60</span></span><textarea class="input" id="memo" maxlength="60" placeholder="창가 자리로 잡아 주세요"></textarea></label>
+    </div></div>
+  </article>
+
+  <!-- 광고판 거리 : 보여 주기 -->
+  <article class="face bld" data-face="badge" data-title="뱃지와 태그" data-sub="상태는 글자와 함께" style="--wall:#cfcac2">
+    <header class="sign"><b>뱃지와 태그</b><small>상태는 글자와 함께</small></header>
+    <div class="win"><div class="win__in">
+      <h3>문 열었나요</h3>
+      <p class="lede">색만으로 말하지 않습니다. 점과 글자가 늘 같이.</p>
+      <div class="row"><span class="badge b-open">영업 중</span><span class="badge b-soon">곧 닫아요</span><span class="badge b-closed">닫았어요</span><span class="badge b-info">새로 생김</span></div>
+      <div class="row" style="margin-top:12px"><span class="tag">창가 자리</span><span class="tag">우산 꽂이</span><span class="tag">2층</span><span class="tag">콘센트</span></div>
+      <p class="stars" style="margin-top:12px" aria-label="별점 5점 중 4점">★★★★☆<em>4.0 · 후기 128</em></p>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="card" data-title="장소 카드" data-sub="불 켜진 가게 하나" style="--wall:#3b3330">
+    <header class="sign"><b>장소 카드</b><small>불 켜진 가게 하나</small></header>
+    <div class="win"><div class="win__in">
+      <h3>카드</h3>
+      <p class="lede">사진 자리엔 그 가게의 창 불빛. 동작은 많아야 둘.</p>
+      <div class="pcard">
+        <div class="ph" aria-hidden="true"></div>
+        <div style="display:grid;gap:4px;align-content:start">
+          <span class="badge b-open" style="justify-self:start">영업 중</span>
+          <b>모퉁이 2층 카페</b>
+          <span class="meta">카페 · 120m · 비 안 맞고 가는 길</span>
+          <div class="row" style="margin-top:6px;gap:8px"><button class="btn btn--yellow btn--sm" type="button">길 찾기</button><button class="btn btn--outline btn--sm" type="button">저장</button></div>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="progress" data-title="진행" data-sub="얼마나 왔나" style="--wall:#e3e0d9">
+    <header class="sign"><b>진행</b><small>얼마나 왔나</small></header>
+    <div class="win"><div class="win__in">
+      <h3>가는 중</h3>
+      <ol class="steps" id="steps"><li class="done">출발</li><li class="now">정류장</li><li>도착</li></ol>
+      <div class="meter" role="progressbar" aria-label="남은 거리" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" id="meter"><i></i></div>
+      <div class="row" style="justify-content:space-between;margin-top:8px"><span class="help">240m 남음</span><button class="btn btn--ghost btn--sm" type="button" id="stepNext">한 정거장 더</button></div>
+      <p class="lbl">불러오는 중</p>
+      <div class="col" style="gap:8px"><div class="skel" style="width:80%"></div><div class="skel" style="width:55%"></div></div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="table" data-title="표" data-sub="숫자는 오른쪽 정렬" style="--wall:#59636b">
+    <header class="sign"><b>표</b><small>숫자는 오른쪽 정렬</small></header>
+    <div class="win"><div class="win__in">
+      <h3>다음 버스</h3>
+      <table class="tbl">
+        <thead><tr><th>노선</th><th>상태</th><th class="n">남은 시간</th></tr></thead>
+        <tbody>
+          <tr><td>472</td><td><span class="badge b-soon">곧 도착</span></td><td class="n">1분</td></tr>
+          <tr><td>146</td><td><span class="badge b-open">여유</span></td><td class="n">6분</td></tr>
+          <tr><td>N13</td><td><span class="badge b-closed">운행 전</span></td><td class="n">—</td></tr>
+        </tbody>
+      </table>
+    </div></div>
+  </article>
+
+  <!-- 우산 아래 : 띄우기 -->
+  <article class="face bld" data-face="dialog" data-title="확인 창" data-sub="우산처럼 위에 펼쳐진다" style="--wall:#cfcac2">
+    <header class="sign"><b>확인 창</b><small>우산처럼 위에 펼쳐진다</small></header>
+    <div class="win"><div class="win__in">
+      <h3>되돌릴 수 없는 일 앞에서</h3>
+      <p class="lede">뒤는 흐리게, 물어보는 말은 하나. 닫기는 Esc로도.</p>
+      <div class="row"><button class="btn btn--tail" type="button" id="openDlg">걸어온 길 지우기</button></div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="toast" data-title="알림" data-sub="창에 잠깐 맺혔다 사라짐" style="--wall:#6e5f5b">
+    <header class="sign"><b>알림</b><small>창에 잠깐 맺혔다 사라짐</small></header>
+    <div class="win"><div class="win__in">
+      <h3>짧은 알림</h3>
+      <p class="lede">위에서 흐릿하게 맺혔다가 3초 뒤 사라집니다. 할 일이 있으면 알림 말고 창으로.</p>
+      <div class="row">
+        <button class="btn btn--outline" type="button" data-toast="info:472번이 한 정거장 전이에요">안내</button>
+        <button class="btn btn--outline" type="button" data-toast="ok:저장했어요">완료</button>
+        <button class="btn btn--outline" type="button" data-toast="bad:지금은 연결이 안 돼요">문제</button>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="sheet" data-title="아래 판" data-sub="엄지가 닿는 곳에서" style="--wall:#8a8580">
+    <header class="sign"><b>아래 판</b><small>엄지가 닿는 곳에서</small></header>
+    <div class="win"><div class="win__in">
+      <h3>밑에서 올라오는 판</h3>
+      <p class="lede">장소 자세히 보기처럼 길게 붙잡고 볼 것. 바깥을 누르면 내려갑니다.</p>
+      <div class="row"><button class="btn btn--lane" type="button" id="openSheet">정류장 자세히</button></div>
+    </div></div>
+  </article>
+
+  <!-- 골목 끝 공방 : 코드 -->
+  <article class="face bld" data-face="tokens" data-title="토큰" data-sub="globals.css" style="--wall:#3b3330">
+    <header class="sign"><b>토큰</b><small>globals.css에 붙여 넣기</small></header>
+    <div class="win"><div class="win__in">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">shadcn 토큰</h3><button class="btn btn--yellow btn--sm" type="button" id="copyBtn">복사</button></div>
+<pre class="code" id="codeBlock"><span class="c">/* 창가 — 비 오는 날 */</span>
+:root {
+  <span class="k">--background</span>: <span class="v">#f3f1ec</span>;  <span class="k">--foreground</span>: <span class="v">#24272b</span>;
+  <span class="k">--primary</span>: <span class="v">#e5b425</span>;     <span class="k">--primary-foreground</span>: <span class="v">#24272b</span>;
+  <span class="k">--secondary</span>: <span class="v">#e1ecf5</span>;   <span class="k">--secondary-foreground</span>: <span class="v">#175f9b</span>;
+  <span class="k">--muted</span>: <span class="v">#e9e6df</span>;       <span class="k">--muted-foreground</span>: <span class="v">#62686f</span>;
+  <span class="k">--destructive</span>: <span class="v">#c42f2b</span>; <span class="k">--border</span>: <span class="v">#d3cec4</span>;
+  <span class="k">--ring</span>: <span class="v">#f3c57a</span>;        <span class="k">--radius</span>: 12px;
+}
+.dark {
+  <span class="k">--background</span>: <span class="v">#1b1e22</span>;  <span class="k">--foreground</span>: <span class="v">#ecebe6</span>;
+  <span class="k">--card</span>: <span class="v">#23272c</span>;        <span class="k">--border</span>: <span class="v">#363b42</span>;
+}</pre>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="rv" data-title="로드뷰 원리" data-sub="벽 여덟 장" style="--wall:#59636b">
+    <header class="sign"><b>로드뷰 원리</b><small>벽 여덟 장으로 원통</small></header>
+    <div class="win"><div class="win__in">
+      <h3>스크롤 없는 화면 만들기</h3>
+      <p class="lede">장소마다 45°씩 벽 여덟 장. 카메라는 원통 한가운데.</p>
+<pre class="code"><span class="c">// W: 벽 너비, 원통 반지름</span>
+r = W / (2 · tan(22.5°))
+<span class="k">.scene</span> { perspective: r; }
+<span class="k">.cyl</span>   { transform: translateZ(r) rotateY(<span class="v">heading</span>); }
+<span class="k">.face</span>  { transform: rotateY(-<span class="v">bearing</span>) translateZ(-r); }
+<span class="c">// 걷기 = .world 를 translateZ 로 밀며 흐리게</span></pre>
+    </div></div>
+  </article>
+
+  <article class="face bld" data-face="usage" data-title="쓰는 규칙" data-sub="해도 되는 것, 안 되는 것" style="--wall:#cfcac2">
+    <header class="sign"><b>쓰는 규칙</b><small>해도 되는 것, 안 되는 것</small></header>
+    <div class="win"><div class="win__in">
+      <h3>쓰는 규칙</h3>
+      <ul class="do">
+        <li>메뉴 하나 = 장소 하나, 기능 묶음 하나 = 벽 하나</li>
+        <li>벽은 한 화면에 다 들어가게. 넘치면 벽을 하나 더 세우기</li>
+        <li>모든 장소에 돌아오는 길. 막다른 골목 없이</li>
+        <li>길은 세 군데서 보이게: 바닥 화살표, 방위 띠, 미니맵</li>
+        <li class="no">벽 안에서 스크롤</li>
+        <li class="no">회색 밖의 색을 장식으로 쓰기</li>
+      </ul>
+    </div></div>
+  </article>
+</div>
+
+<dialog class="dlg" id="dlg" aria-labelledby="dlgT">
+  <h2 id="dlgT">걸어온 길을 지울까요?</h2>
+  <p>지도에 그려진 파란 발자국이 모두 사라져요. 되돌릴 수 없어요.</p>
+  <form method="dialog" class="row"><button class="btn btn--ghost" value="no">그대로 둘게요</button><button class="btn btn--tail" value="yes">지우기</button></form>
+</dialog>
+<dialog class="sheet" id="sheet" aria-labelledby="shT">
+  <div class="handle" aria-hidden="true"></div>
+  <div class="row" style="justify-content:space-between"><h2 id="shT" style="font-size:19px">창가 앞 버스 정류장</h2><span class="badge b-soon">곧 도착</span></div>
+  <p style="color:var(--ink-2);margin:8px 0 14px;font-size:15px">지붕 있음 · 의자 4개 · 도착 안내판. 비 오는 날엔 유리벽 안쪽이 덜 젖어요.</p>
+  <table class="tbl"><tbody><tr><td>472</td><td class="n">1분</td></tr><tr><td>146</td><td class="n">6분</td></tr></tbody></table>
+  <form method="dialog" class="row" style="margin-top:16px"><button class="btn btn--yellow" style="flex:1">알림 받기</button><button class="btn btn--outline">닫기</button></form>
+</dialog>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DIR = ['북', '북동', '동', '남동', '남', '남서', '서', '북서'];
+  const T = Math.tan(Math.PI / 8);
+
+  /* 길 위의 장소. x,y 는 격자. faces 는 방위(°) → 가게 */
+  const PLACES = [
+    { id: 'base',   x: 0, y: 0, name: '회색 빌딩',   topic: '기초',       faces: { 0: 'color', 315: 'type', 270: 'shape' } },
+    { id: 'press',  x: 1, y: 0, name: '유리 타워',   topic: '버튼',       faces: { 0: 'btn', 45: 'btnsize', 315: 'btnicon' } },
+    { id: 'toggle', x: 2, y: 0, name: '신호등 사거리', topic: '켜고 끄기', faces: { 0: 'switch', 45: 'check', 90: 'radio' } },
+    { id: 'choose', x: 0, y: 1, name: '은행나무 길', topic: '고르기',     faces: { 270: 'tabs', 315: 'chips', 225: 'select' } },
+    { id: 'hub',    x: 1, y: 1, name: '2층 창가',    topic: '출발',       faces: { 45: 'guide', 135: 'feel', 225: 'fog' } },
+    { id: 'input',  x: 2, y: 1, name: '버스 정류장', topic: '입력',       faces: { 90: 'field', 45: 'search', 135: 'datetime' } },
+    { id: 'show',   x: 0, y: 2, name: '광고판 거리', topic: '보여 주기',  faces: { 180: 'badge', 225: 'card', 270: 'progress', 315: 'table' } },
+    { id: 'float',  x: 1, y: 2, name: '우산 아래',   topic: '띄우기',     faces: { 180: 'dialog', 135: 'toast', 225: 'sheet' } },
+    { id: 'code',   x: 2, y: 2, name: '골목 끝 공방', topic: '코드',      faces: { 180: 'tokens', 90: 'rv', 135: 'usage' } },
+  ];
+  const byId = Object.fromEntries(PLACES.map(p => [p.id, p]));
+  const at = (x, y) => PLACES.find(p => p.x === x && p.y === y);
+  const STEP = { 0: [0, -1], 90: [1, 0], 180: [0, 1], 270: [-1, 0] };
+  const neighbor = (p, b) => { const s = STEP[((b % 360) + 360) % 360]; return s && at(p.x + s[0], p.y + s[1]); };
+  const norm = a => ((a % 360) + 540) % 360 - 180;
+
+  const stage = $('#stage'), scene = $('#scene'), world = $('#world'), cyl = $('#cyl'), tape = $('#tape'), arrowsEl = $('#arrows');
+  const live = $('#live');
+
+  /* ── 장소마다 벽 여덟 장 만들기 ── */
+  const SCEN = ['glass', 'stone', 'trees', 'shelter', 'stone', 'glass', 'trees'];
+  function sceneryFace(p, b) {
+    const kind = SCEN[(p.x * 3 + p.y * 5 + b / 45) % SCEN.length];
+    const el = document.createElement('div');
+    el.className = 'face scen';
+    const label = { glass: '유리 빌딩', stone: '돌 빌딩', trees: '은행나무', shelter: '빈 정류장' }[kind];
+    el.dataset.title = label;
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = sceneryArt(kind, b);
+    return el;
+  }
+  function sceneryArt(kind, seed) {
+    const lit = i => ((i * 37 + seed) % 11 < 2);
+    if (kind === 'glass' || kind === 'stone') {
+      const glass = kind === 'glass';
+      let w = '';
+      for (let r = 0; r < 9; r++) for (let c = 0; c < (glass ? 8 : 6); c++) {
+        const i = r * 10 + c, cw = glass ? 46 : 52, x = (glass ? 18 : 30) + c * (glass ? 46 : 58), y = 18 + r * 30;
+        w += `<rect x="${x}" y="${y}" width="${cw - (glass ? 3 : 18)}" height="${glass ? 27 : 18}" class="${lit(i) ? 'lit' : 'wn'}"/>`;
+      }
+      return `<svg class="art" viewBox="0 0 400 300" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+        <rect width="400" height="300" class="${glass ? 'gw' : 'sw'}"/>${w}
+        <rect y="280" width="400" height="20" class="base"/></svg>`;
+    }
+    if (kind === 'trees') {
+      return `<svg class="art" viewBox="0 0 400 300" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+        <rect y="0" width="400" height="300" class="sw" opacity=".35"/>
+        <rect x="0" y="250" width="400" height="50" class="walk"/>
+        ${[60, 170, 300].map((x, i) => `<rect x="${x - 4}" y="${150 + i * 6}" width="8" height="${110 - i * 6}" class="trunk"/>
+          <ellipse cx="${x}" cy="${120 + i * 6}" rx="${46 - i * 4}" ry="${70 - i * 6}" class="${i === 1 ? 'maple' : 'ginkgo'}"/>`).join('')}
+        <circle cx="120" cy="268" r="3" class="ginkgo"/><circle cx="250" cy="274" r="3" class="ginkgo"/><circle cx="210" cy="262" r="2.5" class="ginkgo"/></svg>`;
+    }
+    return `<svg class="art" viewBox="0 0 400 300" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+      <rect width="400" height="300" class="sw" opacity=".5"/>
+      <rect x="0" y="250" width="400" height="50" class="walk"/>
+      <rect x="70" y="120" width="260" height="10" class="frame"/><rect x="74" y="130" width="6" height="130" class="frame"/><rect x="320" y="130" width="6" height="130" class="frame"/>
+      <rect x="90" y="140" width="90" height="110" class="glassp"/><rect x="230" y="140" width="80" height="110" class="ad"/>
+      <rect x="244" y="156" width="52" height="60" class="lit"/></svg>`;
+  }
+
+  function roadFace(p, b) {
+    const n = neighbor(p, b);
+    const el = document.createElement('div');
+    el.className = 'face road';
+    el.dataset.b = b;
+    el.dataset.title = '→ ' + n.name;
+    el.innerHTML = `<svg class="art" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+      <rect y="150" width="400" height="150" class="asph"/>
+      <rect x="0" y="96" width="120" height="54" class="far"/><rect x="20" y="70" width="60" height="80" class="far2"/>
+      <rect x="290" y="88" width="110" height="62" class="far"/><rect x="320" y="60" width="50" height="90" class="far2"/>
+      <polygon points="186,150 214,150 380,300 20,300" class="lane"/>
+      <polygon points="150,150 186,150 20,300 -60,300" class="walkw"/><polygon points="214,150 250,150 460,300 380,300" class="walkw"/>
+      <polygon points="199,152 201,152 203,180 197,180" class="dash"/><polygon points="196,196 204,196 207,232 193,232" class="dash"/>
+      <polygon points="191,256 209,256 214,300 186,300" class="dash"/>
+      <polygon points="120,300 160,232 168,232 132,300" class="blue"/><polygon points="140,300 172,232 178,232 150,300" class="blue"/>
+      <circle cx="80" cy="140" r="5" class="lamp"/><circle cx="320" cy="140" r="5" class="lamp"/></svg>
+      <button class="road__sign" type="button" data-go="${b}"><small>${DIR[b / 45]}쪽 길</small><b>${n.name}</b><span>${n.topic} · 120m</span></button>`;
+    return el;
+  }
+
+  const KITS = {};
+  function kit(p) {
+    if (KITS[p.id]) return KITS[p.id];
+    const faces = [];
+    for (let b = 0; b < 360; b += 45) {
+      let el;
+      if (neighbor(p, b)) el = roadFace(p, b);
+      else if (p.faces[b]) { el = $(`#facades [data-face="${p.faces[b]}"]`); }
+      else el = sceneryFace(p, b);
+      el.dataset.b = b;
+      faces.push(el);
+    }
+    return (KITS[p.id] = faces);
+  }
+
+  /* 벽 그림 색은 테마 토큰으로 */
+  const artCss = document.createElement('style');
+  artCss.textContent = `
+    .art .gw{fill:color-mix(in srgb,#4d565d,#0b0d10 var(--wall-dim))}.art .sw{fill:color-mix(in srgb,#cbc6be,#0b0d10 var(--wall-dim))}
+    .art .wn{fill:color-mix(in srgb,#7f8a92,#0b0d10 calc(var(--wall-dim) + 10%))}.art .lit{fill:var(--lamp)}
+    .art .base{fill:#26292d}.art .walk{fill:color-mix(in srgb,#8b8d8f,#0b0d10 var(--wall-dim))}
+    .art .trunk{fill:#4a3a30}.art .ginkgo{fill:#e5b425}.art .maple{fill:#a8572f}
+    .art .frame{fill:#e9e7e2}.art .glassp{fill:rgba(220,230,235,.45)}.art .ad{fill:#c42f2b}
+    .art .asph{fill:var(--ground-1)}.art .lane{fill:#3e4247}.art .walkw{fill:#6b6e72}.art .dash{fill:#f4f4f1}.art .blue{fill:#1b6fb3}
+    .art .far{fill:color-mix(in srgb,#9ea3a7,var(--sky-1) 30%)}.art .far2{fill:color-mix(in srgb,#7c8287,var(--sky-1) 25%)}
+    .art .lamp{fill:var(--lamp);filter:drop-shadow(0 0 6px var(--lamp))}`;
+  document.head.appendChild(artCss);
+
+  /* ── 크기: 벽 너비 W, 높이 H, 원통 반지름 r ── */
+  let W = 600, H = 400, r = 724, band = 120;
+  function measure() {
+    const sw = stage.clientWidth, sh = stage.clientHeight;
+    band = Math.round(Math.min(150, Math.max(104, sh * .17)));
+    const top = sw < 560 ? 58 : 66;
+    W = Math.round(sw < 560 ? sw * .86 : Math.min(860, Math.max(520, sw * .6)));
+    H = Math.max(200, sh - band - top);
+    r = W / (2 * T);
+    const hz = top + H / 2;
+    const s = stage.style;
+    s.setProperty('--W', W + 'px'); s.setProperty('--H', H + 'px'); s.setProperty('--P', r + 'px');
+    s.setProperty('--hz', hz + 'px'); s.setProperty('--band', band + 'px');
+    if (here) { placeFaces(); fitAll(); draw(); }
+  }
+
+  /* 넘치면 줄여서 한 화면에. 스크롤은 없다. */
+  function fit(face) {
+    const win = $('.win', face), inn = $('.win__in', face);
+    if (!win) return;
+    inn.style.transform = ''; inn.style.width = ''; inn.style.top = '';
+    const ww = win.clientWidth, wh = win.clientHeight;
+    let k = 1, h = inn.offsetHeight;
+    for (let i = 0; i < 4 && h * k > wh; i++) {
+      k = Math.max(.42, Math.min(1, wh / h) * (i ? .985 : 1));
+      inn.style.width = ww / k + 'px';
+      h = inn.offsetHeight;
+    }
+    k = Math.min(k, wh / h, 1);
+    if (k === 1) { const up = Math.min(1.22, wh / h * .82, (ww - 0) / 560); if (up > 1.04) { k = up; inn.style.width = ww / k + 'px'; h = inn.offsetHeight; k = Math.min(k, wh / h); } }
+    inn.style.transform = k !== 1 ? `scale(${k})` : '';
+    inn.style.top = Math.max(0, (wh - h * k) / 2) + 'px';
+  }
+  const fitAll = () => kit(here).forEach(fit);
+
+  /* ── 상태 ── */
+  let here = null, heading = 45, busy = false, trail = [];
+  function placeFaces() {
+    for (const f of kit(here)) f.style.transform = `rotateY(${-f.dataset.b}deg) translateZ(${-r}px)`;
+  }
+  function render(p) {
+    here = p;
+    for (const f of kit(p)) f.classList.remove('off');
+    cyl.replaceChildren(...kit(p));
+    placeFaces();
+    fitAll();
+    buildTape();
+    buildArrows();
+    if (trail[trail.length - 1] !== p.id) { trail.push(p.id); if (trail.length > 40) trail.shift(); }
+    drawMini();
+    if (!mapEl.hidden) drawMap();
+    $('#addrPlace').textContent = p.name;
+    draw();
+  }
+
+  /* 한 프레임 그리기 */
+  let curFace = null;
+  function draw() {
+    cyl.style.transform = `translateZ(${r}px) rotateY(${heading}deg)`;
+    let best = null, bestA = 999;
+    for (const f of kit(here)) {
+      const rel = norm(+f.dataset.b - heading);
+      f.classList.toggle('off', Math.abs(rel) > 76);
+      if (Math.abs(rel) < bestA) { bestA = Math.abs(rel); best = f; }
+    }
+    // 방위 띠
+    const tw = tape.clientWidth, ppd = tw / 200;
+    for (const el of tape.children) {
+      const rel = norm(+el.dataset.b - heading);
+      el.style.left = (tw / 2 + rel * ppd) + 'px';
+      el.style.visibility = Math.abs(rel) > 100 ? 'hidden' : '';
+      if (el.tagName === 'BUTTON') el.setAttribute('aria-current', el.dataset.b == best.dataset.b ? 'true' : 'false');
+    }
+    // 바닥 화살표 (젖은 도로에 칠한 흰 화살표)
+    const R = Math.min(band * .62, stage.clientWidth < 560 ? 64 : 92), Rz = R * .42, small = stage.clientWidth < 560;
+    for (const a of arrowsEl.querySelectorAll('.arrow')) {
+      const rel = norm(+a.dataset.b - heading) * Math.PI / 180;
+      const x = R * Math.sin(rel), y = -Rz * Math.cos(rel), s = .78 + .22 * Math.cos(rel);
+      a.style.transform = `translate(${x}px, ${y}px) scale(${s}) scaleY(.6) rotate(${rel}rad)`;
+      a.style.zIndex = Math.round(10 + 10 * Math.cos(rel));
+      const l = a.nextElementSibling, front = Math.abs(rel) < 0.6;
+      l.style.left = (x * 1.0) + 'px'; l.style.top = (y - 34 * s) + 'px';
+      l.style.display = (small ? front : Math.cos(rel) > -.2) ? '' : 'none';
+    }
+    $('#clouds').style.backgroundPositionX = (-heading * 3) + 'px';
+    $('#needle').style.transform = `rotate(${-heading}deg)`;
+    const cone = $('#miniCone'); if (cone) cone.setAttribute('transform', `rotate(${heading} 150 150)`);
+    const mc = $('#mapCone'); if (mc) { const [px, py] = P(here); mc.setAttribute('transform', `translate(${px} ${py}) rotate(${heading})`); }
+    if (best !== curFace) {
+      curFace = best;
+      $('#addrFace').textContent = `${DIR[((Math.round(heading / 45) % 8) + 8) % 8]} · ${best.dataset.title}`;
+    }
+  }
+
+  function buildTape() {
+    let h = '';
+    for (let b = 0; b < 360; b += 15) if (b % 45) h += `<i class="tk" data-b="${b}" style="height:${b % 45 === 0 ? 10 : 6}px"></i>`;
+    for (const f of kit(here)) {
+      if (f.classList.contains('scen')) h += `<i class="tk" data-b="${f.dataset.b}" style="height:12px"></i>`;
+      else h += `<button type="button" class="${f.classList.contains('road') ? 'rd' : ''}" data-b="${f.dataset.b}" tabindex="-1">${f.dataset.title}</button>`;
+    }
+    tape.innerHTML = h;
+  }
+  tape.addEventListener('click', e => { const b = e.target.closest('button'); if (b) turnTo(+b.dataset.b); });
+
+  function buildArrows() {
+    arrowsEl.innerHTML = kit(here).filter(f => f.classList.contains('road')).map(f => {
+      const n = neighbor(here, +f.dataset.b);
+      return `<button class="arrow" type="button" data-b="${f.dataset.b}" aria-label="${n.name}(${n.topic}) 쪽으로 걷기"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 56 34H42v26H22V34H8Z" fill="currentColor"/></svg></button><span class="arrow-lbl">${n.name}</span>`;
+    }).join('');
+  }
+  arrowsEl.addEventListener('click', e => { const a = e.target.closest('.arrow'); if (a) walk(+a.dataset.b); });
+
+  /* ── 돌기 ── */
+  let tween = null;
+  function turnTo(target, dur) {
+    target = heading + norm(target - heading);
+    if (tween) cancelAnimationFrame(tween.id);
+    const from = heading, d = dur ?? (RM ? 120 : Math.min(620, 260 + Math.abs(target - from) * 2.2)), t0 = performance.now();
+    return new Promise(res => {
+      const step = now => {
+        const t = Math.min(1, (now - t0) / d), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        heading = from + (target - from) * e; draw();
+        if (t < 1) tween.id = requestAnimationFrame(step); else { tween = null; heading = ((target % 360) + 360) % 360; draw(); saveHash(); res(); }
+      };
+      tween = { id: requestAnimationFrame(step) };
+    });
+  }
+  const snap = () => turnTo(Math.round(heading / 45) * 45);
+
+  /* ── 걷기 ── */
+  async function walk(b) {
+    if (busy) return;
+    const n = neighbor(here, b);
+    if (!n) return bump();
+    busy = true;
+    await turnTo(b);
+    if (RM) {
+      await scene.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, fill: 'forwards' }).finished;
+      render(n); heading = b; draw();
+      const a = scene.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160 }); await a.finished;
+      scene.getAnimations().forEach(x => x.cancel());
+    } else {
+      const out = { duration: 560, easing: 'cubic-bezier(.45,0,.8,.3)', fill: 'forwards' };
+      world.animate([{ transform: 'translateZ(0px)' }, { transform: `translateZ(${r * .72}px)` }], out);
+      await scene.animate([{ opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(5px)' }], out).finished;
+      render(n); heading = b; draw();
+      const inn = { duration: 620, easing: 'cubic-bezier(.2,.7,.25,1)' };
+      world.getAnimations().forEach(a => a.cancel()); scene.getAnimations().forEach(a => a.cancel());
+      world.animate([{ transform: `translateZ(${-r * .3}px)` }, { transform: 'translateZ(0px)' }], inn);
+      await scene.animate([{ opacity: 0, filter: 'blur(5px)' }, { opacity: 1, filter: 'blur(0px)' }], inn).finished;
+    }
+    busy = false;
+    saveHash();
+    live.textContent = `${n.name}에 왔어요. ${n.topic}.`;
+  }
+  function bump() {
+    if (RM) return;
+    world.animate([{ transform: 'translateZ(0)' }, { transform: `translateZ(${r * .06}px)` }, { transform: 'translateZ(0)' }], { duration: 320, easing: 'ease-out' });
+    toast('info', '앞에는 길이 없어요. 바닥의 흰 화살표를 따라가세요');
+  }
+  async function teleport(p, b) {
+    if (busy) return;
+    busy = true;
+    if (p === here) { busy = false; return turnTo(b); }
+    await scene.animate([{ opacity: 1 }, { opacity: 0 }], { duration: RM ? 120 : 320, fill: 'forwards' }).finished;
+    render(p); heading = b; draw();
+    scene.getAnimations().forEach(a => a.cancel());
+    await scene.animate([{ opacity: 0, transform: RM ? 'none' : 'scale(1.06)' }, { opacity: 1, transform: 'none' }], { duration: RM ? 140 : 520, easing: 'cubic-bezier(.2,.7,.25,1)' }).finished;
+    busy = false; saveHash();
+    live.textContent = `${p.name}에 왔어요. ${p.topic}.`;
+  }
+
+  /* ── 끌어서 돌아보기 ── */
+  const INTER = 'button, a, input, select, textarea, label, canvas, summary, [role], .nodrag, .code';
+  let drag = null, eatClick = false;
+  stage.addEventListener('pointerdown', e => {
+    if (busy || e.button > 0 || !mapEl.hidden) return;
+    if (e.target.closest(INTER) && !e.target.closest('.road__sign')) return;
+    drag = { x: e.clientX, h: heading, moved: false, lx: e.clientX, lt: performance.now(), v: 0, id: e.pointerId };
+  });
+  window.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x;
+    if (!drag.moved && Math.abs(dx) > 6) {
+      drag.moved = true; stage.setPointerCapture(e.pointerId); stage.classList.add('grabbing');
+      if (tween) { cancelAnimationFrame(tween.id); tween = null; }
+    }
+    if (!drag.moved) return;
+    const now = performance.now();
+    drag.v = (e.clientX - drag.lx) / Math.max(1, now - drag.lt); drag.lx = e.clientX; drag.lt = now;
+    heading = drag.h - dx * 180 / (Math.PI * r); draw();
+  });
+  const endDrag = e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    if (drag.moved) { eatClick = true; setTimeout(() => eatClick = false, 0); stage.classList.remove('grabbing'); turnTo(Math.round((heading - drag.v * 140 * 180 / (Math.PI * r)) / 45) * 45); }
+    drag = null;
+  };
+  window.addEventListener('pointerup', endDrag); window.addEventListener('pointercancel', endDrag);
+  stage.addEventListener('click', e => {
+    if (eatClick) { e.stopPropagation(); e.preventDefault(); return; }
+    const sign = e.target.closest('.road__sign'); if (sign) return walk(+sign.dataset.go);
+    const road = e.target.closest('.face.road'); if (road && !e.target.closest(INTER)) walk(+road.dataset.b);
+  }, true);
+  let wheelT = null;
+  stage.addEventListener('wheel', e => {
+    if (!mapEl.hidden || busy) return;
+    e.preventDefault();
+    if (tween) { cancelAnimationFrame(tween.id); tween = null; }
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    heading += d * .12; draw();
+    clearTimeout(wheelT); wheelT = setTimeout(snap, 160);
+  }, { passive: false });
+
+  /* 탭으로 다른 벽의 부품에 닿으면 그 벽으로 돈다 */
+  cyl.addEventListener('focusin', e => {
+    const f = e.target.closest('.face');
+    if (f && Math.abs(norm(+f.dataset.b - heading)) > 10) turnTo(+f.dataset.b);
+  });
+
+  /* ── 키보드 ── */
+  const TYPING = 'input, textarea, select, [contenteditable], [role=slider], [role=tab], [role=radio], [role=option]';
+  document.addEventListener('keydown', e => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (document.querySelector('dialog[open]')) return;
+    if (e.target.closest && e.target.closest(TYPING)) return;
+    const k = e.key;
+    if (!mapEl.hidden) { if (k === 'Escape' || k === 'm' || k === 'M') { e.preventDefault(); closeMap(); } return; }
+    if (k === 'm' || k === 'M') { e.preventDefault(); openMap(); return; }
+    if (busy) return;
+    const snapped = Math.round(heading / 45) * 45;
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') { e.preventDefault(); turnTo(snapped - 45); }
+    else if (k === 'ArrowRight' || k === 'd' || k === 'D') { e.preventDefault(); turnTo(snapped + 45); }
+    else if (k === 'ArrowUp' || k === 'w' || k === 'W') { e.preventDefault(); walk(((snapped % 360) + 360) % 360); }
+    else if (k === 'ArrowDown' || k === 's' || k === 'S') { e.preventDefault(); const back = ((snapped + 180) % 360 + 360) % 360; neighbor(here, back) ? walk(back) : turnTo(back); }
+  });
+  $('#turnL').addEventListener('click', () => turnTo(Math.round(heading / 45) * 45 - 45));
+  $('#turnR').addEventListener('click', () => turnTo(Math.round(heading / 45) * 45 + 45));
+
+  /* ── 지도 ── */
+  const mapEl = $('#map'), mapSvg = $('#mapSvg');
+  const P = p => [160 + p.x * 220, 160 + p.y * 220];
+  function cityDefs(withLabels) {
+    let s = `<rect x="-400" y="-400" width="1600" height="1600" fill="var(--map-land, #e7e5df)"/>`;
+    s += `<path d="M-400 700 C 100 660, 400 740, 1200 690 L1200 1200 L-400 1200Z" fill="#a9c3cf" opacity=".8"/>`;
+    const xs = [-400, 160, 380, 600, 1200];
+    for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+      const x0 = xs[i] + 16, x1 = xs[i + 1] - 16, y0 = xs[j] + 16, y1 = Math.min(xs[j + 1] - 16, 670);
+      if (y1 <= y0) continue;
+      const park = (i === 1 && j === 1);
+      s += `<rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" rx="6" fill="${park ? '#c6d6a8' : '#d6d2c8'}"/>`;
+      if (park) s += `<circle cx="270" cy="250" r="9" fill="#e5b425"/><circle cx="300" cy="300" r="7" fill="#e5b425"/><circle cx="240" cy="310" r="8" fill="#a8572f"/>`;
+    }
+    for (const y of [160, 380, 600]) s += `<line x1="-400" y1="${y}" x2="1200" y2="${y}" stroke="#bdb7aa" stroke-width="24"/><line x1="-400" y1="${y}" x2="1200" y2="${y}" stroke="#f7f6f2" stroke-width="18"/>`;
+    for (const x of [160, 380, 600]) s += `<line x1="${x}" y1="-400" x2="${x}" y2="690" stroke="#bdb7aa" stroke-width="24"/><line x1="${x}" y1="-400" x2="${x}" y2="690" stroke="#f7f6f2" stroke-width="18"/>`;
+    // 버스 전용 차로(파랑 두 줄)
+    s += `<line x1="-400" y1="374" x2="1200" y2="374" stroke="#1b6fb3" stroke-width="1.6"/><line x1="-400" y1="378" x2="1200" y2="378" stroke="#1b6fb3" stroke-width="1.6"/>`;
+    // 걸어온 길
+    if (trail.length > 1) s += `<polyline points="${trail.map(id => P(byId[id]).join(',')).join(' ')}" fill="none" stroke="#1b6fb3" stroke-width="6" stroke-dasharray="2 10" stroke-linecap="round" opacity=".85"/>`;
+    for (const p of PLACES) {
+      const [x, y] = P(p);
+      if (withLabels) s += `<g class="pin" tabindex="0" role="button" data-id="${p.id}" aria-label="${p.name}, ${p.topic}"><circle class="ring" cx="${x}" cy="${y - 26}" r="22" fill="none" stroke="transparent" stroke-width="4"/><path d="M${x} ${y} l-10 -16 a18 18 0 1 1 20 0z" fill="var(--lane)" stroke="#fff" stroke-width="3"/><circle class="hd" cx="${x}" cy="${y - 26}" r="16"/><text class="g" x="${x}" y="${y - 21}" text-anchor="middle">${p.topic[0]}</text><text x="${x}" y="${y + 24}" text-anchor="middle">${p.name} · ${p.topic}</text></g>`;
+      else s += `<circle cx="${x}" cy="${y}" r="9" fill="${p === here ? '#1b6fb3' : '#8c9094'}" stroke="#fff" stroke-width="3"/>`;
+    }
+    return s;
+  }
+  function drawMini() {
+    const [x, y] = P(here);
+    const svg = $('#miniSvg');
+    svg.setAttribute('viewBox', `${x - 150} ${y - 150} 300 300`);
+    svg.innerHTML = `<g>${cityDefs(false)}</g><g transform="translate(${x - 150} ${y - 150})"><g id="miniCone"><path d="M150 150 L118 70 A86 86 0 0 1 182 70Z" fill="#1b6fb3" opacity=".28"/></g><circle cx="150" cy="150" r="10" fill="#1b6fb3" stroke="#fff" stroke-width="4"/></g>`;
+    draw && $('#miniCone') && $('#miniCone').setAttribute('transform', `rotate(${heading} 150 150)`);
+  }
+  let vb = [0, 0, 760, 760];
+  function drawMap() {
+    const [x, y] = P(here);
+    mapSvg.setAttribute('viewBox', vb.join(' '));
+    mapSvg.innerHTML = cityDefs(true) + `<g id="mapCone" transform="translate(${x} ${y}) rotate(${heading})"><path d="M0 0 L-30 -80 A86 86 0 0 1 30 -80Z" fill="#1b6fb3" opacity=".25"/></g><circle cx="${x}" cy="${y}" r="9" fill="#1b6fb3" stroke="#fff" stroke-width="4"/>`;
+  }
+  function openMap() {
+    const [x, y] = P(here);
+    vb = [x - 380, y - 380, 760, 760];
+    mapEl.hidden = false; drawMap();
+    $('#mapBtn').setAttribute('aria-pressed', 'true');
+    if (!RM) mapEl.animate([{ opacity: 0, transform: 'scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.25,1)' });
+    const pin = $(`.pin[data-id="${here.id}"]`, mapSvg); pin && pin.focus();
+  }
+  function closeMap() { mapEl.hidden = true; $('#mapBtn').setAttribute('aria-pressed', 'false'); $('#mapBtn').focus(); }
+  $('#mapBtn').addEventListener('click', () => mapEl.hidden ? openMap() : closeMap());
+  $('#mini').addEventListener('click', openMap);
+  $('#mapClose').addEventListener('click', closeMap);
+  const zoom = (f, cx, cy) => {
+    const nw = Math.min(1300, Math.max(260, vb[2] * f)); const k = nw / vb[2];
+    cx ??= vb[0] + vb[2] / 2; cy ??= vb[1] + vb[3] / 2;
+    vb = [cx - (cx - vb[0]) * k, cy - (cy - vb[1]) * k, nw, nw]; mapSvg.setAttribute('viewBox', vb.join(' '));
+  };
+  $('#zIn').addEventListener('click', () => zoom(.75)); $('#zOut').addEventListener('click', () => zoom(1.33));
+  const toWorld = (svg, cx, cy) => { const pt = svg.createSVGPoint(); pt.x = cx; pt.y = cy; return pt.matrixTransform(svg.getScreenCTM().inverse()); };
+  mapSvg.addEventListener('wheel', e => { e.preventDefault(); const w = toWorld(mapSvg, e.clientX, e.clientY); zoom(e.deltaY > 0 ? 1.12 : .89, w.x, w.y); }, { passive: false });
+  let mdrag = null;
+  mapSvg.addEventListener('pointerdown', e => { mdrag = { x: e.clientX, y: e.clientY, vb: [...vb], s: vb[2] / mapSvg.getBoundingClientRect().width * Math.max(1, mapSvg.getBoundingClientRect().width / mapSvg.getBoundingClientRect().height), moved: false, id: e.pointerId }; });
+  mapSvg.addEventListener('pointermove', e => {
+    if (!mdrag) return;
+    const dx = e.clientX - mdrag.x, dy = e.clientY - mdrag.y;
+    if (!mdrag.moved && Math.hypot(dx, dy) > 5) { mdrag.moved = true; mapSvg.setPointerCapture(e.pointerId); }
+    if (!mdrag.moved) return;
+    const a = toWorld(mapSvg, mdrag.x, mdrag.y), b = toWorld(mapSvg, e.clientX, e.clientY);
+    vb[0] -= b.x - a.x; vb[1] -= b.y - a.y; mdrag.x = e.clientX; mdrag.y = e.clientY;
+    mapSvg.setAttribute('viewBox', vb.join(' '));
+  });
+  mapSvg.addEventListener('pointerup', e => {
+    const m = mdrag; mdrag = null;
+    if (m && !m.moved) { const pin = e.target.closest('.pin'); if (pin) dropIn(pin.dataset.id); }
+  });
+  mapSvg.addEventListener('keydown', e => { const pin = e.target.closest('.pin'); if (pin && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); dropIn(pin.dataset.id); } });
+  async function dropIn(id) {
+    const p = byId[id];
+    const first = +Object.keys(p.faces)[0];
+    if (!RM) await mapEl.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(1.25)' }], { duration: 300, easing: 'ease-in' }).finished;
+    mapEl.hidden = true; $('#mapBtn').setAttribute('aria-pressed', 'false');
+    teleport(p, first);
+  }
+
+  /* ── 주소(해시) ── */
+  function saveHash() { try { history.replaceState(null, '', `#${here.id}@${((Math.round(heading) % 360) + 360) % 360}`); } catch {} }
+  function readHash() {
+    const m = /^#(\w+)(?:@(\d+))?/.exec(location.hash);
+    const p = m && byId[m[1]];
+    return p ? [p, m[2] ? Math.round(+m[2] / 45) * 45 : +Object.keys(p.faces)[0]] : [byId.hub, 45];
+  }
+  window.addEventListener('hashchange', () => { const [p, b] = readHash(); if (p !== here || b !== Math.round(heading)) teleport(p, b); });
+
+  /* ── 테마: 낮 비 / 저녁 비 ── */
+  const root = document.documentElement;
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  function setNight(on, save = true) {
+    root.dataset.theme = on ? 'dark' : 'light';
+    $('#nightBtn').setAttribute('aria-pressed', String(on));
+    $('#swNight').setAttribute('aria-checked', String(on));
+    if (save) try { localStorage.setItem('changga-theme', root.dataset.theme); } catch {}
+  }
+  try { const t = localStorage.getItem('changga-theme'); if (t) root.dataset.theme = t; } catch {}
+  setNight(isDark(), false);
+  $('#nightBtn').addEventListener('click', () => setNight(!isDark()));
+
+  /* ── 부품 동작 ── */
+  const toasts = $('#toasts');
+  function toast(kind, msg) {
+    const t = document.createElement('div'); t.className = 'toast ' + kind; t.innerHTML = `<i></i><span></span>`; t.lastChild.textContent = msg;
+    toasts.appendChild(t);
+    setTimeout(() => { t.animate([{ opacity: 1 }, { opacity: 0, filter: 'blur(4px)' }], { duration: 400 }).finished.then(() => t.remove()); }, 3200);
+  }
+  document.addEventListener('click', e => {
+    const tb = e.target.closest('[data-toast]'); if (tb) { const [k, ...m] = tb.dataset.toast.split(':'); toast(k, m.join(':')); }
+    const sw = e.target.closest('.switch');
+    if (sw) {
+      const on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', String(on));
+      if (sw.id === 'swNight') setNight(on);
+      if (sw.id === 'swRain') { $('.rain').style.display = on ? '' : 'none'; $('#glass').style.opacity = on ? '' : '.35'; }
+    }
+    const chip = e.target.closest('.chip');
+    if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); const n = $$('.chip[aria-pressed="true"]').length; $('#chipCount').textContent = `${n}개 고름 · 결과 ${n ? n * 7 : 0}곳`; }
+    const tab = e.target.closest('[role=tab]'); if (tab) selectTab(tab);
+    const seg = e.target.closest('.seg [role=radio]'); if (seg) selectSeg(seg);
+    const face = e.target.closest('.face'); if (face) setTimeout(() => fit(face), 0);
+  });
+  function selectTab(tab) {
+    const list = tab.parentElement;
+    for (const t of $$('[role=tab]', list)) { const on = t === tab; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; $('#' + t.getAttribute('aria-controls')).hidden = !on; }
+    tab.focus();
+  }
+  function selectSeg(b) { for (const x of $$('[role=radio]', b.parentElement)) { const on = x === b; x.setAttribute('aria-checked', on); x.tabIndex = on ? 0 : -1; } b.focus(); }
+  document.addEventListener('keydown', e => {
+    const t = e.target.closest && e.target.closest('[role=tab], .seg [role=radio]'); if (!t) return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const items = $$(t.getAttribute('role') === 'tab' ? '[role=tab]' : '[role=radio]', t.parentElement);
+    const n = items[(items.indexOf(t) + (e.key === 'ArrowRight' ? 1 : -1) + items.length) % items.length];
+    t.getAttribute('role') === 'tab' ? selectTab(n) : selectSeg(n);
+  });
+  // 체크박스 묶음
+  const all = $('#ckAll'), ones = $$('.ckOne');
+  const syncAll = () => { const c = ones.filter(o => o.checked).length; all.checked = c === ones.length; all.indeterminate = c > 0 && c < ones.length; };
+  all.addEventListener('change', () => { ones.forEach(o => o.checked = all.checked); syncAll(); });
+  ones.forEach(o => o.addEventListener('change', syncAll)); syncAll();
+  // 불러오는 버튼
+  $('#loadBtn').addEventListener('click', e => {
+    const b = e.currentTarget; if (b.getAttribute('aria-busy') === 'true') return;
+    b.setAttribute('aria-busy', 'true'); b.innerHTML = '<span class="spin" aria-hidden="true"></span>부르는 중';
+    setTimeout(() => { b.removeAttribute('aria-busy'); b.textContent = '택시 부르기'; toast('ok', '빈 택시가 3분 거리에 있어요'); }, 1600);
+  });
+  // 슬라이더, 메모, 인원
+  $('#range').addEventListener('input', e => { const v = +e.target.value; $('#rv').textContent = v >= 1000 ? (v / 1000) + 'km' : v + 'm'; });
+  $('#memo').addEventListener('input', e => { $('#memoN').textContent = `${e.target.value.length}/60`; });
+  let people = 2; const st = () => $('#stOut').textContent = people + '명';
+  $('#stMinus').addEventListener('click', () => { people = Math.max(1, people - 1); st(); });
+  $('#stPlus').addEventListener('click', () => { people = Math.min(9, people + 1); st(); });
+  $('#email').addEventListener('input', e => { const ok = /.+@.+\..+/.test(e.target.value); e.target.setAttribute('aria-invalid', String(!ok)); $('#emailErr').hidden = ok; });
+  // 진행
+  let stepI = 1;
+  $('#stepNext').addEventListener('click', () => {
+    stepI = (stepI + 1) % 3; const lis = $$('#steps li');
+    lis.forEach((li, i) => li.className = i < stepI ? 'done' : i === stepI ? 'now' : '');
+    const v = [10, 40, 100][stepI]; $('#meter').setAttribute('aria-valuenow', v); $('#meter i').style.width = v + '%';
+  });
+  // 검색: 고르면 그 벽으로 걸어간다
+  const INDEX = [];
+  for (const p of PLACES) for (const [b, id] of Object.entries(p.faces)) { const f = $(`#facades [data-face="${id}"]`); INDEX.push({ p, b: +b, t: f.dataset.title, s: f.dataset.sub || '' }); }
+  function renderSugg(q) {
+    q = q.trim();
+    const hits = INDEX.filter(it => !q || (it.t + it.s + it.p.name + it.p.topic).includes(q)).slice(0, 4);
+    $('#sugg').innerHTML = hits.length ? hits.map(it => `<li><button type="button" data-p="${it.p.id}" data-b="${it.b}"><span>${it.t}</span><small>${it.p.name}</small></button></li>`).join('') : `<li style="padding:10px;color:var(--ink-3);font-size:14px">그런 벽은 없어요</li>`;
+    const f = $('#sugg').closest('.face'); f && fit(f);
+  }
+  $('#q').addEventListener('input', e => renderSugg(e.target.value));
+  $('#qClear').addEventListener('click', () => { $('#q').value = ''; renderSugg(''); $('#q').focus(); });
+  $('#sugg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) teleport(byId[b.dataset.p], +b.dataset.b); });
+  renderSugg('');
+  // 창 띄우기
+  $('#openDlg').addEventListener('click', () => $('#dlg').showModal());
+  $('#dlg').addEventListener('close', () => { if ($('#dlg').returnValue === 'yes') { trail = [here.id]; drawMini(); toast('ok', '걸어온 길을 지웠어요'); } });
+  $('#openSheet').addEventListener('click', () => $('#sheet').showModal());
+  $('#sheet').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+  // 복사
+  $('#copyBtn').addEventListener('click', async e => { const b = e.currentTarget; try { await navigator.clipboard.writeText($('#codeBlock').textContent); b.textContent = '복사했어요'; } catch { b.textContent = '직접 골라 주세요'; } setTimeout(() => b.textContent = '복사', 1600); });
+
+  // 김 서린 유리: 닦으면 보이고, 천천히 다시 서린다
+  const cv = $('#fog'), cx = cv.getContext('2d');
+  function paintStreet() {
+    const g = cx.createLinearGradient(0, 0, 0, cv.height);
+    g.addColorStop(0, '#9aa1a7'); g.addColorStop(.5, '#5c6268'); g.addColorStop(.5, '#3a3d42'); g.addColorStop(1, '#25282c');
+    cx.fillStyle = g; cx.fillRect(0, 0, cv.width, cv.height);
+    cx.fillStyle = '#4d565d'; cx.fillRect(170, 10, 120, 100);
+    cx.fillStyle = '#cbc6be'; cx.fillRect(330, 0, 230, 110);
+    cx.fillStyle = '#f3c57a'; for (let i = 0; i < 9; i++) cx.fillRect(345 + (i % 3) * 70, 14 + Math.floor(i / 3) * 30, 30, 14);
+    cx.fillStyle = '#e5b425'; [[120, 92, 22], [300, 96, 18], [520, 98, 16]].forEach(([x, y, rr]) => { cx.beginPath(); cx.arc(x, y, rr, 0, 7); cx.fill(); });
+    cx.fillStyle = '#1b6fb3'; cx.fillRect(60, 170, 200, 4); cx.fillRect(60, 178, 200, 4);
+    cx.fillStyle = '#c42f2b'; cx.fillRect(400, 150, 10, 5); cx.fillRect(450, 150, 10, 5);
+  }
+  const street = document.createElement('canvas'); street.width = cv.width; street.height = cv.height;
+  const fogMask = document.createElement('canvas'); fogMask.width = cv.width; fogMask.height = cv.height;
+  const fm = fogMask.getContext('2d'); fm.fillStyle = '#000'; fm.fillRect(0, 0, cv.width, cv.height);
+  { const s = cx; paintStreet(); street.getContext('2d').drawImage(cv, 0, 0); }
+  function paintFog() {
+    cx.drawImage(street, 0, 0);
+    cx.save(); cx.globalAlpha = .9; cx.filter = 'blur(2px)';
+    const tmp = document.createElement('canvas'); tmp.width = cv.width; tmp.height = cv.height; const t = tmp.getContext('2d');
+    t.fillStyle = 'rgba(214,218,220,.92)'; t.fillRect(0, 0, cv.width, cv.height);
+    t.globalCompositeOperation = 'destination-in'; t.drawImage(fogMask, 0, 0);
+    cx.drawImage(tmp, 0, 0); cx.restore();
+  }
+  let wiping = false;
+  const wipe = e => {
+    const rc = cv.getBoundingClientRect(), x = (e.clientX - rc.left) * cv.width / rc.width, y = (e.clientY - rc.top) * cv.height / rc.height;
+    fm.save(); fm.globalCompositeOperation = 'destination-out'; fm.beginPath(); fm.arc(x, y, 22, 0, 7); fm.fill(); fm.restore(); paintFog();
+  };
+  cv.addEventListener('pointerdown', e => { wiping = true; cv.setPointerCapture(e.pointerId); wipe(e); });
+  cv.addEventListener('pointermove', e => wiping && wipe(e));
+  cv.addEventListener('pointerup', () => wiping = false);
+  setInterval(() => { if (wiping || RM) return; fm.save(); fm.globalAlpha = .025; fm.fillStyle = '#000'; fm.fillRect(0, 0, cv.width, cv.height); fm.restore(); if (here && here.id === 'hub') paintFog(); }, 120);
+  paintFog();
+
+  // 유리 위로 흘러내리는 물방울 몇 개
+  if (!RM) for (let i = 0; i < 7; i++) { const d = document.createElement('i'); d.className = 'drip'; d.style.left = (5 + Math.random() * 90) + '%'; d.style.animationDelay = (-Math.random() * 9) + 's'; d.style.animationDuration = (7 + Math.random() * 6) + 's'; $('#glass').appendChild(d); }
+
+  /* ── 시작 ── */
+  const [p0, b0] = readHash();
+  heading = b0;
+  measure();
+  render(p0);
+  addEventListener('resize', measure);
+  if (document.fonts) document.fonts.ready.then(fitAll);
+})();
+</script>
+<script src="../systems-nav.js?v=20261114a" defer></script>
+</body>
+</html>

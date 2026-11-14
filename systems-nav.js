@@ -34,6 +34,7 @@
     { id: 'offcut', path: 'offcut/index.html', name: 'Offcut', ko: '피라미드를 짓고 남은 돌로', c: ['#ece3d2', '#2b2622', '#b0412e'] },
     { id: 'brisa', path: 'brisa/index.html', name: 'Brisa', ko: '바람이 박자를 타는 언덕', c: ['#f7f0e1', '#1f5a3a', '#f39a2b'] },
     { id: 'plain', path: 'plain/index.html', name: 'Plain', ko: '토스 디자이너가 ZUZU에 왔다면', c: ['#f6f8fa', '#1e1e23', '#09aa5c'] },
+    { id: 'changga', path: 'changga/index.html', name: '창가', ko: '비 오는 날 2층 창가, 스크롤 없이 걷는 로드뷰', c: ['#cfd1d1', '#2f3236', '#e5b425'] },
     { id: 'chueok', path: 'chueok/index.html', name: '회수권', ko: '한 장 내면, 그때로 가는 버스', c: ['#d8e8dc', '#2a1f1a', '#d0315e'] },
     { id: 'inkstone', path: 'inkstone/index.html', name: 'Inkstone', ko: '크로스오버 · Sansa×Dal×Riso', c: ['#f3eee2', '#24418f', '#8e3b2a'], x: true },
     { id: 'bunker', path: 'bunker/index.html', name: 'Bunker', ko: '크로스오버 · Oat×Arcology', c: ['#f3f1e7', '#2f5a3c', '#ff8a1f'], x: true },
